@@ -8,9 +8,9 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=26">
+    <link rel="stylesheet" href="styles.css?v=36">
 </head>
 <body>
     <nav class="navbar">
@@ -46,55 +46,84 @@
     </header>
 
     <main>
-        <!-- Junior Firefighter Section -->
-        <section class="section" id="junior">
-            <div class="container">
-                <div class="section-header text-center fade-in">
-                    <h2 class="section-title">Junior Firefighter Program</h2>
-                </div>
-                
-                <div class="glass-panel fade-in delay-1" style="padding: 3rem; max-width: 900px; margin: 0 auto;">
-                    <ul class="tech-specs" style="font-size: 1.1rem; line-height: 1.8;">
-                        <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Open to ages 16–18</strong> interested in learning about the fire service.</li>
-                        <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Respond to emergency calls</strong> (within program guidelines), attend training, meetings, and fire company events.</li>
-                        <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Train alongside experienced firefighters</strong> and gain hands-on experience in skills such as:
-                            <ul style="margin-top: 0.5rem; margin-left: 2rem; list-style-type: disc; color: var(--text-secondary);">
-                                <li>Vehicle extrication</li>
-                                <li>Brush fires</li>
-                                <li>Radio communications</li>
-                                <li>SCBA (air packs)</li>
-                                <li>Rescue techniques</li>
-                                <li>Emergency scene operations</li>
-                            </ul>
-                        </li>
-                        <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Free Firefighter 1 certification</strong> through the Somerset County Emergency Services Training Academy (SCESTA) after your 18th birthday.</li>
-                        <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">No prior experience required.</strong> You'll be mentored by experienced firefighters and encouraged to learn at your own pace.</li>
-                        <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: var(--gold);">School and family come first.</strong> Junior Firefighters are never expected to miss school or academic activities.</li>
-                    </ul>
-
-                    <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--fire-red); font-family: var(--font-heading); font-size: 1.5rem;">Interested?</h3>
-                    <ul class="tech-specs" style="font-size: 1.1rem; line-height: 1.8;">
-                        <li>Visit any <strong>Wednesday at 7:00 PM</strong></li>
-                        <li>Email <strong><a href="mailto:membership@mtvfc2.com" style="color: var(--gold);">membership@mtvfc2.com</a></strong></li>
-                        <li>Meet with the Membership Committee to learn more and start the application process.</li>
-                        <li style="border-bottom: none;"><strong style="color: white;">Fire Station:</strong> 529 Route 518, Skillman, NJ 08558</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- Standard Membership / Application -->
+        <!-- Interested / Application Section -->
         <section class="section dark-alt" id="apply">
             <div class="container">
                 <div class="section-header text-center fade-in">
-                    <h2 class="section-title">Ready to Serve?</h2>
-                    <p class="section-subtitle mw-800 mx-auto">If you are interested in joining as a Junior Firefighter or a Standard Member, the Membership Committee will guide you through the application process.</p>
+                    <h2 class="section-title">Interested?</h2>
+                    <p class="section-subtitle mw-800 mx-auto" style="margin-bottom: 1rem;">If you are interested in joining, the Membership Committee will guide you through the process.</p>
+                    <p class="section-subtitle mw-800 mx-auto" style="color: var(--gold);"><strong>Visit us any Wednesday at 7:00 PM</strong><br>529 Route 518, Skillman, NJ 08558</p>
                 </div>
-                
-                <div class="cta-wrapper fade-in delay-1">
+
+                <div class="membership-grid fade-in delay-1" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 3rem; align-items: stretch; margin-bottom: 4rem;">
+                    
+                    <!-- Standard Membership -->
+                    <div class="glass-panel" style="padding: 2.5rem; height: 100%;">
+                        <h3 style="color: white; font-family: var(--font-heading); text-align: center; margin-bottom: 2rem; font-size: 1.8rem;">Standard Membership</h3>
+                        <ul style="list-style-type: none; padding-left: 0; margin-bottom: 0; font-size: 1.05rem; line-height: 1.8;">
+                            <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem;">
+                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
+                                <strong style="color: white;">100% Volunteer Fire Department.</strong> Our members are students, retirees, parents, teachers, business owners, healthcare professionals, and more—all dedicated to serving the community.
+                            </li>
+                            <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem;">
+                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
+                                <strong style="color: white;">No experience needed.</strong> We provide <strong style="color: white;">all training and equipment at no cost.</strong>
+                            </li>
+                            <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem;">
+                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
+                                <strong style="color: white;">Learn valuable skills</strong> through hands-on training at the Somerset County Emergency Services Training Academy and alongside experienced firefighters.
+                            </li>
+                            <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem;">
+                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
+                                <strong style="color: white;">Firefighting is about teamwork, problem-solving, and a willingness to learn</strong>—not just physical strength.
+                            </li>
+                            <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem;">
+                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
+                                <strong style="color: white;">Multiple ways to serve:</strong>
+                                <ul style="list-style-type: disc; padding-left: 2rem; margin-top: 0.5rem; color: var(--text-secondary);">
+                                    <li>Interior Firefighter</li>
+                                    <li>Traffic Control / Fire Police</li>
+                                    <li>Associate Member (fundraising, events, equipment and building maintenance, and other support roles)</li>
+                                </ul>
+                            </li>
+                            <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem;">
+                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
+                                <strong style="color: white;">Open to anyone 18 and up.</strong> We welcome people of all backgrounds and experience levels.
+                            </li>
+                            <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem;">
+                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
+                                <strong style="color: white;">Make a difference, build lifelong friendships, and give back to your community.</strong>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Junior Firefighter Program -->
+                    <div class="glass-panel" style="padding: 2.5rem; height: 100%;">
+                        <h3 style="color: white; font-family: var(--font-heading); text-align: center; margin-bottom: 2rem; font-size: 1.8rem;">Junior Firefighter Program</h3>
+                        <ul class="tech-specs" style="font-size: 1.05rem; line-height: 1.8;">
+                            <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Open to ages 16–18</strong> interested in learning about the fire service.</li>
+                            <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Respond to emergency calls</strong> (within program guidelines), attend training, meetings, and fire company events.</li>
+                            <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Train alongside experienced firefighters</strong> and gain hands-on experience in skills such as:
+                                <ul style="margin-top: 0.5rem; margin-left: 2rem; list-style-type: disc; color: var(--text-secondary);">
+                                    <li>Vehicle extrication</li>
+                                    <li>Brush fires</li>
+                                    <li>Radio communications</li>
+                                    <li>SCBA (air packs)</li>
+                                    <li>Rescue techniques</li>
+                                </ul>
+                            </li>
+                            <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Free Firefighter 1 certification</strong> through the Somerset County Emergency Services Training Academy (SCESTA) after your 18th birthday.</li>
+                            <li style="padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: none;"><strong style="color: var(--gold);">School and family come first.</strong> Junior Firefighters are never expected to miss school or academic activities.</li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- Application Form -->
+                <div class="cta-wrapper fade-in delay-2" style="max-width: 700px; margin: 0 auto;">
                     <form class="contact-form glass-panel">
-                        <h3>Start Your Journey</h3>
-                        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">Join us any Wednesday evening at 7 PM, or fill out the form below to email the Membership Committee Chairperson, Dan Campo.</p>
+                        <h3 style="color: white; font-family: var(--font-heading); text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem;">Start Your Journey</h3>
+                        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">Fill out the form below to email the Membership Committee.</p>
                         
                         <div class="form-group">
                             <input type="text" id="name" placeholder="Full Name" required>
@@ -136,6 +165,6 @@
         </div>
     </footer>
 
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=37"></script>
 </body>
 </html>

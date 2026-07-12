@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(element);
     });
     
-    // Form submission prevention (demo only)
+    // Real form submission via FormSubmit.co
     const form = document.querySelector('.contact-form');
     if(form) {
         form.addEventListener('submit', (e) => {
@@ -62,7 +62,28 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.textContent = 'Sending...';
             btn.style.opacity = '0.8';
             
-            setTimeout(() => {
+            // Gather data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const membershipType = document.getElementById('membership-type').value;
+
+            fetch("https://formsubmit.co/ajax/membership@mtvfc2.com", {
+                method: "POST",
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    membership_type: membershipType,
+                    _subject: "New Membership Application for Station 46"
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 btn.textContent = 'Message Sent!';
                 btn.style.background = '#2a9d8f'; // Success green color
                 form.reset();
@@ -72,7 +93,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.style.background = '';
                     btn.style.opacity = '1';
                 }, 3000);
-            }, 1500);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                btn.textContent = 'Error. Try again.';
+                btn.style.background = '#e76f51';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                    btn.style.opacity = '1';
+                }, 3000);
+            });
         });
     }
 });

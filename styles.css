@@ -1,34 +1,34 @@
 :root {
     /* Color Palette - Dark Theme with Fire Accents */
+    --fire-red: #d32f2f;
+    --gold: #fbc02d;
     --bg-dark: #0f1115;
-    --bg-darker: #0a0b0d;
+    --bg-darker: #1a1d24;
     --bg-card: rgba(25, 28, 35, 0.7);
-    --text-primary: #ffffff;
-    --text-secondary: #a0aabf;
-    
-    /* Brand Colors */
-    --fire-red: #e63946;
-    --fire-red-glow: rgba(230, 57, 70, 0.4);
-    --gold: #f4a261;
-    --gold-glow: rgba(244, 162, 97, 0.3);
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, #e63946 0%, #d62828 100%);
-    --gradient-glow: linear-gradient(135deg, rgba(230, 57, 70, 0.2) 0%, rgba(214, 40, 40, 0) 100%);
-    --bg-gradient: linear-gradient(to bottom, #0f1115, #0a0b0d);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
     
     /* Typography */
-    --font-heading: 'Outfit', sans-serif;
+    --font-heading: 'Inter', sans-serif;
     --font-body: 'Inter', sans-serif;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, var(--fire-red) 0%, #b71c1c 100%);
+    --gradient-glow: linear-gradient(135deg, rgba(230, 57, 70, 0.2) 0%, rgba(214, 40, 40, 0) 100%);
+    --bg-gradient: linear-gradient(to bottom, var(--bg-dark), #050608);
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Brand Colors (Kept for compatibility) */
+    --fire-red-glow: rgba(230, 57, 70, 0.4);
+    --gold-glow: rgba(244, 162, 97, 0.3);
     
     /* Layout */
     --nav-height: 80px;
     --container-width: 1200px;
-    
-    /* Transitions */
-    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-normal: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -54,8 +54,11 @@ body {
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.2;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
 }
 
 a {
@@ -113,7 +116,14 @@ a {
 }
 
 /* Glassmorphism */
-.glass-panel, .glass-card {
+.glass-panel {
+    background: var(--bg-darker);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.glass-card {
     background: var(--bg-card);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -136,17 +146,41 @@ button:disabled {
 
 /* Roster Grid */
 .roster-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
     margin-top: 2rem;
 }
 
+/* Compact Roster Grid */
+.compact-grid {
+    gap: 1rem;
+}
+
+.compact-grid .member-card {
+    flex: 0 1 180px;
+}
+
+.compact-grid .member-info {
+    padding: 1rem;
+}
+
+.compact-grid .member-name {
+    font-size: 1rem;
+}
+
+.compact-grid .member-rank {
+    font-size: 0.8rem;
+}
+
 .member-card {
+    flex: 0 1 250px;
     padding: 0;
     overflow: hidden;
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 3px solid var(--fire-red);
     transition: transform var(--transition-normal);
 }
 
@@ -172,6 +206,15 @@ button:disabled {
     font-family: var(--font-heading);
 }
 
+.hero-title {
+    font-size: clamp(4rem, 8vw, 7rem);
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: -2px;
+}
+
 .member-rank {
     color: var(--gold);
     font-weight: 600;
@@ -183,8 +226,8 @@ button:disabled {
 
 .fade-in {
     opacity: 0;
-    transform: translateY(30px);
-    transition: opacity var(--transition-slow), transform var(--transition-slow);
+    transform: translateY(15px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
 .fade-in.visible {
@@ -368,14 +411,12 @@ button:disabled {
 
 .hero-bg {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(rgba(10, 11, 13, 0.7), rgba(10, 11, 13, 0.9)),
-                url('https://images.unsplash.com/photo-1549646851-0d3a5ce39023?q=80&w=2560&auto=format&fit=crop') center/cover;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: linear-gradient(rgba(15, 17, 21, 0.4), rgba(15, 17, 21, 0.7)), url('hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     z-index: -1;
-    animation: scale-up 20s linear infinite alternate;
 }
 
 @keyframes scale-up {
