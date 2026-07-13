@@ -878,6 +878,9 @@ footer {
     .image-placeholder {
         height: 400px;
     }
+    .hero-bg {
+        background-attachment: scroll;
+    }
 }
 
 @media (max-width: 768px) {
