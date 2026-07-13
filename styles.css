@@ -920,3 +920,324 @@ footer {
         padding: 2rem;
     }
 }
+
+/* Station Info & Stats Section */
+.station-info-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+.info-cards-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.info-card {
+    padding: 2rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.info-card-icon {
+    font-size: 2rem;
+    color: var(--fire-red);
+    background: rgba(211, 47, 47, 0.1);
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(211, 47, 47, 0.2);
+    flex-shrink: 0;
+}
+
+.info-card-icon svg {
+    stroke: var(--fire-red);
+}
+
+.info-card-content h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.info-card-content p {
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.info-card-content a {
+    color: var(--gold);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    transition: color var(--transition-fast);
+}
+
+.info-card-content a:hover {
+    color: white;
+}
+
+/* Call Stats Bar Chart */
+.stats-chart-wrapper {
+    padding: 2.5rem;
+    text-align: left;
+}
+
+.stats-chart-wrapper h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: white;
+}
+
+.chart-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.chart-bar-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 50px;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.chart-bar-year {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.chart-bar-track {
+    height: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.chart-bar-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: 6px;
+    width: 0;
+    transition: width 1.5s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+.visible .chart-bar-fill {
+    width: var(--percent);
+}
+
+.chart-bar-row:hover .chart-bar-fill {
+    filter: brightness(1.2);
+    box-shadow: 0 0 10px rgba(211, 47, 47, 0.5);
+}
+
+.chart-bar-value {
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: right;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 992px) {
+    .station-info-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+}
+
+/* Donations Section */
+.donation-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+.donation-info {
+    padding: 2.5rem;
+    text-align: left;
+}
+
+.donation-cta {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.donation-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.donation-list li {
+    display: flex;
+    gap: 1.2rem;
+    align-items: flex-start;
+    line-height: 1.6;
+    font-size: 1.05rem;
+}
+
+.donation-list-icon {
+    background: rgba(211, 47, 47, 0.1);
+    border: 1px solid rgba(211, 47, 47, 0.2);
+    border-radius: 50%;
+    padding: 10px;
+    color: var(--fire-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.paypal-logo-wrapper {
+    margin-bottom: 1rem;
+}
+
+.paypal-badge {
+    background: rgba(251, 192, 45, 0.1);
+    border: 1px solid rgba(251, 192, 45, 0.2);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(251, 192, 45, 0.15);
+    margin: 0 auto;
+}
+
+.paypal-badge svg {
+    stroke: var(--gold);
+}
+
+.donation-desc {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    max-width: 300px;
+}
+
+.btn-donate {
+    width: 100%;
+    max-width: 280px;
+    margin-bottom: 1.5rem;
+}
+
+.alternative-donation {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+    width: 100%;
+}
+
+.alternative-donation h4 {
+    font-size: 1.1rem;
+    color: white;
+    margin-bottom: 0.75rem;
+}
+
+.alternative-donation p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.mailing-box {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-family: monospace;
+    font-size: 0.9rem;
+    margin-top: 0.5rem !important;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: white;
+    display: inline-block;
+    text-align: center;
+    line-height: 1.4;
+}
+
+@media (max-width: 992px) {
+    .donation-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+}
+
+/* Social Links inside Follow Us Card */
+.social-links-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    width: 100%;
+}
+
+.social-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all var(--transition-fast);
+}
+
+.social-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.facebook-btn:hover {
+    background: rgba(24, 119, 242, 0.15);
+    border-color: rgba(24, 119, 242, 0.3);
+    color: #1877f2;
+}
+
+.instagram-btn:hover {
+    background: rgba(225, 48, 108, 0.15);
+    border-color: rgba(225, 48, 108, 0.3);
+    color: #e1306c;
+}
+
+.x-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: white;
+}
+
+.flickr-btn:hover {
+    background: rgba(255, 0, 132, 0.15);
+    border-color: rgba(255, 0, 132, 0.3);
+    color: #ff0084;
+}
+
+@media (max-width: 480px) {
+    .social-links-grid {
+        grid-template-columns: 1fr;
+    }
+}
