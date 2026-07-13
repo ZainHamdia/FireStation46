@@ -412,7 +412,7 @@ button:disabled {
 .hero-bg {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-image: linear-gradient(rgba(15, 17, 21, 0.4), rgba(15, 17, 21, 0.7)), url('hero-bg.jpg');
+    background-image: linear-gradient(rgba(15, 17, 21, 0.4), rgba(15, 17, 21, 0.7)), url('hero-bg.jpg?v=2');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
