@@ -114,15 +114,29 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Date().toLocaleDateString('en-US', options);
     }
 
+    const POSTS_API_URL = 'https://jsonbin-zeta.vercel.app/api/bins/s3yBLegWHK';
+    const EDITS_API_URL = 'https://jsonbin-zeta.vercel.app/api/bins/TeH5AgBSSF';
+
     // Helper: Get posts from localStorage
     function getStoredPosts() {
         const posts = localStorage.getItem('station46_posts');
         return posts ? JSON.parse(posts) : [];
     }
 
-    // Helper: Save posts to localStorage
+    // Helper: Save posts to localStorage & sync to remote database
     function savePosts(posts) {
         localStorage.setItem('station46_posts', JSON.stringify(posts));
+        fetch(POSTS_API_URL, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(posts)
+        })
+        .then(res => {
+            if (!res.ok) console.error("Failed to sync posts to remote database");
+        })
+        .catch(err => console.error("Network error during remote sync:", err));
     }
 
     // Helper: Escape HTML to prevent XSS (safe against null/undefined)
@@ -193,17 +207,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAdminLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
     const editableSelectors = 'h1, h2, h3, h4, h5, h6, p, li, .section-subtitle, .hero-subtitle, .donation-amount';
 
+    function getStoredTextEdits() {
+        const edits = localStorage.getItem('station46_text_edits');
+        return edits ? JSON.parse(edits) : {};
+    }
+
+    function saveTextEdit(key, value) {
+        const edits = getStoredTextEdits();
+        edits[key] = value;
+        localStorage.setItem('station46_text_edits', JSON.stringify(edits));
+        fetch(EDITS_API_URL, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(edits)
+        })
+        .then(res => {
+            if (!res.ok) console.error("Failed to sync text edits to remote database");
+        })
+        .catch(err => console.error("Network error during remote text sync:", err));
+    }
+
+    function applyTextEdits(edits) {
+        document.querySelectorAll(editableSelectors).forEach((element, index) => {
+            if (!isEditableElement(element)) return;
+            const storageKey = `edit_text_${window.location.pathname}_${index}`;
+            if (edits[storageKey] !== undefined) {
+                element.innerHTML = edits[storageKey];
+            }
+        });
+    }
+
+    // Apply local edits immediately on page load
+    applyTextEdits(getStoredTextEdits());
+
     document.querySelectorAll(editableSelectors).forEach((element, index) => {
         if (!isEditableElement(element)) return;
 
-        // Generate a unique storage key for this specific text element on this page
         const storageKey = `edit_text_${window.location.pathname}_${index}`;
-        
-        // Restore saved text if it exists
-        const savedText = localStorage.getItem(storageKey);
-        if (savedText) {
-            element.innerHTML = savedText;
-        }
 
         // If admin is logged in, enable editing
         if (isAdminLoggedIn) {
@@ -212,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add listeners to save updates on blur
             element.addEventListener('blur', () => {
                 const currentText = element.innerHTML.trim();
-                localStorage.setItem(storageKey, currentText);
+                saveTextEdit(storageKey, currentText);
             });
             
             // Handle Enter key for title lines to blur instead of inserting line break (optional)
@@ -662,5 +704,45 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    // Remote Sync on load
+    function syncFromRemoteDatabase() {
+        // Sync news posts
+        fetch(POSTS_API_URL)
+            .then(res => {
+                if (res.ok) return res.json();
+                throw new Error("Failed to load remote posts");
+            })
+            .then(remotePosts => {
+                if (Array.isArray(remotePosts)) {
+                    localStorage.setItem('station46_posts', JSON.stringify(remotePosts));
+                    // Re-render feed if visible
+                    if (newsGrid && newsEmptyState) {
+                        renderNewsFeed();
+                    }
+                    const adminContainer = document.getElementById('admin-posts-list-container');
+                    if (adminContainer) {
+                        renderAdminPosts();
+                    }
+                }
+            })
+            .catch(err => console.warn("Could not sync remote posts:", err));
+
+        // Sync visual text edits
+        fetch(EDITS_API_URL)
+            .then(res => {
+                if (res.ok) return res.json();
+                throw new Error("Failed to load remote text edits");
+            })
+            .then(remoteEdits => {
+                if (remoteEdits && typeof remoteEdits === 'object') {
+                    localStorage.setItem('station46_text_edits', JSON.stringify(remoteEdits));
+                    applyTextEdits(remoteEdits);
+                }
+            })
+            .catch(err => console.warn("Could not sync remote text edits:", err));
+    }
+
+    syncFromRemoteDatabase();
 });
 
