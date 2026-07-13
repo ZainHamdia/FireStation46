@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News & Fire Calls | Montgomery Township Volunteer Fire Company #2</title>
+    <meta name="description" content="Read recent news updates, community safety bulletins, and fire call reports from Montgomery Township Volunteer Fire Company #2 (Station 46).">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css?v=41">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="logo.png" alt="Station 46 Logo" class="nav-badge-img">
+                <div class="logo-text">
+                    <span class="mtvfc">Montgomery Twp. Volunteer Fire Co. No. 2</span>
+                    <span class="subtitle">Skillman, NJ</span>
+                </div>
+            </a>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="index.html#station-info" class="nav-link">Station Info</a>
+                <a href="apparatus.html" class="nav-link">Apparatus</a>
+                <a href="news.html" class="nav-link active">News & Calls</a>
+                <a href="index.html#donate" class="nav-link">Donate</a>
+                <a href="membership.html" class="nav-link">Membership</a>
+            </div>
+            
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="hero small-hero" style="background-image: linear-gradient(rgba(15, 17, 21, 0.85), rgba(15, 17, 21, 0.95)), url('hero-bg.jpg'); min-height: 40vh;">
+        <div class="container text-center">
+            <h1 class="hero-title fade-in">News & Fire Calls</h1>
+            <p class="hero-subtitle fade-in delay-1">Stay updated with official announcements and recent incidents</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <div class="news-container">
+                    <!-- Filtering Tabs -->
+                    <div class="news-filter-bar fade-in">
+                        <button class="filter-btn active" data-filter="all">All Updates</button>
+                        <button class="filter-btn" data-filter="news">News & Events</button>
+                        <button class="filter-btn" data-filter="calls">Fire Calls</button>
+                    </div>
+                    
+                    <!-- Dynamically Loaded News Grid -->
+                    <div class="news-grid" id="news-grid-container" style="display: none;"></div>
+                    
+                    <!-- Glassmorphic Empty State Container -->
+                    <div class="news-empty-state glass-card fade-in delay-1" id="news-feed-state">
+                        <div class="empty-state-icon">
+                            <svg id="empty-icon-svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                        </div>
+                        <h2 class="empty-state-title" id="empty-title">No Updates Posted Yet</h2>
+                        <p class="empty-state-desc" id="empty-desc">We are currently preparing our news feed. Check back soon for official updates, fire safety announcements, and recent incident logs.</p>
+                        <div class="empty-state-actions">
+                            <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                                Follow Our Facebook Feed
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Admin Dashboard Link (Visible only if logged in) -->
+    <a href="admin.html" class="floating-admin-btn" id="floating-admin-badge" style="display: none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+        Admin Panel
+    </a>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-brand">
+                <img src="logo.png" alt="Station 46 Logo" class="footer-badge-img">
+                <span>Montgomery Twp. Volunteer Fire Co. #2</span>
+            </div>
+            <div class="footer-info">
+                <p><strong>Station 46</strong> | 529 County Route 518, Skillman, NJ 08558</p>
+                <p>Emergency: <strong>911</strong> | Non-Emergency: (609) 466-3926</p>
+            </div>
+            <div class="footer-copy">
+                &copy; <span id="year">2026</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="admin.html" class="admin-link" style="color: rgba(255,255,255,0.3); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js?v=4"></script>
+</body>
+</html>

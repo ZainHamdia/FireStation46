@@ -26,6 +26,7 @@
             <div class="nav-links">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="about.html" class="nav-link">About</a>
+                <a href="index.html#station-info" class="nav-link">Station Info</a>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
                 <a href="news.html" class="nav-link">News & Calls</a>
                 <a href="index.html#donate" class="nav-link">Donate</a>
@@ -73,7 +74,7 @@
                             </li>
                             <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem;">
                                 <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
-                                <strong style="color: white;">Learn valuable skills</strong> through hands-on training at the Somerset County Emergency Services Training Academy and alongside experienced firefighters.
+                                <strong style="color: white;">Learn valuable skills</strong> through hands-on training at a nearby training facility and alongside experienced firefighters.
                             </li>
                             <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem;">
                                 <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
@@ -100,24 +101,28 @@
                     </div>
 
                     <!-- Junior Firefighter Program -->
-                    <div class="glass-panel" style="padding: 2.5rem; height: 100%;">
-                        <h3 style="color: white; font-family: var(--font-heading); text-align: center; margin-bottom: 2rem; font-size: 1.8rem;">Junior Firefighter Program</h3>
-                        <ul class="tech-specs" style="font-size: 1.05rem; line-height: 1.8;">
-                            <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Open to ages 16–18</strong> interested in learning about the fire service.</li>
-                            <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Respond to emergency calls</strong> (within program guidelines), attend training, meetings, and fire company events.</li>
-                            <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Train alongside experienced firefighters</strong> and gain hands-on experience in skills such as:
-                                <ul style="margin-top: 0.5rem; margin-left: 2rem; list-style-type: disc; color: var(--text-secondary);">
-                                    <li>Vehicle extrication</li>
-                                    <li>Brush fires</li>
-                                    <li>Radio communications</li>
-                                    <li>SCBA (air packs)</li>
-                                    <li>Rescue techniques</li>
-                                </ul>
-                            </li>
-                            <li style="padding-bottom: 1rem; margin-bottom: 1rem;"><strong style="color: white;">Free Firefighter 1 certification</strong> through the Somerset County Emergency Services Training Academy (SCESTA) after your 18th birthday.</li>
-                            <li style="padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: none;"><strong style="color: var(--gold);">School and family come first.</strong> Junior Firefighters are never expected to miss school or academic activities.</li>
-                        </ul>
-                        <div style="text-align: center; margin-top: 2.5rem;">
+                    <div class="glass-panel" style="padding: 2.5rem; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <h3 style="color: white; font-family: var(--font-heading); text-align: center; margin-bottom: 2rem; font-size: 1.8rem;">Junior Firefighter Program</h3>
+                            <p style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                                Designed for high school students aged 16–18. Gain hands-on training, build leadership skills, and prepare for a rewarding path in emergency services—all while keeping school and family first.
+                            </p>
+                            <ul style="list-style-type: none; padding-left: 0; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.8;">
+                                <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem; color: var(--text-secondary);">
+                                    <span style="color: var(--gold); position: absolute; left: 0; font-size: 1.25rem;">&bull;</span> 
+                                    <strong style="color: white;">Ages 16–18:</strong> Learn emergency response operations and support active crews.
+                                </li>
+                                <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem; color: var(--text-secondary);">
+                                    <span style="color: var(--gold); position: absolute; left: 0; font-size: 1.25rem;">&bull;</span> 
+                                    <strong style="color: white;">Free Training:</strong> Gear, academy certification courses, and mentorship provided at no cost.
+                                </li>
+                                <li style="margin-bottom: 1rem; position: relative; padding-left: 1.5rem; color: var(--text-secondary);">
+                                    <span style="color: var(--gold); position: absolute; left: 0; font-size: 1.25rem;">&bull;</span> 
+                                    <strong style="color: white;">Academics Priority:</strong> Program guidelines ensure school tasks and functions come first.
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="text-align: center; margin-top: auto; padding-top: 1rem;">
                             <a href="juniors.html" class="btn btn-primary glow">Junior Program Details</a>
                         </div>
                     </div>
@@ -126,7 +131,7 @@
 
                 <!-- Application Form -->
                 <div class="cta-wrapper fade-in delay-2" style="max-width: 700px; margin: 0 auto;">
-                    <form class="contact-form glass-panel">
+                    <form class="contact-form glass-panel" id="membership-application-form">
                         <h3 style="color: white; font-family: var(--font-heading); text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem;">Start Your Journey</h3>
                         <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">Fill out the form below to email the Membership Committee.</p>
                         
@@ -165,11 +170,11 @@
                 <p>Emergency: <strong>911</strong> | Non-Emergency: (609) 466-3926</p>
             </div>
             <div class="footer-copy">
-                &copy; <span id="year">2024</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved.
+                &copy; <span id="year">2024</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="admin.html" class="admin-link" style="color: rgba(255,255,255,0.3); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
             </div>
         </div>
     </footer>
 
-    <script src="script.js?v=37"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>

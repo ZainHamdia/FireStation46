@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Junior Firefighter Program | Montgomery Township Volunteer Fire Company #2</title>
-    <meta name="description" content="Learn about the Junior Firefighter Program at Station 46 for high school students ages 16-18 in Skillman, NJ.">
+    <meta name="description" content="Detailed information about the Junior Firefighter Program at Station 46 (Skillman, NJ) for high school students ages 16-18.">
     
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=34">
+    <link rel="stylesheet" href="styles.css?v=41">
 </head>
 <body>
     <nav class="navbar">
@@ -22,13 +23,17 @@
                     <span class="subtitle">Skillman, NJ</span>
                 </div>
             </a>
+            
             <div class="nav-links">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="about.html" class="nav-link">About</a>
+                <a href="index.html#station-info" class="nav-link">Station Info</a>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
+                <a href="news.html" class="nav-link">News & Calls</a>
                 <a href="index.html#donate" class="nav-link">Donate</a>
                 <a href="membership.html" class="nav-link active">Membership</a>
             </div>
+            
             <button class="mobile-menu-btn" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
@@ -40,65 +45,139 @@
     <header class="hero small-hero" style="background-image: linear-gradient(rgba(15, 17, 21, 0.85), rgba(15, 17, 21, 0.95)), url('engine46-7.jpg'); min-height: 40vh;">
         <div class="container text-center">
             <h1 class="hero-title fade-in">Junior Firefighter Program</h1>
-            <p class="hero-subtitle fade-in delay-1">Training the next generation of emergency responders</p>
+            <p class="hero-subtitle fade-in delay-1">For High School Students Ages 16–18 Ready to Serve</p>
         </div>
     </header>
 
     <main>
+        <!-- Program Overview Section -->
         <section class="section">
             <div class="container">
-                <div class="section-grid" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 4rem; align-items: flex-start;">
-                    
-                    <!-- Program Details -->
-                    <div class="fade-in">
-                        <h2 style="color: white; font-family: var(--font-heading); margin-bottom: 1.5rem; font-size: 2rem;">About the Program</h2>
-                        <p style="font-size: 1.15rem; line-height: 1.8; margin-bottom: 2rem; color: var(--text-secondary);">
-                            The Montgomery Township Volunteer Fire Company #2 Junior Firefighter Program offers high school students ages 16 to 18 a unique, hands-on opportunity to learn about the volunteer fire service. Our program is designed to develop leadership, teamwork, and technical skills while providing a direct path to becoming a full active-duty firefighter at age 18.
-                        </p>
-                        
-                        <h3 style="color: white; font-family: var(--font-heading); margin-bottom: 1rem; font-size: 1.5rem;">What You'll Do & Learn</h3>
-                        <p style="font-size: 1.05rem; line-height: 1.7; margin-bottom: 1.5rem; color: var(--text-secondary);">
-                            As a Junior Firefighter, you will be integrated into fire company training, meetings, and non-hazardous exterior operations on emergency scenes. Under close supervision of experienced personnel, you will train on:
-                        </p>
-                        <ul class="tech-specs" style="font-size: 1.05rem; line-height: 1.8; margin-bottom: 2.5rem;">
-                            <li style="margin-bottom: 0.8rem;"><strong style="color: white;">Rescue Operations:</strong> Vehicle extrication techniques, stabilization, and usage of hydraulic tools.</li>
-                            <li style="margin-bottom: 0.8rem;"><strong style="color: white;">Hose & Ladder Work:</strong> Learning proper handling of attack lines, supply lines, and ground ladders.</li>
-                            <li style="margin-bottom: 0.8rem;"><strong style="color: white;">Communications:</strong> Operating fire department radios and understanding emergency dispatch protocols.</li>
-                            <li style="margin-bottom: 0.8rem;"><strong style="color: white;">Equipment Familiarity:</strong> Gaining experience with SCBA (self-contained breathing apparatus), thermal imaging cameras, and gas meters.</li>
-                        </ul>
+                <div class="section-grid">
+                    <div class="section-text fade-in">
+                        <h2 class="section-title">Answer the Call Early</h2>
+                        <p>The Junior Firefighter Program at Montgomery Township Volunteer Fire Company No. 2 (Station 46) offers young men and women ages 16 to 18 the unique opportunity to learn about the fire service first-hand.</p>
+                        <p>Junior members are treated as future standard firefighters. Under the supervision of line officers and experienced senior members, you will gain hands-on training, build strong leadership qualities, perform community service hours, and prepare for a career or lifelong volunteer journey in emergency services.</p>
+                        <div style="margin-top: 2rem;">
+                            <a href="membership.html#apply" class="btn btn-primary glow">Apply For Junior Program</a>
+                        </div>
                     </div>
-
-                    <!-- Program Requirements Sidebar -->
-                    <div class="glass-panel fade-in delay-1" style="padding: 2.5rem; border-radius: 16px;">
-                        <h3 style="color: white; font-family: var(--font-heading); margin-bottom: 1.5rem; font-size: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">Program Requirements</h3>
-                        <ul style="list-style-type: none; padding-left: 0; font-size: 1.05rem; line-height: 1.8; color: var(--text-secondary);">
-                            <li style="margin-bottom: 1.2rem; position: relative; padding-left: 1.5rem;">
-                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
-                                <strong style="color: white;">Age:</strong> Must be between 16 and 18 years old.
-                            </li>
-                            <li style="margin-bottom: 1.2rem; position: relative; padding-left: 1.5rem;">
-                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
-                                <strong style="color: white;">Consent:</strong> Full written consent from a parent or legal guardian is required.
-                            </li>
-                            <li style="margin-bottom: 1.2rem; position: relative; padding-left: 1.5rem;">
-                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
-                                <strong style="color: white;">Academics First:</strong> Must maintain a passing GPA and remain in good standing in school. Academic and family activities always take priority.
-                            </li>
-                            <li style="margin-bottom: 1.2rem; position: relative; padding-left: 1.5rem;">
-                                <span style="color: var(--fire-red); position: absolute; left: 0;">&bull;</span> 
-                                <strong style="color: white;">Attendance:</strong> Expected to attend weekly company drills (Wednesdays at 7:00 PM) and monthly meetings when school schedules permit.
-                            </li>
+                    <div class="glass-panel fade-in delay-1" style="padding: 2.5rem; border-left: 4px solid var(--fire-red);">
+                        <h3 style="color: white; font-family: var(--font-heading); margin-bottom: 1.5rem;">Program Guidelines</h3>
+                        <ul class="tech-specs" style="font-size: 1.05rem; line-height: 1.8;">
+                            <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem;"><strong style="color: white;">Ages:</strong> Must be 16 or 17 years old to apply.</li>
+                            <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem;"><strong style="color: white;">Academics First:</strong> Maintaining passing grades is required. School functions always take priority.</li>
+                            <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem; border-bottom: none;"><strong style="color: white;">Safety First:</strong> Juniors are strictly kept out of hazardous zones (e.g., active interior structures or active highway lanes).</li>
                         </ul>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <!-- Academy Path -->
-                <div class="glass-panel fade-in delay-2" style="padding: 3rem; margin-top: 4rem; border-radius: 16px; text-align: center; border-left: 4px solid var(--fire-red);">
-                    <h3 style="color: white; font-family: var(--font-heading); margin-bottom: 1rem; font-size: 1.8rem;">Path to Full Certification</h3>
-                    <p style="font-size: 1.1rem; line-height: 1.8; max-width: 900px; margin: 0 auto 2rem; color: var(--text-secondary);">
-                        Upon turning 18, Junior Firefighters are eligible to enroll in the **Firefighter 1** state certification course at the Somerset County Emergency Services Training Academy. The tuition, course materials, and all safety gear are fully funded by the fire company.
-                    </p>
-                    <a href="membership.html#apply-form" class="btn btn-primary glow">Apply For Junior Membership</a>
+        <!-- What You Learn Section -->
+        <section class="section dark-alt">
+            <div class="container">
+                <div class="section-header text-center fade-in">
+                    <h2 class="section-title">What You Will Learn</h2>
+                    <p class="section-subtitle">Real skills, safety operations, and emergency training alongside professionals.</p>
+                </div>
+
+                <div class="cards-grid" style="margin-top: 2rem;">
+                    <!-- Skill 1 -->
+                    <div class="card glass-card hover-lift fade-in">
+                        <div class="card-content">
+                            <h3 style="color: var(--fire-red); font-size: 1.3rem;">Vehicle Extrication</h3>
+                            <p>Learn how to safely stabilize passenger vehicles, handle cribbing blocks, and support line crews using hydraulic rescue tools (the Jaws of Life) during simulated car accident drills.</p>
+                        </div>
+                    </div>
+                    <!-- Skill 2 -->
+                    <div class="card glass-card hover-lift fade-in delay-1">
+                        <div class="card-content">
+                            <h3 style="color: var(--fire-red); font-size: 1.3rem;">Hose & Water Ops</h3>
+                            <p>Understand fire hydrant connections, water supply lines, and how to pack, deploy, and direct attack hose lines alongside senior firefighters during regular company drills.</p>
+                        </div>
+                    </div>
+                    <!-- Skill 3 -->
+                    <div class="card glass-card hover-lift fade-in delay-2">
+                        <div class="card-content">
+                            <h3 style="color: var(--fire-red); font-size: 1.3rem;">Radio & Communications</h3>
+                            <p>Master standard dispatcher protocols, radio etiquette, and how to operate fire ground radios to ensure constant, crystal-clear team communication.</p>
+                        </div>
+                    </div>
+                    <!-- Skill 4 -->
+                    <div class="card glass-card hover-lift fade-in">
+                        <div class="card-content">
+                            <h3 style="color: var(--fire-red); font-size: 1.3rem;">SCBA & Search Ops</h3>
+                            <p>Get familiar with Self-Contained Breathing Apparatus (air packs) and learn primary search-and-rescue team operations, patterns, and safety maneuvers in non-toxic environments.</p>
+                        </div>
+                    </div>
+                    <!-- Skill 5 -->
+                    <div class="card glass-card hover-lift fade-in delay-1">
+                        <div class="card-content">
+                            <h3 style="color: var(--fire-red); font-size: 1.3rem;">Ladders & Tools</h3>
+                            <p>Gain proficiency raising ground ladders, deploying exhaust fans, and operating basic fire ground equipment, tools, gas meters, and thermal imaging cameras.</p>
+                        </div>
+                    </div>
+                    <!-- Skill 6 -->
+                    <div class="card glass-card hover-lift fade-in delay-2">
+                        <div class="card-content">
+                            <h3 style="color: var(--fire-red); font-size: 1.3rem;">Marine Support</h3>
+                            <p>Support Marine 46 swift water rescue preparations, handling safety lines, life vests, and equipment coordination from staging zones during water emergencies.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Program Benefits -->
+        <section class="section">
+            <div class="container">
+                <div class="section-header text-center fade-in">
+                    <h2 class="section-title">Program Benefits</h2>
+                    <p class="section-subtitle">Why joining Station 46 as a Junior Firefighter is a life-changing step.</p>
+                </div>
+
+                <div class="station-info-grid">
+                    <div class="glass-card fade-in" style="padding: 2.5rem;">
+                        <h3 style="color: white; font-family: var(--font-heading); margin-bottom: 1.5rem;">Key Advantages</h3>
+                        <ul class="donation-list">
+                            <li>
+                                <div class="donation-list-icon" style="background: rgba(251, 192, 45, 0.1); border-color: rgba(251, 192, 45, 0.2); color: var(--gold);">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10v6M12 2l10 8-10 8-10-8L12 2z"/></svg>
+                                </div>
+                                <div>
+                                    <strong>Free State Certification:</strong> Get your official Firefighter 1 certification at a nearby training facility funded 100% by the company upon turning 18.
+                                </div>
+                            </li>
+                            <li>
+                                <div class="donation-list-icon" style="background: rgba(251, 192, 45, 0.1); border-color: rgba(251, 192, 45, 0.2); color: var(--gold);">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><path d="M3.3 19a10 10 0 0 1 17.4 0"/></svg>
+                                </div>
+                                <div>
+                                    <strong>Real Incident Experience:</strong> Respond to actual fire alarms, motor vehicle accidents, and standbys. Assist senior firefighters on-scene with tools, air bottle swaps, and cleanups.
+                                </div>
+                            </li>
+                            <li>
+                                <div class="donation-list-icon" style="background: rgba(251, 192, 45, 0.1); border-color: rgba(251, 192, 45, 0.2); color: var(--gold);">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                </div>
+                                <div>
+                                    <strong>College & Career Edge:</strong> Outstanding extracurricular activity to list on college or job applications. Demonstrates leadership, maturity, grit, teamwork, and strong community service values.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="glass-card text-center fade-in delay-1" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <h3 style="color: white; font-family: var(--font-heading); margin-bottom: 1.5rem;">Join a Training Night</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 2rem; max-width: 300px;">We hold our training drills and company meetings every Wednesday night. Stop by to see what we do in person!</p>
+                        <div class="mailing-box" style="margin-bottom: 2rem; padding: 1rem 1.5rem;">
+                            <strong>Wednesday Evenings</strong><br>
+                            7:00 PM - 9:00 PM<br>
+                            <span style="font-size: 0.8rem; color: var(--text-secondary);">529 Route 518, Skillman, NJ</span>
+                        </div>
+                        <a href="membership.html#apply" class="btn btn-primary glow">Submit Interest Online</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -111,15 +190,15 @@
                 <span>Montgomery Twp. Volunteer Fire Co. #2</span>
             </div>
             <div class="footer-info">
-                <p>529 Route 518, Skillman, NJ 08558</p>
+                <p><strong>Station 46</strong> | 529 County Route 518, Skillman, NJ 08558</p>
                 <p>Emergency: <strong>911</strong> | Non-Emergency: (609) 466-3926</p>
             </div>
             <div class="footer-copy">
-                &copy; <span id="year"></span> Montgomery Township Volunteer Fire Company #2. All rights reserved.
+                &copy; <span id="year">2026</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="admin.html" class="admin-link" style="color: rgba(255,255,255,0.3); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
             </div>
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>

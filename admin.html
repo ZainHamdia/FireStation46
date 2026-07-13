@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Montgomery Township Volunteer Fire Company #2</title>
+    <meta name="description" content="Admin login and publishing portal for Station 46.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css?v=41">
+</head>
+<body>
+    <nav class="navbar" id="admin-navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="logo.png" alt="Station 46 Logo" class="nav-badge-img">
+                <div class="logo-text">
+                    <span class="mtvfc">Montgomery Twp. Volunteer Fire Co. No. 2</span>
+                    <span class="subtitle">Skillman, NJ</span>
+                </div>
+            </a>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="apparatus.html" class="nav-link">Apparatus</a>
+                <a href="news.html" class="nav-link">News & Calls</a>
+                <a href="index.html#donate" class="nav-link">Donate</a>
+                <a href="membership.html" class="nav-link">Membership</a>
+            </div>
+            
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+
+
+    <main>
+        <section class="section">
+            <div class="container">
+                
+                <!-- Login View -->
+                <div class="admin-form-container glass-card fade-in" id="admin-login-view">
+                    <h2>Station 46 Login</h2>
+                    <p>Enter your administrative credentials to manage posts.</p>
+                    
+                    <div class="error-message" id="login-error-msg">Incorrect username or password. Please try again.</div>
+                    
+                    <form style="padding: 0; background: none; border: none; box-shadow: none;" id="admin-login-form">
+                        <div class="form-group">
+                            <input type="text" id="admin-username" placeholder="Username" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 2rem;">
+                            <input type="password" id="admin-password" placeholder="Password" required>
+                        </div>
+                        <button type="submit" class="btn-primary w-100 glow">Log In</button>
+                    </form>
+                </div>
+                
+                <!-- Logged In Dashboard View -->
+                <div class="admin-dashboard fade-in" id="admin-dashboard-view" style="display: none;">
+                    <div class="admin-dashboard-header">
+                        <h2>Welcome, Administrator</h2>
+                        <div class="admin-header-actions">
+                            <a href="news.html" class="btn btn-secondary">View Feed</a>
+                            <button class="btn btn-primary glow" id="admin-logout-btn">Log Out</button>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-dashboard-grid">
+                        
+                        <!-- Left Column: Create Post Form -->
+                        <div class="glass-card admin-form">
+                            <h3>Publish a New Update</h3>
+                            
+                            <div class="error-message" id="post-error-msg">All fields except image are required.</div>
+                            <div class="success-message" id="post-success-msg">Post successfully published!</div>
+                            
+                            <form id="admin-publish-form">
+                                <div class="form-group">
+                                    <input type="text" id="post-title" placeholder="Post Title" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <select id="post-category" required>
+                                        <option value="" disabled selected>Select Category</option>
+                                        <option value="news">News & Events</option>
+                                        <option value="calls">Fire Calls</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <textarea id="post-text" placeholder="Write your post content here..." class="form-group textarea-input" style="width:100%; padding: 15px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;" required></textarea>
+                                </div>
+                                
+                                <div class="file-upload-wrapper">
+                                    <label class="file-upload-label">Upload Cover Image</label>
+                                    <input type="file" id="post-image" class="file-upload-input" accept="image/*">
+                                    <img id="post-image-preview" class="image-preview" src="#" alt="Preview">
+                                </div>
+                                
+                                <button type="submit" class="btn-primary w-100 glow">Publish Update</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Right Column: Manage Current Posts -->
+                        <div class="glass-card admin-posts-list">
+                            <h3>Manage Published Posts</h3>
+                            
+                            <div class="admin-posts-container" id="admin-posts-list-container">
+                                <!-- Dynamically loaded post list will go here -->
+                                <p style="color: var(--text-secondary); text-align: center; margin-top: 2rem;" id="no-admin-posts">No updates published yet. Use the form to write one.</p>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+    </main>
+
+    <footer id="admin-footer" style="display: none;">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <img src="logo.png" alt="Station 46 Logo" class="footer-badge-img">
+                <span>Montgomery Twp. Volunteer Fire Co. #2</span>
+            </div>
+            <div class="footer-info">
+                <p><strong>Station 46</strong> | 529 County Route 518, Skillman, NJ 08558</p>
+                <p>Emergency: <strong>911</strong> | Non-Emergency: (609) 466-3926</p>
+            </div>
+            <div class="footer-copy">
+                &copy; <span id="year">2026</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="admin.html" class="admin-link" style="color: rgba(255,255,255,0.3); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js?v=4"></script>
+</body>
+</html>
