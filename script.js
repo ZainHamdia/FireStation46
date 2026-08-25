@@ -136,21 +136,31 @@ document.addEventListener('DOMContentLoaded', () => {
             utf8Bytes.forEach(byte => binaryString += String.fromCharCode(byte));
             const contentBase64 = btoa(binaryString);
 
-            // 1. Fetch current SHA to allow update commit
+            // 1. Fetch current SHA & content to check if anything actually changed
             let sha = null;
+            let existingBase64 = null;
             try {
-                const getRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`, {
+                const getRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?t=${Date.now()}`, {
                     headers: {
                         'Authorization': `token ${GITHUB_TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json'
-                    }
+                    },
+                    cache: 'no-store'
                 });
                 if (getRes.ok) {
                     const fileInfo = await getRes.json();
                     sha = fileInfo.sha;
+                    existingBase64 = (fileInfo.content || '').replace(/\s/g, '');
                 }
             } catch (e) {
                 console.warn(`[Station 46] Could not retrieve SHA for ${filePath}:`, e);
+            }
+
+            // If remote file content is already identical to new content, skip redundant commit
+            const cleanNewBase64 = contentBase64.replace(/\s/g, '');
+            if (existingBase64 && existingBase64 === cleanNewBase64) {
+                console.log(`[Station 46] ${filePath} is already identical on GitHub. Skipping duplicate commit.`);
+                return true;
             }
 
             // 2. Commit update to main branch
@@ -281,6 +291,13 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('.admin-form-container') || 
             element.closest('form') ||
             element.closest('.news-filter-bar') ||
+            element.closest('#admin-floating-bar') ||
+            element.closest('#admin-toast-notification') ||
+            element.closest('.info-card-icon') ||
+            element.closest('.donation-list-icon') ||
+            element.tagName === 'BUTTON' ||
+            element.tagName === 'A' ||
+            element.tagName === 'SVG' ||
             element.classList.contains('empty-state-title') ||
             element.classList.contains('empty-state-desc')) {
             return false;
@@ -333,17 +350,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return edits ? JSON.parse(edits) : {};
     }
 
-    let textEditSyncTimeout = null;
     function saveTextEdit(key, value) {
         const edits = getStoredTextEdits();
         edits[key] = value;
         localStorage.setItem('station46_text_edits', JSON.stringify(edits));
-
-        // Debounce sync so multiple rapid edits batch together into one commit
-        clearTimeout(textEditSyncTimeout);
-        textEditSyncTimeout = setTimeout(() => {
-            syncToGitHub('data/edits.json', getStoredTextEdits(), 'Admin: Update live text edits');
-        }, 1500);
     }
 
     function applyTextEdits(edits) {
@@ -370,7 +380,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isAdminLoggedIn) {
             element.setAttribute('contenteditable', 'true');
             
-            // Add listeners to save updates on blur
+            // Save on input (real-time typing)
+            element.addEventListener('input', () => {
+                const currentText = element.innerHTML.trim();
+                saveTextEdit(storageKey, currentText);
+            });
+
+            // Save on blur (clicking outside)
             element.addEventListener('blur', () => {
                 const currentText = element.innerHTML.trim();
                 saveTextEdit(storageKey, currentText);
@@ -492,24 +508,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 triggerElement.disabled = true;
             }
 
-            // 1. Collect all live text edits from the current page
-            const pageKey = getPageKey();
-            const edits = getStoredTextEdits();
-
-            document.querySelectorAll(editableSelectors).forEach((element, index) => {
-                if (!isEditableElement(element)) return;
-                const storageKey = `edit_text_${pageKey}_${index}`;
-                edits[storageKey] = element.innerHTML.trim();
-            });
-
-            localStorage.setItem('station46_text_edits', JSON.stringify(edits));
+            // 1. If an element is currently focused, blur it to ensure input handler ran
+            if (document.activeElement && document.activeElement.isContentEditable) {
+                document.activeElement.blur();
+            }
 
             // 2. Sync edits & posts to GitHub
+            const edits = getStoredTextEdits();
             const posts = getStoredPosts();
-            const editSuccess = await syncToGitHub('data/edits.json', edits, 'Admin: Push text edits to Git');
-            const postSuccess = await syncToGitHub('data/posts.json', posts, 'Admin: Push news posts to Git');
+            const editSuccess = await syncToGitHub('data/edits.json', edits, 'Admin: Update live text edits');
+            const postSuccess = await syncToGitHub('data/posts.json', posts, 'Admin: Update news posts');
 
-            if (editSuccess || postSuccess) {
+            if (editSuccess && postSuccess) {
                 if (triggerElement) {
                     triggerElement.innerHTML = '✅ Saved & Pushed to Git!';
                     triggerElement.style.background = 'rgba(46, 125, 50, 0.95)'; // Green
