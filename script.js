@@ -174,13 +174,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (putRes.ok) {
                 console.log(`[Station 46] Successfully synced ${filePath} to GitHub across all devices!`);
+                return true;
             } else {
                 const err = await putRes.json();
                 console.error(`[Station 46] GitHub sync error for ${filePath}:`, err);
+                return false;
             }
         } catch (err) {
             console.error(`[Station 46] Network error during ${filePath} sync:`, err);
+            return false;
         }
+    }
+
+    // Helper: Toast Notification for Admin Actions
+    function showAdminToast(message, isError = false) {
+        let toast = document.getElementById('admin-toast-notification');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'admin-toast-notification';
+            toast.style.position = 'fixed';
+            toast.style.top = '1.5rem';
+            toast.style.right = '1.5rem';
+            toast.style.zIndex = '999999';
+            toast.style.padding = '12px 24px';
+            toast.style.borderRadius = '8px';
+            toast.style.fontSize = '0.95rem';
+            toast.style.fontWeight = '600';
+            toast.style.color = '#fff';
+            toast.style.backdropFilter = 'blur(10px)';
+            toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+            toast.style.transition = 'all 0.3s ease';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+            toast.style.fontFamily = 'var(--font-heading, sans-serif)';
+            document.body.appendChild(toast);
+        }
+
+        toast.innerHTML = message;
+        toast.style.background = isError ? 'rgba(211, 47, 47, 0.95)' : 'rgba(46, 125, 50, 0.95)';
+        toast.style.border = isError ? '1px solid rgba(255, 100, 100, 0.3)' : '1px solid rgba(100, 255, 100, 0.3)';
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+
+        setTimeout(() => {
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+            }
+        }, 3500);
     }
 
     // Helper: Fetch remote data across devices (checks raw GitHub first with no-cache, then local file)
@@ -355,15 +396,34 @@ document.addEventListener('DOMContentLoaded', () => {
         bar.style.bottom = '2rem';
         bar.style.left = '2rem';
         bar.style.display = 'flex';
+        bar.style.flexWrap = 'wrap';
+        bar.style.alignItems = 'center';
         bar.style.gap = '0.5rem';
-        bar.style.zIndex = '9999';
-        bar.style.background = 'rgba(15, 17, 21, 0.85)';
-        bar.style.padding = '6px';
+        bar.style.zIndex = '99999';
+        bar.style.background = 'rgba(15, 17, 21, 0.92)';
+        bar.style.padding = '8px 12px';
         bar.style.borderRadius = '40px';
-        bar.style.border = '1px solid rgba(255,255,255,0.08)';
-        bar.style.backdropFilter = 'blur(10px)';
-        bar.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+        bar.style.border = '1px solid rgba(255, 255, 255, 0.15)';
+        bar.style.backdropFilter = 'blur(12px)';
+        bar.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
 
+        // 1. Save & Push to Git Button
+        const saveGitBtn = document.createElement('button');
+        saveGitBtn.id = 'admin-save-git-btn';
+        saveGitBtn.style.background = 'rgba(21, 101, 192, 0.95)'; // Blue
+        saveGitBtn.style.color = 'white';
+        saveGitBtn.style.padding = '10px 18px';
+        saveGitBtn.style.borderRadius = '30px';
+        saveGitBtn.style.fontSize = '0.85rem';
+        saveGitBtn.style.fontWeight = '700';
+        saveGitBtn.style.border = 'none';
+        saveGitBtn.style.cursor = 'pointer';
+        saveGitBtn.style.transition = 'all 0.2s ease';
+        saveGitBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
+        saveGitBtn.style.boxShadow = '0 0 15px rgba(33, 150, 243, 0.4)';
+        saveGitBtn.innerHTML = '💾 Save & Push to Git';
+
+        // 2. Toggle Edit Mode Button
         const toggleBtn = document.createElement('button');
         toggleBtn.id = 'edit-mode-toggle-btn';
         toggleBtn.style.background = 'rgba(46, 125, 50, 0.9)'; // Green for ON
@@ -374,43 +434,109 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleBtn.style.fontWeight = '700';
         toggleBtn.style.border = 'none';
         toggleBtn.style.cursor = 'pointer';
-        toggleBtn.style.transition = 'all var(--transition-fast)';
-        toggleBtn.style.fontFamily = 'var(--font-heading)';
+        toggleBtn.style.transition = 'all 0.2s ease';
+        toggleBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
         toggleBtn.innerHTML = '⚡ Edit Mode: ON';
 
+        // 3. Admin Portal link button
+        const portalBtn = document.createElement('a');
+        portalBtn.href = 'admin.html';
+        portalBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+        portalBtn.style.color = 'white';
+        portalBtn.style.padding = '10px 16px';
+        portalBtn.style.borderRadius = '30px';
+        portalBtn.style.fontSize = '0.85rem';
+        portalBtn.style.fontWeight = '600';
+        portalBtn.style.textDecoration = 'none';
+        portalBtn.style.transition = 'all 0.2s ease';
+        portalBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
+        portalBtn.innerHTML = '⚙️ Dashboard';
+
+        // 4. Quick Logout Button
         const quickLogoutBtn = document.createElement('button');
         quickLogoutBtn.id = 'admin-quick-logout-btn';
         quickLogoutBtn.style.background = 'rgba(255, 255, 255, 0.1)';
         quickLogoutBtn.style.color = 'rgba(255, 255, 255, 0.8)';
-        quickLogoutBtn.style.padding = '10px 18px';
+        quickLogoutBtn.style.padding = '10px 16px';
         quickLogoutBtn.style.borderRadius = '30px';
         quickLogoutBtn.style.fontSize = '0.85rem';
-        quickLogoutBtn.style.fontWeight = '700';
+        quickLogoutBtn.style.fontWeight = '600';
         quickLogoutBtn.style.border = 'none';
         quickLogoutBtn.style.cursor = 'pointer';
-        quickLogoutBtn.style.transition = 'all var(--transition-fast)';
-        quickLogoutBtn.style.fontFamily = 'var(--font-heading)';
+        quickLogoutBtn.style.transition = 'all 0.2s ease';
+        quickLogoutBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
         quickLogoutBtn.innerHTML = 'Log Out';
 
         // Hover animations
-        toggleBtn.addEventListener('mouseenter', () => {
-            toggleBtn.style.transform = 'translateY(-1px)';
-        });
-        toggleBtn.addEventListener('mouseleave', () => {
-            toggleBtn.style.transform = 'none';
-        });
+        saveGitBtn.addEventListener('mouseenter', () => saveGitBtn.style.transform = 'translateY(-2px)');
+        saveGitBtn.addEventListener('mouseleave', () => saveGitBtn.style.transform = 'none');
+        toggleBtn.addEventListener('mouseenter', () => toggleBtn.style.transform = 'translateY(-2px)');
+        toggleBtn.addEventListener('mouseleave', () => toggleBtn.style.transform = 'none');
+        portalBtn.addEventListener('mouseenter', () => portalBtn.style.background = 'rgba(255, 255, 255, 0.2)');
+        portalBtn.addEventListener('mouseleave', () => portalBtn.style.background = 'rgba(255, 255, 255, 0.1)');
         quickLogoutBtn.addEventListener('mouseenter', () => {
-            quickLogoutBtn.style.background = 'rgba(211, 47, 47, 0.9)'; // Turn red on hover
+            quickLogoutBtn.style.background = 'rgba(211, 47, 47, 0.9)';
             quickLogoutBtn.style.color = 'white';
-            quickLogoutBtn.style.transform = 'translateY(-1px)';
         });
         quickLogoutBtn.addEventListener('mouseleave', () => {
             quickLogoutBtn.style.background = 'rgba(255, 255, 255, 0.1)';
             quickLogoutBtn.style.color = 'rgba(255, 255, 255, 0.8)';
-            quickLogoutBtn.style.transform = 'none';
         });
 
+        // Universal Save & Push Handler
+        async function triggerUniversalGitSync(triggerElement) {
+            const originalText = triggerElement ? triggerElement.innerHTML : '';
+            if (triggerElement) {
+                triggerElement.innerHTML = '⏳ Pushing to Git...';
+                triggerElement.style.background = 'rgba(230, 81, 0, 0.95)'; // Orange
+                triggerElement.disabled = true;
+            }
+
+            // 1. Collect all live text edits from the current page
+            const pageKey = getPageKey();
+            const edits = getStoredTextEdits();
+
+            document.querySelectorAll(editableSelectors).forEach((element, index) => {
+                if (!isEditableElement(element)) return;
+                const storageKey = `edit_text_${pageKey}_${index}`;
+                edits[storageKey] = element.innerHTML.trim();
+            });
+
+            localStorage.setItem('station46_text_edits', JSON.stringify(edits));
+
+            // 2. Sync edits & posts to GitHub
+            const posts = getStoredPosts();
+            const editSuccess = await syncToGitHub('data/edits.json', edits, 'Admin: Push text edits to Git');
+            const postSuccess = await syncToGitHub('data/posts.json', posts, 'Admin: Push news posts to Git');
+
+            if (editSuccess || postSuccess) {
+                if (triggerElement) {
+                    triggerElement.innerHTML = '✅ Saved & Pushed to Git!';
+                    triggerElement.style.background = 'rgba(46, 125, 50, 0.95)'; // Green
+                }
+                showAdminToast('✅ Changes successfully saved and pushed to GitHub!');
+            } else {
+                if (triggerElement) {
+                    triggerElement.innerHTML = '❌ Push Failed (Check console)';
+                    triggerElement.style.background = 'rgba(211, 47, 47, 0.95)';
+                }
+                showAdminToast('❌ Failed to push changes to GitHub.', true);
+            }
+
+            setTimeout(() => {
+                if (triggerElement) {
+                    triggerElement.innerHTML = originalText || '💾 Save & Push to Git';
+                    triggerElement.style.background = 'rgba(21, 101, 192, 0.95)';
+                    triggerElement.disabled = false;
+                }
+            }, 3500);
+        }
+
+        saveGitBtn.addEventListener('click', () => triggerUniversalGitSync(saveGitBtn));
+
+        bar.appendChild(saveGitBtn);
         bar.appendChild(toggleBtn);
+        bar.appendChild(portalBtn);
         bar.appendChild(quickLogoutBtn);
         document.body.appendChild(bar);
         document.body.classList.add('admin-edit-mode');
@@ -446,6 +572,38 @@ document.addEventListener('DOMContentLoaded', () => {
         quickLogoutBtn.addEventListener('click', () => {
             sessionStorage.removeItem('admin_logged_in');
             window.location.reload();
+        });
+    }
+
+    // Connect Force Push button inside Admin Dashboard if present
+    const forcePushBtn = document.getElementById('admin-force-git-push-btn');
+    if (forcePushBtn) {
+        forcePushBtn.addEventListener('click', async () => {
+            forcePushBtn.innerHTML = '⏳ Pushing to Git...';
+            forcePushBtn.style.background = 'rgba(230, 81, 0, 0.95)';
+            forcePushBtn.disabled = true;
+
+            const posts = getStoredPosts();
+            const edits = getStoredTextEdits();
+
+            const postSuccess = await syncToGitHub('data/posts.json', posts, 'Admin: Force push posts to Git');
+            const editSuccess = await syncToGitHub('data/edits.json', edits, 'Admin: Force push edits to Git');
+
+            if (postSuccess || editSuccess) {
+                forcePushBtn.innerHTML = '✅ Pushed All Data to Git!';
+                forcePushBtn.style.background = 'rgba(46, 125, 50, 0.95)';
+                showAdminToast('✅ All posts and text edits pushed to GitHub!');
+            } else {
+                forcePushBtn.innerHTML = '❌ Push Failed';
+                forcePushBtn.style.background = 'rgba(211, 47, 47, 0.95)';
+                showAdminToast('❌ Failed to push data to GitHub.', true);
+            }
+
+            setTimeout(() => {
+                forcePushBtn.innerHTML = '💾 Push All Data to Git';
+                forcePushBtn.style.background = 'rgba(21, 101, 192, 0.95)';
+                forcePushBtn.disabled = false;
+            }, 3500);
         });
     }
 
@@ -788,7 +946,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Sync news posts
         try {
             const remotePosts = await fetchRemoteData('data/posts.json');
-            if (Array.isArray(remotePosts)) {
+            if (Array.isArray(remotePosts) && remotePosts.length > 0) {
                 localStorage.setItem('station46_posts', JSON.stringify(remotePosts));
                 // Re-render feed if visible
                 if (newsGrid && newsEmptyState) {
@@ -803,12 +961,15 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("[Station 46] Could not sync remote posts:", err);
         }
 
-        // Sync visual text edits
+        // Sync visual text edits with smart merge
         try {
             const remoteEdits = await fetchRemoteData('data/edits.json');
             if (remoteEdits && typeof remoteEdits === 'object') {
-                localStorage.setItem('station46_text_edits', JSON.stringify(remoteEdits));
-                applyTextEdits(remoteEdits);
+                const localEdits = getStoredTextEdits();
+                // Combine remote edits with any unsaved local edits
+                const mergedEdits = Object.assign({}, remoteEdits, localEdits);
+                localStorage.setItem('station46_text_edits', JSON.stringify(mergedEdits));
+                applyTextEdits(mergedEdits);
             }
         } catch (err) {
             console.warn("[Station 46] Could not sync remote text edits:", err);
