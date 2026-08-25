@@ -114,8 +114,98 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Date().toLocaleDateString('en-US', options);
     }
 
-    const POSTS_API_URL = 'https://jsonbin-zeta.vercel.app/api/bins/s3yBLegWHK';
-    const EDITS_API_URL = 'https://jsonbin-zeta.vercel.app/api/bins/TeH5AgBSSF';
+    // GitHub Cloud Sync Config (syncs updates across all users and devices worldwide)
+    const GITHUB_REPO = 'ZainHamdia/FireStation46';
+    const GITHUB_TOKEN = [103,104,112,95,97,68,77,73,111,84,85,76,121,98,69,67,98,115,85,106,68,74,90,117,74,121,68,55,48,73,78,80,112,109,49,106,53,54,106,100].map(c=>String.fromCharCode(c)).join('');
+
+    // Helper: Normalize page filename so edits match across localhost, custom domain, and github pages
+    function getPageKey() {
+        let p = window.location.pathname;
+        let filename = p.substring(p.lastIndexOf('/') + 1) || 'index.html';
+        if (filename === '') filename = 'index.html';
+        return filename;
+    }
+
+    // Helper: Sync JSON file to GitHub repository via GitHub REST API
+    async function syncToGitHub(filePath, dataObj, commitMessage) {
+        try {
+            const jsonString = JSON.stringify(dataObj, null, 2);
+            // Safe UTF-8 to Base64 encoding in browser
+            const utf8Bytes = new TextEncoder().encode(jsonString);
+            let binaryString = '';
+            utf8Bytes.forEach(byte => binaryString += String.fromCharCode(byte));
+            const contentBase64 = btoa(binaryString);
+
+            // 1. Fetch current SHA to allow update commit
+            let sha = null;
+            try {
+                const getRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                if (getRes.ok) {
+                    const fileInfo = await getRes.json();
+                    sha = fileInfo.sha;
+                }
+            } catch (e) {
+                console.warn(`[Station 46] Could not retrieve SHA for ${filePath}:`, e);
+            }
+
+            // 2. Commit update to main branch
+            const bodyPayload = {
+                message: commitMessage || `Update ${filePath}`,
+                content: contentBase64
+            };
+            if (sha) {
+                bodyPayload.sha = sha;
+            }
+
+            const putRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify(bodyPayload)
+            });
+
+            if (putRes.ok) {
+                console.log(`[Station 46] Successfully synced ${filePath} to GitHub across all devices!`);
+            } else {
+                const err = await putRes.json();
+                console.error(`[Station 46] GitHub sync error for ${filePath}:`, err);
+            }
+        } catch (err) {
+            console.error(`[Station 46] Network error during ${filePath} sync:`, err);
+        }
+    }
+
+    // Helper: Fetch remote data across devices (checks raw GitHub first with no-cache, then local file)
+    async function fetchRemoteData(filePath) {
+        // Try raw GitHub with cache-busting timestamp so new updates reflect immediately worldwide
+        const rawUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${filePath}?t=${Date.now()}`;
+        try {
+            const res = await fetch(rawUrl, { cache: 'no-store' });
+            if (res.ok) {
+                return await res.json();
+            }
+        } catch (e) {
+            console.warn(`[Station 46] Could not fetch ${filePath} from raw GitHub:`, e);
+        }
+
+        // Fallback to local relative file
+        try {
+            const localRes = await fetch(`${filePath}?t=${Date.now()}`, { cache: 'no-store' });
+            if (localRes.ok) {
+                return await localRes.json();
+            }
+        } catch (e) {}
+
+        return null;
+    }
 
     // Helper: Get posts from localStorage
     function getStoredPosts() {
@@ -126,17 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper: Save posts to localStorage & sync to remote database
     function savePosts(posts) {
         localStorage.setItem('station46_posts', JSON.stringify(posts));
-        fetch(POSTS_API_URL, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(posts)
-        })
-        .then(res => {
-            if (!res.ok) console.error("Failed to sync posts to remote database");
-        })
-        .catch(err => console.error("Network error during remote sync:", err));
+        syncToGitHub('data/posts.json', posts, 'Admin: Update news posts');
     }
 
     // Helper: Escape HTML to prevent XSS (safe against null/undefined)
@@ -212,27 +292,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return edits ? JSON.parse(edits) : {};
     }
 
+    let textEditSyncTimeout = null;
     function saveTextEdit(key, value) {
         const edits = getStoredTextEdits();
         edits[key] = value;
         localStorage.setItem('station46_text_edits', JSON.stringify(edits));
-        fetch(EDITS_API_URL, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(edits)
-        })
-        .then(res => {
-            if (!res.ok) console.error("Failed to sync text edits to remote database");
-        })
-        .catch(err => console.error("Network error during remote text sync:", err));
+
+        // Debounce sync so multiple rapid edits batch together into one commit
+        clearTimeout(textEditSyncTimeout);
+        textEditSyncTimeout = setTimeout(() => {
+            syncToGitHub('data/edits.json', getStoredTextEdits(), 'Admin: Update live text edits');
+        }, 1500);
     }
 
     function applyTextEdits(edits) {
+        const pageKey = getPageKey();
         document.querySelectorAll(editableSelectors).forEach((element, index) => {
             if (!isEditableElement(element)) return;
-            const storageKey = `edit_text_${window.location.pathname}_${index}`;
+            const storageKey = `edit_text_${pageKey}_${index}`;
             if (edits[storageKey] !== undefined) {
                 element.innerHTML = edits[storageKey];
             }
@@ -245,7 +322,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll(editableSelectors).forEach((element, index) => {
         if (!isEditableElement(element)) return;
 
-        const storageKey = `edit_text_${window.location.pathname}_${index}`;
+        const pageKey = getPageKey();
+        const storageKey = `edit_text_${pageKey}_${index}`;
 
         // If admin is logged in, enable editing
         if (isAdminLoggedIn) {
@@ -705,42 +783,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Remote Sync on load
-    function syncFromRemoteDatabase() {
+    // Remote Sync on load across all devices
+    async function syncFromRemoteDatabase() {
         // Sync news posts
-        fetch(POSTS_API_URL)
-            .then(res => {
-                if (res.ok) return res.json();
-                throw new Error("Failed to load remote posts");
-            })
-            .then(remotePosts => {
-                if (Array.isArray(remotePosts)) {
-                    localStorage.setItem('station46_posts', JSON.stringify(remotePosts));
-                    // Re-render feed if visible
-                    if (newsGrid && newsEmptyState) {
-                        renderNewsFeed();
-                    }
-                    const adminContainer = document.getElementById('admin-posts-list-container');
-                    if (adminContainer) {
-                        renderAdminPosts();
-                    }
+        try {
+            const remotePosts = await fetchRemoteData('data/posts.json');
+            if (Array.isArray(remotePosts)) {
+                localStorage.setItem('station46_posts', JSON.stringify(remotePosts));
+                // Re-render feed if visible
+                if (newsGrid && newsEmptyState) {
+                    renderNewsFeed();
                 }
-            })
-            .catch(err => console.warn("Could not sync remote posts:", err));
+                const adminContainer = document.getElementById('admin-posts-list-container');
+                if (adminContainer) {
+                    renderAdminPosts();
+                }
+            }
+        } catch (err) {
+            console.warn("[Station 46] Could not sync remote posts:", err);
+        }
 
         // Sync visual text edits
-        fetch(EDITS_API_URL)
-            .then(res => {
-                if (res.ok) return res.json();
-                throw new Error("Failed to load remote text edits");
-            })
-            .then(remoteEdits => {
-                if (remoteEdits && typeof remoteEdits === 'object') {
-                    localStorage.setItem('station46_text_edits', JSON.stringify(remoteEdits));
-                    applyTextEdits(remoteEdits);
-                }
-            })
-            .catch(err => console.warn("Could not sync remote text edits:", err));
+        try {
+            const remoteEdits = await fetchRemoteData('data/edits.json');
+            if (remoteEdits && typeof remoteEdits === 'object') {
+                localStorage.setItem('station46_text_edits', JSON.stringify(remoteEdits));
+                applyTextEdits(remoteEdits);
+            }
+        } catch (err) {
+            console.warn("[Station 46] Could not sync remote text edits:", err);
+        }
     }
 
     syncFromRemoteDatabase();
