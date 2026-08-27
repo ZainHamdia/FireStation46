@@ -120,10 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper: Normalize page filename so edits match across localhost, custom domain, and github pages
     function getPageKey() {
-        let p = window.location.pathname;
-        let filename = p.substring(p.lastIndexOf('/') + 1) || 'index.html';
-        if (filename === '') filename = 'index.html';
-        return filename;
+        let p = window.location.pathname || '';
+        p = p.split('?')[0].split('#')[0];
+        p = p.replace(/\/+$/, '');
+        let filename = p.substring(p.lastIndexOf('/') + 1);
+        if (!filename || filename === '' || filename === '/' || filename === 'index') return 'index.html';
+        if (!filename.includes('.')) return filename + '.html';
+        return filename.toLowerCase();
     }
 
     // Helper: Sync JSON file to GitHub repository via GitHub REST API
@@ -136,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             utf8Bytes.forEach(byte => binaryString += String.fromCharCode(byte));
             const contentBase64 = btoa(binaryString);
 
-            // 1. Fetch current SHA & content to check if anything actually changed
+            // 1. Fetch current SHA & content from GitHub
             let sha = null;
             let existingBase64 = null;
             try {
@@ -234,9 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500);
     }
 
-    // Helper: Fetch remote data across devices (checks raw GitHub first with no-cache, then local file)
+    // Helper: Fetch remote data across devices (checks raw GitHub first with no-cache, then GitHub API, then local file)
     async function fetchRemoteData(filePath) {
-        // Try raw GitHub with cache-busting timestamp so new updates reflect immediately worldwide
+        // 1. Try raw GitHub with cache-busting timestamp so new updates reflect immediately worldwide
         const rawUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${filePath}?t=${Date.now()}`;
         try {
             const res = await fetch(rawUrl, { cache: 'no-store' });
@@ -247,7 +250,32 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn(`[Station 46] Could not fetch ${filePath} from raw GitHub:`, e);
         }
 
-        // Fallback to local relative file
+        // 2. Direct GitHub API fallback
+        try {
+            const apiRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?t=${Date.now()}`, {
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                cache: 'no-store'
+            });
+            if (apiRes.ok) {
+                const fileInfo = await apiRes.json();
+                if (fileInfo.content) {
+                    const binaryStr = atob(fileInfo.content.replace(/\s/g, ''));
+                    const bytes = new Uint8Array(binaryStr.length);
+                    for (let i = 0; i < binaryStr.length; i++) {
+                        bytes[i] = binaryStr.charCodeAt(i);
+                    }
+                    const jsonStr = new TextDecoder().decode(bytes);
+                    return JSON.parse(jsonStr);
+                }
+            }
+        } catch (e) {
+            console.warn(`[Station 46] Could not fetch ${filePath} from GitHub API:`, e);
+        }
+
+        // 3. Fallback to local relative file
         try {
             const localRes = await fetch(`${filePath}?t=${Date.now()}`, { cache: 'no-store' });
             if (localRes.ok) {
@@ -265,9 +293,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Helper: Save posts to localStorage & sync to remote database
-    function savePosts(posts) {
+    async function savePosts(posts) {
         localStorage.setItem('station46_posts', JSON.stringify(posts));
-        syncToGitHub('data/posts.json', posts, 'Admin: Update news posts');
+        await syncToGitHub('data/posts.json', posts, 'Admin: Update news posts');
     }
 
     // Helper: Escape HTML to prevent XSS (safe against null/undefined)
@@ -281,28 +309,103 @@ document.addEventListener('DOMContentLoaded', () => {
              .replace(/'/g, "&#039;");
     }
 
+    // Comprehensive Editable Selectors (covering all pages: headings, body, subtitles, stats, roster, apparatus, santa, FAQs, etc.)
+    const editableSelectors = [
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'p',
+        'li',
+        '.hero-subtitle', '.hero-desc',
+        '.section-subtitle', '.section-title',
+        '.stat-number', '.stat-label',
+        '.rank-badge', '.roster-name', '.roster-category-title',
+        '.card-img-placeholder',
+        '.santa-badge',
+        '.chart-bar-year', '.chart-bar-value',
+        '.date-card-title', '.date-card-subtitle',
+        '.guideline-num',
+        '.guideline-text h4', '.guideline-text p',
+        '.printable-form-preview h3', '.printable-form-preview p',
+        '.faq-question', '.faq-question > span:first-child', '.faq-answer p',
+        '.donation-desc',
+        '.form-note',
+        '.btn', '.btn-primary', '.btn-secondary',
+        '.footer-info p', '.footer-brand span'
+    ].join(', ');
+
     // Helper: Check if element is allowed to be edited
     function isEditableElement(element) {
-        if (element.closest('.navbar') || 
-            element.closest('#admin-navbar') || 
-            element.closest('footer') || 
-            element.closest('#admin-footer') || 
-            element.closest('.admin-dashboard') || 
-            element.closest('.admin-form-container') || 
-            element.closest('form') ||
-            element.closest('.news-filter-bar') ||
-            element.closest('#admin-floating-bar') ||
+        if (!element || element.nodeType !== Node.ELEMENT_NODE) return false;
+
+        // Never edit internal admin controls, forms, toasts, navigation bars, or external widgets
+        if (element.closest('#admin-floating-bar') ||
             element.closest('#admin-toast-notification') ||
-            element.closest('.info-card-icon') ||
-            element.closest('.donation-list-icon') ||
-            element.tagName === 'BUTTON' ||
-            element.tagName === 'A' ||
-            element.tagName === 'SVG' ||
-            element.classList.contains('empty-state-title') ||
-            element.classList.contains('empty-state-desc')) {
+            element.closest('#admin-dashboard-view') ||
+            element.closest('#admin-login-view') ||
+            element.closest('.admin-form-container') ||
+            element.closest('.admin-dashboard') ||
+            element.closest('#admin-posts-list-container') ||
+            element.closest('.news-filter-bar') ||
+            element.closest('.roster-search-box') ||
+            element.closest('.powr-social-feed') ||
+            element.closest('form') ||
+            element.closest('.mobile-menu-btn')) {
             return false;
         }
+
+        // Never edit system buttons, icons, or non-text tags
+        if (element.id === 'year' ||
+            element.id === 'admin-logout-btn' ||
+            element.id === 'admin-force-git-push-btn' ||
+            element.id === 'edit-mode-toggle-btn' ||
+            element.id === 'admin-save-git-btn' ||
+            element.classList.contains('admin-link') ||
+            element.classList.contains('search-clear-btn') ||
+            element.classList.contains('empty-state-actions') ||
+            element.tagName === 'INPUT' ||
+            element.tagName === 'TEXTAREA' ||
+            element.tagName === 'SELECT' ||
+            element.tagName === 'OPTION' ||
+            element.tagName === 'SVG' ||
+            element.tagName === 'PATH' ||
+            element.tagName === 'POLYLINE' ||
+            element.tagName === 'CIRCLE' ||
+            element.tagName === 'RECT' ||
+            element.tagName === 'LINE' ||
+            element.tagName === 'IMG' ||
+            element.tagName === 'SCRIPT' ||
+            element.tagName === 'STYLE' ||
+            element.closest('.info-card-icon') ||
+            element.closest('.donation-list-icon') ||
+            element.closest('.date-icon-box') ||
+            element.closest('.paypal-badge') ||
+            element.closest('.empty-state-icon') ||
+            element.closest('.search-icon') ||
+            element.closest('.roster-avatar') ||
+            element.closest('.nav-badge-img') ||
+            element.closest('.footer-badge-img')) {
+            return false;
+        }
+
+        // Avoid nested contenteditable by skipping container elements that contain child editable elements
+        const nestedChildSelectors = 'h1, h2, h3, h4, h5, h6, p, .stat-number, .stat-label, .rank-badge, .roster-name, .card-img-placeholder, .santa-badge, .date-card-title, .date-card-subtitle';
+        if (element.querySelector(nestedChildSelectors)) {
+            return false;
+        }
+
         return true;
+    }
+
+    // Helper: Collect all editable elements in deterministic DOM order
+    function getEditableElements() {
+        const list = [];
+        const seen = new Set();
+        document.querySelectorAll(editableSelectors).forEach(el => {
+            if (isEditableElement(el) && !seen.has(el)) {
+                seen.add(el);
+                list.push(el);
+            }
+        });
+        return list;
     }
 
     // Helper: Client-side Image Compression to avoid QuotaExceededError in localStorage
@@ -343,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inline CMS / Text Editing Backdoor
     const isAdminLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
-    const editableSelectors = 'h1, h2, h3, h4, h5, h6, p, li, .section-subtitle, .hero-subtitle, .donation-amount';
+    let editModeActive = true;
 
     function getStoredTextEdits() {
         const edits = localStorage.getItem('station46_text_edits');
@@ -357,12 +460,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyTextEdits(edits) {
+        if (!edits || typeof edits !== 'object') return;
         const pageKey = getPageKey();
-        document.querySelectorAll(editableSelectors).forEach((element, index) => {
-            if (!isEditableElement(element)) return;
+        const elements = getEditableElements();
+        elements.forEach((element, index) => {
             const storageKey = `edit_text_${pageKey}_${index}`;
-            if (edits[storageKey] !== undefined) {
-                element.innerHTML = edits[storageKey];
+            if (edits[storageKey] !== undefined && edits[storageKey] !== null) {
+                if (document.activeElement !== element) {
+                    element.innerHTML = edits[storageKey];
+                }
             }
         });
     }
@@ -370,39 +476,136 @@ document.addEventListener('DOMContentLoaded', () => {
     // Apply local edits immediately on page load
     applyTextEdits(getStoredTextEdits());
 
-    document.querySelectorAll(editableSelectors).forEach((element, index) => {
-        if (!isEditableElement(element)) return;
-
+    // Initialize in-place editing on all editable elements when logged in
+    function initLiveEditor() {
         const pageKey = getPageKey();
-        const storageKey = `edit_text_${pageKey}_${index}`;
+        const elements = getEditableElements();
 
-        // If admin is logged in, enable editing
-        if (isAdminLoggedIn) {
-            element.setAttribute('contenteditable', 'true');
-            
-            // Save on input (real-time typing)
-            element.addEventListener('input', () => {
-                const currentText = element.innerHTML.trim();
-                saveTextEdit(storageKey, currentText);
-            });
+        elements.forEach((element, index) => {
+            const storageKey = `edit_text_${pageKey}_${index}`;
 
-            // Save on blur (clicking outside)
-            element.addEventListener('blur', () => {
-                const currentText = element.innerHTML.trim();
-                saveTextEdit(storageKey, currentText);
-            });
-            
-            // Handle Enter key for title lines to blur instead of inserting line break (optional)
-            if (element.tagName.match(/^H[1-6]$/)) {
-                element.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        element.blur();
-                    }
+            if (isAdminLoggedIn) {
+                element.setAttribute('contenteditable', editModeActive ? 'true' : 'false');
+                
+                // Save on input (real-time typing)
+                element.addEventListener('input', () => {
+                    const currentText = element.innerHTML.trim();
+                    saveTextEdit(storageKey, currentText);
                 });
+
+                // Save on blur (clicking outside)
+                element.addEventListener('blur', () => {
+                    const currentText = element.innerHTML.trim();
+                    saveTextEdit(storageKey, currentText);
+                });
+
+                // Prevent link navigation during active edit mode so admin can edit link text
+                if (element.tagName === 'A' || element.closest('a')) {
+                    element.addEventListener('click', (e) => {
+                        if (editModeActive) {
+                            e.preventDefault();
+                        }
+                    });
+                }
+                
+                // Handle Enter key for single-line titles to blur instead of inserting line breaks
+                if (element.tagName.match(/^H[1-6]$/)) {
+                    element.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            element.blur();
+                        }
+                    });
+                }
             }
+        });
+    }
+
+    initLiveEditor();
+
+    // Universal Save & Push Handler (Merges all edits across all pages & posts before pushing to Git)
+    async function triggerUniversalGitSync(triggerElement) {
+        const originalText = triggerElement ? triggerElement.innerHTML : '';
+        if (triggerElement) {
+            triggerElement.innerHTML = '⏳ Pushing to Git...';
+            triggerElement.style.background = 'rgba(230, 81, 0, 0.95)'; // Orange
+            triggerElement.disabled = true;
         }
-    });
+
+        // 1. If an element is currently focused, blur it to ensure input handler ran
+        if (document.activeElement && document.activeElement.isContentEditable) {
+            document.activeElement.blur();
+        }
+
+        try {
+            // 2. Fetch latest edits from GitHub to guarantee no remote edits from other pages/devices are lost
+            let remoteEdits = {};
+            try {
+                const remoteData = await fetchRemoteData('data/edits.json');
+                if (remoteData && typeof remoteData === 'object') {
+                    remoteEdits = remoteData;
+                }
+            } catch (e) {
+                console.warn('[Station 46] Could not fetch latest remote edits before push:', e);
+            }
+
+            // 3. Smart Merge: Combine all existing remote edits from GitHub with all local edits across all pages
+            const localEdits = getStoredTextEdits();
+            const mergedEdits = Object.assign({}, remoteEdits, localEdits);
+            localStorage.setItem('station46_text_edits', JSON.stringify(mergedEdits));
+
+            // 4. Fetch and merge latest news posts to prevent post loss
+            let remotePosts = [];
+            try {
+                const remotePostsData = await fetchRemoteData('data/posts.json');
+                if (Array.isArray(remotePostsData)) {
+                    remotePosts = remotePostsData;
+                }
+            } catch (e) {
+                console.warn('[Station 46] Could not fetch latest remote posts before push:', e);
+            }
+
+            const localPosts = getStoredPosts();
+            const postsMap = new Map();
+            remotePosts.forEach(p => { if (p && typeof p === 'object' && p.id) postsMap.set(p.id, p); });
+            localPosts.forEach(p => { if (p && typeof p === 'object' && p.id) postsMap.set(p.id, p); });
+            const mergedPosts = Array.from(postsMap.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
+            localStorage.setItem('station46_posts', JSON.stringify(mergedPosts));
+
+            // 5. Commit both files directly to GitHub repository
+            const editSuccess = await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits across website');
+            const postSuccess = await syncToGitHub('data/posts.json', mergedPosts, 'Admin: Update news posts');
+
+            if (editSuccess || postSuccess) {
+                if (triggerElement) {
+                    triggerElement.innerHTML = '✅ Saved & Pushed to Git!';
+                    triggerElement.style.background = 'rgba(46, 125, 50, 0.95)'; // Green
+                }
+                showAdminToast('✅ Changes across all pages saved and pushed to GitHub!');
+            } else {
+                if (triggerElement) {
+                    triggerElement.innerHTML = '❌ Push Failed (Check console)';
+                    triggerElement.style.background = 'rgba(211, 47, 47, 0.95)';
+                }
+                showAdminToast('❌ Failed to push changes to GitHub. Please check console.', true);
+            }
+        } catch (err) {
+            console.error('[Station 46] Universal sync error:', err);
+            if (triggerElement) {
+                triggerElement.innerHTML = '❌ Push Error';
+                triggerElement.style.background = 'rgba(211, 47, 47, 0.95)';
+            }
+            showAdminToast('❌ Error pushing to GitHub: ' + (err.message || err), true);
+        } finally {
+            setTimeout(() => {
+                if (triggerElement) {
+                    triggerElement.innerHTML = originalText || '💾 Save & Push to Git';
+                    triggerElement.style.background = 'rgba(21, 101, 192, 0.95)';
+                    triggerElement.disabled = false;
+                }
+            }, 3500);
+        }
+    }
 
     // Add a floating admin control bar on all pages when logged in
     if (isAdminLoggedIn && !document.getElementById('admin-floating-bar')) {
@@ -416,12 +619,12 @@ document.addEventListener('DOMContentLoaded', () => {
         bar.style.alignItems = 'center';
         bar.style.gap = '0.5rem';
         bar.style.zIndex = '99999';
-        bar.style.background = 'rgba(15, 17, 21, 0.92)';
-        bar.style.padding = '8px 12px';
+        bar.style.background = 'rgba(15, 17, 21, 0.95)';
+        bar.style.padding = '8px 14px';
         bar.style.borderRadius = '40px';
-        bar.style.border = '1px solid rgba(255, 255, 255, 0.15)';
+        bar.style.border = '1px solid rgba(255, 255, 255, 0.2)';
         bar.style.backdropFilter = 'blur(12px)';
-        bar.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
+        bar.style.boxShadow = '0 10px 35px rgba(0,0,0,0.7)';
 
         // 1. Save & Push to Git Button
         const saveGitBtn = document.createElement('button');
@@ -499,49 +702,6 @@ document.addEventListener('DOMContentLoaded', () => {
             quickLogoutBtn.style.color = 'rgba(255, 255, 255, 0.8)';
         });
 
-        // Universal Save & Push Handler
-        async function triggerUniversalGitSync(triggerElement) {
-            const originalText = triggerElement ? triggerElement.innerHTML : '';
-            if (triggerElement) {
-                triggerElement.innerHTML = '⏳ Pushing to Git...';
-                triggerElement.style.background = 'rgba(230, 81, 0, 0.95)'; // Orange
-                triggerElement.disabled = true;
-            }
-
-            // 1. If an element is currently focused, blur it to ensure input handler ran
-            if (document.activeElement && document.activeElement.isContentEditable) {
-                document.activeElement.blur();
-            }
-
-            // 2. Sync edits & posts to GitHub
-            const edits = getStoredTextEdits();
-            const posts = getStoredPosts();
-            const editSuccess = await syncToGitHub('data/edits.json', edits, 'Admin: Update live text edits');
-            const postSuccess = await syncToGitHub('data/posts.json', posts, 'Admin: Update news posts');
-
-            if (editSuccess && postSuccess) {
-                if (triggerElement) {
-                    triggerElement.innerHTML = '✅ Saved & Pushed to Git!';
-                    triggerElement.style.background = 'rgba(46, 125, 50, 0.95)'; // Green
-                }
-                showAdminToast('✅ Changes successfully saved and pushed to GitHub!');
-            } else {
-                if (triggerElement) {
-                    triggerElement.innerHTML = '❌ Push Failed (Check console)';
-                    triggerElement.style.background = 'rgba(211, 47, 47, 0.95)';
-                }
-                showAdminToast('❌ Failed to push changes to GitHub.', true);
-            }
-
-            setTimeout(() => {
-                if (triggerElement) {
-                    triggerElement.innerHTML = originalText || '💾 Save & Push to Git';
-                    triggerElement.style.background = 'rgba(21, 101, 192, 0.95)';
-                    triggerElement.disabled = false;
-                }
-            }, 3500);
-        }
-
         saveGitBtn.addEventListener('click', () => triggerUniversalGitSync(saveGitBtn));
 
         bar.appendChild(saveGitBtn);
@@ -551,8 +711,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(bar);
         document.body.classList.add('admin-edit-mode');
 
-        let editModeActive = true;
-
         toggleBtn.addEventListener('click', () => {
             editModeActive = !editModeActive;
             
@@ -561,20 +719,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleBtn.style.background = 'rgba(46, 125, 50, 0.9)'; // Green
                 toggleBtn.innerHTML = '⚡ Edit Mode: ON';
                 
-                document.querySelectorAll(editableSelectors).forEach(element => {
-                    if (isEditableElement(element)) {
-                        element.setAttribute('contenteditable', 'true');
-                    }
+                getEditableElements().forEach(element => {
+                    element.setAttribute('contenteditable', 'true');
                 });
             } else {
                 document.body.classList.remove('admin-edit-mode');
                 toggleBtn.style.background = 'rgba(211, 47, 47, 0.9)'; // Red for OFF
                 toggleBtn.innerHTML = '⚡ Edit Mode: OFF';
                 
-                document.querySelectorAll(editableSelectors).forEach(element => {
-                    if (isEditableElement(element)) {
-                        element.setAttribute('contenteditable', 'false');
-                    }
+                getEditableElements().forEach(element => {
+                    element.setAttribute('contenteditable', 'false');
                 });
             }
         });
@@ -588,32 +742,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Connect Force Push button inside Admin Dashboard if present
     const forcePushBtn = document.getElementById('admin-force-git-push-btn');
     if (forcePushBtn) {
-        forcePushBtn.addEventListener('click', async () => {
-            forcePushBtn.innerHTML = '⏳ Pushing to Git...';
-            forcePushBtn.style.background = 'rgba(230, 81, 0, 0.95)';
-            forcePushBtn.disabled = true;
-
-            const posts = getStoredPosts();
-            const edits = getStoredTextEdits();
-
-            const postSuccess = await syncToGitHub('data/posts.json', posts, 'Admin: Force push posts to Git');
-            const editSuccess = await syncToGitHub('data/edits.json', edits, 'Admin: Force push edits to Git');
-
-            if (postSuccess || editSuccess) {
-                forcePushBtn.innerHTML = '✅ Pushed All Data to Git!';
-                forcePushBtn.style.background = 'rgba(46, 125, 50, 0.95)';
-                showAdminToast('✅ All posts and text edits pushed to GitHub!');
-            } else {
-                forcePushBtn.innerHTML = '❌ Push Failed';
-                forcePushBtn.style.background = 'rgba(211, 47, 47, 0.95)';
-                showAdminToast('❌ Failed to push data to GitHub.', true);
-            }
-
-            setTimeout(() => {
-                forcePushBtn.innerHTML = '💾 Push All Data to Git';
-                forcePushBtn.style.background = 'rgba(21, 101, 192, 0.95)';
-                forcePushBtn.disabled = false;
-            }, 3500);
+        forcePushBtn.addEventListener('click', () => {
+            triggerUniversalGitSync(forcePushBtn);
         });
     }
 
@@ -980,6 +1110,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const mergedEdits = Object.assign({}, remoteEdits, localEdits);
                 localStorage.setItem('station46_text_edits', JSON.stringify(mergedEdits));
                 applyTextEdits(mergedEdits);
+                if (isAdminLoggedIn) {
+                    initLiveEditor();
+                }
             }
         } catch (err) {
             console.warn("[Station 46] Could not sync remote text edits:", err);
