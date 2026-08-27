@@ -255,7 +255,7 @@
                             Due to high demand, we are delivering gifts exclusively into the <strong>Blawenburg / Skillman / Fire District #2</strong> coverage area.
                         </p>
                         <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-                            <a href="#form" class="btn btn-primary"><i class="fas fa-file-download"></i> Get Contact Form</a>
+                            <a href="#form" class="btn btn-primary"><i class="fas fa-file-alt"></i> Online Registration Form</a>
                             <a href="#districts" class="btn btn-secondary">Check Your District</a>
                         </div>
                     </div>
@@ -381,7 +381,7 @@
                         <div class="guideline-num">4</div>
                         <div class="guideline-text">
                             <h4>Completed Contact Form</h4>
-                            <p>Download and complete the contact form below, and bring it with you when you drop off your gift(s) at the firehouse.</p>
+                            <p>Submit your registration using the online form below, or download and complete the paper contact form, and bring it with you when you drop off your gift(s) at the firehouse.</p>
                         </div>
                     </div>
                 </div>
@@ -392,13 +392,35 @@
         <section id="form" class="section dark-alt">
             <div class="container" style="max-width: 900px;">
                 <div class="section-header text-center fade-in">
-                    <h2 class="section-title">Drop-Off Contact Form</h2>
-                    <p class="section-subtitle">Please print and fill out this registration form to bring with your gift(s) during drop-off.</p>
+                    <h2 class="section-title">Operation Santa Registration</h2>
+                    <p class="section-subtitle">Submit your registration online using the form below, or print out a paper copy to bring with your gifts.</p>
                 </div>
 
+                <!-- Google Form Embed -->
+                <div class="fade-in" style="margin-bottom: 2.5rem;">
+                    <div style="width: 100%; border-radius: 12px; overflow: hidden; background: #ffffff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
+                        <iframe 
+                            src="https://docs.google.com/forms/d/e/1FAIpQLScuY59xEl0FaVMNXVpUZ_M9rSiMztDjr43AFLf_mtYcUzWS-w/viewform?embedded=true" 
+                            width="100%" 
+                            height="850" 
+                            frameborder="0" 
+                            marginheight="0" 
+                            marginwidth="0"
+                            style="display: block; width: 100%; min-height: 850px; border: none;"
+                        >Loading…</iframe>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <a href="https://docs.google.com/forms/d/e/1FAIpQLScuY59xEl0FaVMNXVpUZ_M9rSiMztDjr43AFLf_mtYcUzWS-w/viewform" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.95rem; padding: 10px 22px;">
+                            Open Form in New Tab &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Printable Sheet Controls -->
                 <div class="text-center" style="margin-bottom: 1.5rem;">
-                    <button onclick="window.print()" class="btn btn-primary glow" style="font-size: 1.1rem; padding: 14px 28px;">
-                        🖨️ Print Contact Form
+                    <p style="color: var(--text-secondary); margin-bottom: 0.8rem; font-size: 0.95rem;">Prefer to fill out a paper form by hand?</p>
+                    <button onclick="window.print()" class="btn btn-secondary glow" style="font-size: 1rem; padding: 10px 22px;">
+                        🖨️ Print Paper Registration Form
                     </button>
                 </div>
 

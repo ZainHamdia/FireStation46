@@ -148,66 +148,422 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/* Roster Grid */
-.roster-grid {
+/* ==========================================================================
+   Modern Redesigned Roster Section
+   ========================================================================== */
+
+.roster-controls-wrapper {
+    max-width: 900px;
+    margin: 0 auto 3rem auto;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     gap: 1.5rem;
-    margin-top: 2rem;
 }
 
-/* Compact Roster Grid */
-.compact-grid {
+.roster-search-box {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+}
+
+.roster-search-box .search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    pointer-events: none;
+    transition: color var(--transition-fast);
+}
+
+.roster-search-box input {
+    width: 100%;
+    padding: 14px 44px 14px 48px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    color: white;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all var(--transition-normal);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.roster-search-box input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--fire-red);
+    box-shadow: 0 0 20px rgba(230, 57, 70, 0.25);
+}
+
+.roster-search-box input:focus + .search-icon,
+.roster-search-box:focus-within .search-icon {
+    color: var(--fire-red);
+}
+
+.search-clear-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--text-secondary);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    transition: all var(--transition-fast);
+}
+
+.search-clear-btn:hover {
+    background: var(--fire-red);
+    color: white;
+}
+
+.roster-filter-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.roster-filter-btn {
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.roster-filter-btn .filter-count {
+    font-size: 0.75rem;
+    padding: 2px 7px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.roster-filter-btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.roster-filter-btn.active {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.35);
+    transform: translateY(-1px);
+}
+
+.roster-filter-btn.active .filter-count {
+    background: rgba(0, 0, 0, 0.25);
+    color: white;
+}
+
+/* Category Sections */
+.roster-category-section {
+    margin-bottom: 3.5rem;
+    transition: all 0.3s ease;
+}
+
+.roster-category-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.roster-category-title {
+    font-size: 1.4rem;
+    color: white;
+    font-family: var(--font-heading);
+    margin: 0;
+    white-space: nowrap;
+}
+
+.roster-category-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.roster-category-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.15), transparent);
+}
+
+/* Roster Grids */
+.roster-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1rem;
 }
 
-.compact-grid .member-card {
-    flex: 0 1 180px;
+.roster-grid-officers {
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1.25rem;
 }
 
-.compact-grid .member-info {
-    padding: 1rem;
-}
-
-.compact-grid .member-name {
-    font-size: 1rem;
-}
-
-.compact-grid .member-rank {
-    font-size: 0.8rem;
-}
-
-.member-card {
-    flex: 0 1 250px;
-    padding: 0;
+/* Roster Cards */
+.roster-card {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    text-align: left;
+    transition: all var(--transition-normal);
+    position: relative;
     overflow: hidden;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-bottom: 3px solid var(--fire-red);
-    transition: transform var(--transition-normal);
 }
 
-.member-card:hover {
-    transform: translateY(-5px);
+.roster-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: transparent;
+    transition: background 0.3s ease;
 }
 
-.member-photo {
-    height: 250px;
-    background-size: cover;
-    background-position: center;
-    border-bottom: 2px solid var(--fire-red);
+.roster-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.18);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-.member-info {
-    padding: 1.5rem;
+/* Officer Card Special Styling */
+.roster-card.tier-line-officer {
+    background: linear-gradient(135deg, rgba(230, 57, 70, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-color: rgba(230, 57, 70, 0.25);
 }
 
-.member-name {
-    font-size: 1.25rem;
-    color: white;
-    margin-bottom: 0.25rem;
+.roster-card.tier-line-officer::before {
+    background: var(--fire-red);
+}
+
+.roster-card.tier-line-officer:hover {
+    border-color: rgba(230, 57, 70, 0.5);
+    box-shadow: 0 8px 30px rgba(230, 57, 70, 0.2);
+}
+
+.roster-card.tier-company-officer {
+    background: linear-gradient(135deg, rgba(212, 163, 115, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-color: rgba(212, 163, 115, 0.25);
+}
+
+.roster-card.tier-company-officer::before {
+    background: var(--gold);
+}
+
+.roster-card.tier-company-officer:hover {
+    border-color: rgba(212, 163, 115, 0.5);
+    box-shadow: 0 8px 30px rgba(212, 163, 115, 0.15);
+}
+
+/* Card Avatar / Monogram */
+.roster-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    letter-spacing: -0.5px;
+}
+
+.avatar-line {
+    background: rgba(230, 57, 70, 0.15);
+    color: #ff6b6b;
+    border: 1.5px solid rgba(230, 57, 70, 0.35);
+}
+
+.avatar-company {
+    background: rgba(212, 163, 115, 0.15);
+    color: var(--gold);
+    border: 1.5px solid rgba(212, 163, 115, 0.35);
+}
+
+.avatar-firefighter {
+    background: rgba(230, 57, 70, 0.08);
+    color: #fca5a5;
+    border: 1px solid rgba(230, 57, 70, 0.2);
+}
+
+.avatar-junior {
+    background: rgba(42, 157, 143, 0.15);
+    color: #48cae4;
+    border: 1px solid rgba(42, 157, 143, 0.35);
+}
+
+.avatar-police {
+    background: rgba(69, 123, 157, 0.15);
+    color: #90e0ef;
+    border: 1px solid rgba(69, 123, 157, 0.35);
+}
+
+.avatar-associate {
+    background: rgba(142, 68, 173, 0.15);
+    color: #d2b4de;
+    border: 1px solid rgba(142, 68, 173, 0.35);
+}
+
+/* Card Info */
+.roster-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.roster-name {
+    color: white;
+    font-size: 1.02rem;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    margin: 0 0 4px 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    line-height: 1.25;
+}
+
+.tag-new {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 1.5px 6px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    text-transform: uppercase;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+
+.roster-card.tier-line-officer .roster-name,
+.roster-card.tier-company-officer .roster-name {
+    font-size: 1.15rem;
+}
+
+/* Rank Badge Pills */
+.rank-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-chief {
+    background: rgba(230, 57, 70, 0.2);
+    color: #ff7b7b;
+    border: 1px solid rgba(230, 57, 70, 0.4);
+}
+
+.badge-line {
+    background: rgba(230, 57, 70, 0.12);
+    color: #ff9e9e;
+    border: 1px solid rgba(230, 57, 70, 0.25);
+}
+
+.badge-president {
+    background: rgba(212, 163, 115, 0.2);
+    color: var(--gold);
+    border: 1px solid rgba(212, 163, 115, 0.4);
+}
+
+.badge-company {
+    background: rgba(212, 163, 115, 0.12);
+    color: #ffd8a8;
+    border: 1px solid rgba(212, 163, 115, 0.25);
+}
+
+.badge-firefighter {
+    background: rgba(230, 57, 70, 0.1);
+    color: #fca5a5;
+    border: 1px solid rgba(230, 57, 70, 0.22);
+}
+
+.badge-junior {
+    background: rgba(42, 157, 143, 0.15);
+    color: #56cfe1;
+    border: 1px solid rgba(42, 157, 143, 0.3);
+}
+
+.badge-probationary {
+    background: rgba(244, 162, 97, 0.15);
+    color: #f4a261;
+    border: 1px solid rgba(244, 162, 97, 0.3);
+}
+
+.badge-police {
+    background: rgba(69, 123, 157, 0.15);
+    color: #90e0ef;
+    border: 1px solid rgba(69, 123, 157, 0.3);
+}
+
+.badge-associate {
+    background: rgba(142, 68, 173, 0.15);
+    color: #d2b4de;
+    border: 1px solid rgba(142, 68, 173, 0.3);
+}
+
+@media (max-width: 768px) {
+    .roster-grid-modern,
+    .roster-grid-officers {
+        grid-template-columns: 1fr;
+    }
+    
+    .roster-filter-bar {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 0.5rem;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .roster-filter-btn {
+        flex-shrink: 0;
+    }
 }
 
 .hero-title {
@@ -217,15 +573,6 @@ button:disabled {
     margin-bottom: 1.5rem;
     text-transform: uppercase;
     letter-spacing: -2px;
-}
-
-.member-rank {
-    color: var(--gold);
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 0;
 }
 
 .fade-in {
@@ -420,7 +767,7 @@ button:disabled {
 .hero-bg {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-image: linear-gradient(rgba(15, 17, 21, 0.4), rgba(15, 17, 21, 0.7)), url('hero-bg.jpg?v=2');
+    background-image: linear-gradient(rgba(10, 11, 13, 0.35), rgba(10, 11, 13, 0.6)), url('hero-bg.jpg?v=2');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -436,6 +783,7 @@ button:disabled {
     max-width: 900px;
     padding: 0 2rem;
     z-index: 1;
+    text-shadow: 0 3px 14px rgba(0,0,0,0.85);
 }
 
 .hero-subtitle {
@@ -476,10 +824,11 @@ button:disabled {
 
 .hero-desc {
     font-size: 1.2rem;
-    color: var(--text-secondary);
+    color: #f0f0f0;
     max-width: 600px;
     margin: 0 auto 2.5rem;
     animation: slideUp 1s ease-out 0.4s both;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
 }
 
 .hero-actions {
@@ -513,6 +862,7 @@ button:disabled {
     min-height: 400px !important;
     background-size: cover !important;
     background-position: center !important;
+    text-shadow: 0 3px 14px rgba(0,0,0,0.85);
 }
 
 @keyframes slideDown {
@@ -1872,6 +2222,35 @@ body.admin-edit-mode [contenteditable="true"]:focus {
     outline: 2px solid var(--fire-red);
     outline-offset: 4px;
     background-color: rgba(230, 57, 70, 0.08);
+}
+
+/* Hide Third-Party POWR Watermark & Branding */
+.powr-social-feed a[href*="powr.io"],
+.powr-social-feed [class*="powrBranding"],
+.powr-social-feed [class*="branding"],
+.powr-social-feed [class*="badge"],
+.powr-social-feed [id*="branding"],
+.powr-branding,
+.powrBranding,
+a[href*="powr.io"],
+a[href*="powr.io/plugins"],
+div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.powr-feed-wrapper {
+    position: relative;
+    overflow: hidden;
+    max-width: 100%;
+    margin: 0 auto;
+    border-radius: 16px;
 }
 
 

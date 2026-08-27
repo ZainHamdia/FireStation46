@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=40">
+    <link rel="stylesheet" href="styles.css?v=51">
 </head>
 <body>
     <nav class="navbar">
@@ -37,10 +37,10 @@
         </div>
     </nav>
 
-    <header class="hero small-hero" style="background-image: linear-gradient(rgba(15, 17, 21, 0.85), rgba(15, 17, 21, 0.95)), url('https://images.unsplash.com/photo-1599708153386-62baf3c932a3?q=80&w=2000&auto=format&fit=crop'); min-height: 40vh;">
+    <header class="hero small-hero" style="background-image: linear-gradient(rgba(10, 11, 13, 0.35), rgba(10, 11, 13, 0.6)), url('class2.jpg'); min-height: 42vh; background-position: center; background-size: cover; text-shadow: 0 3px 14px rgba(0,0,0,0.9);">
         <div class="container text-center">
             <h1 class="hero-title fade-in">About Station 46</h1>
-            <p class="hero-subtitle fade-in delay-1">Protecting Montgomery Township since 1946</p>
+            <p class="hero-subtitle fade-in delay-1" style="color: var(--gold); letter-spacing: 2px;">Protecting Montgomery Township since 1946</p>
         </div>
     </header>
 
@@ -69,108 +69,564 @@
         </section>
 
         <!-- Members Roster Section -->
-        <section class="section dark-alt">
+        <section class="section dark-alt" id="roster">
             <div class="container text-center">
-                <h2 class="section-title fade-in">Meet the Crew</h2>
-                <p class="section-subtitle mw-800 mx-auto fade-in delay-1" style="margin-bottom: 3rem;">The dedicated men and women who volunteer their time to keep our community safe.</p>
-
-                <!-- Fire Line Officers -->
-                <h3 class="fade-in" style="font-size: 2rem; color: white; margin-bottom: 2rem; margin-top: 1rem; font-family: var(--font-heading);">Fire Line Officers</h3>
-                <div class="roster-grid fade-in delay-1">
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Kyle Rendall</h3><p class="member-rank">Fire Chief</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Adam Verducci</h3><p class="member-rank">Deputy Chief</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Dan Labos</h3><p class="member-rank">Captain</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Justin Neves</h3><p class="member-rank">Lieutenant</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Mike Ruppert</h3><p class="member-rank">Lieutenant</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Justin Kabis</h3><p class="member-rank">Chief Engineer</p></div></div>
+                <div class="section-header text-center fade-in">
+                    <h2 class="section-title">Meet the Crew</h2>
+                    <p class="section-subtitle mw-800 mx-auto" style="margin-bottom: 2.5rem; margin-top: 0.8rem;">The dedicated men and women who volunteer their time to protect Montgomery Township 24/7/365.</p>
                 </div>
 
-                <!-- Company Officers -->
-                <h3 class="fade-in" style="font-size: 2rem; color: white; margin-bottom: 2rem; margin-top: 4rem; font-family: var(--font-heading);">Company Officers</h3>
-                <div class="roster-grid fade-in delay-1">
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Justin Kabis</h3><p class="member-rank">President</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">JP Faryniak</h3><p class="member-rank">1st Vice President</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">John Walmark</h3><p class="member-rank">2nd Vice President</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Daniel Campo</h3><p class="member-rank">3rd Vice President</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Phil Adams</h3><p class="member-rank">Treasurer</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">David J. VanDoren</h3><p class="member-rank">Recording Secretary</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Ben Biondi</h3><p class="member-rank">Corresponding Secretary</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Inder Ghai</h3><p class="member-rank">Trustee</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Connie Kelly</h3><p class="member-rank">Trustee</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Sandy Quirinale</h3><p class="member-rank">Trustee</p></div></div>
+                <!-- Roster Controls (Search & Category Tabs) -->
+                <div class="roster-controls-wrapper fade-in delay-1">
+                    <!-- Search Input -->
+                    <div class="roster-search-box">
+                        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="roster-search-input" placeholder="Search crew members by name or role..." autocomplete="off">
+                        <button id="roster-search-clear" class="search-clear-btn" style="display: none;" title="Clear search">&times;</button>
+                    </div>
+
+                    <!-- Category Filter Buttons -->
+                    <div class="roster-filter-bar">
+                        <button class="roster-filter-btn active" data-category="all">All Members <span class="filter-count">67</span></button>
+                        <button class="roster-filter-btn" data-category="line-officers">Fire Line Officers <span class="filter-count">6</span></button>
+                        <button class="roster-filter-btn" data-category="company-officers">Company Officers <span class="filter-count">10</span></button>
+                        <button class="roster-filter-btn" data-category="firefighters">Interior Firefighters <span class="filter-count">34</span></button>
+                        <button class="roster-filter-btn" data-category="juniors">Junior & Probationary <span class="filter-count">6</span></button>
+                        <button class="roster-filter-btn" data-category="fire-police">Fire Police & Associates <span class="filter-count">11</span></button>
+                    </div>
                 </div>
 
-                <!-- Firefighters -->
-                <h3 class="fade-in" style="font-size: 2rem; color: white; margin-bottom: 2rem; margin-top: 4rem; font-family: var(--font-heading);">Firefighters</h3>
-                <div class="roster-grid compact-grid fade-in delay-1">
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Phil Adams</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Neil Advant</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">John Bolen</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Brian Bonder</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Benjamin Biondi</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Dan Campo</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Galen Collier</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Aidan Dugan</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Hargun Ghai</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Kyle Hopkins</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Andy Ilott</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Justin Kabis</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Gene Keller Jr.</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Connie Kelly</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Jack Larkin</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Pat Lee</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Robert Maslanka</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Nick Neves</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Arjun Pakrashi</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Art Parsell</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Eric Perkins</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Branden Quirinale</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">John Quirinale</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Sandy Quirinale</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Gerald Sebastian</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Steve Santangelo</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Nikki Sheth</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Satnam Singh</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Andre Soumeillant</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Daniela Spera</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Nipun Tiwari</h3><p class="member-rank">Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">David VanDoren</h3><p class="member-rank">Firefighter</p></div></div>
+                <!-- Roster Container -->
+                <div id="roster-container" class="fade-in delay-2">
+                    <!-- Fire Line Officers -->
+                    <div class="roster-category-section" data-section-category="line-officers">
+                        <div class="roster-category-header">
+                            <h3 class="roster-category-title" style="color: #ff6b6b;">Fire Line Officers</h3>
+                            <div class="roster-category-line" style="background: linear-gradient(90deg, rgba(230,57,70,0.35), transparent);"></div>
+                        </div>
+                        <div class="roster-grid-modern roster-grid-officers">
+                            <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Kyle Rendall" data-role="Fire Chief">
+                                <div class="roster-avatar avatar-line">KR</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Kyle Rendall</h4>
+                                    <span class="rank-badge badge-chief">Fire Chief</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Adam Verducci" data-role="Deputy Chief">
+                                <div class="roster-avatar avatar-line">AV</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Adam Verducci</h4>
+                                    <span class="rank-badge badge-chief">Deputy Chief</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Dan Labos" data-role="Captain">
+                                <div class="roster-avatar avatar-line">DL</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Dan Labos</h4>
+                                    <span class="rank-badge badge-line">Captain</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Justin Neves" data-role="Lieutenant">
+                                <div class="roster-avatar avatar-line">JN</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Justin Neves</h4>
+                                    <span class="rank-badge badge-line">Lieutenant</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Mike Ruppert" data-role="Lieutenant">
+                                <div class="roster-avatar avatar-line">MR</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Mike Ruppert</h4>
+                                    <span class="rank-badge badge-line">Lieutenant</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Justin Kabis" data-role="Chief Engineer">
+                                <div class="roster-avatar avatar-line">JK</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Justin Kabis</h4>
+                                    <span class="rank-badge badge-line">Chief Engineer</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Company Officers -->
+                    <div class="roster-category-section" data-section-category="company-officers">
+                        <div class="roster-category-header">
+                            <h3 class="roster-category-title" style="color: var(--gold);">Company Officers</h3>
+                            <div class="roster-category-line" style="background: linear-gradient(90deg, rgba(212,163,115,0.35), transparent);"></div>
+                        </div>
+                        <div class="roster-grid-modern roster-grid-officers">
+                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Justin Kabis" data-role="President">
+                                <div class="roster-avatar avatar-company">JK</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Justin Kabis</h4>
+                                    <span class="rank-badge badge-president">President</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="JP Faryniak" data-role="1st Vice President">
+                                <div class="roster-avatar avatar-company">JF</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">JP Faryniak</h4>
+                                    <span class="rank-badge badge-company">1st Vice President</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="John Walmark" data-role="2nd Vice President">
+                                <div class="roster-avatar avatar-company">JW</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">John Walmark</h4>
+                                    <span class="rank-badge badge-company">2nd Vice President</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Daniel Campo" data-role="3rd Vice President">
+                                <div class="roster-avatar avatar-company">DC</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Daniel Campo</h4>
+                                    <span class="rank-badge badge-company">3rd Vice President</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Phil Adams" data-role="Treasurer">
+                                <div class="roster-avatar avatar-company">PA</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Phil Adams</h4>
+                                    <span class="rank-badge badge-company">Treasurer</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="David J. VanDoren" data-role="Recording Secretary">
+                                <div class="roster-avatar avatar-company">DV</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">David J. VanDoren</h4>
+                                    <span class="rank-badge badge-company">Recording Secretary</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Ben Biondi" data-role="Corresponding Secretary">
+                                <div class="roster-avatar avatar-company">BB</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Ben Biondi</h4>
+                                    <span class="rank-badge badge-company">Corresponding Secretary</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Inder Ghai" data-role="Trustee">
+                                <div class="roster-avatar avatar-company">IG</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Inder Ghai</h4>
+                                    <span class="rank-badge badge-company">Trustee</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Connie Kelly" data-role="Trustee">
+                                <div class="roster-avatar avatar-company">CK</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Connie Kelly</h4>
+                                    <span class="rank-badge badge-company">Trustee</span>
+                                </div>
+                            </div>
+                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Sandy Quirinale" data-role="Trustee">
+                                <div class="roster-avatar avatar-company">SQ</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Sandy Quirinale</h4>
+                                    <span class="rank-badge badge-company">Trustee</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interior Firefighters -->
+                    <div class="roster-category-section" data-section-category="firefighters">
+                        <div class="roster-category-header">
+                            <h3 class="roster-category-title" style="color: #ff8585;">Interior Firefighters</h3>
+                            <div class="roster-category-line" style="background: linear-gradient(90deg, rgba(230,57,70,0.3), transparent);"></div>
+                        </div>
+                        <div class="roster-grid-modern">
+                            <div class="roster-card" data-category="firefighters" data-name="Phil Adams" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">PA</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Phil Adams</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Neil Advant" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">NA</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Neil Advant</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="John Bolen" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">JB</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">John Bolen</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Brian Bonder" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">BB</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Brian Bonder</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Benjamin Biondi" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">BB</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Benjamin Biondi</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Dan Campo" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">DC</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Dan Campo</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Galen Collier" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">GC</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Galen Collier</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Aidan Dugan" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">AD</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Aidan Dugan</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Hargun Ghai" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">HG</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Hargun Ghai</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Kyle Hopkins" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">KH</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Kyle Hopkins</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Andy Ilott" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">AI</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Andy Ilott</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Justin Kabis" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">JK</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Justin Kabis</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Gene Keller Jr." data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">GK</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Gene Keller Jr.</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Connie Kelly" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">CK</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Connie Kelly</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Jack Larkin" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">JL</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Jack Larkin</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Pat Lee" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">PL</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Pat Lee</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Robert Maslanka" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">RM</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Robert Maslanka</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Nick Neves" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">NN</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Nick Neves</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Arjun Pakrashi" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">AP</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Arjun Pakrashi</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Art Parsell" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">AP</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Art Parsell</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Eric Perkins" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">EP</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Eric Perkins</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Branden Quirinale" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">BQ</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Branden Quirinale</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="John Quirinale" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">JQ</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">John Quirinale</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Sandy Quirinale" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">SQ</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Sandy Quirinale</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Gerald Sebastian" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">GS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Gerald Sebastian</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Steve Santangelo" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">SS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Steve Santangelo</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Nikki Sheth" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">NS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Nikki Sheth</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Satnam Singh" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">SS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Satnam Singh</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Andre Soumeillant" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">AS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Andre Soumeillant</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Daniela Spera" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">DS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Daniela Spera</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Nipun Tiwari" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">NT</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Nipun Tiwari</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="David VanDoren" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">DV</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">David VanDoren</h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Jake Schwarzman" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">JS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Jake Schwarzman <span class="tag-new">NEW</span></h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="firefighters" data-name="Josh Dismukes" data-role="Interior Firefighter">
+                                <div class="roster-avatar avatar-firefighter">JD</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Josh Dismukes <span class="tag-new">NEW</span></h4>
+                                    <span class="rank-badge badge-firefighter">Interior Firefighter</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Junior & Probationary Firefighters -->
+                    <div class="roster-category-section" data-section-category="juniors">
+                        <div class="roster-category-header">
+                            <h3 class="roster-category-title" style="color: #48cae4;">Junior & Probationary Firefighters</h3>
+                            <div class="roster-category-line" style="background: linear-gradient(90deg, rgba(42,157,143,0.35), transparent);"></div>
+                        </div>
+                        <div class="roster-grid-modern">
+                            <div class="roster-card" data-category="juniors" data-name="Zain Hamdia" data-role="Junior Firefighter">
+                                <div class="roster-avatar avatar-junior">ZH</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Zain Hamdia</h4>
+                                    <span class="rank-badge badge-junior">Junior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="juniors" data-name="Lucas Gelinas" data-role="Probationary Firefighter">
+                                <div class="roster-avatar avatar-junior">LG</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Lucas Gelinas</h4>
+                                    <span class="rank-badge badge-probationary">Probationary Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="juniors" data-name="Raunald Sebastion" data-role="Junior Firefighter">
+                                <div class="roster-avatar avatar-junior">RS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Raunald Sebastion</h4>
+                                    <span class="rank-badge badge-junior">Junior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="juniors" data-name="Jack Sentman" data-role="Probationary Firefighter">
+                                <div class="roster-avatar avatar-junior">JS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Jack Sentman</h4>
+                                    <span class="rank-badge badge-probationary">Probationary Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="juniors" data-name="Michael Sparano" data-role="Junior Firefighter">
+                                <div class="roster-avatar avatar-junior">MS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Michael Sparano</h4>
+                                    <span class="rank-badge badge-junior">Junior Firefighter</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="juniors" data-name="Isa Demorizi" data-role="Junior Firefighter">
+                                <div class="roster-avatar avatar-junior">ID</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Isa Demorizi</h4>
+                                    <span class="rank-badge badge-junior">Junior Firefighter</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fire Police & Associate Members -->
+                    <div class="roster-category-section" data-section-category="fire-police">
+                        <div class="roster-category-header">
+                            <h3 class="roster-category-title" style="color: #90e0ef;">Fire Police & Associate Members</h3>
+                            <div class="roster-category-line" style="background: linear-gradient(90deg, rgba(69,123,157,0.35), transparent);"></div>
+                        </div>
+                        <div class="roster-grid-modern">
+                            <div class="roster-card" data-category="fire-police" data-name="Rich Hopkins" data-role="Fire Police Captain">
+                                <div class="roster-avatar avatar-police">RH</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Rich Hopkins</h4>
+                                    <span class="rank-badge badge-police">Captain (Fire Police)</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="fire-police" data-name="Debra Danielson" data-role="Fire Police Sergeant">
+                                <div class="roster-avatar avatar-police">DD</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Debra Danielson</h4>
+                                    <span class="rank-badge badge-police">Sergeant (Fire Police)</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="fire-police" data-name="Tammy Garaffa" data-role="Fire Police Corporal">
+                                <div class="roster-avatar avatar-police">TG</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Tammy Garaffa</h4>
+                                    <span class="rank-badge badge-police">Corporal (Fire Police)</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="fire-police" data-name="Inder Ghai" data-role="Fire Police">
+                                <div class="roster-avatar avatar-police">IG</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Inder Ghai</h4>
+                                    <span class="rank-badge badge-police">Fire Police</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="fire-police" data-name="Viswanath Kolur" data-role="Fire Police">
+                                <div class="roster-avatar avatar-police">VK</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Viswanath Kolur</h4>
+                                    <span class="rank-badge badge-police">Fire Police</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="fire-police" data-name="Laurin Long" data-role="Fire Police">
+                                <div class="roster-avatar avatar-police">LL</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Laurin Long</h4>
+                                    <span class="rank-badge badge-police">Fire Police</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="fire-police" data-name="Andy Mozumdar" data-role="Fire Police">
+                                <div class="roster-avatar avatar-police">AM</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Andy Mozumdar</h4>
+                                    <span class="rank-badge badge-police">Fire Police</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="fire-police" data-name="John Wallmark" data-role="Fire Police">
+                                <div class="roster-avatar avatar-police">JW</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">John Wallmark</h4>
+                                    <span class="rank-badge badge-police">Fire Police</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="fire-police" data-name="John Faryniak" data-role="Associate Member">
+                                <div class="roster-avatar avatar-associate">JF</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">John Faryniak</h4>
+                                    <span class="rank-badge badge-associate">Associate Member</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="fire-police" data-name="Tim Fallon & Jupiter" data-role="Associate Member">
+                                <div class="roster-avatar avatar-associate">TF</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Tim Fallon & Jupiter</h4>
+                                    <span class="rank-badge badge-associate">Associate Member</span>
+                                </div>
+                            </div>
+                            <div class="roster-card" data-category="fire-police" data-name="Ben Shipman" data-role="Associate Member">
+                                <div class="roster-avatar avatar-associate">BS</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Ben Shipman</h4>
+                                    <span class="rank-badge badge-associate">Associate Member</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Associate Members -->
-                <h3 class="fade-in" style="font-size: 2rem; color: white; margin-bottom: 2rem; margin-top: 4rem; font-family: var(--font-heading);">Associate Members</h3>
-                <div class="roster-grid compact-grid fade-in delay-1">
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">John Faryniak</h3><p class="member-rank">Associate Member</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Tim Fallon & Jupiter</h3><p class="member-rank">Associate Member</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Ben Shipman</h3><p class="member-rank">Associate Member</p></div></div>
-                </div>
-
-
-
-                <!-- Probationary & Junior Firefighters -->
-                <h3 class="fade-in" style="font-size: 2rem; color: white; margin-bottom: 2rem; margin-top: 4rem; font-family: var(--font-heading);">Probationary & Junior Firefighters</h3>
-                <div class="roster-grid compact-grid fade-in delay-1">
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Zain Hamdia</h3><p class="member-rank">Junior Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Lucas Gelinas</h3><p class="member-rank">Junior Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Raunald Sebastion</h3><p class="member-rank">Junior Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Jack Sentman</h3><p class="member-rank">Junior Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Michael Sparano</h3><p class="member-rank">Junior Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Isa Demorizi</h3><p class="member-rank">Junior Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Jake Shwarzman</h3><p class="member-rank">Probationary Firefighter</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Josh Dismukes</h3><p class="member-rank">Probationary Firefighter</p></div></div>
-                </div>
-
-                <!-- Fire Police -->
-                <h3 class="fade-in" style="font-size: 2rem; color: white; margin-bottom: 2rem; margin-top: 4rem; font-family: var(--font-heading);">Fire Police</h3>
-                <div class="roster-grid compact-grid fade-in delay-1">
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Rich Hopkins</h3><p class="member-rank">Captain</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Debra Danielson</h3><p class="member-rank">Sergeant</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Tammy Garaffa</h3><p class="member-rank">Corporal</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Inder Ghai</h3><p class="member-rank">Fire Police</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Viswanath Kolur</h3><p class="member-rank">Fire Police</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Laurin Long</h3><p class="member-rank">Fire Police</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">Andy Mozumdar</h3><p class="member-rank">Fire Police</p></div></div>
-                    <div class="member-card glass-panel"><div class="member-info"><h3 class="member-name">John Wallmark</h3><p class="member-rank">Fire Police</p></div></div>
+                <!-- No Results State -->
+                <div id="roster-empty-state" class="glass-card text-center" style="display: none; padding: 3.5rem 2rem; margin-top: 2rem; border-radius: 16px;">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔍</div>
+                    <h3 style="color: white; font-size: 1.4rem; margin-bottom: 0.5rem;">No Crew Members Found</h3>
+                    <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto 1.5rem auto;">We couldn't find any personnel matching your search term. Try checking for spelling errors or clearing the filter.</p>
+                    <button id="roster-reset-btn" class="btn btn-secondary glow" style="padding: 10px 24px; font-size: 0.95rem;">Reset Filter</button>
                 </div>
             </div>
         </section>
@@ -192,6 +648,6 @@
         </div>
     </footer>
 
-    <script src="script.js?v=47"></script>
+    <script src="script.js?v=49"></script>
 </body>
 </html>
