@@ -554,7 +554,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const mergedEdits = Object.assign({}, remoteEdits, localEdits);
             localStorage.setItem('station46_text_edits', JSON.stringify(mergedEdits));
 
-            // 4. Sync current news posts directly (preserves deletions cleanly)
+            // 4. Commit text edits directly to GitHub
+            const editSuccess = await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits across website');
+
+            // 5. Sync current news posts directly (preserves deletions cleanly)
             const currentPosts = getStoredPosts();
             const postSuccess = await syncToGitHub('data/posts.json', currentPosts, 'Admin: Update news posts');
 
