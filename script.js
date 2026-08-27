@@ -237,20 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500);
     }
 
-    // Helper: Fetch remote data across devices (checks raw GitHub first with no-cache, then GitHub API, then local file)
-    async function fetchRemoteData(filePath) {
-        // 1. Try raw GitHub with cache-busting timestamp so new updates reflect immediately worldwide
-        const rawUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${filePath}?t=${Date.now()}`;
-        try {
-            const res = await fetch(rawUrl, { cache: 'no-store' });
-            if (res.ok) {
-                return await res.json();
-            }
-        } catch (e) {
-            console.warn(`[Station 46] Could not fetch ${filePath} from raw GitHub:`, e);
-        }
-
-        // 2. Direct GitHub API fallback
+    // Helper: Fetch raw text of a file (checks GitHub API first, then raw GitHub, then local file)
+    async function fetchRawFile(filePath) {
+        // 1. Direct GitHub API (always real-time, no cache delay)
         try {
             const apiRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?t=${Date.now()}`, {
                 headers: {
@@ -267,22 +256,43 @@ document.addEventListener('DOMContentLoaded', () => {
                     for (let i = 0; i < binaryStr.length; i++) {
                         bytes[i] = binaryStr.charCodeAt(i);
                     }
-                    const jsonStr = new TextDecoder().decode(bytes);
-                    return JSON.parse(jsonStr);
+                    return new TextDecoder('utf-8').decode(bytes);
                 }
             }
         } catch (e) {
             console.warn(`[Station 46] Could not fetch ${filePath} from GitHub API:`, e);
         }
 
+        // 2. Try raw GitHub
+        try {
+            const rawUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${filePath}?t=${Date.now()}`;
+            const res = await fetch(rawUrl, { cache: 'no-store' });
+            if (res.ok) {
+                return await res.text();
+            }
+        } catch (e) {}
+
         // 3. Fallback to local relative file
         try {
             const localRes = await fetch(`${filePath}?t=${Date.now()}`, { cache: 'no-store' });
             if (localRes.ok) {
-                return await localRes.json();
+                return await localRes.text();
             }
         } catch (e) {}
 
+        return null;
+    }
+
+    // Helper: Fetch remote JSON data across devices
+    async function fetchRemoteData(filePath) {
+        const rawText = await fetchRawFile(filePath);
+        if (rawText) {
+            try {
+                return JSON.parse(rawText);
+            } catch (e) {
+                console.warn(`[Station 46] Error parsing JSON from ${filePath}:`, e);
+            }
+        }
         return null;
     }
 
@@ -396,10 +406,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Helper: Collect all editable elements in deterministic DOM order
-    function getEditableElements() {
+    function getEditableElements(root = document) {
         const list = [];
         const seen = new Set();
-        document.querySelectorAll(editableSelectors).forEach(el => {
+        root.querySelectorAll(editableSelectors).forEach(el => {
             if (isEditableElement(el) && !seen.has(el)) {
                 seen.add(el);
                 list.push(el);
@@ -523,7 +533,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initLiveEditor();
 
-    // Universal Save & Push Handler (Merges all edits across all pages & posts before pushing to Git)
+    // Helper: Push actual modified HTML files directly to GitHub
+    async function syncHtmlPagesToGitHub(edits) {
+        if (!edits || typeof edits !== 'object') return true;
+
+        // 1. Collect all distinct HTML pages that have edits
+        const editedPages = new Set();
+        Object.keys(edits).forEach(key => {
+            const match = key.match(/^edit_text_([a-zA-Z0-9_\-\.]+\.html)_/);
+            if (match && match[1]) {
+                editedPages.add(match[1]);
+            }
+        });
+
+        // Always include current page if on an HTML page
+        const currentPage = getPageKey();
+        if (currentPage && currentPage.endsWith('.html') && currentPage !== 'admin.html') {
+            editedPages.add(currentPage);
+        }
+
+        let allHtmlSuccess = true;
+
+        for (const pageName of editedPages) {
+            try {
+                const rawHtml = await fetchRawFile(pageName);
+                if (!rawHtml) {
+                    console.warn(`[Station 46] Could not load raw HTML for ${pageName}`);
+                    continue;
+                }
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(rawHtml, 'text/html');
+                const elements = getEditableElements(doc);
+                let pageHasChanges = false;
+
+                elements.forEach((element, index) => {
+                    const storageKey = `edit_text_${pageName}_${index}`;
+                    if (edits[storageKey] !== undefined && edits[storageKey] !== null) {
+                        const newContent = edits[storageKey].trim();
+                        if (element.innerHTML.trim() !== newContent) {
+                            element.innerHTML = newContent;
+                            pageHasChanges = true;
+                        }
+                    }
+                });
+
+                if (pageHasChanges) {
+                    const updatedHtml = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+                    const success = await syncToGitHub(pageName, updatedHtml, `Admin: Update text in ${pageName}`);
+                    if (!success) allHtmlSuccess = false;
+                }
+            } catch (err) {
+                console.error(`[Station 46] Error applying edits to HTML file ${pageName}:`, err);
+                allHtmlSuccess = false;
+            }
+        }
+
+        return allHtmlSuccess;
+    }
+
+    // Universal Save & Push Handler (Updates both the actual HTML files and backup JSONs on GitHub)
     async function triggerUniversalGitSync(triggerElement) {
         const originalText = triggerElement ? triggerElement.innerHTML : '';
         if (triggerElement) {
@@ -538,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            // 2. Fetch latest edits from GitHub to guarantee no remote edits from other pages/devices are lost
+            // 2. Fetch latest edits from GitHub to guarantee no remote edits are lost
             let remoteEdits = {};
             try {
                 const remoteData = await fetchRemoteData('data/edits.json');
@@ -554,19 +623,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const mergedEdits = Object.assign({}, remoteEdits, localEdits);
             localStorage.setItem('station46_text_edits', JSON.stringify(mergedEdits));
 
-            // 4. Commit text edits directly to GitHub
-            const editSuccess = await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits across website');
+            // 4. Update the actual HTML files directly on GitHub (e.g. index.html, about.html, etc.)
+            const htmlSuccess = await syncHtmlPagesToGitHub(mergedEdits);
 
-            // 5. Sync current news posts directly (preserves deletions cleanly)
+            // 5. Commit backup JSONs directly to GitHub repository
+            const editSuccess = await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits across website');
             const currentPosts = getStoredPosts();
             const postSuccess = await syncToGitHub('data/posts.json', currentPosts, 'Admin: Update news posts');
 
-            if (editSuccess || postSuccess) {
+            if (htmlSuccess || editSuccess || postSuccess) {
                 if (triggerElement) {
                     triggerElement.innerHTML = '✅ Saved & Pushed to Git!';
                     triggerElement.style.background = 'rgba(46, 125, 50, 0.95)'; // Green
                 }
-                showAdminToast('✅ Changes across all pages saved and pushed to GitHub!');
+                showAdminToast('✅ Changes saved directly to HTML and pushed to GitHub!');
             } else {
                 if (triggerElement) {
                     triggerElement.innerHTML = '❌ Push Failed (Check console)';
