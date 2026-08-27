@@ -626,12 +626,18 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4. Update the actual HTML files directly on GitHub (e.g. index.html, about.html, etc.)
             const htmlSuccess = await syncHtmlPagesToGitHub(mergedEdits);
 
-            // 5. Commit backup JSONs directly to GitHub repository
-            const editSuccess = await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits across website');
+            // 5. If HTML files updated, clear local text edits so future reloads use clean HTML
+            if (htmlSuccess) {
+                localStorage.removeItem('station46_text_edits');
+                await syncToGitHub('data/edits.json', {}, 'Admin: Reset edits buffer after HTML sync');
+            } else {
+                await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits buffer');
+            }
+
             const currentPosts = getStoredPosts();
             const postSuccess = await syncToGitHub('data/posts.json', currentPosts, 'Admin: Update news posts');
 
-            if (htmlSuccess || editSuccess || postSuccess) {
+            if (htmlSuccess || postSuccess) {
                 if (triggerElement) {
                     triggerElement.innerHTML = '✅ Saved & Pushed to Git!';
                     triggerElement.style.background = 'rgba(46, 125, 50, 0.95)'; // Green
@@ -1163,15 +1169,18 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("[Station 46] Could not sync remote posts:", err);
         }
 
-        // Sync visual text edits with smart merge
+        // Sync visual text edits
         try {
             const remoteEdits = await fetchRemoteData('data/edits.json');
             if (remoteEdits && typeof remoteEdits === 'object') {
                 const localEdits = getStoredTextEdits();
-                // Combine remote edits with any unsaved local edits
                 const mergedEdits = Object.assign({}, remoteEdits, localEdits);
-                localStorage.setItem('station46_text_edits', JSON.stringify(mergedEdits));
-                applyTextEdits(mergedEdits);
+                if (Object.keys(mergedEdits).length > 0) {
+                    localStorage.setItem('station46_text_edits', JSON.stringify(mergedEdits));
+                    applyTextEdits(mergedEdits);
+                } else {
+                    localStorage.removeItem('station46_text_edits');
+                }
                 if (isAdminLoggedIn) {
                     initLiveEditor();
                 }
