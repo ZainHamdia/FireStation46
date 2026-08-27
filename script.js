@@ -129,12 +129,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return filename.toLowerCase();
     }
 
-    // Helper: Sync JSON file to GitHub repository via GitHub REST API
+    // Helper: Sync data (HTML string or JSON object) to GitHub repository via GitHub REST API
     async function syncToGitHub(filePath, dataObj, commitMessage) {
         try {
-            const jsonString = JSON.stringify(dataObj, null, 2);
+            const contentString = typeof dataObj === 'string' ? dataObj : JSON.stringify(dataObj, null, 2);
             // Safe UTF-8 to Base64 encoding in browser
-            const utf8Bytes = new TextEncoder().encode(jsonString);
+            const utf8Bytes = new TextEncoder().encode(contentString);
             let binaryString = '';
             utf8Bytes.forEach(byte => binaryString += String.fromCharCode(byte));
             const contentBase64 = btoa(binaryString);
