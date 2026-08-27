@@ -554,27 +554,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const mergedEdits = Object.assign({}, remoteEdits, localEdits);
             localStorage.setItem('station46_text_edits', JSON.stringify(mergedEdits));
 
-            // 4. Fetch and merge latest news posts to prevent post loss
-            let remotePosts = [];
-            try {
-                const remotePostsData = await fetchRemoteData('data/posts.json');
-                if (Array.isArray(remotePostsData)) {
-                    remotePosts = remotePostsData;
-                }
-            } catch (e) {
-                console.warn('[Station 46] Could not fetch latest remote posts before push:', e);
-            }
-
-            const localPosts = getStoredPosts();
-            const postsMap = new Map();
-            remotePosts.forEach(p => { if (p && typeof p === 'object' && p.id) postsMap.set(p.id, p); });
-            localPosts.forEach(p => { if (p && typeof p === 'object' && p.id) postsMap.set(p.id, p); });
-            const mergedPosts = Array.from(postsMap.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
-            localStorage.setItem('station46_posts', JSON.stringify(mergedPosts));
-
-            // 5. Commit both files directly to GitHub repository
-            const editSuccess = await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits across website');
-            const postSuccess = await syncToGitHub('data/posts.json', mergedPosts, 'Admin: Update news posts');
+            // 4. Sync current news posts directly (preserves deletions cleanly)
+            const currentPosts = getStoredPosts();
+            const postSuccess = await syncToGitHub('data/posts.json', currentPosts, 'Admin: Update news posts');
 
             if (editSuccess || postSuccess) {
                 if (triggerElement) {
@@ -921,12 +903,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add Delete Event Handlers
         container.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 const id = parseInt(btn.getAttribute('data-id'));
                 let posts = getStoredPosts();
-                posts = posts.filter(post => post.id !== id);
-                savePosts(posts);
+                posts = posts.filter(post => post && post.id !== id);
+                localStorage.setItem('station46_posts', JSON.stringify(posts));
                 renderAdminPosts();
+                showAdminToast('⏳ Deleting post on GitHub...');
+                const success = await syncToGitHub('data/posts.json', posts, 'Admin: Delete news post');
+                if (success) {
+                    showAdminToast('✅ Post deleted successfully from GitHub!');
+                } else {
+                    showAdminToast('❌ Failed to delete post on GitHub.', true);
+                }
             });
         });
     }
@@ -1086,7 +1075,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Sync news posts
         try {
             const remotePosts = await fetchRemoteData('data/posts.json');
-            if (Array.isArray(remotePosts) && remotePosts.length > 0) {
+            if (Array.isArray(remotePosts)) {
                 localStorage.setItem('station46_posts', JSON.stringify(remotePosts));
                 // Re-render feed if visible
                 if (newsGrid && newsEmptyState) {
