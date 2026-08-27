@@ -29,6 +29,7 @@
                 <a href="index.html#station-info" class="nav-link">Station Info</a>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
                 <a href="news.html" class="nav-link">News & Calls</a>
+                <a href="santa.html" class="nav-link">Operation Santa</a>
                 <a href="index.html#donate" class="nav-link">Donate</a>
                 <a href="membership.html" class="nav-link active">Membership</a>
             </div>
@@ -130,30 +131,28 @@
                 </div>
 
                 <!-- Application Form -->
-                <div class="cta-wrapper fade-in delay-2" style="max-width: 700px; margin: 0 auto;">
-                    <form class="contact-form glass-panel" id="membership-application-form">
-                        <h3 style="color: white; font-family: var(--font-heading); text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem;">Start Your Journey</h3>
-                        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">Fill out the form below to email the Membership Committee.</p>
+                <div id="apply" class="cta-wrapper fade-in delay-2" style="max-width: 800px; margin: 4rem auto 0;">
+                    <div class="glass-panel" style="padding: 2.5rem; text-align: center;">
+                        <h3 style="color: white; font-family: var(--font-heading); margin-bottom: 0.5rem; font-size: 1.8rem;">Start Your Journey</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">Fill out the application form below to get started with Station 46.</p>
                         
-                        <div class="form-group">
-                            <input type="text" id="name" placeholder="Full Name" required>
+                        <div style="width: 100%; border-radius: 12px; overflow: hidden; background: #ffffff; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);">
+                            <iframe 
+                                src="https://docs.google.com/forms/d/e/1FAIpQLScuY59xEl0FaVMNXVpUZ_M9rSiMztDjr43AFLf_mtYcUzWS-w/viewform?embedded=true" 
+                                width="100%" 
+                                height="850" 
+                                frameborder="0" 
+                                marginheight="0" 
+                                marginwidth="0"
+                                style="display: block; width: 100%; min-height: 850px; border: none;"
+                            >Loading…</iframe>
                         </div>
-                        <div class="form-group">
-                            <input type="email" id="email" placeholder="Email Address" required>
+
+                        <div style="margin-top: 1.5rem;">
+                            <p class="form-note">Having trouble viewing the form? <a href="https://docs.google.com/forms/d/e/1FAIpQLScuY59xEl0FaVMNXVpUZ_M9rSiMztDjr43AFLf_mtYcUzWS-w/viewform" target="_blank" rel="noopener noreferrer" style="color: var(--gold); text-decoration: underline;">Open Google Form in a new tab &rarr;</a></p>
+                            <p class="form-note" style="margin-top: 0.5rem;">Alternatively, email us directly at <strong>membership@mtvfc2.com</strong></p>
                         </div>
-                        <div class="form-group">
-                            <input type="tel" id="phone" placeholder="Phone Number">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 2rem;">
-                            <select id="membership-type">
-                                <option value="" disabled selected>Membership Type</option>
-                                <option value="junior">Junior Firefighter (Ages 16-18)</option>
-                                <option value="standard">Standard Member (18+)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-primary w-100 glow">Submit Interest</button>
-                        <p class="form-note">Alternatively, email us directly at <strong>membership@mtvfc2.com</strong></p>
-                    </form>
+                    </div>
                 </div>
             </div>
         </section>

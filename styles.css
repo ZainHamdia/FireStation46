@@ -81,7 +81,7 @@ a {
 .w-100 { width: 100%; }
 
 /* Buttons */
-.btn-primary, .btn-secondary {
+.btn, .btn-primary, .btn-secondary, .btn-outline {
     display: inline-block;
     padding: 14px 28px;
     border-radius: 8px;
@@ -92,6 +92,7 @@ a {
     transition: all var(--transition-normal);
     border: none;
     text-align: center;
+    text-decoration: none;
 }
 
 .btn-primary {
@@ -101,19 +102,21 @@ a {
 
 .btn-primary:hover {
     transform: translateY(-2px);
+    color: white;
 }
 
-.btn-secondary {
-    background: rgba(255,255,255,0.05);
+.btn-secondary, .btn-outline {
+    background: rgba(255,255,255,0.08);
     color: white;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
     backdrop-filter: blur(10px);
 }
 
-.btn-secondary:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.2);
+.btn-secondary:hover, .btn-outline:hover {
+    background: rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.45);
     transform: translateY(-2px);
+    color: white;
 }
 
 /* Glassmorphism */
@@ -494,6 +497,22 @@ button:disabled {
     background: linear-gradient(rgba(10, 11, 13, 0.35), rgba(10, 11, 13, 0.6)),
                 url('drill-5.jpg') center/cover !important;
     animation: scale-up 20s linear infinite alternate;
+}
+.hero-apparatus {
+    background: linear-gradient(rgba(10, 11, 13, 0.35), rgba(10, 11, 13, 0.6)),
+                url('drill-2.jpeg') center/cover !important;
+    animation: scale-up 20s linear infinite alternate;
+}
+.hero-santa {
+    background: linear-gradient(rgba(10, 11, 13, 0.35), rgba(10, 11, 13, 0.6)),
+                url('santatitle.jpg') center/cover !important;
+    animation: scale-up 20s linear infinite alternate;
+}
+.small-hero {
+    height: 50vh !important;
+    min-height: 400px !important;
+    background-size: cover !important;
+    background-position: center !important;
 }
 
 @keyframes slideDown {
@@ -1283,17 +1302,25 @@ footer {
 }
 
 .faq-item {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 12px;
     padding: 1.25rem 1.5rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
 }
 
 .faq-item:hover {
     border-color: rgba(230, 57, 70, 0.4);
-    background: rgba(255, 255, 255, 0.03);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    background: rgba(30, 34, 43, 0.8);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.faq-item[open] {
+    border-color: rgba(230, 57, 70, 0.5);
+    background: rgba(30, 34, 43, 0.9);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 .faq-question {
@@ -1303,13 +1330,66 @@ footer {
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--text-primary);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.faq-question::-webkit-details-marker {
+    display: none;
+}
+
+.faq-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--fire-red);
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+.faq-item:hover .faq-icon {
+    background: rgba(230, 57, 70, 0.15);
+    color: #ff5252;
+}
+
+.faq-item[open] .faq-icon {
+    transform: rotate(180deg);
+    background: rgba(230, 57, 70, 0.25);
+    color: #ff5252;
 }
 
 .faq-answer {
-    margin-top: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     color: var(--text-secondary);
-    line-height: 1.6;
-    font-size: 0.95rem;
+    line-height: 1.7;
+    font-size: 0.98rem;
+}
+
+.faq-answer p {
+    margin-bottom: 0.5rem;
+}
+
+.faq-answer p:last-child {
+    margin-bottom: 0;
+}
+
+.faq-answer a {
+    color: #ff5252;
+    text-decoration: underline;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.faq-answer a:hover {
+    color: var(--gold);
 }
 
 /* News & Fire Calls Feed Layout */

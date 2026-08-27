@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation Santa 2025 | Montgomery Township Volunteer Fire Company #2</title>
+    <meta name="description" content="Santa Claus is coming to town on a fire engine! Join Station 46 for Operation Santa 2025 gift deliveries in Skillman, Blawenburg, and District #2.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css?v=45">
+    <style>
+        .santa-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(226, 35, 26, 0.15);
+            border: 1px solid rgba(226, 35, 26, 0.4);
+            color: #ff6b6b;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1.2rem;
+        }
+        .dates-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .date-card {
+            background: rgba(26, 29, 36, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .date-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(226, 35, 26, 0.5);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+        .date-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 1.2rem;
+        }
+        .date-icon-box {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--fire-red), #b71c1c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(226, 35, 26, 0.3);
+        }
+        .date-card-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+        .date-card-subtitle {
+            font-size: 0.88rem;
+            color: var(--gold);
+            margin: 3px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .guideline-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 1.2rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .guideline-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .guideline-num {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(226, 35, 26, 0.15);
+            border: 1px solid rgba(226, 35, 26, 0.4);
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .guideline-text h4 {
+            color: #fff;
+            margin: 0 0 4px 0;
+            font-size: 1.1rem;
+        }
+        .guideline-text p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.96rem;
+            line-height: 1.5;
+        }
+        .tracker-banner {
+            background: linear-gradient(135deg, rgba(226, 35, 26, 0.15), rgba(212, 160, 23, 0.1));
+            border: 1px solid rgba(212, 160, 23, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2.5rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .district-box {
+            background: rgba(15, 17, 21, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1.8rem;
+            height: 100%;
+        }
+        .district-box.active-dist {
+            border-color: rgba(46, 204, 113, 0.5);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.1);
+        }
+        .printable-form-preview {
+            background: #ffffff;
+            color: #1a1d24;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            font-family: 'Inter', sans-serif;
+        }
+        .printable-form-preview h3 {
+            color: #111827;
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .printable-form-preview p {
+            color: #4b5563;
+            font-size: 0.95rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+        .form-field-line {
+            border-bottom: 2px dashed #9ca3af;
+            height: 28px;
+            margin-top: 4px;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="logo.png" alt="Station 46 Logo" class="nav-badge-img">
+                <div class="logo-text">
+                    <span class="mtvfc">Montgomery Twp. Volunteer Fire Co. No. 2</span>
+                    <span class="subtitle">Skillman, NJ</span>
+                </div>
+            </a>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="index.html#station-info" class="nav-link">Station Info</a>
+                <a href="apparatus.html" class="nav-link">Apparatus</a>
+                <a href="news.html" class="nav-link">News & Calls</a>
+                <a href="santa.html" class="nav-link active">Operation Santa</a>
+                <a href="index.html#donate" class="nav-link">Donate</a>
+                <a href="membership.html" class="nav-link">Membership</a>
+            </div>
+            
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero hero-short">
+        <div class="hero-bg hero-santa" style="background-image: linear-gradient(rgba(10, 11, 13, 0.35), rgba(10, 11, 13, 0.6)), url('santatitle.jpg'); background-position: center;"></div>
+        <div class="hero-content" style="margin-top: 80px; text-shadow: 0 3px 12px rgba(0,0,0,0.9);">
+            <div class="santa-badge">🎅 Annual Holiday Tradition</div>
+            <h1 class="hero-title" style="font-size: clamp(2.8rem, 6vw, 4.8rem); line-height: 1.15;">Operation Santa 2025</h1>
+            <p class="hero-subtitle" style="color: var(--gold); letter-spacing: 2px;">Santa Claus is Coming to Town on a Fire Engine!</p>
+            <p class="hero-desc" style="color: #f0f0f0; max-width: 750px; margin: 0 auto 1.5rem auto;">
+                Imagine how excited your children will be to have Santa Claus arrive at their house on a fire engine this Christmas season!
+            </p>
+            <div class="hero-actions">
+                <a href="#dates" class="btn btn-primary glow">View 2025 Dates</a>
+                <a href="#guidelines" class="btn btn-secondary">Drop-Off Guidelines</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Intro & Overview Section -->
+        <section class="section">
+            <div class="container">
+                <div class="section-grid" style="align-items: center;">
+                    <div class="section-text fade-in">
+                        <h2 class="section-title">Bringing Holiday Magic to Our Community</h2>
+                        <p style="font-size: 1.1rem; line-height: 1.7; color: var(--text-primary);">
+                            <strong>Montgomery Township Volunteer Fire Company #2</strong> is arranging to have Santa Claus and his elves deliver Christmas gifts by fire engine. The volunteers are anxiously planning to bring this special event to our community.
+                        </p>
+                        <p style="font-size: 1.05rem; line-height: 1.7; color: var(--text-secondary);">
+                            Due to high demand, we are delivering gifts exclusively into the <strong>Blawenburg / Skillman / Fire District #2</strong> coverage area.
+                        </p>
+                        <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <a href="#form" class="btn btn-primary"><i class="fas fa-file-download"></i> Get Contact Form</a>
+                            <a href="#districts" class="btn btn-secondary">Check Your District</a>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel fade-in delay-1" style="padding: 2.5rem; border-left: 4px solid var(--fire-red);">
+                        <h3 style="color: white; font-size: 1.4rem; margin-bottom: 1.2rem;">Quick Facts & Summary</h3>
+                        <ul class="tech-specs" style="font-size: 1.05rem; line-height: 1.8;">
+                            <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem;">
+                                <strong style="color: white;">Drop-Off Dates:</strong> Dec 16, 17, & 18 (5 PM – 9 PM)
+                            </li>
+                            <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem;">
+                                <strong style="color: white;">Delivery Date:</strong> Sunday, December 21, 2025 (10 AM – 6 PM)
+                            </li>
+                            <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem;">
+                                <strong style="color: white;">Donation:</strong> $25 minimum per household
+                            </li>
+                            <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem; border-bottom: none;">
+                                <strong style="color: white;">Delivery Area:</strong> Skillman, Blawenburg & District #2
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Santa Tracker App Highlight -->
+                <div class="tracker-banner fade-in">
+                    <div style="flex: 1; min-width: 280px;">
+                        <h3 style="color: #fff; font-size: 1.5rem; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 10px;">
+                            <span>📱</span> Live Santa Tracker App
+                        </h3>
+                        <p style="color: var(--text-secondary); margin: 0; font-size: 1.05rem; line-height: 1.6;">
+                            We will also be using a <strong>Santa Tracker App</strong> this year so you can follow Santa's real-time route and see as he gets closer to your home!
+                        </p>
+                    </div>
+                    <div>
+                        <span class="btn btn-primary" style="pointer-events: none; opacity: 0.95;">
+                            ⚡ Live on Delivery Day (Dec 21)
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2025 Schedule & Dates Section -->
+        <section id="dates" class="section" style="position: relative; background: linear-gradient(rgba(10, 11, 13, 0.82), rgba(10, 11, 13, 0.88)), url('christmas.jpg') center 25%/cover; background-attachment: fixed;">
+            <div class="container">
+                <div class="section-header text-center fade-in">
+                    <h2 class="section-title">2025 Schedule & Dates</h2>
+                    <p class="section-subtitle">Mark your calendar for gift drop-off days and Santa's fire engine delivery tour!</p>
+                </div>
+
+                <div class="dates-container">
+                    <!-- Drop Off Card -->
+                    <div class="date-card fade-in">
+                        <div class="date-card-header">
+                            <div class="date-icon-box">🎁</div>
+                            <div>
+                                <h3 class="date-card-title">Gift Drop-Off Days</h3>
+                                <p class="date-card-subtitle">December 16th – 18th, 2025</p>
+                            </div>
+                        </div>
+                        <ul class="tech-specs" style="font-size: 1rem; line-height: 1.8;">
+                            <li><strong>Dates:</strong> Dec 16 (Tue), Dec 17 (Wed), & Dec 18 (Thu)</li>
+                            <li><strong>Hours:</strong> Open 5:00 PM – 9:00 PM</li>
+                            <li><strong>Location:</strong> Station 46 Firehouse<br><span style="color: var(--gold);">529 Route 518, Skillman, NJ 08558</span></li>
+                            <li style="border-bottom: none;"><strong>What to bring:</strong> Wrapped & labeled gifts + completed contact form + $25 donation.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Delivery Day Card -->
+                    <div class="date-card fade-in delay-1" style="border-color: rgba(226, 35, 26, 0.4);">
+                        <div class="date-card-header">
+                            <div class="date-icon-box" style="background: linear-gradient(135deg, #d4a017, #e67e22);">🚒</div>
+                            <div>
+                                <h3 class="date-card-title">Santa Delivery Day</h3>
+                                <p class="date-card-subtitle" style="color: #ff6b6b;">Sunday, December 21st, 2025</p>
+                            </div>
+                        </div>
+                        <ul class="tech-specs" style="font-size: 1rem; line-height: 1.8;">
+                            <li><strong>Date:</strong> Sunday, December 21, 2025</li>
+                            <li><strong>Delivery Hours:</strong> 10:00 AM – 6:00 PM</li>
+                            <li><strong>Delivered by:</strong> Santa Claus & his Firefighter Elves on Station 46 fire engines</li>
+                            <li style="border-bottom: none;"><strong>Tracking:</strong> Live Santa GPS Tracker active during deliveries.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Guidelines & Checklist Section -->
+        <section id="guidelines" class="section">
+            <div class="container">
+                <div class="section-header text-center fade-in">
+                    <h2 class="section-title">Participation Guidelines</h2>
+                    <p class="section-subtitle">Please review these simple steps to ensure Santa's delivery run is smooth and safe for all children.</p>
+                </div>
+
+                <div class="glass-panel fade-in" style="max-width: 900px; margin: 0 auto; padding: 2.5rem;">
+                    <div class="guideline-item">
+                        <div class="guideline-num">1</div>
+                        <div class="guideline-text">
+                            <h4>Household Donation</h4>
+                            <p>A minimum donation of <strong>$25 per household</strong> is requested to support the volunteer fire company. Payment is due upon gift drop off (Cash, Check, or Credit Card accepted).</p>
+                        </div>
+                    </div>
+
+                    <div class="guideline-item">
+                        <div class="guideline-num">2</div>
+                        <div class="guideline-text">
+                            <h4>Wrapped & Labeled Gift</h4>
+                            <p>Please wrap <strong>one small gift per child</strong> and label it clearly with the child's full name and exact delivery street address.</p>
+                        </div>
+                    </div>
+
+                    <div class="guideline-item">
+                        <div class="guideline-num">3</div>
+                        <div class="guideline-text">
+                            <h4>Drop-Off at Station 46</h4>
+                            <p>Bring your gift(s) to <strong>The Firehouse</strong>, located at <strong>529 Route 518 in Skillman</strong> during the drop-off hours (Dec 16–18 between 5 PM and 9 PM).</p>
+                        </div>
+                    </div>
+
+                    <div class="guideline-item">
+                        <div class="guideline-num">4</div>
+                        <div class="guideline-text">
+                            <h4>Completed Contact Form</h4>
+                            <p>Download and complete the contact form below, and bring it with you when you drop off your gift(s) at the firehouse.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Printable Contact Form Section -->
+        <section id="form" class="section dark-alt">
+            <div class="container" style="max-width: 900px;">
+                <div class="section-header text-center fade-in">
+                    <h2 class="section-title">Drop-Off Contact Form</h2>
+                    <p class="section-subtitle">Please print and fill out this registration form to bring with your gift(s) during drop-off.</p>
+                </div>
+
+                <div class="text-center" style="margin-bottom: 1.5rem;">
+                    <button onclick="window.print()" class="btn btn-primary glow" style="font-size: 1.1rem; padding: 14px 28px;">
+                        🖨️ Print Contact Form
+                    </button>
+                </div>
+
+                <!-- Printable Sheet -->
+                <div id="print-area" class="printable-form-preview fade-in">
+                    <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 1.5rem; text-align: center;">
+                        <h3 style="color: #b91c1c; font-size: 1.6rem; margin: 0 0 5px 0; text-transform: uppercase;">Montgomery Twp. Volunteer Fire Co. #2</h3>
+                        <h4 style="margin: 0; color: #1f2937; font-size: 1.25rem;">Operation Santa 2025 — Registration & Contact Form</h4>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9rem;">Station 46 • 529 Route 518, Skillman, NJ 08558 • santa@mtvfc2.com</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <strong style="color: #374151; font-size: 0.95rem;">Parent / Guardian Name:</strong>
+                            <div class="form-field-line"></div>
+                        </div>
+                        <div>
+                            <strong style="color: #374151; font-size: 0.95rem;">Contact Phone Number:</strong>
+                            <div class="form-field-line"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.2rem;">
+                        <strong style="color: #374151; font-size: 0.95rem;">Delivery Street Address:</strong>
+                        <div class="form-field-line"></div>
+                    </div>
+
+                    <div class="form-grid" style="margin-top: 1.2rem;">
+                        <div>
+                            <strong style="color: #374151; font-size: 0.95rem;">Town / Section (Skillman / Blawenburg / Princeton):</strong>
+                            <div class="form-field-line"></div>
+                        </div>
+                        <div>
+                            <strong style="color: #374151; font-size: 0.95rem;">Email Address (For Santa Tracker Link):</strong>
+                            <div class="form-field-line"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; border-top: 1px solid #e5e7eb; padding-top: 1.2rem;">
+                        <strong style="color: #111827; font-size: 1rem;">Children's Information & Gift Details:</strong>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.92rem;">
+                            <thead>
+                                <tr style="background: #f3f4f6; text-align: left;">
+                                    <th style="padding: 8px; border: 1px solid #d1d5db;">#</th>
+                                    <th style="padding: 8px; border: 1px solid #d1d5db;">Child's Full Name</th>
+                                    <th style="padding: 8px; border: 1px solid #d1d5db; width: 80px;">Age</th>
+                                    <th style="padding: 8px; border: 1px solid #d1d5db;">Gift Description / Label Checked</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 10px 8px; border: 1px solid #d1d5db;">1</td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px 8px; border: 1px solid #d1d5db;">2</td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px 8px; border: 1px solid #d1d5db;">3</td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px 8px; border: 1px solid #d1d5db;">4</td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                    <td style="border: 1px solid #d1d5db;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; border-top: 1px solid #e5e7eb; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; color: #4b5563;">
+                        <span>Donation ($25 Min): [ &nbsp; ] Cash &nbsp; [ &nbsp; ] Check &nbsp; [ &nbsp; ] Credit Card</span>
+                        <span>Received By (Fire Co. Member): _________________</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- District Boundaries & Delivery Map Section -->
+        <section id="districts" class="section">
+            <div class="container">
+                <div class="section-header text-center fade-in">
+                    <h2 class="section-title">Delivery Area & Fire Districts</h2>
+                    <p class="section-subtitle">Check below to ensure your address falls within Fire District #2 (Station 46 response area).</p>
+                </div>
+
+                <div class="cards-grid" style="margin-bottom: 2.5rem;">
+                    <!-- District 2 (Our Station) -->
+                    <div class="district-box active-dist fade-in">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <span class="badge" style="background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; padding: 4px 12px; border-radius: 20px; font-weight: 600;">OUR COVERAGE AREA</span>
+                            <span style="font-weight: 700; color: white;">Station 46</span>
+                        </div>
+                        <h3 style="color: white; font-size: 1.35rem; margin: 0 0 0.5rem 0;">District #2 (South Montgomery)</h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+                            The Elves of Montgomery Township Volunteer Fire Company #2 and Santa will deliver to Montgomery residents residing in the <strong>Skillman, Blawenburg, or Princeton</strong> areas generally located on the <strong>south end</strong> of Montgomery Township.
+                        </p>
+                        <div style="color: var(--gold); font-size: 0.95rem; font-weight: 600;">
+                            ✓ Eligible for Station 46 Operation Santa
+                        </div>
+                    </div>
+
+                    <!-- District 1 (MTVFC #1) -->
+                    <div class="district-box fade-in delay-1">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <span class="badge" style="background: rgba(255, 255, 255, 0.1); color: #ccc; border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 12px; border-radius: 20px; font-weight: 600;">NORTH DISTRICT</span>
+                            <span style="font-weight: 700; color: white;">Station 45</span>
+                        </div>
+                        <h3 style="color: white; font-size: 1.35rem; margin: 0 0 0.5rem 0;">District #1 (Belle Mead / North)</h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+                            Montgomery residents residing in the <strong>Belle Mead</strong> section of Montgomery are generally located in <strong>District #1</strong> on the north side of town, served by MTVFC #1.
+                        </p>
+                        <a href="https://www.mtvfc1.org/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.9rem; padding: 8px 16px;">
+                            Visit MTVFC #1 Operation Santa &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Map Section -->
+                <div class="glass-panel fade-in" style="padding: 2rem; border-radius: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h3 style="color: white; margin: 0 0 5px 0;">Montgomery Township Fire District Map</h3>
+                            <p style="color: var(--text-secondary); margin: 0;">District #1 is located on the north side; District #2 is located on the south end of Montgomery Township, NJ.</p>
+                        </div>
+                        <a href="mailto:santa@mtvfc2.com" class="btn btn-primary glow">
+                            ✉️ Email santa@mtvfc2.com
+                        </a>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+                        <!-- District Outline Map Image -->
+                        <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <img src="santapath.png" alt="Montgomery Township Fire District Boundary Map" style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+                            <span style="font-size: 0.88rem; color: var(--gold); margin-top: 0.9rem; text-align: center; font-weight: 500;">
+                                Red dividing line separates District #1 (North) and District #2 (South)
+                            </span>
+                        </div>
+
+                        <!-- Google Maps Interactive Location -->
+                        <div style="height: 440px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <iframe 
+                                title="Station 46 Location & District Map"
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d48680.12759914488!2d-74.75051939304918!3d40.40722304899557!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c3e2bb97f74811%3A0xc3cfcfaebdb28f11!2s529%20County%20Rd%20518%2C%20Skillman%2C%20NJ%2008558!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus" 
+                                width="100%" 
+                                height="100%" 
+                                style="border:0;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; background: rgba(0, 0, 0, 0.3); padding: 1.2rem; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                        <span style="color: var(--text-secondary); font-size: 0.95rem;">
+                            Unsure if you are in District #2? Reach out to us directly:
+                        </span>
+                        <a href="mailto:santa@mtvfc2.com" style="color: var(--gold); font-weight: 600; text-decoration: underline;">
+                            santa@mtvfc2.com
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-brand">
+                <img src="logo.png" alt="Station 46 Logo" class="footer-badge-img">
+                <span>Montgomery Twp. Volunteer Fire Co. #2</span>
+            </div>
+            <div class="footer-info">
+                <p>529 Route 518, Skillman, NJ 08558</p>
+                <p>Emergency: <strong>911</strong> | Non-Emergency: (609) 466-3926</p>
+            </div>
+            <div class="footer-copy">
+                &copy; <span id="year"></span> Montgomery Township Volunteer Fire Company #2. All rights reserved. | <a href="admin.html" class="admin-link" style="color: rgba(255,255,255,0.3); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js?v=47"></script>
+</body>
+</html>
