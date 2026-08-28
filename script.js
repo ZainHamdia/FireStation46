@@ -330,7 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
         '.rank-badge', '.roster-name', '.roster-category-title',
         '.card-img-placeholder',
         '.santa-badge',
-        '.chart-bar-year', '.chart-bar-value',
         '.date-card-title', '.date-card-subtitle',
         '.guideline-num',
         '.guideline-text h4', '.guideline-text p',
@@ -346,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function isEditableElement(element) {
         if (!element || element.nodeType !== Node.ELEMENT_NODE) return false;
 
-        // Never edit internal admin controls, forms, toasts, navigation bars, or external widgets
+        // Never edit internal admin controls, forms, toasts, navigation bars, chart rows, or external widgets
         if (element.closest('#admin-floating-bar') ||
             element.closest('#admin-toast-notification') ||
             element.closest('#admin-dashboard-view') ||
@@ -356,6 +355,8 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('#admin-posts-list-container') ||
             element.closest('.news-filter-bar') ||
             element.closest('.roster-search-box') ||
+            element.closest('.chart-bar-row') ||
+            element.closest('.chart-bars') ||
             element.closest('.powr-social-feed') ||
             element.closest('form') ||
             element.closest('.mobile-menu-btn')) {
@@ -371,6 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.classList.contains('admin-link') ||
             element.classList.contains('search-clear-btn') ||
             element.classList.contains('empty-state-actions') ||
+            element.classList.contains('tag-new') ||
             element.tagName === 'INPUT' ||
             element.tagName === 'TEXTAREA' ||
             element.tagName === 'SELECT' ||
@@ -403,6 +405,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         return true;
+    }
+
+    // Helper: Generate a stable DOM path selector for each element to avoid index-shifting bugs
+    function getElementSelectorPath(el) {
+        if (!el || el.nodeType !== Node.ELEMENT_NODE) return '';
+        if (el.id) return `#${el.id}`;
+        
+        let path = [];
+        let current = el;
+        while (current && current.nodeType === Node.ELEMENT_NODE && current.tagName !== 'BODY' && current.tagName !== 'HTML') {
+            let selector = current.tagName.toLowerCase();
+            if (current.id) {
+                selector = `#${current.id}`;
+                path.unshift(selector);
+                break;
+            } else {
+                let parent = current.parentElement;
+                if (parent) {
+                    let siblings = Array.from(parent.children).filter(c => c.tagName === current.tagName);
+                    if (siblings.length > 1) {
+                        let idx = siblings.indexOf(current) + 1;
+                        selector += `:nth-of-type(${idx})`;
+                    }
+                }
+                path.unshift(selector);
+            }
+            current = current.parentElement;
+        }
+        return path.join(' > ');
     }
 
     // Helper: Collect all editable elements in deterministic DOM order
@@ -458,6 +489,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAdminLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
     let editModeActive = true;
 
+    // Clean up legacy index-based corrupted edits from older versions
+    (function cleanupLegacyEdits() {
+        try {
+            const stored = localStorage.getItem('station46_text_edits');
+            if (stored) {
+                const raw = JSON.parse(stored);
+                let hasLegacy = false;
+                for (const k in raw) {
+                    if (k.match(/^edit_text_[a-zA-Z0-9_\-\.]+\.html_\d+$/)) {
+                        hasLegacy = true;
+                        break;
+                    }
+                }
+                if (hasLegacy) {
+                    localStorage.removeItem('station46_text_edits');
+                }
+            }
+        } catch(e) {
+            localStorage.removeItem('station46_text_edits');
+        }
+    })();
+
     function getStoredTextEdits() {
         const edits = localStorage.getItem('station46_text_edits');
         return edits ? JSON.parse(edits) : {};
@@ -473,11 +526,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!edits || typeof edits !== 'object') return;
         const pageKey = getPageKey();
         const elements = getEditableElements();
-        elements.forEach((element, index) => {
-            const storageKey = `edit_text_${pageKey}_${index}`;
+        elements.forEach((element) => {
+            const storageKey = `edit_v2_${pageKey}_${getElementSelectorPath(element)}`;
             if (edits[storageKey] !== undefined && edits[storageKey] !== null) {
                 if (document.activeElement !== element) {
-                    element.innerHTML = edits[storageKey];
+                    const val = edits[storageKey];
+                    // Safety: Never inject full paragraphs or block tags into inline elements
+                    if ((element.classList.contains('stat-number') || element.classList.contains('stat-label') || element.classList.contains('filter-count')) && (val.includes('<p') || val.length > 30)) {
+                        return;
+                    }
+                    element.innerHTML = val;
                 }
             }
         });
@@ -491,8 +549,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const pageKey = getPageKey();
         const elements = getEditableElements();
 
-        elements.forEach((element, index) => {
-            const storageKey = `edit_text_${pageKey}_${index}`;
+        elements.forEach((element) => {
+            const storageKey = `edit_v2_${pageKey}_${getElementSelectorPath(element)}`;
 
             if (isAdminLoggedIn) {
                 element.setAttribute('contenteditable', editModeActive ? 'true' : 'false');
@@ -540,7 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Collect all distinct HTML pages that have edits
         const editedPages = new Set();
         Object.keys(edits).forEach(key => {
-            const match = key.match(/^edit_text_([a-zA-Z0-9_\-\.]+\.html)_/);
+            const match = key.match(/^edit_v2_([a-zA-Z0-9_\-\.]+\.html)_/);
             if (match && match[1]) {
                 editedPages.add(match[1]);
             }
@@ -567,8 +625,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const elements = getEditableElements(doc);
                 let pageHasChanges = false;
 
-                elements.forEach((element, index) => {
-                    const storageKey = `edit_text_${pageName}_${index}`;
+                elements.forEach((element) => {
+                    const storageKey = `edit_v2_${pageName}_${getElementSelectorPath(element)}`;
                     if (edits[storageKey] !== undefined && edits[storageKey] !== null) {
                         const newContent = edits[storageKey].trim();
                         if (element.innerHTML.trim() !== newContent) {
