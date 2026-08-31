@@ -1207,6 +1207,78 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 5b. Home Page: Render 3 Most Recent Calls & News Posts
+    const homeRecentPostsList = document.getElementById('home-recent-posts-list');
+    function renderHomeRecentPosts() {
+        if (!homeRecentPostsList) return;
+
+        let posts = [];
+        try {
+            posts = getStoredPosts();
+        } catch (e) {
+            console.error("Failed to read posts for home page:", e);
+        }
+
+        posts = posts.filter(post => post && typeof post === 'object' && post.id);
+
+        // If no user-created posts exist yet, provide helpful initial station highlights
+        if (posts.length === 0) {
+            posts = [
+                {
+                    id: 'default-call-1',
+                    category: 'calls',
+                    title: 'Structure Fire Mutual Aid Response',
+                    date: 'Recently Dispatched',
+                    text: 'Station 46 crews operated alongside neighboring companies providing primary suppression and ventilation support.'
+                },
+                {
+                    id: 'default-news-2',
+                    category: 'news',
+                    title: 'Community Fire Safety & Open House',
+                    date: 'Upcoming Event',
+                    text: 'Join us at the Blawenburg Firehouse for live demonstrations, apparatus tours, and youth volunteer signups.'
+                },
+                {
+                    id: 'default-call-3',
+                    category: 'calls',
+                    title: 'Motor Vehicle Incident on Route 518',
+                    date: 'Incident Log',
+                    text: 'Engine 46 and Rescue 46 secured the scene, managed fluid mitigation, and assisted EMS with patient transport.'
+                }
+            ];
+        }
+
+        // Take the 3 most recent posts
+        const topPosts = posts.slice(0, 3);
+
+        let html = '';
+        topPosts.forEach(post => {
+            const title = escapeHtml(post.title || 'Station Update');
+            const text = escapeHtml(post.text || '');
+            const date = escapeHtml(post.date || 'Recent');
+            const category = post.category === 'news' ? 'news' : 'calls';
+            const tagLabel = category === 'news' ? 'News & Events' : 'Fire Call';
+
+            html += `
+                <a href="news.html" class="recent-post-item category-${category} fade-in visible">
+                    <div class="recent-post-meta">
+                        <span class="recent-post-tag tag-${category}">${tagLabel}</span>
+                        <span class="recent-post-date">${date}</span>
+                    </div>
+                    <h4 class="recent-post-title">${title}</h4>
+                    <p class="recent-post-snippet">${text}</p>
+                </a>
+            `;
+        });
+
+        homeRecentPostsList.innerHTML = html;
+    }
+
+    // Initial home recent posts render
+    if (homeRecentPostsList) {
+        renderHomeRecentPosts();
+    }
+
     // Remote Sync on load across all devices
     async function syncFromRemoteDatabase() {
         // Sync news posts
@@ -1221,6 +1293,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const adminContainer = document.getElementById('admin-posts-list-container');
                 if (adminContainer) {
                     renderAdminPosts();
+                }
+                if (homeRecentPostsList) {
+                    renderHomeRecentPosts();
                 }
             }
         } catch (err) {

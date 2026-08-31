@@ -71,133 +71,88 @@
 
         <!-- Station Information Section -->
         <section id="station-info" class="section dark-alt">
-            <div class="container text-center">
-                <h2 class="section-title fade-in">Station Information</h2>
-                <p class="section-subtitle mw-800 mx-auto fade-in delay-1">Important details about our firehouse operations, locations, and annual call statistics.</p>
+            <div class="container">
+                <div class="section-header text-center fade-in">
+                    <h2 class="section-title">Station Information &amp; Recent Updates</h2>
+                    <p class="section-subtitle mw-800 mx-auto">Important details about our firehouse operations, locations, and latest community updates.</p>
+                </div>
                 
                 <div class="station-info-grid">
-                    <!-- Call Statistics Chart -->
-                    <div class="stats-chart-wrapper glass-card fade-in">
-                        <h3>Annual Call Volume History</h3>
-                        <div class="chart-bars">
-                            <div class="chart-bar-row">
-                                <span class="chart-bar-year">2025</span>
-                                <div class="chart-bar-track">
-                                    <div class="chart-bar-fill" style="--percent: 91%;"></div>
-                                </div>
-                                <span class="chart-bar-value">384</span>
-                            </div>
-                            <div class="chart-bar-row">
-                                <span class="chart-bar-year">2024</span>
-                                <div class="chart-bar-track">
-                                    <div class="chart-bar-fill" style="--percent: 100%;"></div>
-                                </div>
-                                <span class="chart-bar-value">420</span>
-                            </div>
-                            <div class="chart-bar-row">
-                                <span class="chart-bar-year">2023</span>
-                                <div class="chart-bar-track">
-                                    <div class="chart-bar-fill" style="--percent: 85%;"></div>
-                                </div>
-                                <span class="chart-bar-value">357</span>
-                            </div>
-                            <div class="chart-bar-row">
-                                <span class="chart-bar-year">2022</span>
-                                <div class="chart-bar-track">
-                                    <div class="chart-bar-fill" style="--percent: 84%;"></div>
-                                </div>
-                                <span class="chart-bar-value">354</span>
-                            </div>
-                            <div class="chart-bar-row">
-                                <span class="chart-bar-year">2021</span>
-                                <div class="chart-bar-track">
-                                    <div class="chart-bar-fill" style="--percent: 82%;"></div>
-                                </div>
-                                <span class="chart-bar-value">344</span>
-                            </div>
-                            <div class="chart-bar-row">
-                                <span class="chart-bar-year">2020</span>
-                                <div class="chart-bar-track">
-                                    <div class="chart-bar-fill" style="--percent: 68%;"></div>
-                                </div>
-                                <span class="chart-bar-value">284</span>
-                            </div>
-                            <div class="chart-bar-row">
-                                <span class="chart-bar-year">2019</span>
-                                <div class="chart-bar-track">
-                                    <div class="chart-bar-fill" style="--percent: 82%;"></div>
-                                </div>
-                                <span class="chart-bar-value">344</span>
-                            </div>
-                            <div class="chart-bar-row">
-                                <span class="chart-bar-year">2018</span>
-                                <div class="chart-bar-track">
-                                    <div class="chart-bar-fill" style="--percent: 81%;"></div>
-                                </div>
-                                <span class="chart-bar-value">340</span>
-                            </div>
-                            <div class="chart-bar-row">
-                                <span class="chart-bar-year">2017</span>
-                                <div class="chart-bar-track">
-                                    <div class="chart-bar-fill" style="--percent: 78%;"></div>
-                                </div>
-                                <span class="chart-bar-value">328</span>
-                            </div>
-                        </div>
-                      </div>
-
-                    <!-- Contact & Location Cards -->
-                    <div class="info-cards-wrapper">
-                        <!-- Blawenburg Firehouse -->
-                        <div class="info-card glass-card hover-lift fade-in delay-1">
-                            <div class="info-card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            </div>
-                            <div class="info-card-content">
-                                <h3>Blawenburg Firehouse</h3>
-                                <p>529 Route 518<br>Skillman, NJ 08558</p>
-                                <a href="https://maps.google.com/?q=529+Route+518,+Skillman,+NJ+08558" target="_blank" rel="noopener noreferrer">Get Directions →</a>
+                    <!-- Left Half: Station Information Panel -->
+                    <div class="station-panel glass-card fade-in delay-1">
+                        <div class="station-panel-header">
+                            <div class="station-panel-heading">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                                <h3>Station Details</h3>
                             </div>
                         </div>
 
-                        <!-- Mailing Address -->
-                        <div class="info-card glass-card hover-lift fade-in delay-2">
-                            <div class="info-card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            </div>
-                            <div class="info-card-content">
-                                <h3>Mailing Address</h3>
-                                <p>PO Box 267<br>Blawenburg, NJ 08504</p>
-                            </div>
-                        </div>
-
-                        <!-- Social Media Links -->
-                        <div class="info-card glass-card hover-lift fade-in delay-3">
-                            <div class="info-card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                            </div>
-                            <div class="info-card-content" style="width: 100%;">
-                                <h3>Follow Us</h3>
-                                <p>Stay connected with us on social media for live incident updates, crew photos, and community events.</p>
-                                <div class="social-links-grid">
-                                    <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="social-btn facebook-btn">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                                        Facebook
-                                    </a>
-                                    <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="social-btn instagram-btn">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
-                                        Instagram
-                                    </a>
-                                    <a href="https://x.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="social-btn x-btn">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg>
-                                        X
-                                    </a>
-                                    <a href="https://www.flickr.com/photos/MTVFC2" target="_blank" rel="noopener noreferrer" class="social-btn flickr-btn">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="12" r="4" fill="currentColor"></circle><circle cx="17" cy="12" r="4" fill="currentColor"></circle></svg>
-                                        Flickr
-                                    </a>
+                        <div class="station-panel-body">
+                            <!-- Location Detail -->
+                            <div class="station-detail-item">
+                                <div class="station-detail-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                </div>
+                                <div class="station-detail-text">
+                                    <h4>Blawenburg Firehouse</h4>
+                                    <p>529 Route 518, Skillman, NJ 08558</p>
+                                    <a href="https://maps.google.com/?q=529+Route+518,+Skillman,+NJ+08558" target="_blank" rel="noopener noreferrer" class="detail-link">Get Directions →</a>
                                 </div>
                             </div>
+
+                            <!-- Mailing Address Detail -->
+                            <div class="station-detail-item">
+                                <div class="station-detail-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                </div>
+                                <div class="station-detail-text">
+                                    <h4>Mailing Address</h4>
+                                    <p>PO Box 267, Blawenburg, NJ 08504</p>
+                                </div>
+                            </div>
+
+                            <!-- Social Detail -->
+                            <div class="station-detail-item">
+                                <div class="station-detail-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                </div>
+                                <div class="station-detail-text" style="width: 100%;">
+                                    <h4>Follow Station 46</h4>
+                                    <p>Live updates, incident logs, and community event photos.</p>
+                                    <div class="station-social-bar">
+                                        <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="social-bar-btn" title="Facebook">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                                            Facebook
+                                        </a>
+                                        <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="social-bar-btn" title="Instagram">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                                            Instagram
+                                        </a>
+                                        <a href="https://x.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="social-bar-btn" title="X (Twitter)">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg>
+                                            X
+                                        </a>
+                                        <a href="https://www.flickr.com/photos/MTVFC2" target="_blank" rel="noopener noreferrer" class="social-bar-btn" title="Flickr">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="12" r="4" fill="currentColor"></circle><circle cx="17" cy="12" r="4" fill="currentColor"></circle></svg>
+                                            Flickr
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Half: Recent Calls & News Panel -->
+                    <div class="station-panel glass-card fade-in delay-2">
+                        <div class="station-panel-header">
+                            <div class="station-panel-heading">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                                <h3>Recent Calls &amp; News</h3>
+                            </div>
+                            <a href="news.html" class="view-all-link">View All Feed →</a>
+                        </div>
+                        <div id="home-recent-posts-list" class="recent-posts-list">
+                            <!-- Populated dynamically via JS -->
                         </div>
                     </div>
                 </div>
