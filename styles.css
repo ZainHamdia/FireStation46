@@ -964,7 +964,7 @@ button:disabled {
     color: white; font-weight: 800; text-shadow: 0 2px 10px black;
 }
 .card:nth-child(8) .card-img-placeholder {
-    background: linear-gradient(rgba(10,11,13,0.1), rgba(10,11,13,0.8)), url('car462.jpg') center/cover, linear-gradient(135deg, rgba(20, 24, 33, 0.95), rgba(15, 17, 21, 0.98));
+    background: linear-gradient(rgba(10,11,13,0.1), rgba(10,11,13,0.8)), url('car462.jpg') center 55% / 135% no-repeat, linear-gradient(135deg, rgba(20, 24, 33, 0.95), rgba(15, 17, 21, 0.98));
     color: white; font-weight: 800; text-shadow: 0 2px 10px black;
 }
 
@@ -980,7 +980,7 @@ button:disabled {
 .card-content h3 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
-    color: white;
+    color: #0f172a;
 }
 
 .card-content p {
@@ -999,7 +999,7 @@ button:disabled {
 .tech-specs li {
     padding-bottom: 0.4rem;
     margin-bottom: 0.4rem;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid var(--border-light);
 }
 
 .tech-specs li:last-child {
@@ -1021,59 +1021,57 @@ button:disabled {
 
 .contact-form {
     padding: 3rem;
-    text-align: left;
+    border-radius: 12px;
 }
 
-.contact-form h3 {
-    font-size: 1.8rem;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.form-group {
+.contact-form .form-group {
     margin-bottom: 1.5rem;
 }
 
-.form-group input, .form-group select {
+.contact-form input,
+.contact-form textarea,
+.contact-form select {
     width: 100%;
-    padding: 15px 20px;
-    background: rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    color: white;
-    font-family: var(--font-body);
+    padding: 12px 16px;
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    color: #0f172a;
+    font-family: inherit;
     font-size: 1rem;
+    box-sizing: border-box;
     transition: all var(--transition-fast);
 }
 
-.form-group input:focus, .form-group select:focus {
+.contact-form input:focus,
+.contact-form textarea:focus,
+.contact-form select:focus {
     outline: none;
     border-color: var(--fire-red);
-    background: rgba(0,0,0,0.4);
-    box-shadow: 0 0 15px rgba(230, 57, 70, 0.2);
+    box-shadow: 0 0 10px rgba(217, 4, 41, 0.15);
 }
 
-.form-group select {
-    appearance: none;
-    cursor: pointer;
+.contact-form select option {
+    background: #ffffff;
+    color: #0f172a;
 }
 
-.form-group select option {
-    background: var(--bg-darker);
-    color: white;
+.contact-form textarea {
+    height: 120px;
+    resize: vertical;
 }
 
 .form-note {
-    margin-top: 1.5rem;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
     text-align: center;
 }
 
 /* Footer */
 footer {
     background: var(--bg-darker);
-    border-top: 1px solid rgba(255,255,255,0.05);
+    border-top: 1px solid var(--border-light);
     padding: 4rem 2rem 2rem;
 }
 
@@ -1084,7 +1082,7 @@ footer {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 2rem;
+    gap: 1.75rem;
 }
 
 .footer-brand {
@@ -1094,6 +1092,7 @@ footer {
     font-family: var(--font-heading);
     font-weight: 800;
     font-size: 1.5rem;
+    color: #0f172a;
 }
 
 .footer-info {
@@ -1108,12 +1107,70 @@ footer {
     color: var(--fire-red);
 }
 
+/* Footer Social Links */
+.footer-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+}
+
+.footer-social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.footer-social-link svg {
+    flex-shrink: 0;
+    transition: transform var(--transition-fast);
+}
+
+.footer-social-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.footer-social-link:hover svg {
+    transform: scale(1.15);
+}
+
+.footer-social-link.facebook:hover {
+    color: #1877f2;
+    border-color: rgba(24, 119, 242, 0.4);
+    background: rgba(24, 119, 242, 0.06);
+}
+
+.footer-social-link.instagram:hover {
+    color: #e1306c;
+    border-color: rgba(225, 48, 108, 0.4);
+    background: rgba(225, 48, 108, 0.06);
+}
+
+.footer-social-link.twitter:hover {
+    color: #0f172a;
+    border-color: rgba(15, 23, 42, 0.4);
+    background: rgba(15, 23, 42, 0.06);
+}
+
 .footer-copy {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-light);
     width: 100%;
-    color: rgba(255,255,255,0.3);
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
@@ -1460,7 +1517,6 @@ footer {
     color: var(--text-secondary);
     gap: 0.75rem;
     flex: 1;
-}
 }
 
 /* Call Stats Bar Chart */
@@ -2735,5 +2791,292 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     padding-top: 1rem;
 }
 
+/* Roster Avatar Initials Live Editing */
+.roster-avatar[contenteditable="true"] {
+    cursor: text;
+    transition: all 0.2s ease;
+    user-select: text;
+}
 
+.roster-avatar[contenteditable="true"]:hover {
+    outline: 2px dashed rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
 
+.roster-avatar[contenteditable="true"]:focus {
+    outline: 2px solid var(--gold) !important;
+    outline-offset: 2px;
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Roster Card Remove Button */
+.roster-card-remove-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(230, 57, 70, 0.2);
+    border: 1px solid rgba(230, 57, 70, 0.4);
+    color: #ff8585;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    line-height: 1;
+    padding: 0;
+}
+
+.roster-card-remove-btn:hover {
+    background: var(--fire-red);
+    color: #ffffff;
+    border-color: var(--fire-red);
+    transform: scale(1.15);
+    box-shadow: 0 0 10px rgba(230, 57, 70, 0.6);
+}
+
+/* Roster Section Add Member Button */
+.btn-roster-add-member {
+    background: rgba(230, 57, 70, 0.12);
+    color: #ff8585;
+    border: 1px solid rgba(230, 57, 70, 0.3);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+}
+
+.btn-roster-add-member:hover {
+    background: var(--fire-red);
+    color: #ffffff;
+    border-color: var(--fire-red);
+    box-shadow: 0 0 12px rgba(230, 57, 70, 0.4);
+    transform: translateY(-1px);
+}
+
+/* Roster Add Member Modal */
+.roster-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 11, 13, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.roster-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.roster-modal-card {
+    background: rgba(19, 23, 30, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 460px;
+    padding: 2rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(230, 57, 70, 0.15);
+    transform: scale(0.95);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+    position: relative;
+    text-align: left;
+}
+
+.roster-modal-overlay.active .roster-modal-card {
+    transform: scale(1);
+}
+
+.roster-modal-header {
+    margin-bottom: 1.5rem;
+}
+
+.roster-modal-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: white;
+    font-family: var(--font-heading);
+    margin: 0 0 0.35rem 0;
+}
+
+.roster-modal-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.roster-modal-form .form-group {
+    margin-bottom: 1.15rem;
+}
+
+.roster-modal-form label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.roster-modal-form input[type="text"],
+.roster-modal-form select {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.95rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.roster-modal-form select option {
+    background: #191e28;
+    color: white;
+}
+
+.roster-modal-form input[type="text"]:focus,
+.roster-modal-form select:focus {
+    outline: none;
+    border-color: var(--fire-red);
+    box-shadow: 0 0 10px rgba(230, 57, 70, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.roster-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.roster-modal-actions .btn {
+    padding: 9px 18px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: var(--font-heading);
+}
+
+.btn-roster-cancel {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-roster-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+/* Roster Drag and Drop Admin Styles */
+.roster-card-drag-handle {
+    position: absolute;
+    top: 7px;
+    left: 8px;
+    width: 22px;
+    height: 22px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: grab;
+    font-size: 13px;
+    letter-spacing: -1px;
+    user-select: none;
+    z-index: 10;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.roster-card-drag-handle:hover {
+    color: var(--gold);
+    background: rgba(212, 163, 115, 0.15);
+    transform: scale(1.1);
+}
+
+.roster-card-drag-handle:active {
+    cursor: grabbing;
+}
+
+.admin-edit-mode .roster-card-drag-handle {
+    display: flex;
+}
+
+/* Edit mode card dragging styling */
+.roster-card.roster-card-draggable {
+    transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.roster-card.roster-card-dragging {
+    opacity: 0.35 !important;
+    transform: scale(0.96) !important;
+    border: 2px dashed rgba(212, 163, 115, 0.6) !important;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Placeholder indicating drop landing spot */
+.roster-drag-placeholder {
+    border: 2px dashed rgba(212, 163, 115, 0.75);
+    background: rgba(212, 163, 115, 0.08);
+    border-radius: 12px;
+    min-height: 86px;
+    margin: 0;
+    transition: all 0.15s ease;
+    pointer-events: none;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.roster-drag-placeholder::after {
+    content: 'Drop Member Here';
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: rgba(212, 163, 115, 0.6);
+}
+
+/* Highlight section grid when dragged over */
+.roster-grid-modern.roster-grid-drag-hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    outline: 2px dashed rgba(212, 163, 115, 0.3);
+    outline-offset: 8px;
+}

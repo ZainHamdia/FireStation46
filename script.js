@@ -7,18 +7,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileBtn = document.querySelector('.mobile-menu-btn');
     const navLinks = document.querySelector('.nav-links');
     
-    mobileBtn.addEventListener('click', () => {
-        mobileBtn.classList.toggle('active');
-        navLinks.classList.toggle('active');
-    });
-
-    // Close mobile menu when clicking a link
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-            mobileBtn.classList.remove('active');
-            navLinks.classList.remove('active');
+    if (mobileBtn && navLinks) {
+        mobileBtn.addEventListener('click', () => {
+            mobileBtn.classList.toggle('active');
+            navLinks.classList.toggle('active');
         });
-    });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileBtn.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    }
 
     // Navbar Scroll Effect
     const navbar = document.querySelector('.navbar');
@@ -393,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
         '.hero-subtitle', '.hero-desc',
         '.section-subtitle', '.section-title',
         '.stat-number', '.stat-label',
-        '.rank-badge', '.roster-name', '.roster-category-title',
+        '.rank-badge', '.roster-name', '.roster-avatar', '.roster-category-title',
         '.card-img-placeholder',
         '.santa-badge',
         '.date-card-title', '.date-card-subtitle',
@@ -423,6 +425,9 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('.chart-bar-row') ||
             element.closest('.chart-bars') ||
             element.closest('.powr-social-feed') ||
+            element.closest('.roster-card-remove-btn') ||
+            element.closest('.btn-roster-add-member') ||
+            element.closest('.roster-modal-overlay') ||
             element.closest('form') ||
             element.closest('.mobile-menu-btn')) {
             return false;
@@ -438,6 +443,10 @@ document.addEventListener('DOMContentLoaded', () => {
             element.classList.contains('search-clear-btn') ||
             element.classList.contains('empty-state-actions') ||
             element.classList.contains('tag-new') ||
+            element.classList.contains('roster-card-remove-btn') ||
+            element.classList.contains('roster-card-drag-handle') ||
+            element.classList.contains('roster-drag-placeholder') ||
+            element.classList.contains('btn-roster-add-member') ||
             element.tagName === 'INPUT' ||
             element.tagName === 'TEXTAREA' ||
             element.tagName === 'SELECT' ||
@@ -457,7 +466,6 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('.paypal-badge') ||
             element.closest('.empty-state-icon') ||
             element.closest('.search-icon') ||
-            element.closest('.roster-avatar') ||
             element.closest('.nav-badge-img') ||
             element.closest('.footer-badge-img')) {
             return false;
@@ -597,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (document.activeElement !== element) {
                     const val = edits[storageKey];
                     // Safety: Never inject full paragraphs or block tags into inline elements
-                    if ((element.classList.contains('stat-number') || element.classList.contains('stat-label') || element.classList.contains('filter-count')) && (val.includes('<p') || val.length > 30)) {
+                    if ((element.classList.contains('stat-number') || element.classList.contains('stat-label') || element.classList.contains('filter-count') || element.classList.contains('roster-avatar')) && (val.includes('<p') || val.length > 30)) {
                         return;
                     }
                     element.innerHTML = val;
@@ -608,6 +616,652 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Apply local edits immediately on page load
     applyTextEdits(getStoredTextEdits());
+
+    // ==========================================
+    // Roster Management System (Add/Remove Members & Initials)
+    // ==========================================
+    const ROSTER_SECTIONS = {
+        'line-officers': {
+            title: 'Fire Line Officers',
+            gridClass: 'roster-grid-modern roster-grid-officers',
+            cardTier: 'tier-line-officer',
+            avatarClass: 'avatar-line',
+            defaultBadge: 'badge-line',
+            ranks: ['Fire Chief', 'Deputy Chief', 'Captain', 'Lieutenant', 'Chief Engineer']
+        },
+        'company-officers': {
+            title: 'Company Officers',
+            gridClass: 'roster-grid-modern roster-grid-officers',
+            cardTier: 'tier-company-officer',
+            avatarClass: 'avatar-company',
+            defaultBadge: 'badge-company',
+            ranks: ['President', '1st Vice President', '2nd Vice President', '3rd Vice President', 'Treasurer', 'Recording Secretary', 'Corresponding Secretary', 'Trustee']
+        },
+        'firefighters': {
+            title: 'Interior Firefighters',
+            gridClass: 'roster-grid-modern',
+            cardTier: '',
+            avatarClass: 'avatar-firefighter',
+            defaultBadge: 'badge-firefighter',
+            ranks: ['Interior Firefighter', 'Exterior Firefighter', 'Probationary Firefighter']
+        },
+        'juniors': {
+            title: 'Junior Firefighters',
+            gridClass: 'roster-grid-modern',
+            cardTier: '',
+            avatarClass: 'avatar-junior',
+            defaultBadge: 'badge-junior',
+            ranks: ['Junior Firefighter']
+        },
+        'fire-police': {
+            title: 'Fire Police & Associate Members',
+            gridClass: 'roster-grid-modern',
+            cardTier: '',
+            avatarClass: 'avatar-police',
+            defaultBadge: 'badge-police',
+            ranks: ['Captain (Fire Police)', 'Sergeant (Fire Police)', 'Corporal (Fire Police)', 'Fire Police', 'Associate Member']
+        }
+    };
+
+    function computeInitials(name) {
+        if (!name) return '';
+        const primaryName = name.split('&')[0].split(/\band\b/i)[0].trim();
+        const clean = primaryName.replace(/[^a-zA-Z\s]/g, ' ').trim();
+        const parts = clean.split(/\s+/).filter(Boolean);
+        if (parts.length === 0) return '';
+        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function getCleanRosterHtml() {
+        const container = document.getElementById('roster-container');
+        if (!container) return null;
+        const clone = container.cloneNode(true);
+        // Remove admin-only controls, drag handles, modal, and placeholders
+        clone.querySelectorAll('.roster-card-remove-btn, .btn-roster-add-member, .roster-modal-overlay, .roster-card-drag-handle, .roster-drag-placeholder').forEach(el => el.remove());
+        // Remove contenteditable and draggable attributes and runtime markers
+        clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+        clone.querySelectorAll('[draggable]').forEach(el => el.removeAttribute('draggable'));
+        clone.querySelectorAll('[data-editor-init]').forEach(el => el.removeAttribute('data-editor-init'));
+        clone.querySelectorAll('[data-drag-init]').forEach(el => el.removeAttribute('data-drag-init'));
+        clone.querySelectorAll('[data-drag-grid-init]').forEach(el => el.removeAttribute('data-drag-grid-init'));
+        clone.querySelectorAll('.roster-card-dragging, .roster-grid-drag-hover, .roster-card-draggable').forEach(el => {
+            el.classList.remove('roster-card-dragging', 'roster-grid-drag-hover', 'roster-card-draggable');
+        });
+        return clone.innerHTML;
+    }
+
+    function saveRosterState() {
+        const cleanHtml = getCleanRosterHtml();
+        if (cleanHtml !== null) {
+            localStorage.setItem('station46_roster_html', cleanHtml);
+        }
+    }
+
+    function attachRemoveButton(card) {
+        if (!isAdminLoggedIn || card.querySelector('.roster-card-remove-btn')) return;
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'roster-card-remove-btn';
+        removeBtn.title = 'Remove this member';
+        removeBtn.setAttribute('aria-label', 'Remove member');
+        removeBtn.innerHTML = '✕';
+        removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            const nameEl = card.querySelector('.roster-name');
+            const memberName = nameEl ? nameEl.textContent.trim() : (card.getAttribute('data-name') || 'this member');
+            if (confirm(`Are you sure you want to remove "${memberName}" from the roster?`)) {
+                card.style.transition = 'all 0.3s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.85)';
+                setTimeout(() => {
+                    card.remove();
+                    saveRosterState();
+                    showAdminToast(`✅ Removed ${memberName} from roster.`);
+                }, 300);
+            }
+        });
+        card.appendChild(removeBtn);
+    }
+
+    function attachAddButtons() {
+        if (!isAdminLoggedIn) return;
+        const sections = document.querySelectorAll('.roster-category-section');
+        sections.forEach(section => {
+            const header = section.querySelector('.roster-category-header');
+            if (!header || header.querySelector('.btn-roster-add-member')) return;
+            const category = section.getAttribute('data-section-category') || 'firefighters';
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn-roster-add-member';
+            addBtn.setAttribute('data-section', category);
+            addBtn.innerHTML = '+ Add Member';
+            addBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openAddMemberModal(category);
+            });
+            header.appendChild(addBtn);
+        });
+    }
+
+    function createAddMemberModal() {
+        if (document.getElementById('roster-add-member-modal')) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'roster-add-member-modal';
+        overlay.className = 'roster-modal-overlay';
+        overlay.innerHTML = `
+            <div class="roster-modal-card">
+                <div class="roster-modal-header">
+                    <h3 class="roster-modal-title">Add New Member</h3>
+                    <p class="roster-modal-subtitle" id="roster-modal-section-label">Section</p>
+                </div>
+                <form class="roster-modal-form" id="roster-add-member-form">
+                    <input type="hidden" id="roster-member-category" value="firefighters">
+                    <div class="form-group">
+                        <label for="roster-member-name">Member Full Name</label>
+                        <input type="text" id="roster-member-name" placeholder="e.g. Jane Doe" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="roster-member-initials">Avatar Initials</label>
+                        <input type="text" id="roster-member-initials" placeholder="e.g. JD" maxlength="4" style="text-transform: uppercase;" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="roster-member-rank">Rank / Role</label>
+                        <select id="roster-member-rank" required></select>
+                    </div>
+                    <div class="form-group" id="roster-custom-rank-group" style="display: none;">
+                        <label for="roster-member-custom-rank">Custom Rank / Role</label>
+                        <input type="text" id="roster-member-custom-rank" placeholder="Enter custom rank">
+                    </div>
+                    <div class="roster-modal-actions">
+                        <button type="button" class="btn btn-roster-cancel" id="roster-modal-cancel-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary glow" id="roster-modal-submit-btn">Add Member</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        const form = overlay.querySelector('#roster-add-member-form');
+        const nameInput = overlay.querySelector('#roster-member-name');
+        const initialsInput = overlay.querySelector('#roster-member-initials');
+        const rankSelect = overlay.querySelector('#roster-member-rank');
+        const customRankGroup = overlay.querySelector('#roster-custom-rank-group');
+        const customRankInput = overlay.querySelector('#roster-member-custom-rank');
+        const cancelBtn = overlay.querySelector('#roster-modal-cancel-btn');
+
+        let autoInitials = true;
+
+        if (nameInput && initialsInput) {
+            nameInput.addEventListener('input', () => {
+                if (autoInitials) {
+                    initialsInput.value = computeInitials(nameInput.value);
+                }
+            });
+
+            initialsInput.addEventListener('input', () => {
+                autoInitials = false;
+                initialsInput.value = initialsInput.value.toUpperCase();
+            });
+        }
+
+        if (rankSelect && customRankGroup && customRankInput) {
+            rankSelect.addEventListener('change', () => {
+                if (rankSelect.value === '__custom__') {
+                    customRankGroup.style.display = 'block';
+                    customRankInput.required = true;
+                    customRankInput.focus();
+                } else {
+                    customRankGroup.style.display = 'none';
+                    customRankInput.required = false;
+                }
+            });
+        }
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                overlay.classList.remove('active');
+            });
+        }
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+
+        if (form && nameInput && initialsInput && rankSelect) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const categoryInput = overlay.querySelector('#roster-member-category');
+                const category = categoryInput ? categoryInput.value : 'firefighters';
+                const name = nameInput.value.trim();
+                const initials = initialsInput.value.trim().toUpperCase() || computeInitials(name);
+                const role = (rankSelect.value === '__custom__' && customRankInput) ? customRankInput.value.trim() : rankSelect.value;
+                if (!name || !role) return;
+
+                addMemberToSection(category, name, role, initials);
+                overlay.classList.remove('active');
+                form.reset();
+                autoInitials = true;
+            });
+        }
+    }
+
+    function openAddMemberModal(category) {
+        createAddMemberModal();
+        const overlay = document.getElementById('roster-add-member-modal');
+        if (!overlay) return;
+        const config = ROSTER_SECTIONS[category] || ROSTER_SECTIONS['firefighters'];
+        const sectionLabel = overlay.querySelector('#roster-modal-section-label');
+        const catInput = overlay.querySelector('#roster-member-category');
+        const rankSelect = overlay.querySelector('#roster-member-rank');
+        const customRankGroup = overlay.querySelector('#roster-custom-rank-group');
+        const nameInput = overlay.querySelector('#roster-member-name');
+        const initialsInput = overlay.querySelector('#roster-member-initials');
+
+        if (sectionLabel) sectionLabel.textContent = `Section: ${config.title}`;
+        if (catInput) catInput.value = category;
+
+        if (rankSelect) {
+            rankSelect.innerHTML = '';
+            config.ranks.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r;
+                opt.textContent = r;
+                rankSelect.appendChild(opt);
+            });
+            const customOpt = document.createElement('option');
+            customOpt.value = '__custom__';
+            customOpt.textContent = 'Other / Custom Rank...';
+            rankSelect.appendChild(customOpt);
+        }
+
+        if (customRankGroup) customRankGroup.style.display = 'none';
+        if (nameInput) nameInput.value = '';
+        if (initialsInput) initialsInput.value = '';
+        overlay.classList.add('active');
+        if (nameInput && typeof nameInput.focus === 'function') {
+            setTimeout(() => nameInput.focus(), 50);
+        }
+    }
+
+    function addMemberToSection(category, name, role, initials) {
+        const section = document.querySelector(`.roster-category-section[data-section-category="${category}"]`);
+        if (!section) return;
+
+        let grid = section.querySelector('.roster-grid-modern');
+        if (!grid) {
+            grid = document.createElement('div');
+            grid.className = ROSTER_SECTIONS[category]?.gridClass || 'roster-grid-modern';
+            section.appendChild(grid);
+        }
+
+        const config = ROSTER_SECTIONS[category] || ROSTER_SECTIONS['firefighters'];
+        let badgeClass = config.defaultBadge;
+        let avatarClass = config.avatarClass;
+        let cardTier = config.cardTier;
+
+        if (category === 'line-officers') {
+            badgeClass = role.toLowerCase().includes('chief') ? 'badge-chief' : 'badge-line';
+        } else if (category === 'company-officers') {
+            badgeClass = role.toLowerCase() === 'president' ? 'badge-president' : 'badge-company';
+        } else if (category === 'firefighters') {
+            badgeClass = role.toLowerCase().includes('probationary') ? 'badge-probationary' : 'badge-firefighter';
+        } else if (category === 'fire-police') {
+            if (role.toLowerCase().includes('associate')) {
+                badgeClass = 'badge-associate';
+                avatarClass = 'avatar-associate';
+            } else {
+                badgeClass = 'badge-police';
+                avatarClass = 'avatar-police';
+            }
+        }
+
+        const card = document.createElement('div');
+        card.className = `roster-card ${cardTier}`.trim();
+        card.setAttribute('data-category', category);
+        card.setAttribute('data-name', name);
+        card.setAttribute('data-role', role);
+
+        card.innerHTML = `
+            <div class="roster-avatar ${avatarClass}">${escapeHtml(initials)}</div>
+            <div class="roster-info">
+                <h4 class="roster-name">${escapeHtml(name)}</h4>
+                <span class="rank-badge ${badgeClass}">${escapeHtml(role)}</span>
+            </div>
+        `;
+
+        grid.appendChild(card);
+        attachRemoveButton(card);
+        setupCardDrag(card);
+        initLiveEditor();
+        saveRosterState();
+
+        showAdminToast(`✅ Added ${name} to ${config.title}! Click '💾 Save & Push to Git' to publish.`);
+    }
+
+    // ==========================================
+    // Roster Drag & Drop Reordering
+    // ==========================================
+    let draggedCard = null;
+    let dragPlaceholder = null;
+
+    function createDragPlaceholder() {
+        const el = document.createElement('div');
+        el.className = 'roster-drag-placeholder';
+        return el;
+    }
+
+    function adaptCardToCategory(card, newCategory) {
+        const config = ROSTER_SECTIONS[newCategory] || ROSTER_SECTIONS['firefighters'];
+        card.setAttribute('data-category', newCategory);
+
+        // Update tier classes on card
+        card.classList.remove('tier-line-officer', 'tier-company-officer');
+        if (config.cardTier) {
+            card.classList.add(config.cardTier);
+        }
+
+        // Update avatar classes
+        const avatar = card.querySelector('.roster-avatar');
+        if (avatar) {
+            avatar.classList.remove('avatar-line', 'avatar-company', 'avatar-firefighter', 'avatar-junior', 'avatar-police', 'avatar-associate');
+            avatar.classList.add(config.avatarClass);
+        }
+
+        // Update badge classes
+        const badge = card.querySelector('.rank-badge');
+        const role = card.getAttribute('data-role') || (badge ? badge.textContent.trim() : '');
+        if (badge) {
+            badge.classList.remove('badge-chief', 'badge-line', 'badge-president', 'badge-company', 'badge-firefighter', 'badge-probationary', 'badge-junior', 'badge-police', 'badge-associate');
+            
+            let badgeClass = config.defaultBadge;
+            if (newCategory === 'line-officers') {
+                badgeClass = role.toLowerCase().includes('chief') ? 'badge-chief' : 'badge-line';
+            } else if (newCategory === 'company-officers') {
+                badgeClass = role.toLowerCase() === 'president' ? 'badge-president' : 'badge-company';
+            } else if (newCategory === 'firefighters') {
+                badgeClass = role.toLowerCase().includes('probationary') ? 'badge-probationary' : 'badge-firefighter';
+            } else if (newCategory === 'fire-police') {
+                badgeClass = role.toLowerCase().includes('associate') ? 'badge-associate' : 'badge-police';
+            }
+            badge.classList.add(badgeClass);
+        }
+    }
+
+    function setupCardDrag(card) {
+        if (!isAdminLoggedIn) return;
+        if (card.dataset.dragInit === 'true') return;
+        card.dataset.dragInit = 'true';
+
+        card.classList.add('roster-card-draggable');
+        if (editModeActive) {
+            card.setAttribute('draggable', 'true');
+        }
+
+        // Attach drag handle if not already present
+        let handle = card.querySelector('.roster-card-drag-handle');
+        if (!handle) {
+            handle = document.createElement('div');
+            handle.className = 'roster-card-drag-handle';
+            handle.innerHTML = '⋮⋮';
+            handle.title = 'Drag to reorder';
+            handle.setAttribute('aria-label', 'Drag to reorder');
+            card.appendChild(handle);
+        }
+
+        // Setup touch drag support on handle for mobile/tablet devices
+        setupTouchDrag(handle, card);
+
+        // HTML5 Drag Events
+        card.addEventListener('dragstart', (e) => {
+            // Guard: If dragging from an editable element or remove button, do not start card drag
+            if (e.target.isContentEditable || e.target.closest('[contenteditable="true"]') || e.target.closest('.roster-card-remove-btn')) {
+                e.preventDefault();
+                return;
+            }
+
+            draggedCard = card;
+            if (!dragPlaceholder) {
+                dragPlaceholder = createDragPlaceholder();
+            }
+
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', card.getAttribute('data-name') || '');
+
+            setTimeout(() => {
+                card.classList.add('roster-card-dragging');
+            }, 0);
+        });
+
+        card.addEventListener('dragend', () => {
+            card.classList.remove('roster-card-dragging');
+            if (dragPlaceholder && dragPlaceholder.parentNode) {
+                dragPlaceholder.parentNode.insertBefore(card, dragPlaceholder);
+                dragPlaceholder.remove();
+                saveRosterState();
+            }
+            draggedCard = null;
+            document.querySelectorAll('.roster-grid-drag-hover').forEach(g => g.classList.remove('roster-grid-drag-hover'));
+        });
+
+        card.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!draggedCard || draggedCard === card) return;
+
+            if (!dragPlaceholder) {
+                dragPlaceholder = createDragPlaceholder();
+            }
+
+            const parentGrid = card.closest('.roster-grid-modern');
+            if (parentGrid) {
+                parentGrid.classList.add('roster-grid-drag-hover');
+            }
+
+            const rect = card.getBoundingClientRect();
+            const isHorizontal = rect.width > 200;
+            const mousePos = isHorizontal ? (e.clientX - rect.left) : (e.clientY - rect.top);
+            const dimension = isHorizontal ? rect.width : rect.height;
+
+            if (mousePos < dimension / 2) {
+                card.parentNode.insertBefore(dragPlaceholder, card);
+            } else {
+                card.parentNode.insertBefore(dragPlaceholder, card.nextSibling);
+            }
+        });
+    }
+
+    function setupGridDrag(grid) {
+        if (!isAdminLoggedIn) return;
+        if (grid.dataset.dragGridInit === 'true') return;
+        grid.dataset.dragGridInit = 'true';
+
+        grid.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (!draggedCard) return;
+
+            grid.classList.add('roster-grid-drag-hover');
+
+            if (!dragPlaceholder) {
+                dragPlaceholder = createDragPlaceholder();
+            }
+
+            if (e.target === grid || !grid.contains(dragPlaceholder)) {
+                grid.appendChild(dragPlaceholder);
+            }
+        });
+
+        grid.addEventListener('dragleave', (e) => {
+            if (!grid.contains(e.relatedTarget)) {
+                grid.classList.remove('roster-grid-drag-hover');
+            }
+        });
+
+        grid.addEventListener('drop', (e) => {
+            e.preventDefault();
+            grid.classList.remove('roster-grid-drag-hover');
+
+            if (!draggedCard) return;
+
+            const targetSection = grid.closest('.roster-category-section');
+            const targetCategory = targetSection ? targetSection.getAttribute('data-section-category') : null;
+            const prevCategory = draggedCard.getAttribute('data-category');
+
+            if (dragPlaceholder && dragPlaceholder.parentNode === grid) {
+                grid.insertBefore(draggedCard, dragPlaceholder);
+                dragPlaceholder.remove();
+            } else {
+                grid.appendChild(draggedCard);
+            }
+
+            draggedCard.classList.remove('roster-card-dragging');
+
+            if (targetCategory && targetCategory !== prevCategory) {
+                adaptCardToCategory(draggedCard, targetCategory);
+                const targetConfig = ROSTER_SECTIONS[targetCategory];
+                showAdminToast(`Moved ${draggedCard.getAttribute('data-name') || 'member'} to ${targetConfig ? targetConfig.title : targetCategory}.`);
+            } else {
+                showAdminToast(`Updated roster order.`);
+            }
+
+            draggedCard = null;
+            saveRosterState();
+        });
+    }
+
+    function setupTouchDrag(handle, card) {
+        let touchActive = false;
+        let clone = null;
+        let startX = 0, startY = 0;
+
+        handle.addEventListener('touchstart', (e) => {
+            if (!editModeActive) return;
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            touchActive = true;
+            draggedCard = card;
+
+            if (!dragPlaceholder) {
+                dragPlaceholder = createDragPlaceholder();
+            }
+
+            clone = card.cloneNode(true);
+            clone.classList.add('roster-card-touch-ghost');
+            clone.style.position = 'fixed';
+            clone.style.width = `${card.offsetWidth}px`;
+            clone.style.left = `${card.getBoundingClientRect().left}px`;
+            clone.style.top = `${card.getBoundingClientRect().top}px`;
+            clone.style.zIndex = '9999';
+            clone.style.opacity = '0.85';
+            clone.style.pointerEvents = 'none';
+            clone.style.boxShadow = '0 12px 30px rgba(0,0,0,0.5)';
+            clone.style.border = '2px solid var(--gold)';
+            document.body.appendChild(clone);
+
+            card.classList.add('roster-card-dragging');
+            card.parentNode.insertBefore(dragPlaceholder, card);
+        }, { passive: true });
+
+        handle.addEventListener('touchmove', (e) => {
+            if (!touchActive || !clone) return;
+            const touch = e.touches[0];
+            e.preventDefault();
+
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+            clone.style.transform = `translate(${dx}px, ${dy}px) scale(1.03)`;
+
+            clone.style.display = 'none';
+            const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            clone.style.display = '';
+
+            if (!elemBelow) return;
+
+            const hoverCard = elemBelow.closest('.roster-card');
+            const hoverGrid = elemBelow.closest('.roster-grid-modern');
+
+            if (hoverCard && hoverCard !== card && hoverCard.parentNode) {
+                const rect = hoverCard.getBoundingClientRect();
+                const relY = touch.clientY - rect.top;
+                if (relY < rect.height / 2) {
+                    hoverCard.parentNode.insertBefore(dragPlaceholder, hoverCard);
+                } else {
+                    hoverCard.parentNode.insertBefore(dragPlaceholder, hoverCard.nextSibling);
+                }
+            } else if (hoverGrid && !hoverGrid.contains(dragPlaceholder)) {
+                hoverGrid.appendChild(dragPlaceholder);
+            }
+        }, { passive: false });
+
+        const endTouch = () => {
+            if (!touchActive) return;
+            touchActive = false;
+            if (clone) {
+                clone.remove();
+                clone = null;
+            }
+            card.classList.remove('roster-card-dragging');
+
+            if (dragPlaceholder && dragPlaceholder.parentNode) {
+                const targetGrid = dragPlaceholder.parentNode;
+                const targetSection = targetGrid.closest('.roster-category-section');
+                const targetCategory = targetSection ? targetSection.getAttribute('data-section-category') : null;
+                const prevCategory = card.getAttribute('data-category');
+
+                targetGrid.insertBefore(card, dragPlaceholder);
+                dragPlaceholder.remove();
+
+                if (targetCategory && targetCategory !== prevCategory) {
+                    adaptCardToCategory(card, targetCategory);
+                    const targetConfig = ROSTER_SECTIONS[targetCategory];
+                    showAdminToast(`Moved ${card.getAttribute('data-name') || 'member'} to ${targetConfig ? targetConfig.title : targetCategory}.`);
+                } else {
+                    showAdminToast(`Updated roster order.`);
+                }
+                saveRosterState();
+            }
+            draggedCard = null;
+        };
+
+        handle.addEventListener('touchend', endTouch);
+        handle.addEventListener('touchcancel', endTouch);
+    }
+
+    function initRosterDragAndDrop() {
+        const container = document.getElementById('roster-container');
+        if (!container || !isAdminLoggedIn) return;
+
+        container.querySelectorAll('.roster-card').forEach(card => {
+            setupCardDrag(card);
+        });
+
+        container.querySelectorAll('.roster-grid-modern').forEach(grid => {
+            setupGridDrag(grid);
+        });
+    }
+
+    function initRosterAdmin() {
+        const container = document.getElementById('roster-container');
+        if (!container) return;
+
+        // Restore pending local edits if any
+        const pending = localStorage.getItem('station46_roster_html');
+        if (pending && pending.trim().length > 50) {
+            container.innerHTML = pending;
+        }
+
+        if (isAdminLoggedIn) {
+            attachAddButtons();
+            container.querySelectorAll('.roster-card').forEach(card => {
+                attachRemoveButton(card);
+            });
+            createAddMemberModal();
+            initRosterDragAndDrop();
+        }
+    }
 
     // Initialize in-place editing on all editable elements when logged in
     function initLiveEditor() {
@@ -620,16 +1274,45 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isAdminLoggedIn) {
                 element.setAttribute('contenteditable', editModeActive ? 'true' : 'false');
                 
+                if (element.dataset.editorInit === 'true') {
+                    return;
+                }
+                element.dataset.editorInit = 'true';
+
                 // Save on input (real-time typing)
                 element.addEventListener('input', () => {
                     const currentText = element.innerHTML.trim();
                     saveTextEdit(storageKey, currentText);
+                    if (element.closest('#roster-container')) {
+                        saveRosterState();
+                    }
                 });
 
                 // Save on blur (clicking outside)
                 element.addEventListener('blur', () => {
-                    const currentText = element.innerHTML.trim();
+                    let currentText = element.innerHTML.trim();
+                    if (element.classList.contains('roster-avatar')) {
+                        currentText = element.textContent.trim().toUpperCase();
+                        if (element.textContent !== currentText) {
+                            element.textContent = currentText;
+                        }
+                    }
+                    if (element.classList.contains('roster-name')) {
+                        const card = element.closest('.roster-card');
+                        if (card) {
+                            card.setAttribute('data-name', element.textContent.trim());
+                        }
+                    }
+                    if (element.classList.contains('rank-badge')) {
+                        const card = element.closest('.roster-card');
+                        if (card) {
+                            card.setAttribute('data-role', element.textContent.trim());
+                        }
+                    }
                     saveTextEdit(storageKey, currentText);
+                    if (element.closest('#roster-container')) {
+                        saveRosterState();
+                    }
                 });
 
                 // Prevent link navigation during active edit mode so admin can edit link text
@@ -641,8 +1324,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
                 
-                // Handle Enter key for single-line titles to blur instead of inserting line breaks
-                if (element.tagName.match(/^H[1-6]$/)) {
+                // Handle Enter key for single-line titles, initials, and badges to blur instead of inserting line breaks
+                if (element.tagName.match(/^H[1-6]$/) || element.classList.contains('roster-avatar') || element.classList.contains('rank-badge')) {
                     element.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
@@ -654,6 +1337,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    initRosterAdmin();
     initLiveEditor();
 
     // Helper: Push actual modified HTML files directly to GitHub
@@ -675,6 +1359,11 @@ document.addEventListener('DOMContentLoaded', () => {
             editedPages.add(currentPage);
         }
 
+        // Always include about.html if there are pending roster modifications
+        if (localStorage.getItem('station46_roster_html')) {
+            editedPages.add('about.html');
+        }
+
         let allHtmlSuccess = true;
 
         for (const pageName of editedPages) {
@@ -687,8 +1376,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(rawHtml, 'text/html');
-                const elements = getEditableElements(doc);
                 let pageHasChanges = false;
+
+                // Synchronize roster container if present on this page
+                const docRoster = doc.getElementById('roster-container');
+                const liveRosterCleanHtml = (pageName === currentPage && document.getElementById('roster-container'))
+                    ? getCleanRosterHtml()
+                    : localStorage.getItem('station46_roster_html');
+
+                if (docRoster && liveRosterCleanHtml) {
+                    if (docRoster.innerHTML.trim() !== liveRosterCleanHtml.trim()) {
+                        docRoster.innerHTML = liveRosterCleanHtml;
+                        pageHasChanges = true;
+                    }
+                }
+
+                const elements = getEditableElements(doc);
 
                 elements.forEach((element) => {
                     const storageKey = `edit_v2_${pageName}_${getElementSelectorPath(element)}`;
@@ -703,7 +1406,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (pageHasChanges) {
                     const updatedHtml = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
-                    const success = await syncToGitHub(pageName, updatedHtml, `Admin: Update text in ${pageName}`);
+                    const success = await syncToGitHub(pageName, updatedHtml, `Admin: Update content in ${pageName}`);
                     if (!success) allHtmlSuccess = false;
                 }
             } catch (err) {
@@ -749,9 +1452,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4. Update the actual HTML files directly on GitHub (e.g. index.html, about.html, etc.)
             const htmlSuccess = await syncHtmlPagesToGitHub(mergedEdits);
 
-            // 5. If HTML files updated, clear local text edits so future reloads use clean HTML
+            // 5. If HTML files updated, clear local text edits and roster buffer so future reloads use clean HTML
             if (htmlSuccess) {
                 localStorage.removeItem('station46_text_edits');
+                localStorage.removeItem('station46_roster_html');
                 await syncToGitHub('data/edits.json', {}, 'Admin: Reset edits buffer after HTML sync');
             } else {
                 await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits buffer');
@@ -906,6 +1610,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 getEditableElements().forEach(element => {
                     element.setAttribute('contenteditable', 'true');
                 });
+                document.querySelectorAll('.roster-card.roster-card-draggable').forEach(card => {
+                    card.setAttribute('draggable', 'true');
+                });
             } else {
                 document.body.classList.remove('admin-edit-mode');
                 toggleBtn.style.background = 'rgba(211, 47, 47, 0.9)'; // Red for OFF
@@ -913,6 +1620,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 getEditableElements().forEach(element => {
                     element.setAttribute('contenteditable', 'false');
+                });
+                document.querySelectorAll('.roster-card.roster-card-draggable').forEach(card => {
+                    card.removeAttribute('draggable');
                 });
             }
         });
