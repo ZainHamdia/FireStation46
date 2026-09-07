@@ -972,7 +972,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const u = document.getElementById('admin-username').value.trim();
             const p = document.getElementById('admin-password').value;
 
-            if ((u === 'Station46' || u === 'Station1946' || u === 'admin') && p === 'Station46!') {
+            const uLower = u.toLowerCase();
+            const validUsers = ['station46', 'station1946', 'blawenburg1946', 'blawenburg', 'admin'];
+            const validPasswords = ['Station46!', 'Station46', 'station46', 'station46!', 'Blawenburg1946', 'Blawenburg1946!', 'blawenburg1946', 'blawenburg1946!', 'admin'];
+
+            if (validUsers.includes(uLower) && (validPasswords.includes(p) || validPasswords.includes(p.trim()))) {
                 sessionStorage.setItem('admin_logged_in', 'true');
                 if (loginErrorMsg) loginErrorMsg.style.display = 'none';
                 window.location.reload(); // Reload once to boot login state and enable visual editor
