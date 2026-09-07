@@ -1219,33 +1219,17 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Failed to read posts for home page:", e);
         }
 
-        posts = posts.filter(post => post && typeof post === 'object' && post.id);
+        posts = posts.filter(post => post && typeof post === 'object' && post.id && !String(post.id).startsWith('default-'));
 
-        // If no user-created posts exist yet, provide helpful initial station highlights
+        // If no user-created posts exist yet, display clean empty state
         if (posts.length === 0) {
-            posts = [
-                {
-                    id: 'default-call-1',
-                    category: 'calls',
-                    title: 'Structure Fire Mutual Aid Response',
-                    date: 'Recently Dispatched',
-                    text: 'Station 46 crews operated alongside neighboring companies providing primary suppression and ventilation support.'
-                },
-                {
-                    id: 'default-news-2',
-                    category: 'news',
-                    title: 'Community Fire Safety & Open House',
-                    date: 'Upcoming Event',
-                    text: 'Join us at the Blawenburg Firehouse for live demonstrations, apparatus tours, and youth volunteer signups.'
-                },
-                {
-                    id: 'default-call-3',
-                    category: 'calls',
-                    title: 'Motor Vehicle Incident on Route 518',
-                    date: 'Incident Log',
-                    text: 'Engine 46 and Rescue 46 secured the scene, managed fluid mitigation, and assisted EMS with patient transport.'
-                }
-            ];
+            homeRecentPostsList.innerHTML = `
+                <div class="recent-posts-empty">
+                    <p>No recent updates or incident logs posted yet.</p>
+                    <a href="news.html" class="detail-link">View News &amp; Calls →</a>
+                </div>
+            `;
+            return;
         }
 
         // Take the 3 most recent posts
