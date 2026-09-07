@@ -924,7 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const u = document.getElementById('admin-username').value.trim();
             const p = document.getElementById('admin-password').value;
 
-            if (u === 'Blawenburg1946' && p === 'Station46!') {
+            if ((u === 'Station46' || u === 'Station1946' || u === 'admin') && p === 'Station46!') {
                 sessionStorage.setItem('admin_logged_in', 'true');
                 if (loginErrorMsg) loginErrorMsg.style.display = 'none';
                 window.location.reload(); // Reload once to boot login state and enable visual editor

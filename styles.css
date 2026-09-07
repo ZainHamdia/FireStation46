@@ -1010,7 +1010,8 @@ button:disabled {
 }
 
 .cta-wrapper {
-    max-width: 500px;
+    max-width: 100%;
+    width: 100%;
     margin: 4rem auto 0;
 }
 
@@ -2421,7 +2422,18 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 .role-card.role-firefighter {
-    border-top: 4px solid var(--fire-red);
+    background: linear-gradient(165deg, rgba(230, 57, 70, 0.22) 0%, rgba(35, 43, 60, 0.95) 45%, rgba(24, 30, 42, 0.98) 100%);
+    border: 2px solid rgba(230, 57, 70, 0.75);
+    border-top: 5px solid var(--fire-red);
+    box-shadow: 0 12px 35px rgba(230, 57, 70, 0.28), 0 0 25px rgba(230, 57, 70, 0.15);
+    position: relative;
+    transform: translateY(-4px);
+}
+
+.role-card.role-firefighter:hover {
+    transform: translateY(-8px);
+    border-color: #ff5252;
+    box-shadow: 0 18px 45px rgba(230, 57, 70, 0.42), 0 0 35px rgba(230, 57, 70, 0.25);
 }
 
 .role-card.role-junior {
@@ -2448,9 +2460,13 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 .role-card.role-firefighter .role-badge-tag {
-    background: rgba(230, 57, 70, 0.15);
-    color: #ff8a80;
-    border: 1px solid rgba(230, 57, 70, 0.3);
+    background: var(--gradient-primary);
+    color: #ffffff;
+    font-weight: 800;
+    border: none;
+    letter-spacing: 0.7px;
+    box-shadow: 0 3px 12px rgba(230, 57, 70, 0.45);
+    padding: 5px 12px;
 }
 
 .role-card.role-junior .role-badge-tag {
@@ -2510,7 +2526,8 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 
 /* Homepage Quick Application Form Section */
 .recruit-form-card {
-    max-width: 760px;
+    max-width: 100%;
+    width: 100%;
     margin: 3rem auto 0;
     padding: 3rem;
     border-radius: 16px;
@@ -2574,20 +2591,20 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 .membership-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 2.5rem;
+    gap: 1.75rem;
     align-items: stretch;
-    margin-bottom: 4rem;
+    margin-bottom: 3.5rem;
 }
 
 @media (max-width: 960px) {
     .membership-grid {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        gap: 1.5rem;
     }
 }
 
 .membership-card {
-    padding: 2.5rem;
+    padding: 1.85rem 1.75rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -2602,7 +2619,16 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 .membership-card.card-firefighter {
-    border-top: 4px solid var(--fire-red);
+    background: linear-gradient(165deg, rgba(230, 57, 70, 0.22) 0%, rgba(35, 43, 60, 0.95) 45%, rgba(24, 30, 42, 0.98) 100%);
+    border: 2px solid rgba(230, 57, 70, 0.75);
+    border-top: 5px solid var(--fire-red);
+    box-shadow: 0 12px 35px rgba(230, 57, 70, 0.28), 0 0 25px rgba(230, 57, 70, 0.15);
+}
+
+.membership-card.card-firefighter:hover {
+    transform: translateY(-8px);
+    border-color: #ff5252;
+    box-shadow: 0 18px 45px rgba(230, 57, 70, 0.42), 0 0 35px rgba(230, 57, 70, 0.25);
 }
 
 .membership-card.card-police {
@@ -2619,19 +2645,22 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 
 .membership-badge-tag {
     display: inline-block;
-    padding: 5px 12px;
+    padding: 4px 10px;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 1.25rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.9rem;
 }
 
 .membership-badge-tag.tag-firefighter {
-    background: rgba(230, 57, 70, 0.15);
-    color: #ff8a80;
-    border: 1px solid rgba(230, 57, 70, 0.35);
+    background: var(--gradient-primary);
+    color: #ffffff;
+    font-weight: 800;
+    border: none;
+    letter-spacing: 0.7px;
+    box-shadow: 0 3px 12px rgba(230, 57, 70, 0.45);
 }
 
 .membership-badge-tag.tag-police {
@@ -2655,29 +2684,29 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 .membership-card-title {
     color: white;
     font-family: var(--font-heading);
-    font-size: 1.85rem;
-    margin: 0 0 0.75rem 0;
+    font-size: 1.55rem;
+    margin: 0 0 0.5rem 0;
 }
 
 .membership-card-desc {
     color: var(--text-secondary);
-    font-size: 1rem;
-    line-height: 1.65;
-    margin-bottom: 1.5rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin-bottom: 1.15rem;
 }
 
 .membership-card-list {
     list-style-type: none;
     padding-left: 0;
-    margin-bottom: 2rem;
-    font-size: 0.98rem;
-    line-height: 1.75;
+    margin-bottom: 1.5rem;
+    font-size: 0.88rem;
+    line-height: 1.55;
 }
 
 .membership-card-list li {
-    margin-bottom: 0.95rem;
+    margin-bottom: 0.65rem;
     position: relative;
-    padding-left: 1.5rem;
+    padding-left: 1.35rem;
     color: var(--text-secondary);
 }
 
@@ -2688,7 +2717,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 .membership-card-list li .bullet-dot {
     position: absolute;
     left: 0;
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     line-height: 1.4;
 }
 
@@ -2699,7 +2728,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 
 .membership-card-actions {
     margin-top: auto;
-    padding-top: 1.25rem;
+    padding-top: 1rem;
 }
 
 
