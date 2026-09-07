@@ -51,22 +51,27 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(element);
     });
     
-    // Real form submission via FormSubmit.co
-    const form = document.getElementById('membership-application-form');
-    if(form) {
+    // Real form submission via FormSubmit.co (handles membership & recruitment forms)
+    const membershipForms = document.querySelectorAll('.membership-application-form, #membership-application-form');
+    membershipForms.forEach(form => {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            const btn = form.querySelector('button');
+            const btn = form.querySelector('button[type="submit"]') || form.querySelector('button');
             const originalText = btn.textContent;
             
             btn.textContent = 'Sending...';
             btn.style.opacity = '0.8';
             
-            // Gather data
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
-            const membershipType = document.getElementById('membership-type').value;
+            // Gather data from within this specific form
+            const nameEl = form.querySelector('[name="name"]') || form.querySelector('#name') || form.querySelector('.form-name');
+            const emailEl = form.querySelector('[name="email"]') || form.querySelector('#email') || form.querySelector('.form-email');
+            const phoneEl = form.querySelector('[name="phone"]') || form.querySelector('#phone') || form.querySelector('.form-phone');
+            const typeEl = form.querySelector('[name="membership_type"]') || form.querySelector('#membership-type') || form.querySelector('.form-type');
+
+            const name = nameEl ? nameEl.value : '';
+            const email = emailEl ? emailEl.value : '';
+            const phone = phoneEl ? phoneEl.value : '';
+            const membershipType = typeEl ? typeEl.value : '';
 
             fetch("https://formsubmit.co/ajax/membership@mtvfc2.com", {
                 method: "POST",
@@ -84,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(response => response.json())
             .then(data => {
-                btn.textContent = 'Message Sent!';
+                btn.textContent = 'Application Sent!';
                 btn.style.background = '#2a9d8f'; // Success green color
                 form.reset();
                 
@@ -92,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.textContent = originalText;
                     btn.style.background = '';
                     btn.style.opacity = '1';
-                }, 3000);
+                }, 4000);
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -106,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 3000);
             });
         });
-    }
+    });
 
     // Helper: Date Formatter
     function getFormattedDate() {
