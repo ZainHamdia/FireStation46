@@ -113,6 +113,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Membership cards: Quick select membership type on button click
+    document.querySelectorAll('.select-membership-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const type = btn.getAttribute('data-type');
+            const select = document.getElementById('membership-type');
+            if (select && type) {
+                select.value = type;
+                select.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+
+
     // Helper: Date Formatter
     function getFormattedDate() {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -359,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('.admin-dashboard') ||
             element.closest('#admin-posts-list-container') ||
             element.closest('.news-filter-bar') ||
-            element.closest('.roster-search-box') ||
             element.closest('.chart-bar-row') ||
             element.closest('.chart-bars') ||
             element.closest('.powr-social-feed') ||
@@ -1309,110 +1321,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             console.warn("[Station 46] Could not sync remote text edits:", err);
-        }
-    }
-
-    // Interactive Roster Filtering & Search
-    const rosterSearchInput = document.getElementById('roster-search-input');
-    const rosterSearchClear = document.getElementById('roster-search-clear');
-    const rosterFilterBtns = document.querySelectorAll('.roster-filter-btn');
-    const rosterCards = document.querySelectorAll('.roster-card');
-    const rosterSections = document.querySelectorAll('.roster-category-section');
-    const rosterEmptyState = document.getElementById('roster-empty-state');
-    const rosterResetBtn = document.getElementById('roster-reset-btn');
-
-    if (rosterCards.length > 0) {
-        let activeCategory = 'all';
-        let searchQuery = '';
-
-        function updateRosterView() {
-            let totalVisible = 0;
-
-            rosterSections.forEach(section => {
-                const cardsInSection = section.querySelectorAll('.roster-card');
-                let sectionVisibleCount = 0;
-
-                cardsInSection.forEach(card => {
-                    const cardCategory = card.getAttribute('data-category');
-                    const name = (card.getAttribute('data-name') || '').toLowerCase();
-                    const role = (card.getAttribute('data-role') || '').toLowerCase();
-                    
-                    const matchesCategory = (activeCategory === 'all' || activeCategory === cardCategory);
-                    const matchesSearch = !searchQuery || name.includes(searchQuery) || role.includes(searchQuery);
-
-                    if (matchesCategory && matchesSearch) {
-                        card.style.display = 'flex';
-                        sectionVisibleCount++;
-                        totalVisible++;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-
-                // Hide empty category sections
-                if (sectionVisibleCount === 0) {
-                    section.style.display = 'none';
-                } else {
-                    section.style.display = 'block';
-                }
-            });
-
-            // Toggle Empty State
-            if (rosterEmptyState) {
-                rosterEmptyState.style.display = totalVisible === 0 ? 'block' : 'none';
-            }
-
-            // Update Clear Button Visibility
-            if (rosterSearchClear) {
-                rosterSearchClear.style.display = searchQuery ? 'flex' : 'none';
-            }
-        }
-
-        // Filter button click
-        rosterFilterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                rosterFilterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                activeCategory = btn.getAttribute('data-category') || 'all';
-                updateRosterView();
-            });
-        });
-
-        // Live search input
-        if (rosterSearchInput) {
-            rosterSearchInput.addEventListener('input', (e) => {
-                searchQuery = e.target.value.trim().toLowerCase();
-                updateRosterView();
-            });
-        }
-
-        // Clear search button
-        if (rosterSearchClear) {
-            rosterSearchClear.addEventListener('click', () => {
-                if (rosterSearchInput) {
-                    rosterSearchInput.value = '';
-                }
-                searchQuery = '';
-                updateRosterView();
-                if (rosterSearchInput) rosterSearchInput.focus();
-            });
-        }
-
-        // Reset filter button in empty state
-        if (rosterResetBtn) {
-            rosterResetBtn.addEventListener('click', () => {
-                if (rosterSearchInput) rosterSearchInput.value = '';
-                searchQuery = '';
-                activeCategory = 'all';
-                rosterFilterBtns.forEach(b => {
-                    if (b.getAttribute('data-category') === 'all') {
-                        b.classList.add('active');
-                    } else {
-                        b.classList.remove('active');
-                    }
-                });
-                updateRosterView();
-            });
         }
     }
 

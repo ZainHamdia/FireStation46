@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=52">
+    <link rel="stylesheet" href="styles.css?v=53">
 </head>
 <body>
     <nav class="navbar">
@@ -75,31 +75,8 @@
                     <p class="section-subtitle mw-800 mx-auto" style="margin-bottom: 2.5rem; margin-top: 0.8rem;">The dedicated men and women who volunteer their time to protect Montgomery Township 24/7/365.</p>
                 </div>
 
-                <!-- Roster Controls (Search & Category Tabs) -->
-                <div class="roster-controls-wrapper fade-in delay-1">
-                    <!-- Search Input -->
-                    <div class="roster-search-box">
-                        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                        <input type="text" id="roster-search-input" placeholder="Search crew members by name or role..." autocomplete="off">
-                        <button id="roster-search-clear" class="search-clear-btn" style="display: none;" title="Clear search">&times;</button>
-                    </div>
-
-                    <!-- Category Filter Buttons -->
-                    <div class="roster-filter-bar">
-                        <button class="roster-filter-btn active" data-category="all">All Members <span class="filter-count">67</span></button>
-                        <button class="roster-filter-btn" data-category="line-officers">Fire Line Officers <span class="filter-count">6</span></button>
-                        <button class="roster-filter-btn" data-category="company-officers">Company Officers <span class="filter-count">10</span></button>
-                        <button class="roster-filter-btn" data-category="firefighters">Interior Firefighters <span class="filter-count">34</span></button>
-                        <button class="roster-filter-btn" data-category="juniors">Junior & Probationary <span class="filter-count">6</span></button>
-                        <button class="roster-filter-btn" data-category="fire-police">Fire Police & Associates <span class="filter-count">11</span></button>
-                    </div>
-                </div>
-
                 <!-- Roster Container -->
-                <div id="roster-container" class="fade-in delay-2">
+                <div id="roster-container" class="fade-in delay-1">
                     <!-- Fire Line Officers -->
                     <div class="roster-category-section" data-section-category="line-officers">
                         <div class="roster-category-header">
@@ -621,14 +598,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- No Results State -->
-                <div id="roster-empty-state" class="glass-card text-center" style="display: none; padding: 3.5rem 2rem; margin-top: 2rem; border-radius: 16px;">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔍</div>
-                    <h3 style="color: white; font-size: 1.4rem; margin-bottom: 0.5rem;">No Crew Members Found</h3>
-                    <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto 1.5rem auto;">We couldn't find any personnel matching your search term. Try checking for spelling errors or clearing the filter.</p>
-                    <button id="roster-reset-btn" class="btn btn-secondary glow" style="padding: 10px 24px; font-size: 0.95rem;">Reset Filter</button>
-                </div>
             </div>
         </section>
     </main>
@@ -649,6 +618,6 @@
         </div>
     </footer>
 
-    <script src="script.js?v=57"></script>
+    <script src="script.js?v=58"></script>
 </body>
 </html>
