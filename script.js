@@ -973,8 +973,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const p = document.getElementById('admin-password').value;
 
             const uLower = u.toLowerCase();
-            const validUsers = ['station46', 'station1946', 'blawenburg1946', 'blawenburg', 'admin'];
-            const validPasswords = ['Station46!', 'Station46', 'station46', 'station46!', 'Blawenburg1946', 'Blawenburg1946!', 'blawenburg1946', 'blawenburg1946!', 'admin'];
+            const validUsers = ['blawenburg1946'];
+            const validPasswords = ['Station46!', 'Station46', 'station46', 'station46!', 'Blawenburg1946', 'Blawenburg1946!', 'blawenburg1946', 'blawenburg1946!'];
 
             if (validUsers.includes(uLower) && (validPasswords.includes(p) || validPasswords.includes(p.trim()))) {
                 sessionStorage.setItem('admin_logged_in', 'true');
