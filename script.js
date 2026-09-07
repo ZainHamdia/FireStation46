@@ -30,6 +30,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Dynamic Active Nav Indicator & Homepage Scrollspy
+    const navLinksList = document.querySelectorAll('.nav-links a');
+    const isHomePage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/');
+
+    if (isHomePage) {
+        const homeLink = document.querySelector('.nav-links a[href="#home"], .nav-links a[href="index.html"]');
+        const donateLink = document.querySelector('.nav-links a[href="#donate"], .nav-links a[href$="#donate"]');
+        const donateSection = document.getElementById('donate');
+
+        function updateHomeNavActive() {
+            if (!navLinksList.length) return;
+
+            const hash = window.location.hash;
+            let activateDonate = false;
+
+            if (hash === '#donate') {
+                activateDonate = true;
+            } else if (donateSection) {
+                const rect = donateSection.getBoundingClientRect();
+                // When donate section is visible in the upper half of viewport
+                if (rect.top <= window.innerHeight * 0.45 && rect.bottom >= 80) {
+                    activateDonate = true;
+                }
+            }
+
+            if (activateDonate && donateLink) {
+                navLinksList.forEach(a => a.classList.remove('active'));
+                donateLink.classList.add('active');
+            } else if (homeLink) {
+                navLinksList.forEach(a => a.classList.remove('active'));
+                homeLink.classList.add('active');
+            }
+        }
+
+        window.addEventListener('scroll', updateHomeNavActive, { passive: true });
+        window.addEventListener('hashchange', updateHomeNavActive);
+        window.addEventListener('load', updateHomeNavActive);
+        setTimeout(updateHomeNavActive, 100);
+
+        // Immediate active update on clicking in-page anchor
+        document.querySelectorAll('.nav-links a[href^="#"]').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinksList.forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+    }
+
     // Intersection Observer for Fade-in Animations
     const observerOptions = {
         root: null,
