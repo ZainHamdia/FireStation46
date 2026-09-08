@@ -7,6 +7,7 @@
     --bg-card: rgba(30, 37, 50, 0.75);
     --text-primary: #f8fafc;
     --text-secondary: #a3b3c9;
+    --border-light: rgba(255, 255, 255, 0.08);
     
     /* Typography */
     --font-heading: 'Inter', sans-serif;
@@ -980,7 +981,7 @@ button:disabled {
 .card-content h3 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
-    color: #0f172a;
+    color: var(--text-primary);
 }
 
 .card-content p {
@@ -1088,11 +1089,12 @@ footer {
 .footer-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     font-family: var(--font-heading);
     font-weight: 800;
-    font-size: 1.5rem;
-    color: #0f172a;
+    font-size: 1.45rem;
+    color: #ffffff;
+    letter-spacing: 0.3px;
 }
 
 .footer-info {
@@ -1120,15 +1122,15 @@ footer {
 .footer-social-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 8px 18px;
+    gap: 0.55rem;
+    padding: 9px 20px;
     border-radius: 50px;
     font-size: 0.88rem;
     font-weight: 600;
-    color: var(--text-secondary);
-    background: #ffffff;
-    border: 1px solid var(--border-light);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     text-decoration: none;
     transition: all var(--transition-fast);
 }
@@ -1138,31 +1140,77 @@ footer {
     transition: transform var(--transition-fast);
 }
 
+.footer-social-link:focus,
+.footer-social-link:focus-visible {
+    outline: none;
+    border-color: var(--fire-red);
+    box-shadow: 0 0 12px rgba(230, 57, 70, 0.5);
+}
+
 .footer-social-link:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
 .footer-social-link:hover svg {
     transform: scale(1.15);
 }
 
-.footer-social-link.facebook:hover {
+.footer-social-link.facebook {
+    border-color: rgba(24, 119, 242, 0.3);
+}
+
+.footer-social-link.facebook svg {
     color: #1877f2;
-    border-color: rgba(24, 119, 242, 0.4);
-    background: rgba(24, 119, 242, 0.06);
+}
+
+.footer-social-link.facebook:hover {
+    color: #ffffff;
+    border-color: #1877f2;
+    background: #1877f2;
+    box-shadow: 0 6px 20px rgba(24, 119, 242, 0.45);
+}
+
+.footer-social-link.facebook:hover svg {
+    color: #ffffff;
+}
+
+.footer-social-link.instagram {
+    border-color: rgba(225, 48, 108, 0.3);
+}
+
+.footer-social-link.instagram svg {
+    color: #e1306c;
 }
 
 .footer-social-link.instagram:hover {
-    color: #e1306c;
-    border-color: rgba(225, 48, 108, 0.4);
-    background: rgba(225, 48, 108, 0.06);
+    color: #ffffff;
+    border-color: #e1306c;
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    box-shadow: 0 6px 20px rgba(225, 48, 108, 0.45);
+}
+
+.footer-social-link.instagram:hover svg {
+    color: #ffffff;
+}
+
+.footer-social-link.twitter {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.footer-social-link.twitter svg {
+    color: #f8fafc;
 }
 
 .footer-social-link.twitter:hover {
-    color: #0f172a;
-    border-color: rgba(15, 23, 42, 0.4);
-    background: rgba(15, 23, 42, 0.06);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+}
+
+.footer-social-link.twitter:hover svg {
+    color: #ffffff;
 }
 
 .footer-copy {
