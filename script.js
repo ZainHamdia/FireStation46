@@ -428,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('.roster-card-remove-btn') ||
             element.closest('.btn-roster-add-member') ||
             element.closest('.roster-modal-overlay') ||
+            element.closest('.roster-card-tag-btn') ||
             element.closest('form') ||
             element.closest('.mobile-menu-btn')) {
             return false;
@@ -447,6 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.classList.contains('roster-card-drag-handle') ||
             element.classList.contains('roster-drag-placeholder') ||
             element.classList.contains('btn-roster-add-member') ||
+            element.classList.contains('roster-card-tag-btn') ||
             element.tagName === 'INPUT' ||
             element.tagName === 'TEXTAREA' ||
             element.tagName === 'SELECT' ||
@@ -678,7 +680,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!container) return null;
         const clone = container.cloneNode(true);
         // Remove admin-only controls, drag handles, modal, and placeholders
-        clone.querySelectorAll('.roster-card-remove-btn, .btn-roster-add-member, .roster-modal-overlay, .roster-card-drag-handle, .roster-drag-placeholder').forEach(el => el.remove());
+        clone.querySelectorAll('.roster-card-remove-btn, .btn-roster-add-member, .roster-modal-overlay, .roster-card-drag-handle, .roster-drag-placeholder, .roster-card-tag-btn').forEach(el => el.remove());
+        // Clean runtime markers on tag-new elements
+        clone.querySelectorAll('.tag-new').forEach(tag => {
+            tag.removeAttribute('data-tag-control-init');
+            tag.removeAttribute('title');
+            tag.removeAttribute('role');
+            tag.removeAttribute('tabindex');
+        });
         // Remove contenteditable and draggable attributes and runtime markers
         clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
         clone.querySelectorAll('[draggable]').forEach(el => el.removeAttribute('draggable'));
@@ -695,6 +704,66 @@ document.addEventListener('DOMContentLoaded', () => {
         const cleanHtml = getCleanRosterHtml();
         if (cleanHtml !== null) {
             localStorage.setItem('station46_roster_html', cleanHtml);
+        }
+    }
+
+    function setupCardTagControl(card) {
+        if (!isAdminLoggedIn) return;
+
+        const existingTag = card.querySelector('.tag-new');
+        const existingTagBtn = card.querySelector('.roster-card-tag-btn');
+        const nameEl = card.querySelector('.roster-name');
+        const memberName = nameEl ? nameEl.textContent.trim() : (card.getAttribute('data-name') || 'this member');
+
+        if (existingTag) {
+            if (existingTagBtn) existingTagBtn.remove();
+            existingTag.title = 'Click to remove "NEW" tag';
+            existingTag.setAttribute('role', 'button');
+            existingTag.setAttribute('tabindex', '0');
+
+            if (existingTag.dataset.tagControlInit !== 'true') {
+                existingTag.dataset.tagControlInit = 'true';
+
+                const removeTagHandler = (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    existingTag.remove();
+                    setupCardTagControl(card);
+                    saveRosterState();
+                    showAdminToast(`✅ Removed "NEW" tag from ${memberName}. Click '💾 Save & Push to Git' to publish.`);
+                };
+
+                existingTag.addEventListener('click', removeTagHandler);
+                existingTag.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        removeTagHandler(e);
+                    }
+                });
+            }
+        } else {
+            if (!existingTagBtn) {
+                const tagBtn = document.createElement('button');
+                tagBtn.type = 'button';
+                tagBtn.className = 'roster-card-tag-btn';
+                tagBtn.title = `Add "NEW" tag to ${memberName}`;
+                tagBtn.setAttribute('aria-label', `Add NEW tag to ${memberName}`);
+                tagBtn.innerHTML = '+ NEW';
+
+                tagBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const newTag = document.createElement('span');
+                    newTag.className = 'tag-new';
+                    newTag.textContent = 'NEW';
+                    card.insertBefore(newTag, card.firstChild);
+
+                    setupCardTagControl(card);
+                    saveRosterState();
+                    showAdminToast(`✅ Added "NEW" tag to ${memberName}. Click '💾 Save & Push to Git' to publish.`);
+                });
+
+                card.appendChild(tagBtn);
+            }
         }
     }
 
@@ -773,6 +842,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         <label for="roster-member-custom-rank">Custom Rank / Role</label>
                         <input type="text" id="roster-member-custom-rank" placeholder="Enter custom rank">
                     </div>
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label for="roster-member-tag-new" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ffffff; font-size: 0.95rem; user-select: none;">
+                            <input type="checkbox" id="roster-member-tag-new" style="width: 17px; height: 17px; cursor: pointer; accent-color: #10b981;">
+                            <span>Tag as <strong>"NEW"</strong> member</span>
+                        </label>
+                    </div>
                     <div class="roster-modal-actions">
                         <button type="button" class="btn btn-roster-cancel" id="roster-modal-cancel-btn">Cancel</button>
                         <button type="submit" class="btn btn-primary glow" id="roster-modal-submit-btn">Add Member</button>
@@ -788,6 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const rankSelect = overlay.querySelector('#roster-member-rank');
         const customRankGroup = overlay.querySelector('#roster-custom-rank-group');
         const customRankInput = overlay.querySelector('#roster-member-custom-rank');
+        const tagNewCheckbox = overlay.querySelector('#roster-member-tag-new');
         const cancelBtn = overlay.querySelector('#roster-modal-cancel-btn');
 
         let autoInitials = true;
@@ -838,11 +914,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const name = nameInput.value.trim();
                 const initials = initialsInput.value.trim().toUpperCase() || computeInitials(name);
                 const role = (rankSelect.value === '__custom__' && customRankInput) ? customRankInput.value.trim() : rankSelect.value;
+                const isNew = tagNewCheckbox ? tagNewCheckbox.checked : false;
                 if (!name || !role) return;
 
-                addMemberToSection(category, name, role, initials);
+                addMemberToSection(category, name, role, initials, isNew);
                 overlay.classList.remove('active');
                 form.reset();
+                if (tagNewCheckbox) tagNewCheckbox.checked = false;
                 autoInitials = true;
             });
         }
@@ -859,6 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const customRankGroup = overlay.querySelector('#roster-custom-rank-group');
         const nameInput = overlay.querySelector('#roster-member-name');
         const initialsInput = overlay.querySelector('#roster-member-initials');
+        const tagNewCheckbox = overlay.querySelector('#roster-member-tag-new');
 
         if (sectionLabel) sectionLabel.textContent = `Section: ${config.title}`;
         if (catInput) catInput.value = category;
@@ -880,13 +959,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (customRankGroup) customRankGroup.style.display = 'none';
         if (nameInput) nameInput.value = '';
         if (initialsInput) initialsInput.value = '';
+        if (tagNewCheckbox) tagNewCheckbox.checked = false;
         overlay.classList.add('active');
         if (nameInput && typeof nameInput.focus === 'function') {
             setTimeout(() => nameInput.focus(), 50);
         }
     }
 
-    function addMemberToSection(category, name, role, initials) {
+    function addMemberToSection(category, name, role, initials, isNew = false) {
         const section = document.querySelector(`.roster-category-section[data-section-category="${category}"]`);
         if (!section) return;
 
@@ -924,7 +1004,10 @@ document.addEventListener('DOMContentLoaded', () => {
         card.setAttribute('data-name', name);
         card.setAttribute('data-role', role);
 
+        const newTagHtml = isNew ? '<span class="tag-new">NEW</span>' : '';
+
         card.innerHTML = `
+            ${newTagHtml}
             <div class="roster-avatar ${avatarClass}">${escapeHtml(initials)}</div>
             <div class="roster-info">
                 <h4 class="roster-name">${escapeHtml(name)}</h4>
@@ -934,6 +1017,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         grid.appendChild(card);
         attachRemoveButton(card);
+        setupCardTagControl(card);
         setupCardDrag(card);
         initLiveEditor();
         saveRosterState();
@@ -1257,6 +1341,7 @@ document.addEventListener('DOMContentLoaded', () => {
             attachAddButtons();
             container.querySelectorAll('.roster-card').forEach(card => {
                 attachRemoveButton(card);
+                setupCardTagControl(card);
             });
             createAddMemberModal();
             initRosterDragAndDrop();
@@ -1732,6 +1817,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const title = document.getElementById('post-title').value.trim();
             const category = document.getElementById('post-category').value;
+            const isNew = document.getElementById('post-is-new')?.checked || false;
             const text = document.getElementById('post-text').value.trim();
             const imageSrc = imagePreview && imagePreview.style.display === 'block' ? imagePreview.src : '';
 
@@ -1746,6 +1832,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: Date.now(),
                 title: title,
                 category: category,
+                isNew: isNew,
                 text: text,
                 image: imageSrc,
                 date: getFormattedDate()
@@ -1798,16 +1885,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const title = escapeHtml(post.title || 'Untitled Update');
                 const categoryLabel = post.category === 'news' ? 'News & Events' : 'Fire Calls';
                 const date = escapeHtml(post.date || getFormattedDate());
+                const isNewBadge = post.isNew ? '<span class="tag-new" style="position: static; margin-left: 6px; font-size: 0.55rem; padding: 1px 5px; vertical-align: middle;">NEW</span>' : '';
+                const toggleTagBtnText = post.isNew ? '✕ Remove "NEW" Tag' : '+ Tag "NEW"';
+                const toggleTagStyle = post.isNew
+                    ? 'border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.15); color: #ff8585;'
+                    : 'border: 1px dashed rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); color: #34d399;';
 
                 html += `
                     <div class="admin-post-item">
                         <div class="admin-post-info">
                             <h4>${title}</h4>
                             <div class="admin-post-meta">
-                                <span>Category:</span> ${categoryLabel} | <span>Date:</span> ${date}
+                                <span>Category:</span> ${categoryLabel} | <span>Date:</span> ${date} ${isNewBadge}
                             </div>
                         </div>
-                        <button class="btn btn-danger delete-btn" data-id="${post.id}" style="padding: 6px 12px; font-size: 0.85rem; font-family: var(--font-heading); font-weight: 600; border-radius: 6px; border: none; cursor: pointer;">Delete</button>
+                        <div class="admin-post-actions" style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                            <button type="button" class="btn toggle-tag-btn" data-id="${post.id}" style="padding: 6px 10px; font-size: 0.78rem; font-family: var(--font-heading); font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; ${toggleTagStyle}">${toggleTagBtnText}</button>
+                            <button type="button" class="btn btn-danger delete-btn" data-id="${post.id}" style="padding: 6px 12px; font-size: 0.85rem; font-family: var(--font-heading); font-weight: 600; border-radius: 6px; border: none; cursor: pointer;">Delete</button>
+                        </div>
                     </div>
                 `;
             } catch (e) {
@@ -1816,6 +1911,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         container.innerHTML = html;
+
+        // Add Tag Toggle Event Handlers
+        container.querySelectorAll('.toggle-tag-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = parseInt(btn.getAttribute('data-id'));
+                let posts = getStoredPosts();
+                const post = posts.find(p => p && p.id === id);
+                if (!post) return;
+                post.isNew = !post.isNew;
+                savePosts(posts);
+                renderAdminPosts();
+                showAdminToast(post.isNew ? '✅ Added "NEW" tag to update.' : '✅ Removed "NEW" tag from update.');
+                await syncToGitHub('data/posts.json', posts, 'Admin: Update post tag');
+            });
+        });
 
         // Add Delete Event Handlers
         container.querySelectorAll('.delete-btn').forEach(btn => {
@@ -1889,14 +1999,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const category = post.category === 'news' ? 'news' : 'calls';
                 const tagLabel = category === 'news' ? 'News & Events' : 'Fire Call';
                 const imageHtml = post.image ? `<div class="news-card-img" style="background-image: url('${post.image}');"></div>` : '';
+                const newTagBadge = post.isNew ? '<span class="tag-new" style="position: static; margin-bottom: 0;">NEW</span>' : '';
 
                 html += `
                     <div class="news-card glass-card fade-in visible" data-category="${category}">
                         ${imageHtml}
                         <div class="news-card-body">
-                            <span class="news-card-tag tag-${category}">
-                                ${tagLabel}
-                            </span>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.85rem; flex-wrap: wrap;">
+                                <span class="news-card-tag tag-${category}" style="margin-bottom: 0;">
+                                    ${tagLabel}
+                                </span>
+                                ${newTagBadge}
+                            </div>
                             <div class="news-card-date">${date}</div>
                             <h3 class="news-card-title">${title}</h3>
                             <p class="news-card-text">${text}</p>

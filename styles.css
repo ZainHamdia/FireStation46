@@ -2966,7 +2966,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     background: rgba(230, 57, 70, 0.2);
     border: 1px solid rgba(230, 57, 70, 0.4);
     color: #ff8585;
-    display: inline-flex;
+    display: none;
     align-items: center;
     justify-content: center;
     font-size: 11px;
@@ -2999,7 +2999,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.2s ease;
-    display: inline-flex;
+    display: none;
     align-items: center;
     gap: 4px;
     letter-spacing: 0.3px;
@@ -3012,6 +3012,78 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     border-color: var(--fire-red);
     box-shadow: 0 0 12px rgba(230, 57, 70, 0.4);
     transform: translateY(-1px);
+}
+
+/* Roster Card NEW Tag Button & Admin Mode Controls */
+.roster-card-tag-btn {
+    position: absolute;
+    top: 6px;
+    right: 34px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    height: 22px;
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px dashed rgba(16, 185, 129, 0.45);
+    color: #34d399;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    font-family: var(--font-heading);
+    line-height: 1;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.roster-card-tag-btn:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-style: solid;
+    border-color: #10b981;
+    color: #ffffff;
+    transform: scale(1.06);
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+}
+
+.admin-edit-mode .roster-card-remove-btn,
+.admin-edit-mode .btn-roster-add-member {
+    display: inline-flex;
+}
+
+.admin-edit-mode .roster-card-tag-btn {
+    display: inline-flex;
+}
+
+.admin-edit-mode .roster-card .tag-new {
+    top: 6px;
+    right: 34px;
+    height: 22px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    z-index: 10;
+}
+
+.admin-edit-mode .roster-card .tag-new::after {
+    content: " ✕";
+    font-size: 0.55rem;
+    margin-left: 3px;
+    opacity: 0.75;
+}
+
+.admin-edit-mode .roster-card .tag-new:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.5);
+    transform: scale(1.06);
+}
+
+.admin-edit-mode .roster-card .tag-new:hover::after {
+    opacity: 1;
 }
 
 /* Roster Add Member Modal */
