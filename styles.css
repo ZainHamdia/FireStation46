@@ -715,7 +715,7 @@ button:disabled {
 }
 .hero-apparatus {
     background: linear-gradient(rgba(10, 11, 13, 0.35), rgba(10, 11, 13, 0.6)),
-                url('drill-2.jpeg') center/cover !important;
+                url('drill-2.jpeg?v=2') center/cover !important;
     animation: scale-up 20s linear infinite alternate;
 }
 .hero-santa {
