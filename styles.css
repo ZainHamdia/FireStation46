@@ -1023,20 +1023,29 @@ button:disabled {
     margin: 4rem auto 0;
 }
 
-.contact-form {
-    padding: 3rem;
-    border-radius: 12px;
+/* Form Inputs & Elements (Contact & Recruitment) */
+.contact-form,
+.membership-application-form {
+    width: 100%;
 }
 
-.contact-form .form-group {
-    margin-bottom: 1.5rem;
+.contact-form .form-group,
+.membership-application-form .form-group,
+.recruit-form-card .form-group {
+    width: 100%;
 }
 
 .contact-form input,
 .contact-form textarea,
-.contact-form select {
+.contact-form select,
+.recruit-form-card input,
+.recruit-form-card textarea,
+.recruit-form-card select,
+.membership-application-form input,
+.membership-application-form textarea,
+.membership-application-form select {
     width: 100%;
-    padding: 12px 16px;
+    padding: 14px 18px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
@@ -1045,28 +1054,56 @@ button:disabled {
     font-size: 1rem;
     box-sizing: border-box;
     transition: all var(--transition-fast);
+    display: block;
 }
 
 .contact-form input::placeholder,
-.contact-form textarea::placeholder {
+.contact-form textarea::placeholder,
+.recruit-form-card input::placeholder,
+.recruit-form-card textarea::placeholder,
+.membership-application-form input::placeholder,
+.membership-application-form textarea::placeholder {
     color: var(--text-secondary);
 }
 
 .contact-form input:focus,
 .contact-form textarea:focus,
-.contact-form select:focus {
+.contact-form select:focus,
+.recruit-form-card input:focus,
+.recruit-form-card textarea:focus,
+.recruit-form-card select:focus,
+.membership-application-form input:focus,
+.membership-application-form textarea:focus,
+.membership-application-form select:focus {
     outline: none;
     border-color: var(--fire-red);
-    box-shadow: 0 0 12px rgba(230, 57, 70, 0.3);
+    box-shadow: 0 0 14px rgba(230, 57, 70, 0.35);
     background: rgba(255, 255, 255, 0.08);
 }
 
-.contact-form select option {
-    background: #161b22;
-    color: #ffffff;
+.contact-form select,
+.recruit-form-card select,
+.membership-application-form select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a3b3c9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 42px;
+    cursor: pointer;
 }
 
-.contact-form textarea {
+.contact-form select option,
+.recruit-form-card select option,
+.membership-application-form select option {
+    background: #161b22;
+    color: #ffffff;
+    padding: 10px;
+}
+
+.contact-form textarea,
+.recruit-form-card textarea,
+.membership-application-form textarea {
     height: 120px;
     resize: vertical;
 }
@@ -2686,6 +2723,17 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem;
+    margin-bottom: 1.25rem;
+    width: 100%;
+}
+
+.recruit-form-grid .form-group {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.recruit-form-card button[type="submit"] {
+    margin-top: 0.5rem;
 }
 
 @media (max-width: 768px) {
