@@ -958,7 +958,7 @@ button:disabled {
     color: white; font-weight: 800; text-shadow: 0 2px 10px black;
 }
 .card:nth-child(6) .card-img-placeholder {
-    background: linear-gradient(rgba(10,11,13,0.1), rgba(10,11,13,0.8)), url('marine46.jpg') center/cover;
+    background: linear-gradient(rgba(10,11,13,0.1), rgba(10,11,13,0.8)), url('marine46.jpg?v=2') center/cover;
     color: white; font-weight: 800; text-shadow: 0 2px 10px black;
 }
 .card:nth-child(7) .card-img-placeholder {
@@ -966,7 +966,7 @@ button:disabled {
     color: white; font-weight: 800; text-shadow: 0 2px 10px black;
 }
 .card:nth-child(8) .card-img-placeholder {
-    background: linear-gradient(rgba(10,11,13,0.1), rgba(10,11,13,0.8)), url('car462.jpg') center 55% / 135% no-repeat, linear-gradient(135deg, rgba(20, 24, 33, 0.95), rgba(15, 17, 21, 0.98));
+    background: linear-gradient(rgba(10,11,13,0.1), rgba(10,11,13,0.8)), url('car462.jpg?v=2') center 55% / 135% no-repeat, linear-gradient(135deg, rgba(20, 24, 33, 0.95), rgba(15, 17, 21, 0.98));
     color: white; font-weight: 800; text-shadow: 0 2px 10px black;
 }
 
