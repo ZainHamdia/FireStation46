@@ -1023,27 +1023,45 @@ button:disabled {
     margin: 4rem auto 0;
 }
 
-/* Form Inputs & Elements (Contact & Recruitment) */
+/* Form Inputs & Elements (Contact, Recruitment & Admin) */
 .contact-form,
-.membership-application-form {
+.membership-application-form,
+.admin-form-container,
+.admin-form,
+#admin-login-form,
+#admin-publish-form {
     width: 100%;
 }
 
 .contact-form .form-group,
 .membership-application-form .form-group,
-.recruit-form-card .form-group {
+.recruit-form-card .form-group,
+.admin-form-container .form-group,
+.admin-form .form-group,
+#admin-login-form .form-group,
+#admin-publish-form .form-group {
     width: 100%;
+    margin-bottom: 1.25rem;
 }
 
-.contact-form input,
+.contact-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 .contact-form textarea,
 .contact-form select,
-.recruit-form-card input,
+.recruit-form-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 .recruit-form-card textarea,
 .recruit-form-card select,
-.membership-application-form input,
+.membership-application-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 .membership-application-form textarea,
-.membership-application-form select {
+.membership-application-form select,
+.admin-form-container input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.admin-form-container textarea,
+.admin-form-container select,
+.admin-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.admin-form textarea,
+.admin-form select,
+#admin-login-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+#admin-publish-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+#admin-publish-form select {
     width: 100%;
     padding: 14px 18px;
     background: rgba(255, 255, 255, 0.05);
@@ -1062,7 +1080,13 @@ button:disabled {
 .recruit-form-card input::placeholder,
 .recruit-form-card textarea::placeholder,
 .membership-application-form input::placeholder,
-.membership-application-form textarea::placeholder {
+.membership-application-form textarea::placeholder,
+.admin-form-container input::placeholder,
+.admin-form-container textarea::placeholder,
+.admin-form input::placeholder,
+.admin-form textarea::placeholder,
+#admin-login-form input::placeholder,
+#admin-publish-form input::placeholder {
     color: var(--text-secondary);
 }
 
@@ -1074,7 +1098,16 @@ button:disabled {
 .recruit-form-card select:focus,
 .membership-application-form input:focus,
 .membership-application-form textarea:focus,
-.membership-application-form select:focus {
+.membership-application-form select:focus,
+.admin-form-container input:focus,
+.admin-form-container textarea:focus,
+.admin-form-container select:focus,
+.admin-form input:focus,
+.admin-form textarea:focus,
+.admin-form select:focus,
+#admin-login-form input:focus,
+#admin-publish-form input:focus,
+#admin-publish-form select:focus {
     outline: none;
     border-color: var(--fire-red);
     box-shadow: 0 0 14px rgba(230, 57, 70, 0.35);
@@ -1083,7 +1116,10 @@ button:disabled {
 
 .contact-form select,
 .recruit-form-card select,
-.membership-application-form select {
+.membership-application-form select,
+.admin-form-container select,
+.admin-form select,
+#admin-publish-form select {
     appearance: none;
     -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a3b3c9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
@@ -1095,7 +1131,10 @@ button:disabled {
 
 .contact-form select option,
 .recruit-form-card select option,
-.membership-application-form select option {
+.membership-application-form select option,
+.admin-form-container select option,
+.admin-form select option,
+#admin-publish-form select option {
     background: #161b22;
     color: #ffffff;
     padding: 10px;
@@ -1103,7 +1142,9 @@ button:disabled {
 
 .contact-form textarea,
 .recruit-form-card textarea,
-.membership-application-form textarea {
+.membership-application-form textarea,
+.admin-form-container textarea,
+.admin-form textarea {
     height: 120px;
     resize: vertical;
 }
