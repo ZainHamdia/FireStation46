@@ -743,6 +743,7 @@ body.menu-open {
     height: 100%;
     color: var(--fire-red);
     -webkit-text-stroke: 0px transparent;
+    text-shadow: 0 0 25px rgba(230, 57, 70, 0.55), 0 0 50px rgba(230, 57, 70, 0.25);
     white-space: nowrap;
     clip-path: inset(0 100% 0 0);
     animation: fillClip 1.5s cubic-bezier(0.25, 1, 0.5, 1) 0.5s forwards;
@@ -750,7 +751,7 @@ body.menu-open {
 }
 
 @keyframes fillClip {
-    to { clip-path: inset(0 0 0 0); }
+    to { clip-path: inset(-40px -40px -40px -40px); }
 }
 
 .hero-desc {
