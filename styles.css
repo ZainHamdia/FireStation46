@@ -3692,11 +3692,10 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 
 .upcoming-feature-card {
     padding: 3rem;
-    border: 1px solid rgba(230, 57, 70, 0.25);
-    background: radial-gradient(circle at top right, rgba(230, 57, 70, 0.08), transparent 60%),
-                rgba(18, 24, 38, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-card);
     border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 
 .upcoming-badge-tag {
