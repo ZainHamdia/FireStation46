@@ -8,17 +8,62 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelector('.nav-links');
     
     if (mobileBtn && navLinks) {
-        mobileBtn.addEventListener('click', () => {
-            mobileBtn.classList.toggle('active');
-            navLinks.classList.toggle('active');
+        // Create backdrop overlay if not already in DOM
+        let backdrop = document.querySelector('.nav-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.className = 'nav-backdrop';
+            document.body.appendChild(backdrop);
+        }
+
+        const openMenu = () => {
+            mobileBtn.classList.add('active');
+            navLinks.classList.add('active');
+            backdrop.classList.add('active');
+            document.body.classList.add('menu-open');
+            mobileBtn.setAttribute('aria-expanded', 'true');
+        };
+
+        const closeMenu = () => {
+            mobileBtn.classList.remove('active');
+            navLinks.classList.remove('active');
+            backdrop.classList.remove('active');
+            document.body.classList.remove('menu-open');
+            mobileBtn.setAttribute('aria-expanded', 'false');
+        };
+
+        mobileBtn.setAttribute('aria-expanded', 'false');
+
+        mobileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = navLinks.classList.contains('active');
+            if (isOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
         });
 
-        // Close mobile menu when clicking a link
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                mobileBtn.classList.remove('active');
-                navLinks.classList.remove('active');
-            });
+        // Close when clicking backdrop
+        backdrop.addEventListener('click', closeMenu);
+
+        // Close when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && navLinks.classList.contains('active')) {
+                closeMenu();
+            }
+        });
+
+        // Close if resized to desktop width
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1280 && navLinks.classList.contains('active')) {
+                closeMenu();
+            }
         });
     }
 
