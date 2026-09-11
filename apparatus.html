@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=77">
+    <link rel="stylesheet" href="styles.css?v=78">
 </head>
 <body>
     <nav class="navbar">
@@ -43,12 +43,20 @@
             <p class="hero-subtitle">Montgomery Township Volunteer Fire Co. #2</p>
             <h1 class="hero-title" style="font-size: clamp(3rem, 6vw, 5rem);">Our Apparatus</h1>
             <p class="hero-desc" style="color: #f0f0f0;">State-of-the-art equipment ready for any emergency</p>
+            <div style="margin-top: 1.5rem; display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
+                <a href="#active-fleet" class="btn-secondary btn-sm" style="border-radius: 30px; padding: 8px 20px;">Active Fleet</a>
+                <a href="#upcoming" class="btn-primary glow btn-sm" style="border-radius: 30px; padding: 8px 20px; display: inline-flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4ade80;"></span>
+                    <span>Upcoming Heavy Rescue</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                </a>
+            </div>
         </div>
     </header>
 
     <main>
         <!-- Apparatus Grid Section -->
-        <section class="section">
+        <section class="section" id="active-fleet">
             <div class="container">
                 <div class="cards-grid" style="margin-top: 0;">
                     <div class="card glass-card hover-lift fade-in">
@@ -173,7 +181,163 @@
                 </div>
             </div>
         </section>
+
+        <!-- Upcoming Apparatus Section -->
+        <section class="section upcoming-apparatus-section" id="upcoming">
+            <div class="container">
+                <div class="section-header text-center fade-in">
+                    <div>
+                        <span class="upcoming-badge-tag">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            Future Fleet Addition • In Production
+                        </span>
+                    </div>
+                    <h2 class="section-title">Upcoming Apparatus</h2>
+                    <p class="section-subtitle mw-800 mx-auto">Montgomery Township Volunteer Fire Company #2 is proud to present preliminary drawings for our new custom-engineered Heavy Walk-In Wet Rescue, currently in production with SVI Fire &amp; Rescue Trucks.</p>
+                </div>
+
+                <!-- Featured Apparatus Overview Card -->
+                <div class="glass-card upcoming-feature-card fade-in delay-1">
+                    <div class="upcoming-feature-grid">
+                        <div class="upcoming-info">
+                            <span class="role-badge-tag" style="background: rgba(230, 57, 70, 0.15); border-color: rgba(230, 57, 70, 0.35); color: #ff6b6b; margin-bottom: 1rem; display: inline-block;">SVI Fire &amp; Rescue Trucks • Fort Collins, CO</span>
+                            <h3 class="upcoming-title">New SVI Heavy Walk-In Wet Rescue</h3>
+                            <p class="upcoming-desc">Custom-engineered on a Kenworth T880 tandem-axle chassis with a heavy-duty 24-foot 12-gauge stainless steel body. Purpose-built to serve as Station 46's premier heavy rescue platform for vehicle extrication, structural firefighting, technical rescue, and emergency command operations.</p>
+                            
+                            <div class="upcoming-specs-grid">
+                                <div class="upcoming-spec-item">
+                                    <span class="spec-label">Chassis &amp; Cab</span>
+                                    <span class="spec-val">Kenworth T880 (Two Door)</span>
+                                </div>
+                                <div class="upcoming-spec-item">
+                                    <span class="spec-label">Body Construction</span>
+                                    <span class="spec-val">24' Body / 12ga Stainless Steel</span>
+                                </div>
+                                <div class="upcoming-spec-item">
+                                    <span class="spec-label">Overall Dimensions</span>
+                                    <span class="spec-val">40' 4½" OAL • 11' 9½" OAH • 8' 4" OAW</span>
+                                </div>
+                                <div class="upcoming-spec-item">
+                                    <span class="spec-label">Wheelbase &amp; Axles</span>
+                                    <span class="spec-val">267¾" WB • 194" CA • Tandem Axles</span>
+                                </div>
+                                <div class="upcoming-spec-item">
+                                    <span class="spec-label">Unit Classification</span>
+                                    <span class="spec-val">WI-Wet Heavy Rescue</span>
+                                </div>
+                                <div class="upcoming-spec-item">
+                                    <span class="spec-label">Hose &amp; Attack</span>
+                                    <span class="spec-val">140' L (2½" Dia) Preconnect Hose Bed</span>
+                                </div>
+                                <div class="upcoming-spec-item">
+                                    <span class="spec-label">Compartment Storage</span>
+                                    <span class="spec-val">1,000# Slide Trays &amp; 28" Shelving</span>
+                                </div>
+                                <div class="upcoming-spec-item">
+                                    <span class="spec-label">Electrical &amp; Power</span>
+                                    <span class="spec-val">120/240V Panel &amp; 12V LED Management</span>
+                                </div>
+                            </div>
+
+                            <div class="upcoming-actions">
+                                <a href="svi-heavy-rescue-blueprints.pdf" target="_blank" class="btn-primary glow">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    Download Official SVI Drawings (PDF)
+                                </a>
+                                <a href="#blueprints-gallery" class="btn-secondary">Explore Blueprint Sheets &darr;</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blueprints Gallery Grid -->
+                <div id="blueprints-gallery" class="blueprints-section fade-in delay-2" style="margin-top: 4rem;">
+                    <div class="text-center" style="margin-bottom: 2.5rem;">
+                        <h3 style="font-size: 1.8rem; font-weight: 700; color: white; margin-bottom: 0.5rem;">Architectural Blueprint Drawings</h3>
+                        <p style="color: var(--text-secondary); max-width: 650px; margin: 0 auto;">Click any blueprint drawing below to expand in full high-resolution with zoom and detail inspection.</p>
+                    </div>
+
+                    <div class="blueprints-grid">
+                        <!-- Blueprint 1 -->
+                        <div class="blueprint-card glass-card" onclick="openBlueprintModal(0)">
+                            <div class="blueprint-img-box">
+                                <img src="blueprint-1.jpg" alt="Sheet 1: SVI Heavy Rescue Exterior Elevations" loading="lazy" class="blueprint-thumb">
+                                <div class="blueprint-zoom-overlay">
+                                    <span class="zoom-btn">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                                        Click to Expand
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="blueprint-details">
+                                <div class="blueprint-tag">Sheet 1 of 3 • Exterior Configuration</div>
+                                <h4>Exterior Elevations &amp; General Layout</h4>
+                                <p>Comprehensive profile, top, front, and rear elevations detailing 40' 4½" overall length, 11' 9½" height, Kenworth T880 cab, tandem rear axles, and SVI rescue body geometry.</p>
+                            </div>
+                        </div>
+
+                        <!-- Blueprint 2 -->
+                        <div class="blueprint-card glass-card" onclick="openBlueprintModal(1)">
+                            <div class="blueprint-img-box">
+                                <img src="blueprint-2.jpg" alt="Sheet 2: SVI Heavy Rescue Compartment Layout" loading="lazy" class="blueprint-thumb">
+                                <div class="blueprint-zoom-overlay">
+                                    <span class="zoom-btn">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                                        Click to Expand
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="blueprint-details">
+                                <div class="blueprint-tag">Sheet 2 of 3 • Compartmentation</div>
+                                <h4>Storage Compartments &amp; Equipment Trays</h4>
+                                <p>Detailed roll-up compartment layouts showing 1,000# slide-out trays, 400# roll-out shelves, 28" deep adjustable shelving, 140' 2½" preconnect hose bed, and dual 12V / 120-240V power panels.</p>
+                            </div>
+                        </div>
+
+                        <!-- Blueprint 3 -->
+                        <div class="blueprint-card glass-card" onclick="openBlueprintModal(2)">
+                            <div class="blueprint-img-box">
+                                <img src="blueprint-3.jpg" alt="Sheet 3: SVI Heavy Rescue Walk-in Interior" loading="lazy" class="blueprint-thumb">
+                                <div class="blueprint-zoom-overlay">
+                                    <span class="zoom-btn">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                                        Click to Expand
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="blueprint-details">
+                                <div class="blueprint-tag">Sheet 3 of 3 • Walk-In Interior</div>
+                                <h4>Walk-In Interior &amp; Upper Body Structure</h4>
+                                <p>Interior walk-in command and crew area layout, custom upper interior cabinetry, ceiling clearance dimensions (80¼" interior height), and integrated rear walk-in access.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
+
+    <!-- Blueprint Lightbox Modal -->
+    <div id="blueprint-modal" class="blueprint-modal-backdrop" onclick="handleBlueprintBackdropClick(event)" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="blueprint-modal-content">
+            <button class="blueprint-modal-close" onclick="closeBlueprintModal()" aria-label="Close modal">&times;</button>
+            <button class="blueprint-modal-nav prev" onclick="changeBlueprint(-1)" aria-label="Previous sheet">&#10094;</button>
+            <button class="blueprint-modal-nav next" onclick="changeBlueprint(1)" aria-label="Next sheet">&#10095;</button>
+            <div class="blueprint-modal-body">
+                <img id="blueprint-modal-img" src="" alt="Full Blueprint Drawing">
+            </div>
+            <div class="blueprint-modal-caption">
+                <div class="blueprint-modal-caption-text">
+                    <h4 id="blueprint-modal-title">Blueprint Sheet</h4>
+                    <p id="blueprint-modal-desc">Sheet description</p>
+                </div>
+                <div class="blueprint-modal-footer-actions">
+                    <a id="blueprint-modal-full" href="" target="_blank" class="btn btn-secondary btn-sm">Open Full Resolution (PNG)</a>
+                    <a href="svi-heavy-rescue-blueprints.pdf" target="_blank" class="btn btn-primary btn-sm">Download PDF</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="footer-container">
@@ -205,7 +369,7 @@
         </div>
     </footer>
 
-    <script src="script.js?v=72"></script>
+    <script src="script.js?v=78"></script>
 
 
 </body></html>

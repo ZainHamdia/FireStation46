@@ -2271,3 +2271,86 @@ document.addEventListener('DOMContentLoaded', () => {
     syncFromRemoteDatabase();
 });
 
+// ==========================================================================
+// Blueprint Lightbox Modal Logic
+// ==========================================================================
+const blueprintData = [
+    {
+        thumb: 'blueprint-1.jpg',
+        full: 'blueprint-p1.png',
+        title: 'Sheet 1: Exterior Elevations & General Layout',
+        desc: 'SVI Fire & Rescue Trucks • Kenworth T880 2-Door Chassis • 24\' Stainless Steel Body • 40\' 4½" OAL, 11\' 9½" OAH, 8\' 4" OAW • Tandem Rear Axles'
+    },
+    {
+        thumb: 'blueprint-2.jpg',
+        full: 'blueprint-p2.png',
+        title: 'Sheet 2: Exterior Compartmentation & Equipment Trays',
+        desc: '1,000# slide-out trays, 400# trays, 28" adjustable shelving, 140\' 2½" preconnect hose bed, dual 12V / 120-240V power management panels'
+    },
+    {
+        thumb: 'blueprint-3.jpg',
+        full: 'blueprint-p3.png',
+        title: 'Sheet 3: Walk-In Interior & Upper Body Structure',
+        desc: 'Interior walk-in command & crew area, 80¼" ceiling clearance, custom interior cabinetry and rear entry access'
+    }
+];
+
+let currentBlueprintIndex = 0;
+
+window.openBlueprintModal = function(index) {
+    currentBlueprintIndex = index;
+    window.updateBlueprintModal();
+    const modal = document.getElementById('blueprint-modal');
+    if (modal) {
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+window.closeBlueprintModal = function() {
+    const modal = document.getElementById('blueprint-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+};
+
+window.changeBlueprint = function(dir) {
+    currentBlueprintIndex = (currentBlueprintIndex + dir + blueprintData.length) % blueprintData.length;
+    window.updateBlueprintModal();
+};
+
+window.updateBlueprintModal = function() {
+    const data = blueprintData[currentBlueprintIndex];
+    if (!data) return;
+    const img = document.getElementById('blueprint-modal-img');
+    const title = document.getElementById('blueprint-modal-title');
+    const desc = document.getElementById('blueprint-modal-desc');
+    const fullLink = document.getElementById('blueprint-modal-full');
+    
+    if (img) {
+        img.src = data.full;
+        img.alt = data.title;
+    }
+    if (title) title.textContent = data.title;
+    if (desc) desc.textContent = data.desc;
+    if (fullLink) fullLink.href = data.full;
+};
+
+window.handleBlueprintBackdropClick = function(e) {
+    if (e.target.id === 'blueprint-modal' || e.target.classList.contains('blueprint-modal-body')) {
+        window.closeBlueprintModal();
+    }
+};
+
+document.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('blueprint-modal');
+    if (modal && modal.classList.contains('active')) {
+        if (e.key === 'Escape') window.closeBlueprintModal();
+        if (e.key === 'ArrowLeft') window.changeBlueprint(-1);
+        if (e.key === 'ArrowRight') window.changeBlueprint(1);
+    }
+});
+
