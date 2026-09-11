@@ -726,23 +726,22 @@ body.menu-open {
 }
 
 .hero-title span {
+    display: inline-block;
     color: transparent;
     -webkit-text-stroke: 2px var(--fire-red);
-    position: relative;
-}
-.hero-title span::before {
-    content: '46';
-    position: absolute;
-    left: 0;
-    top: 0;
-    color: var(--fire-red);
-    width: 0%;
-    overflow: hidden;
+    background: linear-gradient(to right, var(--fire-red) 50%, transparent 50%);
+    background-size: 200% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+    vertical-align: baseline;
     animation: fill-text 2s ease-out 1s forwards;
 }
 
 @keyframes fill-text {
-    to { width: 100%; }
+    to { background-position: 0% 0; }
 }
 
 .hero-desc {
