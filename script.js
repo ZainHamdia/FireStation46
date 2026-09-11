@@ -128,22 +128,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Intersection Observer for Fade-in Animations
     const observerOptions = {
         root: null,
-        rootMargin: '0px',
-        threshold: 0.15
+        rootMargin: '50px 0px',
+        threshold: 0.01
     };
 
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
+            if (entry.isIntersecting || entry.intersectionRatio > 0) {
                 entry.target.classList.add('visible');
-                // Optional: stop observing once animated to keep it visible
                 observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
 
     document.querySelectorAll('.fade-in').forEach(element => {
-        observer.observe(element);
+        const rect = element.getBoundingClientRect();
+        if (rect.top < (window.innerHeight || document.documentElement.clientHeight) + 50) {
+            element.classList.add('visible');
+        } else {
+            observer.observe(element);
+        }
     });
     
     // Real form submission via FormSubmit.co (handles membership & recruitment forms)
