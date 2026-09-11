@@ -727,10 +727,30 @@ body.menu-open {
 
 .hero-title span {
     display: inline-block;
-    color: var(--fire-red);
-    text-shadow: 0 0 25px rgba(230, 57, 70, 0.55), 0 0 50px rgba(230, 57, 70, 0.25);
+    position: relative;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--fire-red);
     white-space: nowrap;
     vertical-align: baseline;
+}
+
+.hero-title span::before {
+    content: '46';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--fire-red);
+    -webkit-text-stroke: 0px transparent;
+    white-space: nowrap;
+    clip-path: inset(0 100% 0 0);
+    animation: fillClip 1.5s cubic-bezier(0.25, 1, 0.5, 1) 0.5s forwards;
+    pointer-events: none;
+}
+
+@keyframes fillClip {
+    to { clip-path: inset(0 0 0 0); }
 }
 
 .hero-desc {
