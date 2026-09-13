@@ -1913,7 +1913,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </select>
                         </div>
                         <div class="admin-font-preview-box">
-                            <h4 id="modal-preview-heading" style="margin: 0 0 4px 0; color: var(--navy-blue);">Montgomery Twp. Volunteer Fire Co. #2</h4>
+                            <h4 id="modal-preview-heading" style="margin: 0 0 4px 0; color: var(--navy-blue);">Montgomery Township Volunteer Fire Company #2</h4>
                             <p id="modal-preview-body" style="margin: 0; font-size: 0.88rem; color: #475569;">Serving our community with dedication, pride, and excellence since 1946.</p>
                         </div>
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
