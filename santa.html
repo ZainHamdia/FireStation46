@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>Operation Santa 2025 | Montgomery Township Volunteer Fire Company #2</title>
     <meta name="description" content="Santa Claus is coming to town on a fire engine! Join Station 46 for Operation Santa 2025 gift deliveries in Skillman and District #2.">
     
@@ -11,21 +12,31 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=80">
+    <script>
+        (function() {
+            try {
+                var t = localStorage.getItem('station46_theme') || 
+                        (document.cookie.match(/(?:^|;)\s*station46_theme=([^;]+)/) || [])[1] || 
+                        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+            } catch(e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="styles.css?v=92">
     <style>
         .santa-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(226, 35, 26, 0.15);
-            border: 1px solid rgba(226, 35, 26, 0.4);
-            color: #ff6b6b;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: var(--fire-red);
             padding: 6px 16px;
             border-radius: 50px;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             margin-bottom: 1.2rem;
         }
         .dates-container {
@@ -35,45 +46,44 @@
             margin-top: 2rem;
         }
         .date-card {
-            background: rgba(26, 29, 36, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 2.5rem 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 2.2rem 2rem;
             position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(12px);
-            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--card-shadow);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
         }
         .date-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(226, 35, 26, 0.5);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            transform: none !important;
+            border-color: var(--border-subtle);
+            box-shadow: var(--card-shadow-hover);
         }
         .date-card-header {
             display: flex;
             align-items: center;
             gap: 15px;
             margin-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 2px solid var(--border-divider);
             padding-bottom: 1.2rem;
         }
         .date-icon-box {
-            width: 54px;
-            height: 54px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--fire-red), #b71c1c);
+            width: 52px;
+            height: 52px;
+            border-radius: 8px;
+            background: var(--fire-red);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             color: white;
             flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(226, 35, 26, 0.3);
+            box-shadow: 0 4px 10px rgba(198, 40, 40, 0.25);
         }
         .date-card-title {
             font-size: 1.35rem;
             font-weight: 700;
-            color: #ffffff;
+            color: var(--text-heading);
             margin: 0;
         }
         .date-card-subtitle {
@@ -82,14 +92,21 @@
             margin: 3px 0 0 0;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-weight: 600;
+            font-weight: 700;
+        }
+        .date-card ul.tech-specs li {
+            border-bottom: 1px solid var(--border-divider);
+            color: var(--text-primary);
+        }
+        .date-card ul.tech-specs strong {
+            color: var(--text-heading);
         }
         .guideline-item {
             display: flex;
             align-items: flex-start;
             gap: 16px;
             padding: 1.2rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid var(--border-divider);
         }
         .guideline-item:last-child {
             border-bottom: none;
@@ -99,9 +116,9 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: rgba(226, 35, 26, 0.15);
-            border: 1px solid rgba(226, 35, 26, 0.4);
-            color: var(--gold);
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: var(--fire-red);
             font-weight: 700;
             font-size: 1.1rem;
             display: flex;
@@ -110,9 +127,10 @@
             flex-shrink: 0;
         }
         .guideline-text h4 {
-            color: #fff;
+            color: var(--text-heading);
             margin: 0 0 4px 0;
             font-size: 1.1rem;
+            font-weight: 700;
         }
         .guideline-text p {
             color: var(--text-secondary);
@@ -121,9 +139,10 @@
             line-height: 1.5;
         }
         .tracker-banner {
-            background: linear-gradient(135deg, rgba(226, 35, 26, 0.15), rgba(212, 160, 23, 0.1));
-            border: 1px solid rgba(212, 160, 23, 0.3);
-            border-radius: 16px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-light);
+            border-left: 6px solid var(--gold);
+            border-radius: 12px;
             padding: 2rem;
             margin: 2.5rem 0;
             display: flex;
@@ -131,17 +150,19 @@
             justify-content: space-between;
             gap: 2rem;
             flex-wrap: wrap;
+            box-shadow: var(--card-shadow);
         }
         .district-box {
-            background: rgba(15, 17, 21, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
             padding: 1.8rem;
             height: 100%;
+            box-shadow: var(--card-shadow);
         }
         .district-box.active-dist {
-            border-color: rgba(46, 204, 113, 0.5);
-            box-shadow: 0 0 20px rgba(46, 204, 113, 0.1);
+            border: 2px solid var(--fire-red);
+            border-top: 5px solid var(--fire-red);
         }
         .printable-form-preview {
             background: #ffffff;
@@ -149,7 +170,8 @@
             border-radius: 12px;
             padding: 2.5rem;
             margin-top: 2rem;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--card-shadow);
             font-family: 'Inter', sans-serif;
         }
         .printable-form-preview h3 {
@@ -203,6 +225,32 @@
     </style>
 </head>
 <body>
+    <!-- Civic Top Utility Bar -->
+    <div class="top-bar">
+        <div class="top-bar-container">
+            <div class="top-bar-left">
+                <span class="top-bar-badge">🚨 EMERGENCY: DIAL 911</span>
+                <span class="top-bar-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    Station: (609) 466-3926
+                </span>
+                <span class="top-bar-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    529 Route 518, Skillman, NJ 08558
+                </span>
+            </div>
+            <div class="top-bar-right">
+                <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Facebook">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                </a>
+                <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Instagram">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                </a>
+                <a href="santa.html" class="top-bar-item" style="color: #ffc107; font-weight: 600;">🎅 Santa Tour</a>
+            </div>
+        </div>
+    </div>
+
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
@@ -219,7 +267,7 @@
                 <a href="about.html" class="nav-link">About</a>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
                 <a href="news.html" class="nav-link">News & Calls</a>
-                <a href="index.html#donate" class="nav-link">Donate</a>
+                <a href="index.html#donate" class="nav-link nav-btn-donate">Donate</a>
             </div>
             
             <button class="mobile-menu-btn" aria-label="Toggle menu">
@@ -232,7 +280,7 @@
 
     <!-- Hero Section -->
     <header class="hero hero-short">
-        <div class="hero-bg hero-santa" style="background-image: linear-gradient(rgba(10, 11, 13, 0.35), rgba(10, 11, 13, 0.6)), url('santatitle.jpg'); background-position: center;"></div>
+        <div class="hero-bg hero-santa" style="background-image: linear-gradient(rgba(10, 11, 13, 0.15), rgba(10, 11, 13, 0.40)), url('santatitle.jpg'); background-position: center;"></div>
         <div class="hero-content" style="margin-top: 80px; text-shadow: 0 3px 12px rgba(0,0,0,0.9);">
             <div class="santa-badge">🎅 Annual Holiday Tradition</div>
             <h1 class="hero-title" style="font-size: clamp(2.8rem, 6vw, 4.8rem); line-height: 1.15;">Operation Santa 2025</h1>
@@ -241,7 +289,7 @@
                 Imagine how excited your children will be to have Santa Claus arrive at their house on a fire engine this Christmas season!
             </p>
             <div class="hero-actions">
-                <a href="#dates" class="btn btn-primary glow">View 2025 Dates</a>
+                <a href="#dates" class="btn btn-primary">View 2025 Dates</a>
                 <a href="#guidelines" class="btn btn-secondary">Drop-Off Guidelines</a>
             </div>
         </div>
@@ -267,19 +315,19 @@
                     </div>
 
                     <div class="glass-panel fade-in delay-1" style="padding: 2.5rem; border-left: 4px solid var(--fire-red);">
-                        <h3 style="color: white; font-size: 1.4rem; margin-bottom: 1.2rem;">Quick Facts & Summary</h3>
+                        <h3 style="color: var(--navy-blue); font-size: 1.4rem; margin-bottom: 1.2rem;">Quick Facts & Summary</h3>
                         <ul class="tech-specs" style="font-size: 1.05rem; line-height: 1.8;">
                             <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem;">
-                                <strong style="color: white;">Drop-Off Dates:</strong> Dec 16, 17, & 18 (5 PM – 9 PM)
+                                <strong style="color: var(--navy-blue);">Drop-Off Dates:</strong> Dec 16, 17, & 18 (5 PM – 9 PM)
                             </li>
                             <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem;">
-                                <strong style="color: white;">Delivery Date:</strong> Sunday, December 21, 2025 (10 AM – 6 PM)
+                                <strong style="color: var(--navy-blue);">Delivery Date:</strong> Sunday, December 21, 2025 (10 AM – 6 PM)
                             </li>
                             <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem;">
-                                <strong style="color: white;">Donation:</strong> $25 minimum per household
+                                <strong style="color: var(--navy-blue);">Donation:</strong> $25 minimum per household
                             </li>
                             <li style="padding-bottom: 0.8rem; margin-bottom: 0.8rem; border-bottom: none;">
-                                <strong style="color: white;">Delivery Area:</strong> Skillman & District #2
+                                <strong style="color: var(--navy-blue);">Delivery Area:</strong> Skillman & District #2
                             </li>
                         </ul>
                     </div>
@@ -288,7 +336,7 @@
                 <!-- Santa Tracker App Highlight -->
                 <div class="tracker-banner fade-in">
                     <div style="flex: 1; min-width: 280px;">
-                        <h3 style="color: #fff; font-size: 1.5rem; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 10px;">
+                        <h3 style="color: var(--navy-blue); font-size: 1.5rem; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 10px;">
                             <span>📱</span> Live Santa Tracker App
                         </h3>
                         <p style="color: var(--text-secondary); margin: 0; font-size: 1.05rem; line-height: 1.6;">
@@ -425,7 +473,7 @@
                 <!-- Printable Sheet Controls -->
                 <div class="text-center" style="margin-bottom: 1.5rem;">
                     <p style="color: var(--text-secondary); margin-bottom: 0.8rem; font-size: 0.95rem;">Prefer to fill out a paper form by hand?</p>
-                    <button onclick="window.print()" class="btn btn-secondary glow" style="font-size: 1rem; padding: 10px 22px;">
+                    <button onclick="window.print()" class="btn btn-secondary" style="font-size: 1rem; padding: 10px 22px;">
                         🖨️ Print Paper Registration Form
                     </button>
                 </div>
@@ -525,14 +573,14 @@
                     <!-- District 2 (Our Station) -->
                     <div class="district-box active-dist fade-in">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-                            <span class="badge" style="background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; padding: 4px 12px; border-radius: 20px; font-weight: 600;">OUR COVERAGE AREA</span>
-                            <span style="font-weight: 700; color: white;">Station 46</span>
+                            <span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; padding: 4px 12px; border-radius: 20px; font-weight: 700;">OUR COVERAGE AREA</span>
+                            <span style="font-weight: 700; color: var(--navy-blue);">Station 46</span>
                         </div>
-                        <h3 style="color: white; font-size: 1.35rem; margin: 0 0 0.5rem 0;">District #2 (South Montgomery)</h3>
+                        <h3 style="color: var(--navy-blue); font-size: 1.35rem; margin: 0 0 0.5rem 0;">District #2 (South Montgomery)</h3>
                         <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
                             The Elves of Montgomery Township Volunteer Fire Company #2 and Santa will deliver to Montgomery residents residing in the <strong>Skillman or Princeton</strong> areas generally located on the <strong>south end</strong> of Montgomery Township.
                         </p>
-                        <div style="color: var(--gold); font-size: 0.95rem; font-weight: 600;">
+                        <div style="color: var(--fire-red); font-size: 0.95rem; font-weight: 700;">
                             ✓ Eligible for Station 46 Operation Santa
                         </div>
                     </div>
@@ -540,10 +588,10 @@
                     <!-- District 1 (MTVFC #1) -->
                     <div class="district-box fade-in delay-1">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-                            <span class="badge" style="background: rgba(255, 255, 255, 0.1); color: #ccc; border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 12px; border-radius: 20px; font-weight: 600;">NORTH DISTRICT</span>
-                            <span style="font-weight: 700; color: white;">Station 45</span>
+                            <span class="badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 4px 12px; border-radius: 20px; font-weight: 700;">NORTH DISTRICT</span>
+                            <span style="font-weight: 700; color: var(--navy-blue);">Station 45</span>
                         </div>
-                        <h3 style="color: white; font-size: 1.35rem; margin: 0 0 0.5rem 0;">District #1 (Belle Mead / North)</h3>
+                        <h3 style="color: var(--navy-blue); font-size: 1.35rem; margin: 0 0 0.5rem 0;">District #1 (Belle Mead / North)</h3>
                         <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
                             Montgomery residents residing in the <strong>Belle Mead</strong> section of Montgomery are generally located in <strong>District #1</strong> on the north side of town, served by MTVFC #1.
                         </p>
@@ -554,28 +602,28 @@
                 </div>
 
                 <!-- Map Section -->
-                <div class="glass-panel fade-in" style="padding: 2rem; border-radius: 16px;">
+                <div class="glass-panel fade-in" style="padding: 2rem; border-radius: 12px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                         <div>
-                            <h3 style="color: white; margin: 0 0 5px 0;">Montgomery Township Fire District Map</h3>
+                            <h3 style="color: var(--navy-blue); margin: 0 0 5px 0;">Montgomery Township Fire District Map</h3>
                             <p style="color: var(--text-secondary); margin: 0;">District #1 is located on the north side; District #2 is located on the south end of Montgomery Township, NJ.</p>
                         </div>
-                        <a href="mailto:santa@mtvfc2.com" class="btn btn-primary glow">
+                        <a href="mailto:santa@mtvfc2.com" class="btn btn-primary">
                             ✉️ Email santa@mtvfc2.com
                         </a>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
                         <!-- District Outline Map Image -->
-                        <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                            <img src="santapath.png" alt="Montgomery Township Fire District Boundary Map" style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
-                            <span style="font-size: 0.88rem; color: var(--gold); margin-top: 0.9rem; text-align: center; font-weight: 500;">
+                        <div style="background: var(--bg-surface-alt); border: 1px solid var(--border-light); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <img src="santapath.png" alt="Montgomery Township Fire District Boundary Map" style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            <span style="font-size: 0.88rem; color: var(--navy-blue); margin-top: 0.9rem; text-align: center; font-weight: 600;">
                                 Red dividing line separates District #1 (North) and District #2 (South)
                             </span>
                         </div>
 
                         <!-- Google Maps Interactive Location -->
-                        <div style="height: 440px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="height: 440px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-light);">
                             <iframe 
                                 title="Station 46 Location & District Map"
                                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d48680.12759914488!2d-74.75051939304918!3d40.40722304899557!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c3e2bb97f74811%3A0xc3cfcfaebdb28f11!2s529%20County%20Rd%20518%2C%20Skillman%2C%20NJ%2008558!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus" 
@@ -589,11 +637,11 @@
                         </div>
                     </div>
 
-                    <div style="margin-top: 1.5rem; background: rgba(0, 0, 0, 0.3); padding: 1.2rem; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <div style="margin-top: 1.5rem; background: var(--bg-surface-alt); border: 1px solid var(--border-light); padding: 1.2rem; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
                         <span style="color: var(--text-secondary); font-size: 0.95rem;">
                             Unsure if you are in District #2? Reach out to us directly:
                         </span>
-                        <a href="mailto:santa@mtvfc2.com" style="color: var(--gold); font-weight: 600; text-decoration: underline;">
+                        <a href="mailto:santa@mtvfc2.com" style="color: var(--fire-red); font-weight: 600; text-decoration: underline;">
                             santa@mtvfc2.com
                         </a>
                     </div>
@@ -633,6 +681,59 @@
         </div>
     </footer>
 
-    <script src="script.js?v=79"></script>
+        <!-- Light / Dark Mode Toggle Switch -->
+    <div id="theme-switch-wrapper" class="theme-switch-wrapper">
+        <button type="button" 
+                class="theme-switch-btn" 
+                id="theme-switch-btn" 
+                role="switch" 
+                aria-checked="false" 
+                aria-label="Toggle light and dark mode" 
+                title="Toggle theme">
+            <span class="theme-switch-track">
+                <span class="theme-track-icon sun-icon" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2"></path>
+                        <path d="M12 20v2"></path>
+                        <path d="m4.93 4.93 1.41 1.41"></path>
+                        <path d="m17.66 17.66 1.41 1.41"></path>
+                        <path d="M2 12h2"></path>
+                        <path d="M20 12h2"></path>
+                        <path d="m6.34 17.66-1.41 1.41"></path>
+                        <path d="m19.07 4.93-1.41 1.41"></path>
+                    </svg>
+                </span>
+                <span class="theme-track-icon moon-icon" aria-hidden="true">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                </span>
+                <span class="theme-switch-thumb">
+                    <span class="thumb-icon-sun" aria-hidden="true">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <path d="M12 2v2"></path>
+                            <path d="M12 20v2"></path>
+                            <path d="m4.93 4.93 1.41 1.41"></path>
+                            <path d="m17.66 17.66 1.41 1.41"></path>
+                            <path d="M2 12h2"></path>
+                            <path d="M20 12h2"></path>
+                            <path d="m6.34 17.66-1.41 1.41"></path>
+                            <path d="m19.07 4.93-1.41 1.41"></path>
+                        </svg>
+                    </span>
+                    <span class="thumb-icon-moon" aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.5">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                        </svg>
+                    </span>
+                </span>
+            </span>
+        </button>
+        <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
+    </div>
+
+    <script src="script.js?v=92"></script>
 </body>
 </html>

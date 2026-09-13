@@ -1,4 +1,173 @@
+// Theme (Light/Dark Mode) Detection, Storage & Multi-Tab Synchronization
+function getStoredTheme() {
+    try {
+        const saved = localStorage.getItem('station46_theme');
+        if (saved === 'dark' || saved === 'light') return saved;
+    } catch (e) {}
+    try {
+        const match = document.cookie.match(/(?:^|;)\s*station46_theme=([^;]+)/);
+        if (match && (match[1] === 'dark' || match[1] === 'light')) return match[1];
+    } catch (e) {}
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+
+function persistTheme(theme) {
+    try {
+        localStorage.setItem('station46_theme', theme);
+    } catch (e) {}
+    try {
+        document.cookie = 'station46_theme=' + theme + '; path=/; max-age=31536000; SameSite=Lax';
+    } catch (e) {}
+}
+
+(function initTheme() {
+    const initialTheme = getStoredTheme();
+    document.documentElement.setAttribute('data-theme', initialTheme);
+
+    // Sync across browser tabs in real-time
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'station46_theme' && (e.newValue === 'dark' || e.newValue === 'light')) {
+            document.documentElement.setAttribute('data-theme', e.newValue);
+            if (window.updateThemeSwitchUI) {
+                window.updateThemeSwitchUI(e.newValue);
+            }
+        }
+    });
+
+    // Listen to OS system preference if user hasn't chosen manually
+    if (window.matchMedia) {
+        const themeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleSystemChange = (e) => {
+            let hasManualChoice = false;
+            try { hasManualChoice = !!localStorage.getItem('station46_theme'); } catch (err) {}
+            if (!hasManualChoice) {
+                const newTheme = e.matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                if (window.updateThemeSwitchUI) {
+                    window.updateThemeSwitchUI(newTheme);
+                }
+            }
+        };
+        if (themeMediaQuery.addEventListener) {
+            themeMediaQuery.addEventListener('change', handleSystemChange);
+        } else if (themeMediaQuery.addListener) {
+            themeMediaQuery.addListener(handleSystemChange);
+        }
+    }
+})();
+
+// Light / Dark Mode Toggle Switch Controller (Bottom-Right Corner)
+function setupThemeSwitch() {
+    let wrapper = document.getElementById('theme-switch-wrapper');
+    if (!wrapper && document.body) {
+        wrapper = document.createElement('div');
+        wrapper.id = 'theme-switch-wrapper';
+        wrapper.className = 'theme-switch-wrapper';
+        wrapper.innerHTML = `
+            <button type="button" 
+                    class="theme-switch-btn" 
+                    id="theme-switch-btn" 
+                    role="switch" 
+                    aria-checked="false" 
+                    aria-label="Toggle light and dark mode" 
+                    title="Toggle theme">
+                <span class="theme-switch-track">
+                    <span class="theme-track-icon sun-icon" aria-hidden="true">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <path d="M12 2v2"></path>
+                            <path d="M12 20v2"></path>
+                            <path d="m4.93 4.93 1.41 1.41"></path>
+                            <path d="m17.66 17.66 1.41 1.41"></path>
+                            <path d="M2 12h2"></path>
+                            <path d="M20 12h2"></path>
+                            <path d="m6.34 17.66-1.41 1.41"></path>
+                            <path d="m19.07 4.93-1.41 1.41"></path>
+                        </svg>
+                    </span>
+                    <span class="theme-track-icon moon-icon" aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                        </svg>
+                    </span>
+                    <span class="theme-switch-thumb">
+                        <span class="thumb-icon-sun" aria-hidden="true">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="4"></circle>
+                                <path d="M12 2v2"></path>
+                                <path d="M12 20v2"></path>
+                                <path d="m4.93 4.93 1.41 1.41"></path>
+                                <path d="m17.66 17.66 1.41 1.41"></path>
+                                <path d="M2 12h2"></path>
+                                <path d="M20 12h2"></path>
+                                <path d="m6.34 17.66-1.41 1.41"></path>
+                                <path d="m19.07 4.93-1.41 1.41"></path>
+                            </svg>
+                        </span>
+                        <span class="thumb-icon-moon" aria-hidden="true">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.5">
+                                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                            </svg>
+                        </span>
+                    </span>
+                </span>
+            </button>
+            <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
+        `;
+        document.body.appendChild(wrapper);
+    }
+
+    const btn = document.getElementById('theme-switch-btn');
+    const tooltip = document.getElementById('theme-switch-tooltip');
+
+    function updateUI(theme) {
+        const isDark = theme === 'dark';
+        if (btn) {
+            btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+            btn.setAttribute('title', isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+            btn.classList.toggle('dark', isDark);
+            btn.classList.toggle('light', !isDark);
+        }
+        if (tooltip) {
+            tooltip.textContent = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        }
+    }
+
+    window.updateThemeSwitchUI = updateUI;
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') || getStoredTheme();
+    updateUI(currentTheme);
+
+    if (btn && !btn.dataset.switchBound) {
+        btn.dataset.switchBound = 'true';
+        btn.addEventListener('click', () => {
+            const activeTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+            const nextTheme = activeTheme === 'dark' ? 'light' : 'dark';
+
+            // Trigger smooth theme transition animation
+            document.documentElement.classList.add('theme-transition');
+            document.documentElement.setAttribute('data-theme', nextTheme);
+            persistTheme(nextTheme);
+            updateUI(nextTheme);
+
+            window.setTimeout(() => {
+                document.documentElement.classList.remove('theme-transition');
+            }, 350);
+        });
+    }
+}
+
+// Initialize switch as early as possible
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupThemeSwitch);
+} else {
+    setupThemeSwitch();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Secondary check to guarantee switch presence once DOM is fully populated
+    setupThemeSwitch();
+
     // Set current year in footer
     const yearEl = document.getElementById('year');
     if(yearEl) yearEl.textContent = new Date().getFullYear();
@@ -327,24 +496,21 @@ document.addEventListener('DOMContentLoaded', () => {
             toast.style.right = '1.5rem';
             toast.style.zIndex = '999999';
             toast.style.padding = '12px 24px';
-            toast.style.borderRadius = '8px';
+            toast.style.borderRadius = '4px';
             toast.style.fontSize = '0.95rem';
-            toast.style.fontWeight = '600';
-            toast.style.color = '#fff';
-            toast.style.backdropFilter = 'blur(10px)';
-            toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
-            toast.style.transition = 'all 0.3s ease';
+            toast.style.fontWeight = '700';
+            toast.style.color = '#ffffff';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            toast.style.transition = 'opacity 0.2s ease';
             toast.style.opacity = '0';
-            toast.style.transform = 'translateY(-10px)';
             toast.style.fontFamily = 'var(--font-heading, sans-serif)';
             document.body.appendChild(toast);
         }
 
         toast.innerHTML = message;
-        toast.style.background = isError ? 'rgba(211, 47, 47, 0.95)' : 'rgba(46, 125, 50, 0.95)';
-        toast.style.border = isError ? '1px solid rgba(255, 100, 100, 0.3)' : '1px solid rgba(100, 255, 100, 0.3)';
+        toast.style.background = isError ? '#b91c1c' : '#15803d';
+        toast.style.border = isError ? '1px solid #991b1b' : '1px solid #166534';
         toast.style.opacity = '1';
-        toast.style.transform = 'translateY(0)';
 
         setTimeout(() => {
             if (toast) {
@@ -436,7 +602,41 @@ document.addEventListener('DOMContentLoaded', () => {
              .replace(/'/g, "&#039;");
     }
 
-    // Comprehensive Editable Selectors (covering all pages: headings, body, subtitles, stats, roster, apparatus, santa, FAQs, etc.)
+    // Supported Font Family Library (Google Fonts & Web-Safe Fonts)
+    const SUPPORTED_FONTS = [
+        { name: 'Default (Inherit)', value: 'inherit', google: null },
+        { name: 'Inter (Modern Sans)', value: "'Inter', sans-serif", google: 'Inter:wght@400;500;600;700' },
+        { name: 'Roboto (Clean Sans)', value: "'Roboto', sans-serif", google: 'Roboto:wght@400;500;700' },
+        { name: 'Montserrat (Bold Geometric)', value: "'Montserrat', sans-serif", google: 'Montserrat:wght@400;600;700;800' },
+        { name: 'Open Sans (Humanist)', value: "'Open Sans', sans-serif", google: 'Open+Sans:wght@400;600;700' },
+        { name: 'Lato (Contemporary Sans)', value: "'Lato', sans-serif", google: 'Lato:wght@400;700' },
+        { name: 'Poppins (Geometric Friendly)', value: "'Poppins', sans-serif", google: 'Poppins:wght@400;500;600;700' },
+        { name: 'Oswald (Condensed Display)', value: "'Oswald', sans-serif", google: 'Oswald:wght@400;600;700' },
+        { name: 'Bebas Neue (Headline Bold)', value: "'Bebas Neue', sans-serif", google: 'Bebas+Neue' },
+        { name: 'Anton (Ultra Bold Poster)', value: "'Anton', sans-serif", google: 'Anton' },
+        { name: 'Playfair Display (Editorial Serif)', value: "'Playfair Display', serif", google: 'Playfair+Display:wght@400;600;700' },
+        { name: 'Merriweather (Classic Literary)', value: "'Merriweather', serif", google: 'Merriweather:wght@400;700' },
+        { name: 'Cinzel (Civic / Roman)', value: "'Cinzel', serif", google: 'Cinzel:wght@500;700' },
+        { name: 'Space Grotesk (Tech Modern)', value: "'Space Grotesk', sans-serif", google: 'Space+Grotesk:wght@500;700' },
+        { name: 'Arial (System Sans)', value: 'Arial, Helvetica, sans-serif', google: null },
+        { name: 'Georgia (System Serif)', value: 'Georgia, serif', google: null },
+        { name: 'Courier New (Monospace)', value: "'Courier New', Courier, monospace", google: null }
+    ];
+
+    function loadGoogleFont(fontValue) {
+        if (!fontValue || fontValue === 'inherit') return;
+        const font = SUPPORTED_FONTS.find(f => f.value === fontValue || fontValue.toLowerCase().includes(f.name.toLowerCase().split(' ')[0]));
+        if (!font || !font.google) return;
+        const fontId = 'font-link-' + font.google.split(':')[0].replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+        if (document.getElementById(fontId)) return;
+        const link = document.createElement('link');
+        link.id = fontId;
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css2?family=${font.google}&display=swap`;
+        document.head.appendChild(link);
+    }
+
+    // Comprehensive Editable Selectors (covering all pages: headings, body, subtitles, stats, roster, tags, apparatus, santa, FAQs, etc.)
     const editableSelectors = [
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'p',
@@ -455,7 +655,9 @@ document.addEventListener('DOMContentLoaded', () => {
         '.donation-desc',
         '.form-note',
         '.btn', '.btn-primary', '.btn-secondary',
-        '.footer-info p', '.footer-brand span'
+        '.footer-info p', '.footer-brand span',
+        '.tag-new', '.news-card-tag', '.recent-post-tag', '.membership-badge-tag',
+        '.role-badge-tag', '.upcoming-badge-tag', '.blueprint-tag', '.badge', '.top-bar-badge'
     ].join(', ');
 
     // Helper: Check if element is allowed to be edited
@@ -464,6 +666,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Never edit internal admin controls, forms, toasts, navigation bars, chart rows, or external widgets
         if (element.closest('#admin-floating-bar') ||
+            element.closest('#admin-font-toolbar') ||
+            element.closest('.admin-font-modal-overlay') ||
             element.closest('#admin-toast-notification') ||
             element.closest('#admin-dashboard-view') ||
             element.closest('#admin-login-view') ||
@@ -478,6 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('.btn-roster-add-member') ||
             element.closest('.roster-modal-overlay') ||
             element.closest('.roster-card-tag-btn') ||
+            element.closest('.roster-tag-delete-btn') ||
             element.closest('form') ||
             element.closest('.mobile-menu-btn')) {
             return false;
@@ -489,15 +694,17 @@ document.addEventListener('DOMContentLoaded', () => {
             element.id === 'admin-force-git-push-btn' ||
             element.id === 'edit-mode-toggle-btn' ||
             element.id === 'admin-save-git-btn' ||
+            element.id === 'admin-typography-btn' ||
+            element.id === 'admin-quick-logout-btn' ||
             element.classList.contains('admin-link') ||
             element.classList.contains('search-clear-btn') ||
             element.classList.contains('empty-state-actions') ||
-            element.classList.contains('tag-new') ||
             element.classList.contains('roster-card-remove-btn') ||
             element.classList.contains('roster-card-drag-handle') ||
             element.classList.contains('roster-drag-placeholder') ||
             element.classList.contains('btn-roster-add-member') ||
             element.classList.contains('roster-card-tag-btn') ||
+            element.classList.contains('roster-tag-delete-btn') ||
             element.tagName === 'INPUT' ||
             element.tagName === 'TEXTAREA' ||
             element.tagName === 'SELECT' ||
@@ -523,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Avoid nested contenteditable by skipping container elements that contain child editable elements
-        const nestedChildSelectors = 'h1, h2, h3, h4, h5, h6, p, .stat-number, .stat-label, .rank-badge, .roster-name, .card-img-placeholder, .santa-badge, .date-card-title, .date-card-subtitle';
+        const nestedChildSelectors = 'h1, h2, h3, h4, h5, h6, p, .stat-number, .stat-label, .rank-badge, .roster-name, .card-img-placeholder, .santa-badge, .date-card-title, .date-card-subtitle, .tag-new';
         if (element.querySelector(nestedChildSelectors)) {
             return false;
         }
@@ -646,17 +853,47 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('station46_text_edits', JSON.stringify(edits));
     }
 
+    function saveFontEdit(key, fontValue) {
+        const edits = getStoredTextEdits();
+        if (fontValue && fontValue !== 'inherit') {
+            edits[key] = fontValue;
+        } else {
+            delete edits[key];
+        }
+        localStorage.setItem('station46_text_edits', JSON.stringify(edits));
+    }
+
     function applyTextEdits(edits) {
         if (!edits || typeof edits !== 'object') return;
         const pageKey = getPageKey();
+
+        // Apply global typography settings if present
+        if (edits['global_heading_font']) {
+            document.documentElement.style.setProperty('--font-heading', edits['global_heading_font']);
+            loadGoogleFont(edits['global_heading_font']);
+        }
+        if (edits['global_body_font']) {
+            document.documentElement.style.setProperty('--font-body', edits['global_body_font']);
+            loadGoogleFont(edits['global_body_font']);
+        }
+
         const elements = getEditableElements();
         elements.forEach((element) => {
-            const storageKey = `edit_v2_${pageKey}_${getElementSelectorPath(element)}`;
+            const selectorPath = getElementSelectorPath(element);
+            const storageKey = `edit_v2_${pageKey}_${selectorPath}`;
+            const fontKey = `font_v2_${pageKey}_${selectorPath}`;
+
+            // Apply element-specific font
+            if (edits[fontKey]) {
+                element.style.fontFamily = edits[fontKey];
+                loadGoogleFont(edits[fontKey]);
+            }
+
             if (edits[storageKey] !== undefined && edits[storageKey] !== null) {
                 if (document.activeElement !== element) {
                     const val = edits[storageKey];
-                    // Safety: Never inject full paragraphs or block tags into inline elements
-                    if ((element.classList.contains('stat-number') || element.classList.contains('stat-label') || element.classList.contains('filter-count') || element.classList.contains('roster-avatar')) && (val.includes('<p') || val.length > 30)) {
+                    // Safety: Never inject full paragraphs or block tags into inline elements or tags
+                    if ((element.classList.contains('stat-number') || element.classList.contains('stat-label') || element.classList.contains('filter-count') || element.classList.contains('roster-avatar') || element.classList.contains('tag-new')) && (val.includes('<p') || val.length > 50)) {
                         return;
                     }
                     element.innerHTML = val;
@@ -728,14 +965,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('roster-container');
         if (!container) return null;
         const clone = container.cloneNode(true);
-        // Remove admin-only controls, drag handles, modal, and placeholders
-        clone.querySelectorAll('.roster-card-remove-btn, .btn-roster-add-member, .roster-modal-overlay, .roster-card-drag-handle, .roster-drag-placeholder, .roster-card-tag-btn').forEach(el => el.remove());
+        // Remove admin-only controls, drag handles, modal, placeholders, and tag delete buttons
+        clone.querySelectorAll('.roster-card-remove-btn, .btn-roster-add-member, .roster-modal-overlay, .roster-card-drag-handle, .roster-drag-placeholder, .roster-card-tag-btn, .roster-tag-delete-btn').forEach(el => el.remove());
         // Clean runtime markers on tag-new elements
         clone.querySelectorAll('.tag-new').forEach(tag => {
+            const delBtn = tag.querySelector('.roster-tag-delete-btn');
+            if (delBtn) delBtn.remove();
             tag.removeAttribute('data-tag-control-init');
             tag.removeAttribute('title');
             tag.removeAttribute('role');
             tag.removeAttribute('tabindex');
+            tag.removeAttribute('contenteditable');
+            const cleanText = tag.textContent.trim().toUpperCase();
+            tag.textContent = cleanText || 'NEW';
         });
         // Remove contenteditable and draggable attributes and runtime markers
         clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
@@ -766,27 +1008,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (existingTag) {
             if (existingTagBtn) existingTagBtn.remove();
-            existingTag.title = 'Click to remove "NEW" tag';
-            existingTag.setAttribute('role', 'button');
-            existingTag.setAttribute('tabindex', '0');
+            existingTag.setAttribute('contenteditable', editModeActive ? 'true' : 'false');
+            existingTag.title = 'Click to edit tag text';
+
+            // Ensure delete button exists inside existingTag
+            let delBtn = existingTag.querySelector('.roster-tag-delete-btn');
+            if (!delBtn) {
+                delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'roster-tag-delete-btn';
+                delBtn.title = `Remove tag from ${memberName}`;
+                delBtn.innerHTML = '✕';
+                delBtn.setAttribute('contenteditable', 'false');
+                existingTag.appendChild(delBtn);
+            }
 
             if (existingTag.dataset.tagControlInit !== 'true') {
                 existingTag.dataset.tagControlInit = 'true';
 
-                const removeTagHandler = (e) => {
+                // Save tag edits on input & blur
+                existingTag.addEventListener('input', () => {
+                    saveRosterState();
+                });
+
+                existingTag.addEventListener('blur', () => {
+                    const clone = existingTag.cloneNode(true);
+                    const btn = clone.querySelector('.roster-tag-delete-btn');
+                    if (btn) btn.remove();
+                    const text = clone.textContent.trim().toUpperCase();
+                    if (!text) {
+                        existingTag.remove();
+                        setupCardTagControl(card);
+                        saveRosterState();
+                        showAdminToast(`✅ Removed tag from ${memberName}.`);
+                    } else {
+                        const currentDel = existingTag.querySelector('.roster-tag-delete-btn');
+                        existingTag.textContent = text;
+                        if (currentDel) existingTag.appendChild(currentDel);
+                        saveRosterState();
+                    }
+                });
+
+                existingTag.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        existingTag.blur();
+                    }
+                });
+
+                delBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     e.preventDefault();
                     existingTag.remove();
                     setupCardTagControl(card);
                     saveRosterState();
-                    showAdminToast(`✅ Removed "NEW" tag from ${memberName}. Click '💾 Save & Push to Git' to publish.`);
-                };
-
-                existingTag.addEventListener('click', removeTagHandler);
-                existingTag.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        removeTagHandler(e);
-                    }
+                    showAdminToast(`✅ Removed tag from ${memberName}. Click '💾 Save & Push to Git' to publish.`);
                 });
             }
         } else {
@@ -794,21 +1070,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tagBtn = document.createElement('button');
                 tagBtn.type = 'button';
                 tagBtn.className = 'roster-card-tag-btn';
-                tagBtn.title = `Add "NEW" tag to ${memberName}`;
-                tagBtn.setAttribute('aria-label', `Add NEW tag to ${memberName}`);
-                tagBtn.innerHTML = '+ NEW';
+                tagBtn.title = `Add custom tag to ${memberName}`;
+                tagBtn.setAttribute('aria-label', `Add custom tag to ${memberName}`);
+                tagBtn.innerHTML = '+ Tag';
 
                 tagBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     e.preventDefault();
+                    const tagText = (prompt(`Enter tag text for ${memberName} (e.g. NEW, PROBATIONARY, DRIVER):`, 'NEW') || '').trim();
+                    if (!tagText) return;
+
                     const newTag = document.createElement('span');
                     newTag.className = 'tag-new';
-                    newTag.textContent = 'NEW';
+                    newTag.textContent = tagText.toUpperCase();
+
+                    const delBtn = document.createElement('button');
+                    delBtn.type = 'button';
+                    delBtn.className = 'roster-tag-delete-btn';
+                    delBtn.title = `Remove tag from ${memberName}`;
+                    delBtn.innerHTML = '✕';
+                    delBtn.setAttribute('contenteditable', 'false');
+                    newTag.appendChild(delBtn);
+
                     card.insertBefore(newTag, card.firstChild);
 
                     setupCardTagControl(card);
                     saveRosterState();
-                    showAdminToast(`✅ Added "NEW" tag to ${memberName}. Click '💾 Save & Push to Git' to publish.`);
+                    showAdminToast(`✅ Added "${tagText.toUpperCase()}" tag to ${memberName}. Click '💾 Save & Push to Git' to publish.`);
                 });
 
                 card.appendChild(tagBtn);
@@ -892,14 +1180,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="text" id="roster-member-custom-rank" placeholder="Enter custom rank">
                     </div>
                     <div class="form-group" style="margin-bottom: 1.25rem;">
-                        <label for="roster-member-tag-new" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ffffff; font-size: 0.95rem; user-select: none;">
-                            <input type="checkbox" id="roster-member-tag-new" style="width: 17px; height: 17px; cursor: pointer; accent-color: #10b981;">
-                            <span>Tag as <strong>"NEW"</strong> member</span>
-                        </label>
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <label for="roster-member-tag-new" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--navy-blue); font-size: 0.95rem; user-select: none;">
+                                <input type="checkbox" id="roster-member-tag-new" style="width: 17px; height: 17px; cursor: pointer; accent-color: #10b981;">
+                                <span>Add <strong>Tag / Badge</strong></span>
+                            </label>
+                            <div id="roster-member-tag-input-container" style="display: none; align-items: center; gap: 6px; flex: 1; min-width: 140px;">
+                                <input type="text" id="roster-member-tag-text" placeholder="Tag text (e.g. NEW, PROBATIONARY)" value="NEW" style="padding: 6px 10px; font-size: 0.85rem; border-radius: 4px; border: 1px solid #cbd5e1; width: 100%;">
+                            </div>
+                        </div>
                     </div>
                     <div class="roster-modal-actions">
                         <button type="button" class="btn btn-roster-cancel" id="roster-modal-cancel-btn">Cancel</button>
-                        <button type="submit" class="btn btn-primary glow" id="roster-modal-submit-btn">Add Member</button>
+                        <button type="submit" class="btn btn-primary" id="roster-modal-submit-btn">Add Member</button>
                     </div>
                 </form>
             </div>
@@ -913,7 +1206,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const customRankGroup = overlay.querySelector('#roster-custom-rank-group');
         const customRankInput = overlay.querySelector('#roster-member-custom-rank');
         const tagNewCheckbox = overlay.querySelector('#roster-member-tag-new');
+        const tagInputContainer = overlay.querySelector('#roster-member-tag-input-container');
         const cancelBtn = overlay.querySelector('#roster-modal-cancel-btn');
+
+        if (tagNewCheckbox && tagInputContainer) {
+            tagNewCheckbox.addEventListener('change', () => {
+                tagInputContainer.style.display = tagNewCheckbox.checked ? 'flex' : 'none';
+            });
+        }
 
         let autoInitials = true;
 
@@ -964,12 +1264,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const initials = initialsInput.value.trim().toUpperCase() || computeInitials(name);
                 const role = (rankSelect.value === '__custom__' && customRankInput) ? customRankInput.value.trim() : rankSelect.value;
                 const isNew = tagNewCheckbox ? tagNewCheckbox.checked : false;
+                const tagTextInput = overlay.querySelector('#roster-member-tag-text');
+                const tagText = isNew ? ((tagTextInput && tagTextInput.value.trim()) ? tagTextInput.value.trim().toUpperCase() : 'NEW') : '';
                 if (!name || !role) return;
 
-                addMemberToSection(category, name, role, initials, isNew);
+                addMemberToSection(category, name, role, initials, isNew, tagText);
                 overlay.classList.remove('active');
                 form.reset();
                 if (tagNewCheckbox) tagNewCheckbox.checked = false;
+                if (tagInputContainer) tagInputContainer.style.display = 'none';
                 autoInitials = true;
             });
         }
@@ -987,9 +1290,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const nameInput = overlay.querySelector('#roster-member-name');
         const initialsInput = overlay.querySelector('#roster-member-initials');
         const tagNewCheckbox = overlay.querySelector('#roster-member-tag-new');
+        const tagInputContainer = overlay.querySelector('#roster-member-tag-input-container');
 
         if (sectionLabel) sectionLabel.textContent = `Section: ${config.title}`;
         if (catInput) catInput.value = category;
+        if (tagNewCheckbox) tagNewCheckbox.checked = false;
+        if (tagInputContainer) tagInputContainer.style.display = 'none';
 
         if (rankSelect) {
             rankSelect.innerHTML = '';
@@ -999,23 +1305,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 opt.textContent = r;
                 rankSelect.appendChild(opt);
             });
+
             const customOpt = document.createElement('option');
             customOpt.value = '__custom__';
-            customOpt.textContent = 'Other / Custom Rank...';
+            customOpt.textContent = 'Custom Rank / Role...';
             rankSelect.appendChild(customOpt);
         }
 
         if (customRankGroup) customRankGroup.style.display = 'none';
         if (nameInput) nameInput.value = '';
         if (initialsInput) initialsInput.value = '';
-        if (tagNewCheckbox) tagNewCheckbox.checked = false;
+
         overlay.classList.add('active');
-        if (nameInput && typeof nameInput.focus === 'function') {
-            setTimeout(() => nameInput.focus(), 50);
-        }
+        if (nameInput) nameInput.focus();
     }
 
-    function addMemberToSection(category, name, role, initials, isNew = false) {
+    function addMemberToSection(category, name, role, initials, isNew, tagText = 'NEW') {
         const section = document.querySelector(`.roster-category-section[data-section-category="${category}"]`);
         if (!section) return;
 
@@ -1053,7 +1358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.setAttribute('data-name', name);
         card.setAttribute('data-role', role);
 
-        const newTagHtml = isNew ? '<span class="tag-new">NEW</span>' : '';
+        const newTagHtml = (isNew && tagText) ? `<span class="tag-new">${escapeHtml(tagText)}</span>` : (isNew ? '<span class="tag-new">NEW</span>' : '');
 
         card.innerHTML = `
             ${newTagHtml}
@@ -1397,6 +1702,337 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ==========================================
+    // Typography & Font Customization System
+    // ==========================================
+    let currentFontTarget = null;
+    let fontToolbarEl = null;
+
+    function getOrCreateFontToolbar() {
+        if (fontToolbarEl) return fontToolbarEl;
+
+        fontToolbarEl = document.createElement('div');
+        fontToolbarEl.id = 'admin-font-toolbar';
+
+        let optionsHtml = '';
+        SUPPORTED_FONTS.forEach(font => {
+            optionsHtml += `<option value="${escapeHtml(font.value)}">${escapeHtml(font.name)}</option>`;
+        });
+
+        fontToolbarEl.innerHTML = `
+            <span class="font-toolbar-label" id="font-toolbar-target-type">🔤 Font:</span>
+            <select id="font-toolbar-select" aria-label="Choose font family">
+                ${optionsHtml}
+            </select>
+            <button type="button" class="font-toolbar-btn" id="font-toolbar-reset-btn" title="Reset font to default">Reset</button>
+            <button type="button" class="font-toolbar-close" id="font-toolbar-close-btn" title="Close toolbar">&times;</button>
+        `;
+
+        document.body.appendChild(fontToolbarEl);
+
+        const select = fontToolbarEl.querySelector('#font-toolbar-select');
+        const resetBtn = fontToolbarEl.querySelector('#font-toolbar-reset-btn');
+        const closeBtn = fontToolbarEl.querySelector('#font-toolbar-close-btn');
+
+        select.addEventListener('change', () => {
+            if (!currentFontTarget) return;
+            const val = select.value;
+            const pageKey = getPageKey();
+            const selectorPath = getElementSelectorPath(currentFontTarget);
+            const fontKey = `font_v2_${pageKey}_${selectorPath}`;
+
+            if (val === 'inherit') {
+                currentFontTarget.style.fontFamily = '';
+                saveFontEdit(fontKey, null);
+                showAdminToast(`Reset font for this text.`);
+            } else {
+                currentFontTarget.style.fontFamily = val;
+                loadGoogleFont(val);
+                saveFontEdit(fontKey, val);
+                const fontObj = SUPPORTED_FONTS.find(f => f.value === val);
+                showAdminToast(`✅ Font set to ${fontObj ? fontObj.name.split(' (')[0] : 'custom'}`);
+            }
+            if (currentFontTarget.closest('#roster-container')) {
+                saveRosterState();
+            }
+            updateFontToolbarPosition(currentFontTarget);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (!currentFontTarget) return;
+            const pageKey = getPageKey();
+            const selectorPath = getElementSelectorPath(currentFontTarget);
+            const fontKey = `font_v2_${pageKey}_${selectorPath}`;
+            currentFontTarget.style.fontFamily = '';
+            select.value = 'inherit';
+            saveFontEdit(fontKey, null);
+            if (currentFontTarget.closest('#roster-container')) {
+                saveRosterState();
+            }
+            showAdminToast(`Reset font for this text.`);
+            updateFontToolbarPosition(currentFontTarget);
+        });
+
+        closeBtn.addEventListener('click', () => {
+            hideFontToolbar();
+        });
+
+        // Reposition on scroll or resize
+        window.addEventListener('scroll', () => {
+            if (currentFontTarget && fontToolbarEl.classList.contains('active')) {
+                updateFontToolbarPosition(currentFontTarget);
+            }
+        }, { passive: true });
+
+        window.addEventListener('resize', () => {
+            if (currentFontTarget && fontToolbarEl.classList.contains('active')) {
+                updateFontToolbarPosition(currentFontTarget);
+            }
+        }, { passive: true });
+
+        // Close on clicking outside
+        document.addEventListener('pointerdown', (e) => {
+            if (fontToolbarEl && fontToolbarEl.classList.contains('active')) {
+                if (!fontToolbarEl.contains(e.target) && (!currentFontTarget || !currentFontTarget.contains(e.target)) && !e.target.closest('.admin-font-modal-overlay')) {
+                    hideFontToolbar();
+                }
+            }
+        });
+
+        return fontToolbarEl;
+    }
+
+    function updateFontToolbarPosition(targetEl) {
+        if (!targetEl || !fontToolbarEl) return;
+        const rect = targetEl.getBoundingClientRect();
+
+        // Check if element is in viewport
+        if (rect.bottom < 0 || rect.top > window.innerHeight) {
+            fontToolbarEl.classList.remove('active');
+            return;
+        }
+
+        fontToolbarEl.classList.add('active');
+
+        // Position above target, or below if target is near top of viewport
+        let top = rect.top - 46;
+        if (top < 10) {
+            top = rect.bottom + 8;
+        }
+        let left = rect.left;
+        const toolbarWidth = fontToolbarEl.offsetWidth || 300;
+        if (left + toolbarWidth > window.innerWidth - 12) {
+            left = window.innerWidth - toolbarWidth - 12;
+        }
+        if (left < 10) left = 10;
+
+        fontToolbarEl.style.top = `${Math.round(top)}px`;
+        fontToolbarEl.style.left = `${Math.round(left)}px`;
+    }
+
+    function showFontToolbar(element) {
+        if (!isAdminLoggedIn || !editModeActive || !element) return;
+        currentFontTarget = element;
+        const toolbar = getOrCreateFontToolbar();
+
+        // Determine current font
+        const pageKey = getPageKey();
+        const selectorPath = getElementSelectorPath(element);
+        const fontKey = `font_v2_${pageKey}_${selectorPath}`;
+        const storedEdits = getStoredTextEdits();
+        const storedFont = storedEdits[fontKey] || element.style.fontFamily;
+
+        const select = toolbar.querySelector('#font-toolbar-select');
+        let matchedValue = 'inherit';
+        if (storedFont) {
+            const found = SUPPORTED_FONTS.find(f => f.value.toLowerCase() === storedFont.toLowerCase() || (f.value !== 'inherit' && storedFont.toLowerCase().includes(f.name.toLowerCase().split(' ')[0])));
+            if (found) {
+                matchedValue = found.value;
+            } else {
+                matchedValue = storedFont;
+            }
+        }
+        select.value = matchedValue;
+
+        // Update label to reflect element type
+        const typeLabel = toolbar.querySelector('#font-toolbar-target-type');
+        let tagDesc = element.tagName.toUpperCase();
+        if (element.classList.contains('tag-new') || element.classList.contains('news-card-tag') || element.classList.contains('recent-post-tag')) {
+            tagDesc = 'TAG';
+        } else if (element.classList.contains('rank-badge')) {
+            tagDesc = 'BADGE';
+        } else if (element.classList.contains('btn') || element.classList.contains('btn-primary')) {
+            tagDesc = 'BUTTON';
+        }
+        if (typeLabel) {
+            typeLabel.textContent = `🔤 ${tagDesc}:`;
+        }
+
+        updateFontToolbarPosition(element);
+    }
+
+    function hideFontToolbar() {
+        if (fontToolbarEl) {
+            fontToolbarEl.classList.remove('active');
+        }
+        currentFontTarget = null;
+    }
+
+    function openTypographyModal() {
+        let overlay = document.getElementById('admin-font-modal-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'admin-font-modal-overlay';
+            overlay.className = 'admin-font-modal-overlay';
+
+            let fontOpts = '';
+            SUPPORTED_FONTS.forEach(f => {
+                fontOpts += `<option value="${escapeHtml(f.value)}">${escapeHtml(f.name)}</option>`;
+            });
+
+            overlay.innerHTML = `
+                <div class="admin-font-modal">
+                    <div class="admin-font-modal-header">
+                        <h3>🔤 Site & Page Typography</h3>
+                        <button type="button" class="admin-font-modal-close" id="admin-font-modal-close-btn">&times;</button>
+                    </div>
+                    <div class="admin-font-modal-body">
+                        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                            Customize fonts across headings and body content, or apply a font to every piece of text on this page.
+                        </p>
+                        <div class="admin-font-option-group">
+                            <label for="modal-font-heading">Headings Font (h1, h2, h3, titles):</label>
+                            <select id="modal-font-heading">
+                                ${fontOpts}
+                            </select>
+                        </div>
+                        <div class="admin-font-option-group">
+                            <label for="modal-font-body">Body & Content Font (paragraphs, lists):</label>
+                            <select id="modal-font-body">
+                                ${fontOpts}
+                            </select>
+                        </div>
+                        <div class="admin-font-preview-box">
+                            <h4 id="modal-preview-heading" style="margin: 0 0 4px 0; color: var(--navy-blue);">Montgomery Twp. Volunteer Fire Co. #2</h4>
+                            <p id="modal-preview-body" style="margin: 0; font-size: 0.88rem; color: #475569;">Serving our community with dedication, pride, and excellence since 1946.</p>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" class="btn" id="modal-apply-page-btn" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1; padding: 7px 12px; font-size: 0.85rem; font-weight: 600; border-radius: 6px; cursor: pointer;">
+                                Apply Body Font to Every Element on This Page
+                            </button>
+                        </div>
+                    </div>
+                    <div class="admin-font-modal-actions">
+                        <button type="button" class="btn" id="modal-font-reset-all-btn" style="background: #f8fafc; color: #dc2626; border: 1px solid #fca5a5; padding: 9px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Reset to Defaults</button>
+                        <button type="button" class="btn btn-primary" id="modal-font-save-btn" style="padding: 9px 20px; border-radius: 6px; font-weight: 700; cursor: pointer;">Save Typography</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            const closeBtn = overlay.querySelector('#admin-font-modal-close-btn');
+            const headingSelect = overlay.querySelector('#modal-font-heading');
+            const bodySelect = overlay.querySelector('#modal-font-body');
+            const previewHeading = overlay.querySelector('#modal-preview-heading');
+            const previewBody = overlay.querySelector('#modal-preview-body');
+            const saveBtn = overlay.querySelector('#modal-font-save-btn');
+            const applyPageBtn = overlay.querySelector('#modal-apply-page-btn');
+            const resetBtn = overlay.querySelector('#modal-font-reset-all-btn');
+
+            function updatePreviews() {
+                const hVal = headingSelect.value !== 'inherit' ? headingSelect.value : "'Inter', sans-serif";
+                const bVal = bodySelect.value !== 'inherit' ? bodySelect.value : "'Inter', sans-serif";
+                previewHeading.style.fontFamily = hVal;
+                previewBody.style.fontFamily = bVal;
+                loadGoogleFont(headingSelect.value);
+                loadGoogleFont(bodySelect.value);
+            }
+
+            headingSelect.addEventListener('change', updatePreviews);
+            bodySelect.addEventListener('change', updatePreviews);
+
+            closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+
+            saveBtn.addEventListener('click', () => {
+                const hVal = headingSelect.value;
+                const bVal = bodySelect.value;
+                const edits = getStoredTextEdits();
+
+                if (hVal && hVal !== 'inherit') {
+                    edits['global_heading_font'] = hVal;
+                    document.documentElement.style.setProperty('--font-heading', hVal);
+                    loadGoogleFont(hVal);
+                } else {
+                    delete edits['global_heading_font'];
+                    document.documentElement.style.removeProperty('--font-heading');
+                }
+
+                if (bVal && bVal !== 'inherit') {
+                    edits['global_body_font'] = bVal;
+                    document.documentElement.style.setProperty('--font-body', bVal);
+                    loadGoogleFont(bVal);
+                } else {
+                    delete edits['global_body_font'];
+                    document.documentElement.style.removeProperty('--font-body');
+                }
+
+                localStorage.setItem('station46_text_edits', JSON.stringify(edits));
+                overlay.classList.remove('active');
+                showAdminToast(`✅ Typography settings saved! Click '💾 Save & Push to Git' to publish.`);
+            });
+
+            applyPageBtn.addEventListener('click', () => {
+                const fontVal = bodySelect.value;
+                if (!fontVal || fontVal === 'inherit') {
+                    alert('Please select a Body Font from the dropdown first.');
+                    return;
+                }
+                const pageKey = getPageKey();
+                const elements = getEditableElements();
+                elements.forEach(el => {
+                    el.style.fontFamily = fontVal;
+                    const path = getElementSelectorPath(el);
+                    saveFontEdit(`font_v2_${pageKey}_${path}`, fontVal);
+                });
+                loadGoogleFont(fontVal);
+                if (document.getElementById('roster-container')) {
+                    saveRosterState();
+                }
+                showAdminToast(`✅ Applied font to all ${elements.length} elements on this page!`);
+            });
+
+            resetBtn.addEventListener('click', () => {
+                const edits = getStoredTextEdits();
+                delete edits['global_heading_font'];
+                delete edits['global_body_font'];
+                document.documentElement.style.removeProperty('--font-heading');
+                document.documentElement.style.removeProperty('--font-body');
+                localStorage.setItem('station46_text_edits', JSON.stringify(edits));
+                headingSelect.value = 'inherit';
+                bodySelect.value = 'inherit';
+                updatePreviews();
+                showAdminToast(`Reset site-wide fonts to default.`);
+            });
+        }
+
+        // Populate current values
+        const edits = getStoredTextEdits();
+        const headingSelect = overlay.querySelector('#modal-font-heading');
+        const bodySelect = overlay.querySelector('#modal-font-body');
+        if (headingSelect) headingSelect.value = edits['global_heading_font'] || 'inherit';
+        if (bodySelect) bodySelect.value = edits['global_body_font'] || 'inherit';
+
+        const previewHeading = overlay.querySelector('#modal-preview-heading');
+        const previewBody = overlay.querySelector('#modal-preview-body');
+        if (previewHeading && edits['global_heading_font']) previewHeading.style.fontFamily = edits['global_heading_font'];
+        if (previewBody && edits['global_body_font']) previewBody.style.fontFamily = edits['global_body_font'];
+
+        overlay.classList.add('active');
+    }
+
     // Initialize in-place editing on all editable elements when logged in
     function initLiveEditor() {
         const pageKey = getPageKey();
@@ -1413,12 +2049,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 element.dataset.editorInit = 'true';
 
+                // Show font toolbar on focus or click
+                element.addEventListener('focus', () => {
+                    if (editModeActive) {
+                        showFontToolbar(element);
+                    }
+                });
+
+                element.addEventListener('click', (e) => {
+                    if (editModeActive) {
+                        showFontToolbar(element);
+                    }
+                });
+
                 // Save on input (real-time typing)
                 element.addEventListener('input', () => {
                     const currentText = element.innerHTML.trim();
                     saveTextEdit(storageKey, currentText);
                     if (element.closest('#roster-container')) {
                         saveRosterState();
+                    }
+                    if (currentFontTarget === element) {
+                        updateFontToolbarPosition(element);
                     }
                 });
 
@@ -1459,7 +2111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 // Handle Enter key for single-line titles, initials, and badges to blur instead of inserting line breaks
-                if (element.tagName.match(/^H[1-6]$/) || element.classList.contains('roster-avatar') || element.classList.contains('rank-badge')) {
+                if (element.tagName.match(/^H[1-6]$/) || element.classList.contains('roster-avatar') || element.classList.contains('rank-badge') || element.classList.contains('tag-new')) {
                     element.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
@@ -1478,10 +2130,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function syncHtmlPagesToGitHub(edits) {
         if (!edits || typeof edits !== 'object') return true;
 
-        // 1. Collect all distinct HTML pages that have edits
+        // 1. Collect all distinct HTML pages that have text or font edits
         const editedPages = new Set();
         Object.keys(edits).forEach(key => {
-            const match = key.match(/^edit_v2_([a-zA-Z0-9_\-\.]+\.html)_/);
+            const match = key.match(/^(?:edit_v2|font_v2)_([a-zA-Z0-9_\-\.]+\.html)_/);
             if (match && match[1]) {
                 editedPages.add(match[1]);
             }
@@ -1498,6 +2150,11 @@ document.addEventListener('DOMContentLoaded', () => {
             editedPages.add('about.html');
         }
 
+        // If global fonts were customized, sync typography across all site pages
+        if (edits['global_heading_font'] || edits['global_body_font']) {
+            ['index.html', 'about.html', 'apparatus.html', 'news.html', 'membership.html', 'juniors.html', 'santa.html'].forEach(p => editedPages.add(p));
+        }
+
         let allHtmlSuccess = true;
 
         for (const pageName of editedPages) {
@@ -1511,6 +2168,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(rawHtml, 'text/html');
                 let pageHasChanges = false;
+
+                // Synchronize global typography if set
+                if (edits['global_heading_font'] || edits['global_body_font']) {
+                    let styleTag = doc.getElementById('station46-custom-typography');
+                    if (!styleTag) {
+                        styleTag = doc.createElement('style');
+                        styleTag.id = 'station46-custom-typography';
+                        doc.head.appendChild(styleTag);
+                    }
+                    const hRule = edits['global_heading_font'] ? `--font-heading: ${edits['global_heading_font']};` : '';
+                    const bRule = edits['global_body_font'] ? `--font-body: ${edits['global_body_font']};` : '';
+                    const newCss = `:root { ${hRule} ${bRule} }`;
+                    if (styleTag.textContent.trim() !== newCss.trim()) {
+                        styleTag.textContent = newCss;
+                        pageHasChanges = true;
+                    }
+                }
 
                 // Synchronize roster container if present on this page
                 const docRoster = doc.getElementById('roster-container');
@@ -1528,11 +2202,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 const elements = getEditableElements(doc);
 
                 elements.forEach((element) => {
-                    const storageKey = `edit_v2_${pageName}_${getElementSelectorPath(element)}`;
+                    const selectorPath = getElementSelectorPath(element);
+                    const storageKey = `edit_v2_${pageName}_${selectorPath}`;
+                    const fontKey = `font_v2_${pageName}_${selectorPath}`;
+
+                    // Update element-specific font
+                    if (edits[fontKey]) {
+                        if (element.style.fontFamily !== edits[fontKey]) {
+                            element.style.fontFamily = edits[fontKey];
+                            pageHasChanges = true;
+                        }
+                    }
+
                     if (edits[storageKey] !== undefined && edits[storageKey] !== null) {
                         const newContent = edits[storageKey].trim();
                         if (element.innerHTML.trim() !== newContent) {
                             element.innerHTML = newContent;
+                            pageHasChanges = true;
+                        }
+                    }
+                });
+
+                // Ensure Google Font links are injected into doc.head if needed
+                const fontsToLoad = [edits['global_heading_font'], edits['global_body_font']];
+                elements.forEach(el => {
+                    const fk = `font_v2_${pageName}_${getElementSelectorPath(el)}`;
+                    if (edits[fk]) fontsToLoad.push(edits[fk]);
+                });
+                fontsToLoad.forEach(fv => {
+                    if (!fv || fv === 'inherit') return;
+                    const fontObj = SUPPORTED_FONTS.find(f => f.value === fv || fv.toLowerCase().includes(f.name.toLowerCase().split(' ')[0]));
+                    if (fontObj && fontObj.google) {
+                        const linkId = 'font-link-' + fontObj.google.split(':')[0].replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                        if (!doc.getElementById(linkId)) {
+                            const fontLink = doc.createElement('link');
+                            fontLink.id = linkId;
+                            fontLink.rel = 'stylesheet';
+                            fontLink.href = `https://fonts.googleapis.com/css2?family=${fontObj.google}&display=swap`;
+                            doc.head.appendChild(fontLink);
                             pageHasChanges = true;
                         }
                     }
@@ -1641,12 +2348,11 @@ document.addEventListener('DOMContentLoaded', () => {
         bar.style.alignItems = 'center';
         bar.style.gap = '0.5rem';
         bar.style.zIndex = '99999';
-        bar.style.background = 'rgba(15, 17, 21, 0.95)';
+        bar.style.background = '#0f172a';
         bar.style.padding = '8px 14px';
-        bar.style.borderRadius = '40px';
-        bar.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-        bar.style.backdropFilter = 'blur(12px)';
-        bar.style.boxShadow = '0 10px 35px rgba(0,0,0,0.7)';
+        bar.style.borderRadius = '30px';
+        bar.style.border = '1px solid #334155';
+        bar.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
 
         // 1. Save & Push to Git Button
         const saveGitBtn = document.createElement('button');
@@ -1664,7 +2370,23 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGitBtn.style.boxShadow = '0 0 15px rgba(33, 150, 243, 0.4)';
         saveGitBtn.innerHTML = '💾 Save & Push to Git';
 
-        // 2. Toggle Edit Mode Button
+        // 2. Typography / Fonts Button
+        const fontsBtn = document.createElement('button');
+        fontsBtn.id = 'admin-typography-btn';
+        fontsBtn.style.background = 'rgba(255, 255, 255, 0.12)';
+        fontsBtn.style.color = 'white';
+        fontsBtn.style.padding = '10px 16px';
+        fontsBtn.style.borderRadius = '30px';
+        fontsBtn.style.fontSize = '0.85rem';
+        fontsBtn.style.fontWeight = '600';
+        fontsBtn.style.border = 'none';
+        fontsBtn.style.cursor = 'pointer';
+        fontsBtn.style.transition = 'all 0.2s ease';
+        fontsBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
+        fontsBtn.innerHTML = '🔤 Fonts';
+        fontsBtn.addEventListener('click', openTypographyModal);
+
+        // 3. Toggle Edit Mode Button
         const toggleBtn = document.createElement('button');
         toggleBtn.id = 'edit-mode-toggle-btn';
         toggleBtn.style.background = 'rgba(46, 125, 50, 0.9)'; // Green for ON
@@ -1679,7 +2401,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
         toggleBtn.innerHTML = '⚡ Edit Mode: ON';
 
-        // 3. Admin Portal link button
+        // 4. Admin Portal link button
         const portalBtn = document.createElement('a');
         portalBtn.href = 'admin.html';
         portalBtn.style.background = 'rgba(255, 255, 255, 0.1)';
@@ -1693,7 +2415,7 @@ document.addEventListener('DOMContentLoaded', () => {
         portalBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
         portalBtn.innerHTML = '⚙️ Dashboard';
 
-        // 4. Quick Logout Button
+        // 5. Quick Logout Button
         const quickLogoutBtn = document.createElement('button');
         quickLogoutBtn.id = 'admin-quick-logout-btn';
         quickLogoutBtn.style.background = 'rgba(255, 255, 255, 0.1)';
@@ -1711,6 +2433,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hover animations
         saveGitBtn.addEventListener('mouseenter', () => saveGitBtn.style.transform = 'translateY(-2px)');
         saveGitBtn.addEventListener('mouseleave', () => saveGitBtn.style.transform = 'none');
+        fontsBtn.addEventListener('mouseenter', () => { fontsBtn.style.transform = 'translateY(-2px)'; fontsBtn.style.background = 'rgba(255, 255, 255, 0.22)'; });
+        fontsBtn.addEventListener('mouseleave', () => { fontsBtn.style.transform = 'none'; fontsBtn.style.background = 'rgba(255, 255, 255, 0.12)'; });
         toggleBtn.addEventListener('mouseenter', () => toggleBtn.style.transform = 'translateY(-2px)');
         toggleBtn.addEventListener('mouseleave', () => toggleBtn.style.transform = 'none');
         portalBtn.addEventListener('mouseenter', () => portalBtn.style.background = 'rgba(255, 255, 255, 0.2)');
@@ -1727,6 +2451,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGitBtn.addEventListener('click', () => triggerUniversalGitSync(saveGitBtn));
 
         bar.appendChild(saveGitBtn);
+        bar.appendChild(fontsBtn);
         bar.appendChild(toggleBtn);
         bar.appendChild(portalBtn);
         bar.appendChild(quickLogoutBtn);
@@ -1744,16 +2469,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 getEditableElements().forEach(element => {
                     element.setAttribute('contenteditable', 'true');
                 });
+                document.querySelectorAll('.tag-new').forEach(tag => {
+                    tag.setAttribute('contenteditable', 'true');
+                });
                 document.querySelectorAll('.roster-card.roster-card-draggable').forEach(card => {
                     card.setAttribute('draggable', 'true');
                 });
             } else {
+                hideFontToolbar();
                 document.body.classList.remove('admin-edit-mode');
                 toggleBtn.style.background = 'rgba(211, 47, 47, 0.9)'; // Red for OFF
                 toggleBtn.innerHTML = '⚡ Edit Mode: OFF';
                 
                 getEditableElements().forEach(element => {
                     element.setAttribute('contenteditable', 'false');
+                });
+                document.querySelectorAll('.tag-new').forEach(tag => {
+                    tag.setAttribute('contenteditable', 'false');
                 });
                 document.querySelectorAll('.roster-card.roster-card-draggable').forEach(card => {
                     card.removeAttribute('draggable');
@@ -1796,7 +2528,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('plain-login-body');
             if (navbar) navbar.style.display = '';
             if (hero) hero.style.display = 'none';
-            if (footer) footer.style.display = 'none';
+            if (footer) footer.style.display = '';
         }
     }
 
@@ -1860,13 +2592,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const publishForm = document.getElementById('admin-publish-form');
     const postSuccessMsg = document.getElementById('post-success-msg');
     const postErrorMsg = document.getElementById('post-error-msg');
+    const postIsNewCb = document.getElementById('post-is-new');
+    const postTagInputContainer = document.getElementById('post-tag-input-container');
+
+    if (postIsNewCb && postTagInputContainer) {
+        postIsNewCb.addEventListener('change', () => {
+            postTagInputContainer.style.display = postIsNewCb.checked ? 'flex' : 'none';
+        });
+    }
 
     if (publishForm) {
         publishForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const title = document.getElementById('post-title').value.trim();
             const category = document.getElementById('post-category').value;
-            const isNew = document.getElementById('post-is-new')?.checked || false;
+            const hasTag = postIsNewCb?.checked || false;
+            const tagTextInput = document.getElementById('post-tag-text');
+            const tagText = hasTag ? ((tagTextInput && tagTextInput.value.trim()) ? tagTextInput.value.trim().toUpperCase() : 'NEW') : '';
             const text = document.getElementById('post-text').value.trim();
             const imageSrc = imagePreview && imagePreview.style.display === 'block' ? imagePreview.src : '';
 
@@ -1881,7 +2623,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: Date.now(),
                 title: title,
                 category: category,
-                isNew: isNew,
+                isNew: hasTag,
+                tagText: tagText,
                 text: text,
                 image: imageSrc,
                 date: getFormattedDate()
@@ -1899,6 +2642,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (postErrorMsg) postErrorMsg.style.display = 'none';
 
             publishForm.reset();
+            if (postTagInputContainer) postTagInputContainer.style.display = 'none';
             if (imagePreview) {
                 imagePreview.src = '#';
                 imagePreview.style.display = 'none';
@@ -1934,10 +2678,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const title = escapeHtml(post.title || 'Untitled Update');
                 const categoryLabel = post.category === 'news' ? 'News & Events' : 'Fire Calls';
                 const date = escapeHtml(post.date || getFormattedDate());
-                const isNewBadge = post.isNew ? '<span class="tag-new" style="position: static; margin-left: 6px; font-size: 0.55rem; padding: 1px 5px; vertical-align: middle;">NEW</span>' : '';
-                const toggleTagBtnText = post.isNew ? '✕ Remove "NEW" Tag' : '+ Tag "NEW"';
-                const toggleTagStyle = post.isNew
-                    ? 'border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.15); color: #ff8585;'
+                const rawTag = post.tagText || (post.isNew ? 'NEW' : '');
+                const tagBadge = rawTag ? `<span class="tag-new" style="position: static; margin-left: 6px; font-size: 0.55rem; padding: 1px 5px; vertical-align: middle;">${escapeHtml(rawTag)}</span>` : '';
+                const editTagBtnText = rawTag ? `🏷️ Tag: "${escapeHtml(rawTag)}"` : '+ Add Tag';
+                const editTagBtnStyle = rawTag
+                    ? 'border: 1px solid rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.15); color: #93c5fd;'
                     : 'border: 1px dashed rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); color: #34d399;';
 
                 html += `
@@ -1945,11 +2690,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="admin-post-info">
                             <h4>${title}</h4>
                             <div class="admin-post-meta">
-                                <span>Category:</span> ${categoryLabel} | <span>Date:</span> ${date} ${isNewBadge}
+                                <span>Category:</span> ${categoryLabel} | <span>Date:</span> ${date} ${tagBadge}
                             </div>
                         </div>
                         <div class="admin-post-actions" style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
-                            <button type="button" class="btn toggle-tag-btn" data-id="${post.id}" style="padding: 6px 10px; font-size: 0.78rem; font-family: var(--font-heading); font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; ${toggleTagStyle}">${toggleTagBtnText}</button>
+                            <button type="button" class="btn edit-tag-btn" data-id="${post.id}" style="padding: 6px 10px; font-size: 0.78rem; font-family: var(--font-heading); font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; ${editTagBtnStyle}">${editTagBtnText}</button>
                             <button type="button" class="btn btn-danger delete-btn" data-id="${post.id}" style="padding: 6px 12px; font-size: 0.85rem; font-family: var(--font-heading); font-weight: 600; border-radius: 6px; border: none; cursor: pointer;">Delete</button>
                         </div>
                     </div>
@@ -1961,18 +2706,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.innerHTML = html;
 
-        // Add Tag Toggle Event Handlers
-        container.querySelectorAll('.toggle-tag-btn').forEach(btn => {
+        // Add Tag Edit Event Handlers
+        container.querySelectorAll('.edit-tag-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = parseInt(btn.getAttribute('data-id'));
                 let posts = getStoredPosts();
                 const post = posts.find(p => p && p.id === id);
                 if (!post) return;
-                post.isNew = !post.isNew;
+                const currentTag = post.tagText || (post.isNew ? 'NEW' : '');
+                const input = prompt(`Edit badge/tag for "${post.title}"\n(Enter new tag text, or leave blank to remove tag):`, currentTag);
+                if (input === null) return;
+                const cleanTag = input.trim().toUpperCase();
+                if (cleanTag) {
+                    post.isNew = true;
+                    post.tagText = cleanTag;
+                    showAdminToast(`✅ Updated tag to "${cleanTag}". Click '💾 Save & Push to Git' to publish.`);
+                } else {
+                    post.isNew = false;
+                    post.tagText = '';
+                    showAdminToast(`✅ Removed tag from update.`);
+                }
                 savePosts(posts);
                 renderAdminPosts();
-                showAdminToast(post.isNew ? '✅ Added "NEW" tag to update.' : '✅ Removed "NEW" tag from update.');
-                await syncToGitHub('data/posts.json', posts, 'Admin: Update post tag');
             });
         });
 
@@ -2047,8 +2802,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const date = escapeHtml(post.date || getFormattedDate());
                 const category = post.category === 'news' ? 'news' : 'calls';
                 const tagLabel = category === 'news' ? 'News & Events' : 'Fire Call';
-                const imageHtml = post.image ? `<div class="news-card-img" style="background-image: url('${post.image}');"></div>` : '';
-                const newTagBadge = post.isNew ? '<span class="tag-new" style="position: static; margin-bottom: 0;">NEW</span>' : '';
+                const rawTag = post.tagText || (post.isNew ? 'NEW' : '');
+                const newTagBadge = rawTag ? `<span class="tag-new" style="position: static; margin-bottom: 0;">${escapeHtml(rawTag)}</span>` : '';
+                const imageHtml = post.image ? `<div class="news-card-img" style="background-image: url('${escapeHtml(post.image)}');"></div>` : '';
 
                 html += `
                     <div class="news-card glass-card fade-in visible" data-category="${category}">
@@ -2072,6 +2828,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         newsGrid.innerHTML = html;
+        if (isAdminLoggedIn) {
+            initLiveEditor();
+        }
     }
 
     // Initial feed render if on news page
@@ -2181,9 +2940,11 @@ document.addEventListener('DOMContentLoaded', () => {
         topPosts.forEach(post => {
             const title = escapeHtml(post.title || 'Station Update');
             const text = escapeHtml(post.text || '');
-            const date = escapeHtml(post.date || 'Recent');
+            const date = escapeHtml(post.date || getFormattedDate());
             const category = post.category === 'news' ? 'news' : 'calls';
             const tagLabel = category === 'news' ? 'News & Events' : 'Fire Call';
+            const rawTag = post.tagText || (post.isNew ? 'NEW' : '');
+            const newTagBadge = rawTag ? `<span class="tag-new" style="position: static; margin-left: 6px; font-size: 0.55rem; padding: 1px 5px; vertical-align: middle;">${escapeHtml(rawTag)}</span>` : '';
 
             html += `
                 <a href="news.html" class="recent-post-item category-${category} fade-in visible">
@@ -2191,13 +2952,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="recent-post-tag tag-${category}">${tagLabel}</span>
                         <span class="recent-post-date">${date}</span>
                     </div>
-                    <h4 class="recent-post-title">${title}</h4>
+                    <h4 class="recent-post-title">${title} ${newTagBadge}</h4>
                     <p class="recent-post-snippet">${text}</p>
                 </a>
             `;
         });
 
         homeRecentPostsList.innerHTML = html;
+        if (isAdminLoggedIn) {
+            initLiveEditor();
+        }
     }
 
     // Initial home recent posts render

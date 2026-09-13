@@ -2,6 +2,7 @@
 <html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>Membership - Montgomery Twp. Volunteer Fire Co. #2</title>
     <meta name="description" content="Join Montgomery Township Volunteer Fire Company #2 as a Firefighter, Fire Police Officer, Associate Member, or Junior Firefighter.">
     
@@ -9,9 +10,45 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=80">
+    <script>
+        (function() {
+            try {
+                var t = localStorage.getItem('station46_theme') || 
+                        (document.cookie.match(/(?:^|;)\s*station46_theme=([^;]+)/) || [])[1] || 
+                        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+            } catch(e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="styles.css?v=92">
 </head>
 <body>
+    <!-- Civic Top Utility Bar -->
+    <div class="top-bar">
+        <div class="top-bar-container">
+            <div class="top-bar-left">
+                <span class="top-bar-badge">🚨 EMERGENCY: DIAL 911</span>
+                <span class="top-bar-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    Station: (609) 466-3926
+                </span>
+                <span class="top-bar-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    529 Route 518, Skillman, NJ 08558
+                </span>
+            </div>
+            <div class="top-bar-right">
+                <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Facebook">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                </a>
+                <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Instagram">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                </a>
+                <a href="santa.html" class="top-bar-item" style="color: #ffc107; font-weight: 600;">🎅 Santa Tour</a>
+            </div>
+        </div>
+    </div>
+
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
@@ -28,7 +65,7 @@
                 <a href="about.html" class="nav-link">About</a>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
                 <a href="news.html" class="nav-link">News &amp; Calls</a>
-                <a href="index.html#donate" class="nav-link">Donate</a>
+                <a href="index.html#donate" class="nav-link nav-btn-donate">Donate</a>
             </div>
             
             <button class="mobile-menu-btn" aria-label="Toggle menu">
@@ -38,7 +75,7 @@
     </nav>
 
     <header class="hero hero-short">
-        <div class="hero-bg hero-membership" style="background-image: linear-gradient(rgba(10, 11, 13, 0.35), rgba(10, 11, 13, 0.6)), url('drill-5.jpg');"></div>
+        <div class="hero-bg hero-membership" style="background-image: linear-gradient(rgba(10, 11, 13, 0.15), rgba(10, 11, 13, 0.40)), url('drill-5.jpg');"></div>
         <div class="hero-content" style="margin-top: 80px; text-shadow: 0 3px 12px rgba(0,0,0,0.9);">
             <p class="hero-subtitle">Answer the Call</p>
             <h1 class="hero-title" style="font-size: clamp(3rem, 6vw, 5rem);">Join Our Family</h1>
@@ -69,28 +106,28 @@
                             <ul class="membership-card-list">
                                 <li>
                                     <span class="bullet-dot dot-firefighter">•</span>
-                                    <strong style="color: white;">100% Volunteer:</strong> Neighbors, students, and professionals serving our community.
+                                    <strong style="color: var(--navy-blue);">100% Volunteer:</strong> Neighbors, students, and professionals serving our community.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-firefighter">•</span>
-                                    <strong style="color: white;">Zero Experience Needed:</strong> All gear, equipment, and Firefighter 1 certifications covered at no cost.
+                                    <strong style="color: var(--navy-blue);">Zero Experience Needed:</strong> All gear, equipment, and Firefighter 1 certifications covered at no cost.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-firefighter">•</span>
-                                    <strong style="color: white;">Apparatus Training:</strong> Learn engines, rescue pumpers, Truck 46 aerial ladder, brush, and marine units.
+                                    <strong style="color: var(--navy-blue);">Apparatus Training:</strong> Learn engines, rescue pumpers, Truck 46 aerial ladder, brush, and marine units.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-firefighter">•</span>
-                                    <strong style="color: white;">Weekly Drills:</strong> Sharpen skills alongside experienced mentors every Wednesday at 7:00 PM.
+                                    <strong style="color: var(--navy-blue);">Weekly Drills:</strong> Sharpen skills alongside experienced mentors every Wednesday at 7:00 PM.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-firefighter">•</span>
-                                    <strong style="color: white;">Flexible Commitment:</strong> Respond when available via smartphone dispatch alerts around your schedule.
+                                    <strong style="color: var(--navy-blue);">Flexible Commitment:</strong> Respond when available via smartphone dispatch alerts around your schedule.
                                 </li>
                             </ul>
                         </div>
                         <div class="membership-card-actions">
-                            <a href="#membership-form-section" class="btn btn-primary glow w-100 select-membership-btn" data-type="Firefighter" style="text-align: center;">Apply as Firefighter</a>
+                            <a href="#membership-form-section" class="btn btn-primary w-100 select-membership-btn" data-type="Firefighter" style="text-align: center;">Apply as Firefighter</a>
                         </div>
                     </div>
 
@@ -105,23 +142,23 @@
                             <ul class="membership-card-list">
                                 <li>
                                     <span class="bullet-dot dot-police">•</span>
-                                    <strong style="color: white;">Roadway Safety:</strong> Establish closures, detours, and safety perimeters at emergency scenes.
+                                    <strong style="color: var(--navy-blue);">Roadway Safety:</strong> Establish closures, detours, and safety perimeters at emergency scenes.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-police">•</span>
-                                    <strong style="color: white;">Protect Operating Crews:</strong> Shield firefighters, EMS, and police officers from moving traffic.
+                                    <strong style="color: var(--navy-blue);">Protect Operating Crews:</strong> Shield firefighters, EMS, and police officers from moving traffic.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-police">•</span>
-                                    <strong style="color: white;">No Interior Firefighting:</strong> Vital responder role without smoke operations or heavy air packs.
+                                    <strong style="color: var(--navy-blue);">No Interior Firefighting:</strong> Vital responder role without smoke operations or heavy air packs.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-police">•</span>
-                                    <strong style="color: white;">Certification &amp; Gear:</strong> NJ Fire Police Academy training, legal authority certification, gear, and radios provided.
+                                    <strong style="color: var(--navy-blue);">Certification &amp; Gear:</strong> NJ Fire Police Academy training, legal authority certification, gear, and radios provided.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-police">•</span>
-                                    <strong style="color: white;">Community &amp; Mutual Aid:</strong> Coordinate with Montgomery Police and mutual aid squads at town events and major calls.
+                                    <strong style="color: var(--navy-blue);">Community &amp; Mutual Aid:</strong> Coordinate with Montgomery Police and mutual aid squads at town events and major calls.
                                 </li>
                             </ul>
                         </div>
@@ -141,23 +178,23 @@
                             <ul class="membership-card-list">
                                 <li>
                                     <span class="bullet-dot dot-associate">•</span>
-                                    <strong style="color: white;">Admin &amp; Technology:</strong> Support operations with IT, web management, accounting, photography, or grant writing.
+                                    <strong style="color: var(--navy-blue);">Admin &amp; Technology:</strong> Support operations with IT, web management, accounting, photography, or grant writing.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-associate">•</span>
-                                    <strong style="color: white;">Community Events:</strong> Help coordinate Operation Santa deliveries, fund drives, and open houses.
+                                    <strong style="color: var(--navy-blue);">Community Events:</strong> Help coordinate Operation Santa deliveries, fund drives, and open houses.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-associate">•</span>
-                                    <strong style="color: white;">Station Logistics:</strong> Assist with facilities maintenance, work details, and incident rehab (hydration &amp; food).
+                                    <strong style="color: var(--navy-blue);">Station Logistics:</strong> Assist with facilities maintenance, work details, and incident rehab (hydration &amp; food).
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-associate">•</span>
-                                    <strong style="color: white;">Flexible Schedule:</strong> Volunteer on your own time around family and career commitments.
+                                    <strong style="color: var(--navy-blue);">Flexible Schedule:</strong> Volunteer on your own time around family and career commitments.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-associate">•</span>
-                                    <strong style="color: white;">Station Family:</strong> Attend monthly meetings and social events as an indispensable part of our crew.
+                                    <strong style="color: var(--navy-blue);">Station Family:</strong> Attend monthly meetings and social events as an indispensable part of our crew.
                                 </li>
                             </ul>
                         </div>
@@ -177,19 +214,19 @@
                             <ul class="membership-card-list">
                                 <li>
                                     <span class="bullet-dot dot-junior">•</span>
-                                    <strong style="color: white;">Hands-On Training:</strong> Learn fire apparatus, hose lines, ladders, and rescue tools alongside veteran firefighters.
+                                    <strong style="color: var(--navy-blue);">Hands-On Training:</strong> Learn fire apparatus, hose lines, ladders, and rescue tools alongside veteran firefighters.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-junior">•</span>
-                                    <strong style="color: white;">Gear &amp; Mentorship:</strong> Full protective turnout gear, station uniform, and training provided at no cost.
+                                    <strong style="color: var(--navy-blue);">Gear &amp; Mentorship:</strong> Full protective turnout gear, station uniform, and training provided at no cost.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-junior">•</span>
-                                    <strong style="color: white;">Academics Priority:</strong> School and homework always come first—no late callouts on school nights.
+                                    <strong style="color: var(--navy-blue);">Academics Priority:</strong> School and homework always come first—no late callouts on school nights.
                                 </li>
                                 <li>
                                     <span class="bullet-dot dot-junior">•</span>
-                                    <strong style="color: white;">Fast-Track Pathway:</strong> Direct pathway to full adult firefighter status at 18, plus standout college resume experience.
+                                    <strong style="color: var(--navy-blue);">Fast-Track Pathway:</strong> Direct pathway to full adult firefighter status at 18, plus standout college resume experience.
                                 </li>
                             </ul>
                         </div>
@@ -202,25 +239,25 @@
 
                 <!-- Application Form -->
                 <div id="membership-form-section" class="cta-wrapper fade-in delay-2" style="width: 100%; max-width: 100%; margin: 4rem auto 0;">
-                    <form class="contact-form glass-panel" id="membership-application-form" style="border-radius: 12px;">
-                        <h3 style="color: white; font-family: var(--font-heading); text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem;">Start Your Journey</h3>
+                    <form class="recruit-form-card glass-card contact-form" id="membership-application-form" style="margin-top: 0;">
+                        <h3 style="color: var(--navy-blue); font-family: var(--font-heading); font-weight: 800; text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem;">Volunteer Application</h3>
                         <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2.5rem; font-size: 0.95rem;">Fill out the form below to email the Membership Committee.</p>
                         
                         <div class="recruit-form-grid">
                             <div class="form-group">
-                                <input type="text" id="name" placeholder="Full Name" required="">
+                                <input type="text" id="name" name="name" class="form-name" placeholder="Full Name" required="">
                             </div>
                             <div class="form-group">
-                                <input type="email" id="email" placeholder="Email Address" required="">
+                                <input type="email" id="email" name="email" class="form-email" placeholder="Email Address" required="">
                             </div>
                         </div>
 
                         <div class="recruit-form-grid">
                             <div class="form-group">
-                                <input type="tel" id="phone" placeholder="Phone Number">
+                                <input type="tel" id="phone" name="phone" class="form-phone" placeholder="Phone Number">
                             </div>
-                            <div class="form-group" style="margin-bottom: 2rem;">
-                                <select id="membership-type" required="">
+                            <div class="form-group">
+                                <select id="membership-type" name="membership_type" class="form-type" required="">
                                     <option value="" disabled="" selected="">Membership Type</option>
                                     <option value="Firefighter">Firefighter (18+)</option>
                                     <option value="Fire Police">Fire Police (18+)</option>
@@ -230,7 +267,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-primary w-100 glow" style="font-size: 1.1rem; padding: 16px;">Submit Interest</button>
+                        <button type="submit" class="btn-primary w-100" style="font-size: 1.1rem; padding: 16px; margin-top: 0.5rem;">Submit Interest</button>
                         <p class="form-note" style="margin-top: 1.25rem; text-align: center;">Alternatively, email us directly at <strong>membership@mtvfc2.com</strong></p>
                     </form>
                 </div>
@@ -371,6 +408,59 @@
         </div>
     </footer>
 
-    <script src="script.js?v=79"></script>
+        <!-- Light / Dark Mode Toggle Switch -->
+    <div id="theme-switch-wrapper" class="theme-switch-wrapper">
+        <button type="button" 
+                class="theme-switch-btn" 
+                id="theme-switch-btn" 
+                role="switch" 
+                aria-checked="false" 
+                aria-label="Toggle light and dark mode" 
+                title="Toggle theme">
+            <span class="theme-switch-track">
+                <span class="theme-track-icon sun-icon" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2"></path>
+                        <path d="M12 20v2"></path>
+                        <path d="m4.93 4.93 1.41 1.41"></path>
+                        <path d="m17.66 17.66 1.41 1.41"></path>
+                        <path d="M2 12h2"></path>
+                        <path d="M20 12h2"></path>
+                        <path d="m6.34 17.66-1.41 1.41"></path>
+                        <path d="m19.07 4.93-1.41 1.41"></path>
+                    </svg>
+                </span>
+                <span class="theme-track-icon moon-icon" aria-hidden="true">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                </span>
+                <span class="theme-switch-thumb">
+                    <span class="thumb-icon-sun" aria-hidden="true">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <path d="M12 2v2"></path>
+                            <path d="M12 20v2"></path>
+                            <path d="m4.93 4.93 1.41 1.41"></path>
+                            <path d="m17.66 17.66 1.41 1.41"></path>
+                            <path d="M2 12h2"></path>
+                            <path d="M20 12h2"></path>
+                            <path d="m6.34 17.66-1.41 1.41"></path>
+                            <path d="m19.07 4.93-1.41 1.41"></path>
+                        </svg>
+                    </span>
+                    <span class="thumb-icon-moon" aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.5">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                        </svg>
+                    </span>
+                </span>
+            </span>
+        </button>
+        <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
+    </div>
+
+    <script src="script.js?v=92"></script>
 </body>
 </html>

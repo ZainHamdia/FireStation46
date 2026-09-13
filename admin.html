@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>Admin Portal | Montgomery Township Volunteer Fire Company #2</title>
     <meta name="description" content="Admin login and publishing portal for Station 46.">
     
@@ -15,26 +16,66 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
         .ql-toolbar.ql-snow, .ql-container.ql-snow {
-            border-color: rgba(255,255,255,0.1) !important;
+            border-color: #cbd5e1 !important;
             font-family: 'Inter', sans-serif;
+            background: #ffffff;
         }
         .ql-snow .ql-stroke {
-            stroke: #fff !important;
+            stroke: #334155 !important;
         }
         .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill {
-            fill: #fff !important;
+            fill: #334155 !important;
         }
         .ql-snow .ql-picker {
-            color: #fff !important;
+            color: #334155 !important;
         }
         .ql-editor.ql-blank::before {
-            color: rgba(255,255,255,0.5) !important;
+            color: #94a3b8 !important;
+        }
+        #editor-container {
+            color: #0f172a !important;
         }
     </style>
     
-    <link rel="stylesheet" href="styles.css?v=80">
+    <script>
+        (function() {
+            try {
+                var t = localStorage.getItem('station46_theme') || 
+                        (document.cookie.match(/(?:^|;)\s*station46_theme=([^;]+)/) || [])[1] || 
+                        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+            } catch(e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="styles.css?v=92">
 </head>
 <body>
+    <!-- Civic Top Utility Bar -->
+    <div class="top-bar">
+        <div class="top-bar-container">
+            <div class="top-bar-left">
+                <span class="top-bar-badge">🚨 EMERGENCY: DIAL 911</span>
+                <span class="top-bar-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    Station: (609) 466-3926
+                </span>
+                <span class="top-bar-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    529 Route 518, Skillman, NJ 08558
+                </span>
+            </div>
+            <div class="top-bar-right">
+                <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Facebook">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                </a>
+                <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Instagram">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                </a>
+                <a href="santa.html" class="top-bar-item" style="color: #ffc107; font-weight: 600;">🎅 Santa Tour</a>
+            </div>
+        </div>
+    </div>
+
     <nav class="navbar" id="admin-navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
@@ -51,7 +92,7 @@
                 <a href="about.html" class="nav-link">About</a>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
                 <a href="news.html" class="nav-link">News & Calls</a>
-                <a href="index.html#donate" class="nav-link">Donate</a>
+                <a href="index.html#donate" class="nav-link nav-btn-donate">Donate</a>
             </div>
             
             <button class="mobile-menu-btn" aria-label="Toggle menu">
@@ -65,7 +106,7 @@
 
 
     <main>
-        <section class="section" style="padding-top: calc(var(--nav-height, 80px) + 2rem);">
+        <section class="section admin-main-section" style="padding: 3rem 0 5rem;">
             <div class="container">
                 
                 <!-- Login View -->
@@ -76,17 +117,17 @@
                     <div class="error-message" id="login-error-msg">Incorrect username or password. Please try again.</div>
                     
                     <form style="padding: 0; background: none; border: none; box-shadow: none;" id="admin-login-form">
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
                             <input type="text" id="admin-username" placeholder="Username" required>
                         </div>
-                        <div class="form-group" style="margin-bottom: 2rem;">
+                        <div class="form-group" style="margin-bottom: 1.75rem;">
                             <input type="password" id="admin-password" placeholder="Password" required>
                         </div>
-                        <button type="submit" class="btn-primary w-100 glow">Log In</button>
+                        <button type="submit" class="btn btn-primary w-100" style="padding: 13px; font-weight: 700; width: 100%;">Log In</button>
                     </form>
 
-                    <div style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
-                        <a href="santa.html" class="btn btn-secondary" style="border-color: var(--gold); color: var(--gold); display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%;">
+                    <div style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border-light); text-align: center;">
+                        <a href="santa.html" class="btn" style="background: #f8fafc; color: var(--navy-blue); border: 1.5px solid var(--border-subtle); display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; font-weight: 600; text-transform: none; border-radius: 4px; padding: 11px 20px;">
                             🎅 Go to Operation Santa Page
                         </a>
                     </div>
@@ -97,11 +138,11 @@
                     <div class="admin-dashboard-header">
                         <h2>Welcome, Administrator</h2>
                         <div class="admin-header-actions">
-                            <a href="about.html#roster" class="btn btn-secondary" style="border-color: rgba(230, 57, 70, 0.6); color: #ff6b6b; display: inline-flex; align-items: center; gap: 0.4rem;">👥 Manage Roster</a>
-                            <a href="santa.html" class="btn btn-secondary" style="border-color: var(--gold); color: var(--gold); display: inline-flex; align-items: center; gap: 0.4rem;">🎅 Operation Santa Page</a>
-                            <button class="btn btn-primary" id="admin-force-git-push-btn" style="background: rgba(21, 101, 192, 0.95); box-shadow: 0 0 15px rgba(33, 150, 243, 0.4);">💾 Push All Data to Git</button>
-                            <a href="news.html" class="btn btn-secondary">View Feed</a>
-                            <button class="btn btn-primary glow" id="admin-logout-btn">Log Out</button>
+                            <a href="about.html#roster" class="btn" style="background: #ffffff; color: var(--navy-blue); border: 1.5px solid var(--border-subtle); font-weight: 600; text-transform: none; padding: 10px 18px; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.4rem;">👥 Manage Roster</a>
+                            <a href="santa.html" class="btn" style="background: #ffffff; color: var(--navy-blue); border: 1.5px solid var(--border-subtle); font-weight: 600; text-transform: none; padding: 10px 18px; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.4rem;">🎅 Santa Page</a>
+                            <button class="btn" id="admin-force-git-push-btn" style="background: var(--navy-blue); color: #ffffff; font-weight: 600; text-transform: none; padding: 10px 18px; border-radius: 4px; border: none; cursor: pointer;">💾 Push to Git</button>
+                            <a href="news.html" class="btn" style="background: #ffffff; color: var(--navy-blue); border: 1.5px solid var(--border-subtle); font-weight: 600; text-transform: none; padding: 10px 18px; border-radius: 4px;">View Feed</a>
+                            <button class="btn btn-primary" id="admin-logout-btn" style="font-weight: 600; text-transform: none; padding: 10px 18px; border-radius: 4px;">Log Out</button>
                         </div>
                     </div>
                     
@@ -128,15 +169,20 @@
                                 </div>
                                 
                                 <div class="form-group" style="margin-bottom: 1.25rem;">
-                                    <label for="post-is-new" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ffffff; font-size: 0.95rem; user-select: none;">
-                                        <input type="checkbox" id="post-is-new" style="width: 17px; height: 17px; cursor: pointer; accent-color: #10b981;">
-                                        <span>Tag as <strong>"NEW"</strong> update</span>
-                                    </label>
+                                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                        <label for="post-is-new" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--navy-blue); font-size: 0.95rem; user-select: none;">
+                                            <input type="checkbox" id="post-is-new" style="width: 17px; height: 17px; cursor: pointer; accent-color: #10b981;">
+                                            <span>Add <strong>Badge / Tag</strong></span>
+                                        </label>
+                                        <div id="post-tag-input-container" style="display: none; align-items: center; gap: 6px; flex: 1; min-width: 180px;">
+                                            <input type="text" id="post-tag-text" placeholder="Tag text (e.g. NEW, UPDATE, ALERT)" value="NEW" style="padding: 6px 10px; font-size: 0.85rem; border-radius: 4px; border: 1px solid #cbd5e1; width: 100%;">
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div class="form-group">
                                     <textarea id="post-text" style="display: none;"></textarea>
-                                    <div id="editor-container" style="height: 250px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; color: white;"></div>
+                                    <div id="editor-container" style="height: 250px; background: #ffffff; border: 1px solid #cbd5e1; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; color: var(--text-primary);"></div>
                                 </div>
                                 
                                 <div class="file-upload-wrapper">
@@ -145,7 +191,7 @@
                                     <img id="post-image-preview" class="image-preview" src="#" alt="Preview">
                                 </div>
                                 
-                                <button type="submit" class="btn-primary w-100 glow">Publish Update</button>
+                                <button type="submit" class="btn-primary w-100">Publish Update</button>
                             </form>
                         </div>
                         
@@ -166,7 +212,7 @@
         </section>
     </main>
 
-    <footer id="admin-footer" style="display: none;">
+    <footer id="admin-footer">
         <div class="footer-container">
             <div class="footer-brand">
                 <img src="logo.png" alt="Station 46 Logo" class="footer-badge-img">
@@ -223,6 +269,59 @@
             }
         });
     </script>
-    <script src="script.js?v=79"></script>
+        <!-- Light / Dark Mode Toggle Switch -->
+    <div id="theme-switch-wrapper" class="theme-switch-wrapper">
+        <button type="button" 
+                class="theme-switch-btn" 
+                id="theme-switch-btn" 
+                role="switch" 
+                aria-checked="false" 
+                aria-label="Toggle light and dark mode" 
+                title="Toggle theme">
+            <span class="theme-switch-track">
+                <span class="theme-track-icon sun-icon" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2"></path>
+                        <path d="M12 20v2"></path>
+                        <path d="m4.93 4.93 1.41 1.41"></path>
+                        <path d="m17.66 17.66 1.41 1.41"></path>
+                        <path d="M2 12h2"></path>
+                        <path d="M20 12h2"></path>
+                        <path d="m6.34 17.66-1.41 1.41"></path>
+                        <path d="m19.07 4.93-1.41 1.41"></path>
+                    </svg>
+                </span>
+                <span class="theme-track-icon moon-icon" aria-hidden="true">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                </span>
+                <span class="theme-switch-thumb">
+                    <span class="thumb-icon-sun" aria-hidden="true">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <path d="M12 2v2"></path>
+                            <path d="M12 20v2"></path>
+                            <path d="m4.93 4.93 1.41 1.41"></path>
+                            <path d="m17.66 17.66 1.41 1.41"></path>
+                            <path d="M2 12h2"></path>
+                            <path d="M20 12h2"></path>
+                            <path d="m6.34 17.66-1.41 1.41"></path>
+                            <path d="m19.07 4.93-1.41 1.41"></path>
+                        </svg>
+                    </span>
+                    <span class="thumb-icon-moon" aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.5">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                        </svg>
+                    </span>
+                </span>
+            </span>
+        </button>
+        <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
+    </div>
+
+    <script src="script.js?v=92"></script>
 </body>
 </html>
