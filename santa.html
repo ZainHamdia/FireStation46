@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
     <title>Operation Santa 2025 | Montgomery Township Volunteer Fire Company #2</title>
-    <meta name="description" content="Santa Claus is coming to town on a fire engine! Join Station 46 for Operation Santa 2025 gift deliveries in Skillman and District #2.">
+    <meta name="description" content="Santa Claus is coming to town on a fire engine! Join MTVFC #2 for Operation Santa 2025 gift deliveries in Skillman and District #2.">
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     
@@ -24,7 +24,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=93">
+    <link rel="stylesheet" href="styles.css?v=94">
     <style>
         .santa-badge {
             display: inline-flex;
@@ -64,37 +64,34 @@
         .date-card-header {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 1rem;
             margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--border-divider);
-            padding-bottom: 1.2rem;
         }
         .date-icon-box {
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--fire-red), #991b1b);
+            color: white;
             border-radius: 8px;
-            background: var(--fire-red);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            color: white;
+            font-size: 1.4rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(198, 40, 40, 0.25);
         }
         .date-card-title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: var(--text-heading);
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--navy-blue);
             margin: 0;
+            line-height: 1.2;
         }
         .date-card-subtitle {
-            font-size: 0.88rem;
-            color: var(--gold);
-            margin: 3px 0 0 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--fire-red);
+            margin: 4px 0 0 0;
         }
         .date-card ul.tech-specs li {
             border-bottom: 1px solid var(--border-divider);
@@ -105,39 +102,38 @@
         }
         .guideline-item {
             display: flex;
+            gap: 1.2rem;
+            margin-bottom: 1.8rem;
             align-items: flex-start;
-            gap: 16px;
-            padding: 1.2rem 0;
-            border-bottom: 1px solid var(--border-divider);
         }
         .guideline-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
+            margin-bottom: 0;
         }
         .guideline-num {
             width: 36px;
             height: 36px;
-            border-radius: 50%;
-            background: #fee2e2;
-            border: 1px solid #fca5a5;
+            background: rgba(226, 35, 26, 0.1);
             color: var(--fire-red);
-            font-weight: 700;
-            font-size: 1.1rem;
+            font-weight: 800;
+            font-family: var(--font-heading);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            font-size: 1.1rem;
+            border: 2px solid rgba(226, 35, 26, 0.3);
         }
         .guideline-text h4 {
-            color: var(--text-heading);
             margin: 0 0 4px 0;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
+            color: var(--navy-blue);
         }
         .guideline-text p {
-            color: var(--text-secondary);
             margin: 0;
-            font-size: 0.96rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
             line-height: 1.5;
         }
         .tracker-banner {
@@ -157,24 +153,23 @@
         .district-box {
             background: var(--bg-card);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
-            padding: 1.8rem;
-            height: 100%;
-            box-shadow: var(--card-shadow);
+            border-radius: 8px;
+            padding: 1.75rem;
+            position: relative;
         }
         .district-box.active-dist {
             border: 2px solid var(--fire-red);
-            border-top: 5px solid var(--fire-red);
+            background: rgba(226, 35, 26, 0.02);
         }
         .printable-form-preview {
-            background: #ffffff;
-            color: #1a1d24;
-            border-radius: 12px;
+            background: white;
+            color: #1a1a1a;
             padding: 2.5rem;
-            margin-top: 2rem;
-            border: 1px solid var(--border-light);
-            box-shadow: var(--card-shadow);
-            font-family: 'Inter', sans-serif;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            max-width: 800px;
+            margin: 2rem auto 0;
         }
         .printable-form-preview h3 {
             color: #111827;
@@ -192,10 +187,11 @@
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.2rem;
+            gap: 1.5rem;
+            margin-bottom: 1.2rem;
         }
         .form-field-line {
-            border-bottom: 2px dashed #9ca3af;
+            border-bottom: 1px dashed #9ca3af;
             height: 28px;
             margin-top: 4px;
         }
@@ -219,9 +215,13 @@
                 left: 0;
                 top: 0;
                 width: 100%;
-                margin: 0;
-                padding: 20px;
+                border: none;
                 box-shadow: none;
+                padding: 0;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
             }
         }
     </style>
@@ -242,6 +242,10 @@
                 </span>
             </div>
             <div class="top-bar-right">
+                <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" class="top-bar-item top-bar-link" title="Montgomery Township Fire District #2 Board of Fire Commissioners">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    <span>Fire District (BOFC)</span>
+                </a>
                 <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Facebook">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                 </a>
@@ -255,7 +259,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
-                <img src="logo.png" alt="Station 46 Logo" class="nav-badge-img">
+                <img src="logo.png" alt="MTVFC #2 Logo" class="nav-badge-img">
                 <div class="logo-text">
                     <span class="mtvfc">Montgomery Township Volunteer Fire Company #2</span>
                     <span class="subtitle">Montgomery Township, Somerset County, NJ</span>
@@ -265,7 +269,13 @@
             <div class="nav-links">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="membership.html" class="nav-link">Membership</a>
-                <a href="about.html" class="nav-link">About</a>
+                <div class="nav-dropdown">
+                    <a href="about.html" class="nav-link nav-dropdown-toggle">About</a>
+                    <div class="nav-dropdown-menu">
+                        <a href="about.html" class="nav-dropdown-item">About Us</a>
+                        <a href="history.html" class="nav-dropdown-item">History</a>
+                    </div>
+                </div>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
                 <a href="news.html" class="nav-link">News & Calls</a>
                 <a href="index.html#donate" class="nav-link nav-btn-donate">Donate</a>
@@ -374,7 +384,7 @@
                         <ul class="tech-specs" style="font-size: 1rem; line-height: 1.8;">
                             <li><strong>Dates:</strong> Dec 16 (Tue), Dec 17 (Wed), & Dec 18 (Thu)</li>
                             <li><strong>Hours:</strong> Open 5:00 PM – 9:00 PM</li>
-                            <li><strong>Location:</strong> Station 46 Firehouse<br><span style="color: var(--gold);">529 Route 518, Skillman, NJ 08558</span></li>
+                            <li><strong>Location:</strong> MTVFC #2 Firehouse (Station 46)<br><span style="color: var(--gold);">529 Route 518, Skillman, NJ 08558</span></li>
                             <li style="border-bottom: none;"><strong>What to bring:</strong> Wrapped & labeled gifts + completed contact form + $25 donation.</li>
                         </ul>
                     </div>
@@ -391,7 +401,7 @@
                         <ul class="tech-specs" style="font-size: 1rem; line-height: 1.8;">
                             <li><strong>Date:</strong> Sunday, December 21, 2025</li>
                             <li><strong>Delivery Hours:</strong> 10:00 AM – 6:00 PM</li>
-                            <li><strong>Delivered by:</strong> Santa Claus & his Firefighter Elves on Station 46 fire engines</li>
+                            <li><strong>Delivered by:</strong> Santa Claus & his Firefighter Elves on MTVFC #2 fire engines</li>
                             <li style="border-bottom: none;"><strong>Tracking:</strong> Live Santa GPS Tracker active during deliveries.</li>
                         </ul>
                     </div>
@@ -427,7 +437,7 @@
                     <div class="guideline-item">
                         <div class="guideline-num">3</div>
                         <div class="guideline-text">
-                            <h4>Drop-Off at Station 46</h4>
+                            <h4>Drop-Off at MTVFC #2</h4>
                             <p>Bring your gift(s) to <strong>The Firehouse</strong>, located at <strong>529 Route 518 in Skillman</strong> during the drop-off hours (Dec 16–18 between 5 PM and 9 PM).</p>
                         </div>
                     </div>
@@ -484,7 +494,7 @@
                     <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 1.5rem; text-align: center;">
                         <h3 style="color: #b91c1c; font-size: 1.6rem; margin: 0 0 5px 0; text-transform: uppercase;">Montgomery Township Volunteer Fire Company #2</h3>
                         <h4 style="margin: 0; color: #1f2937; font-size: 1.25rem;">Operation Santa 2025 — Registration & Contact Form</h4>
-                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9rem;">Station 46 • 529 Route 518, Skillman, NJ 08558 • santa@mtvfc2.com</p>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9rem;">MTVFC #2 (Station 46) • 529 Route 518, Skillman, NJ 08558 • (609) 466-3926</p>
                     </div>
 
                     <div class="form-grid">
@@ -567,7 +577,7 @@
             <div class="container">
                 <div class="section-header text-center fade-in">
                     <h2 class="section-title">Delivery Area & Fire Districts</h2>
-                    <p class="section-subtitle">Check below to ensure your address falls within Fire District #2 (Station 46 response area).</p>
+                    <p class="section-subtitle">Check below to ensure your address falls within Fire District #2 (MTVFC #2 response area).</p>
                 </div>
 
                 <div class="cards-grid" style="margin-bottom: 2.5rem;">
@@ -575,14 +585,19 @@
                     <div class="district-box active-dist fade-in">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
                             <span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; padding: 4px 12px; border-radius: 20px; font-weight: 700;">OUR COVERAGE AREA</span>
-                            <span style="font-weight: 700; color: var(--navy-blue);">Station 46</span>
+                            <span style="font-weight: 700; color: var(--navy-blue);">MTVFC #2</span>
                         </div>
                         <h3 style="color: var(--navy-blue); font-size: 1.35rem; margin: 0 0 0.5rem 0;">District #2 (South Montgomery)</h3>
                         <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
                             The Elves of Montgomery Township Volunteer Fire Company #2 and Santa will deliver to Montgomery residents residing in the <strong>Skillman or Princeton</strong> areas generally located on the <strong>south end</strong> of Montgomery Township.
                         </p>
-                        <div style="color: var(--fire-red); font-size: 0.95rem; font-weight: 700;">
-                            ✓ Eligible for Station 46 Operation Santa
+                        <div style="color: var(--fire-red); font-size: 0.95rem; font-weight: 700; margin-bottom: 0.85rem;">
+                            ✓ Eligible for MTVFC #2 Operation Santa
+                        </div>
+                        <div>
+                            <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.88rem; padding: 7px 15px; display: inline-flex; align-items: center; gap: 5px;">
+                                <span>Visit Fire District Website (BOFC46.com)</span> &rarr;
+                            </a>
                         </div>
                     </div>
 
@@ -609,8 +624,8 @@
                             <h3 style="color: var(--navy-blue); margin: 0 0 5px 0;">Montgomery Township Fire District Map</h3>
                             <p style="color: var(--text-secondary); margin: 0;">District #1 is located on the north side; District #2 is located on the south end of Montgomery Township, NJ.</p>
                         </div>
-                        <a href="mailto:santa@mtvfc2.com" class="btn btn-primary">
-                            ✉️ Email santa@mtvfc2.com
+                        <a href="tel:6094663926" class="btn btn-primary">
+                            📞 Call (609) 466-3926
                         </a>
                     </div>
                     
@@ -626,7 +641,7 @@
                         <!-- Google Maps Interactive Location -->
                         <div style="height: 440px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-light);">
                             <iframe 
-                                title="Station 46 Location & District Map"
+                                title="MTVFC #2 Location & District Map"
                                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d48680.12759914488!2d-74.75051939304918!3d40.40722304899557!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c3e2bb97f74811%3A0xc3cfcfaebdb28f11!2s529%20County%20Rd%20518%2C%20Skillman%2C%20NJ%2008558!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus" 
                                 width="100%" 
                                 height="100%" 
@@ -642,8 +657,8 @@
                         <span style="color: var(--text-secondary); font-size: 0.95rem;">
                             Unsure if you are in District #2? Reach out to us directly:
                         </span>
-                        <a href="mailto:santa@mtvfc2.com" style="color: var(--fire-red); font-weight: 600; text-decoration: underline;">
-                            santa@mtvfc2.com
+                        <a href="tel:6094663926" style="color: var(--fire-red); font-weight: 600; text-decoration: underline;">
+                            (609) 466-3926
                         </a>
                     </div>
                 </div>
@@ -655,12 +670,13 @@
     <footer>
         <div class="footer-container">
             <div class="footer-brand">
-                <img src="logo.png" alt="Station 46 Logo" class="footer-badge-img">
+                <img src="logo.png" alt="MTVFC #2 Logo" class="footer-badge-img">
                 <span>Montgomery Township Volunteer Fire Company #2</span>
             </div>
             <div class="footer-info">
-                <p>529 Route 518, Skillman, NJ 08558</p>
+                <p><strong>MTVFC #2</strong> (Station 46) | 529 Route 518, Skillman, NJ 08558</p>
                 <p>Emergency: <strong>911</strong> | Non-Emergency: (609) 466-3926</p>
+                <p><a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--fire-red); font-weight: 600; text-decoration: underline;">Board of Fire Commissioners (BOFC46.com) &rarr;</a></p>
             </div>
             <div class="footer-social">
                 <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="footer-social-link facebook" aria-label="Facebook">
@@ -677,7 +693,7 @@
                 </a>
             </div>
             <div class="footer-copy">
-                &copy; <span id="year"></span> Montgomery Township Volunteer Fire Company #2. All rights reserved. | <a href="admin.html" class="admin-link" style="color: var(--text-secondary); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
+                &copy; <span id="year"></span> Montgomery Township Volunteer Fire Company #2. All rights reserved. | <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary); text-decoration: underline;">Fire District Website (BOFC46.com)</a> | <a href="admin.html" class="admin-link" style="color: var(--text-secondary); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
             </div>
         </div>
     </footer>

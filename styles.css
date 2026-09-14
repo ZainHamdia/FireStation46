@@ -253,6 +253,19 @@ a {
     color: #ffffff;
 }
 
+.top-bar-link {
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: color var(--transition-fast);
+}
+
+.top-bar-link:hover {
+    color: #fbbf24;
+    text-decoration: underline;
+}
+
 /* Utilities */
 .container {
     max-width: var(--container-width);
@@ -935,7 +948,6 @@ body.menu-open {
     display: inline-block;
     position: relative;
     white-space: nowrap;
-    filter: drop-shadow(0 2px 14px rgba(239, 68, 68, 0.45));
 }
 
 .hero-title span::before {
@@ -5073,4 +5085,444 @@ html.theme-transition *::after {
         display: none;
     }
 }
+
+/* ==========================================================================
+   Navigation Dropdown Menu ("About" -> "History")
+   ========================================================================== */
+.nav-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.nav-dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.nav-dropdown-toggle svg {
+    transition: transform var(--transition-fast);
+}
+
+.nav-dropdown:hover .nav-dropdown-toggle svg,
+.nav-dropdown.active .nav-dropdown-toggle svg {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 6px 0;
+    min-width: 170px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    z-index: 1000;
+}
+
+:root[data-theme="dark"] .nav-dropdown-menu {
+    background: #182234;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown:focus-within .nav-dropdown-menu,
+.nav-dropdown.is-open .nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(4px);
+}
+
+.nav-dropdown-item {
+    display: block;
+    padding: 8px 16px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-heading);
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    text-decoration: none;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.nav-dropdown-item::after {
+    display: none !important;
+}
+
+.nav-dropdown-item:hover {
+    background: rgba(230, 57, 70, 0.08);
+    color: var(--fire-red) !important;
+}
+
+:root[data-theme="dark"] .nav-dropdown-item:hover {
+    background: rgba(230, 57, 70, 0.2);
+}
+
+@media (max-width: 768px) {
+    .nav-dropdown {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .nav-dropdown-toggle {
+        justify-content: space-between;
+        width: 100%;
+    }
+    .nav-dropdown-menu {
+        position: static;
+        transform: none !important;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        box-shadow: none;
+        border: none;
+        background: transparent !important;
+        padding-left: 1rem;
+        display: none;
+    }
+    .nav-dropdown.is-open .nav-dropdown-menu {
+        display: block;
+    }
+    .nav-dropdown:hover .nav-dropdown-menu {
+        display: block;
+    }
+}
+
+/* ==========================================================================
+   Role Cards Enhancement (Fire Police & Support Separation)
+   ========================================================================== */
+.role-card.role-police {
+    border-top: 4px solid #0284c7;
+}
+
+.role-card.role-police .role-badge-tag {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+:root[data-theme="dark"] .role-card.role-police .role-badge-tag {
+    background: rgba(2, 132, 199, 0.25);
+    color: #38bdf8;
+    border-color: rgba(2, 132, 199, 0.4);
+}
+
+.role-card.role-associate .role-badge-tag {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+:root[data-theme="dark"] .role-card.role-associate .role-badge-tag {
+    background: rgba(217, 119, 6, 0.25);
+    color: #fbbf24;
+    border-color: rgba(217, 119, 6, 0.4);
+}
+
+.role-card.role-junior .role-badge-tag {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+:root[data-theme="dark"] .role-card.role-junior .role-badge-tag {
+    background: rgba(37, 99, 235, 0.25);
+    color: #60a5fa;
+    border-color: rgba(37, 99, 235, 0.4);
+}
+
+/* ==========================================================================
+   History Dropdown / Collapsible Card (About Page)
+   ========================================================================== */
+.history-dropdown-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 2.5rem auto 0;
+    max-width: 1000px;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow var(--transition-fast);
+}
+
+.history-page-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 3rem 3.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    box-shadow: var(--card-shadow);
+}
+
+@media (max-width: 768px) {
+    .history-page-card {
+        padding: 2rem 1.5rem;
+    }
+}
+
+.history-dropdown-wrapper:hover {
+    box-shadow: var(--card-shadow-hover);
+}
+
+.history-dropdown-header {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color var(--transition-fast);
+}
+
+.history-dropdown-header:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+:root[data-theme="dark"] .history-dropdown-header:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.history-dropdown-title-wrap {
+    flex: 1;
+}
+
+.history-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: #fee2e2;
+    color: var(--fire-red);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+:root[data-theme="dark"] .history-badge {
+    background: rgba(230, 57, 70, 0.2);
+    color: #ff6b6b;
+}
+
+.history-dropdown-title {
+    font-size: 1.8rem;
+    font-family: var(--font-heading);
+    color: var(--text-heading);
+    margin: 0 0 0.4rem 0;
+}
+
+.history-dropdown-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.history-dropdown-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--bg-surface-alt);
+    border: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fire-red);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color var(--transition-fast);
+    flex-shrink: 0;
+    margin-left: 1.5rem;
+}
+
+.history-dropdown-header[aria-expanded="true"] .history-dropdown-icon {
+    transform: rotate(180deg);
+    background: var(--fire-red);
+    color: #ffffff;
+}
+
+.history-dropdown-content {
+    display: none;
+    padding: 0 2.5rem 2.5rem;
+    border-top: 1px solid var(--border-light);
+    animation: fadeInHistory 0.3s ease;
+}
+
+.history-dropdown-header[aria-expanded="true"] + .history-dropdown-content {
+    display: block;
+}
+
+@keyframes fadeInHistory {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.history-body {
+    padding-top: 2rem;
+    color: var(--text-main);
+    line-height: 1.8;
+    font-size: 1.05rem;
+}
+
+.history-era {
+    margin-bottom: 3rem;
+    position: relative;
+    padding-left: 1.5rem;
+    border-left: 3px solid var(--fire-red);
+}
+
+.history-era:last-child {
+    margin-bottom: 0;
+}
+
+.history-era-title {
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    color: var(--navy-blue);
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+:root[data-theme="dark"] .history-era-title {
+    color: #e2e8f0;
+}
+
+.history-body p {
+    margin-bottom: 1.25rem;
+    text-align: justify;
+}
+
+.history-body p:last-child {
+    margin-bottom: 0;
+}
+
+/* ==========================================================================
+   Other Ways to Support Section (Homepage)
+   ========================================================================== */
+.support-ways-wrapper {
+    margin-top: 3.5rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.support-ways-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.support-ways-title {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    color: var(--text-heading);
+    margin-bottom: 0.5rem;
+}
+
+.support-ways-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.support-ways-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.support-way-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.support-way-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.support-way-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: rgba(230, 57, 70, 0.1);
+    color: var(--fire-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.support-way-title {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    color: var(--text-heading);
+    margin-bottom: 0.75rem;
+}
+
+.support-way-desc {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    flex: 1;
+}
+
+.support-way-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--fire-red);
+    text-decoration: none;
+}
+
+.support-way-action:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   General Form Styling (Textarea & Responsive Layout)
+   ========================================================================== */
+.form-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--text-main);
+    transition: border-color var(--transition-fast);
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--fire-red);
+    box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15);
+}
+
 

@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
-    <title>About Us | Montgomery Township Volunteer Fire Company #2</title>
+    <title>About Us | MTVFC #2</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     
@@ -21,7 +21,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=93">
+    <link rel="stylesheet" href="styles.css?v=94">
 </head>
 <body>
     <!-- Civic Top Utility Bar -->
@@ -39,6 +39,10 @@
                 </span>
             </div>
             <div class="top-bar-right">
+                <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" class="top-bar-item top-bar-link" title="Montgomery Township Fire District #2 Board of Fire Commissioners">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    <span>Fire District (BOFC)</span>
+                </a>
                 <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Facebook">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                 </a>
@@ -52,7 +56,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
-                <img src="logo.png" alt="Station 46 Logo" class="nav-badge-img">
+                <img src="logo.png" alt="MTVFC #2 Logo" class="nav-badge-img">
                 <div class="logo-text">
                     <span class="mtvfc">Montgomery Township Volunteer Fire Company #2</span>
                     <span class="subtitle">Montgomery Township, Somerset County, NJ</span>
@@ -61,7 +65,13 @@
             <div class="nav-links">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="membership.html" class="nav-link">Membership</a>
-                <a href="about.html" class="nav-link active">About</a>
+                <div class="nav-dropdown">
+                    <a href="about.html" class="nav-link nav-dropdown-toggle active">About <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                    <div class="nav-dropdown-menu">
+                        <a href="about.html" class="nav-dropdown-item">About Us</a>
+                        <a href="history.html" class="nav-dropdown-item">History</a>
+                    </div>
+                </div>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
                 <a href="news.html" class="nav-link">News &amp; Calls</a>
                 <a href="index.html#donate" class="nav-link nav-btn-donate">Donate</a>
@@ -74,7 +84,7 @@
 
     <header class="hero small-hero" style="background-image: linear-gradient(rgba(15, 25, 43, 0.20), rgba(15, 25, 43, 0.45)), url('class2.jpg'); min-height: 42vh; background-position: center; background-size: cover;">
         <div class="container text-center" style="margin-top: 20px;">
-            <h1 class="hero-title fade-in">About Station 46</h1>
+            <h1 class="hero-title fade-in">About MTVFC #2</h1>
             <p class="hero-subtitle fade-in delay-1">Protecting Montgomery Township since 1946</p>
         </div>
     </header>
@@ -99,6 +109,13 @@
                         <div class="stat-number">75+</div>
                         <div class="stat-label">Years of Service</div>
                     </div>
+                </div>
+
+                <div style="margin-top: 2.5rem;" class="fade-in delay-3">
+                    <a href="history.html" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        Explore Our Full Company History &rarr;
+                    </a>
                 </div>
             </div>
         </section>
@@ -677,12 +694,13 @@
     <footer>
         <div class="footer-container">
             <div class="footer-brand">
-                <img src="logo.png" alt="Station 46 Logo" class="footer-badge-img">
+                <img src="logo.png" alt="MTVFC #2 Logo" class="footer-badge-img">
                 <span>Montgomery Township Volunteer Fire Company #2</span>
             </div>
             <div class="footer-info">
-                <p><strong>Station 46</strong> | 529 County Route 518, Skillman, NJ 08558</p>
+                <p><strong>MTVFC #2</strong> (Station 46) | 529 County Route 518, Skillman, NJ 08558</p>
                 <p>In case of Emergency, Dial&nbsp;<strong>9-1-1</strong> | Non-Emergency: (609) 466-3926</p>
+                <p><a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--fire-red); font-weight: 600; text-decoration: underline;">Board of Fire Commissioners (BOFC46.com) &rarr;</a></p>
             </div>
             <div class="footer-social">
                 <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="footer-social-link facebook" aria-label="Facebook">
@@ -693,13 +711,9 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
                     <span>Instagram</span>
                 </a>
-                <a href="https://x.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="footer-social-link twitter" aria-label="Twitter">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg>
-                    <span>Twitter</span>
-                </a>
             </div>
             <div class="footer-copy">
-                © <span id="year">2026</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="admin.html" class="admin-link" style="color: var(--text-secondary); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
+                © <span id="year">2026</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary); text-decoration: underline;">Fire District Website (BOFC46.com)</a> | <a href="admin.html" class="admin-link" style="color: var(--text-secondary); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
             </div>
         </div>
     </footer>

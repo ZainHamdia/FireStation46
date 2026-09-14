@@ -22,7 +22,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=93">
+    <link rel="stylesheet" href="styles.css?v=94">
 </head>
 <body>
     <!-- Civic Top Utility Bar -->
@@ -40,6 +40,10 @@
                 </span>
             </div>
             <div class="top-bar-right">
+                <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" class="top-bar-item top-bar-link" title="Montgomery Township Fire District #2 Board of Fire Commissioners">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    <span>Fire District (BOFC)</span>
+                </a>
                 <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Facebook">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                 </a>
@@ -53,7 +57,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
-                <img src="logo.png" alt="Station 46 Logo" class="nav-badge-img">
+                <img src="logo.png" alt="MTVFC #2 Logo" class="nav-badge-img">
                 <div class="logo-text">
                     <span class="mtvfc">Montgomery Township Volunteer Fire Company #2</span>
                     <span class="subtitle">Montgomery Township, Somerset County, NJ</span>
@@ -63,7 +67,13 @@
             <div class="nav-links">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="membership.html" class="nav-link active">Membership</a>
-                <a href="about.html" class="nav-link">About</a>
+                <div class="nav-dropdown">
+                    <a href="about.html" class="nav-link nav-dropdown-toggle">About <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                    <div class="nav-dropdown-menu">
+                        <a href="about.html" class="nav-dropdown-item">About Us</a>
+                        <a href="history.html" class="nav-dropdown-item">History</a>
+                    </div>
+                </div>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
                 <a href="news.html" class="nav-link">News &amp; Calls</a>
                 <a href="index.html#donate" class="nav-link nav-btn-donate">Donate</a>
@@ -80,7 +90,7 @@
         <div class="hero-content" style="margin-top: 80px; text-shadow: 0 3px 12px rgba(0,0,0,0.9);">
             <p class="hero-subtitle">Answer the Call</p>
             <h1 class="hero-title" style="font-size: clamp(3rem, 6vw, 5rem);">Join Our Family</h1>
-            <p class="hero-desc" style="color: #f0f0f0;">Whether you are a seasoned veteran, a brand new recruit, or a high school student looking to serve, there is a place for you here.</p>
+            <p class="hero-desc" style="color: #f0f0f0;">Whether you are a seasoned veteran, a brand new recruit, or a trainee looking to serve, there is a place for you here.</p>
         </div>
     </header>
 
@@ -171,7 +181,7 @@
                     <!-- 3. Associate Member -->
                     <div class="glass-panel membership-card card-associate">
                         <div>
-                            <span class="membership-badge-tag tag-associate">Ages 18+ • Non-Emergency Support</span>
+                            <span class="membership-badge-tag tag-associate">Ages 18+ • Support, Non-Interior</span>
                             <h3 class="membership-card-title">Associate Member</h3>
                             <p class="membership-card-desc">
                                 Support Station 46 behind the scenes with your professional skills and volunteer passion—no firefighting required.
@@ -207,10 +217,10 @@
                     <!-- 4. Junior Firefighter Program -->
                     <div class="glass-panel membership-card card-junior">
                         <div>
-                            <span class="membership-badge-tag tag-junior">Ages 16–18 • High School Leadership</span>
+                            <span class="membership-badge-tag tag-junior">Ages 16–18 • Trainee</span>
                             <h3 class="membership-card-title">Junior Firefighter</h3>
                             <p class="membership-card-desc">
-                                Designed for high school students aged 16–18. Learn emergency skills, build leadership, and serve your community with school always first.
+                                Designed for trainees aged 16–18. Learn emergency skills, build leadership, and serve your community with school always first.
                             </p>
                             <ul class="membership-card-list">
                                 <li>
@@ -232,7 +242,7 @@
                             </ul>
                         </div>
                         <div class="membership-card-actions">
-                            <a href="juniors.html" class="btn btn-secondary w-100" style="text-align: center;">Apply as Junior</a>
+                            <a href="juniors.html" class="btn btn-secondary w-100" style="text-align: center;">Apply as Trainee</a>
                         </div>
                     </div>
 
@@ -242,7 +252,7 @@
                 <div id="membership-form-section" class="cta-wrapper fade-in delay-2" style="width: 100%; max-width: 100%; margin: 4rem auto 0;">
                     <form class="recruit-form-card glass-card contact-form" id="membership-application-form" style="margin-top: 0;">
                         <h3 style="color: var(--navy-blue); font-family: var(--font-heading); font-weight: 800; text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem;">Volunteer Application</h3>
-                        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2.5rem; font-size: 0.95rem;">Fill out the form below to email the Membership Committee.</p>
+                        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2.5rem; font-size: 0.95rem;">Fill out the form below to contact the Membership Committee.</p>
                         
                         <div class="recruit-form-grid">
                             <div class="form-group">
@@ -263,13 +273,12 @@
                                     <option value="Firefighter">Firefighter (18+)</option>
                                     <option value="Fire Police">Fire Police (18+)</option>
                                     <option value="Associate Member">Associate Member (18+)</option>
-                                    <option value="Junior Firefighter">Junior Firefighter (Ages 16-18)</option>
+                                    <option value="Junior Firefighter">Junior Firefighter / Trainee (Ages 16-18)</option>
                                 </select>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-primary w-100" style="font-size: 1.1rem; padding: 16px; margin-top: 0.5rem;">Submit Interest</button>
-                        <p class="form-note" style="margin-top: 1.25rem; text-align: center;">Alternatively, email us directly at <strong>membership@mtvfc2.com</strong></p>
+                        <button type="submit" class="btn-primary w-100" style="font-size: 1.1rem; padding: 16px; margin-top: 0.5rem;">Submit</button>
                     </form>
                 </div>
             </div>
@@ -280,7 +289,7 @@
             <div class="container">
                 <div class="section-header text-center fade-in">
                     <h2 class="section-title">Frequently Asked Questions</h2>
-                    <p class="section-subtitle mw-800 mx-auto">Find answers to common questions about Station 46, volunteering, and membership.</p>
+                    <p class="section-subtitle mw-800 mx-auto">Find answers to common questions about MTVFC #2, volunteering, and membership.</p>
                 </div>
                 
                 <div class="faq-container fade-in delay-1" style="max-width: 800px; margin: 0 auto;">
@@ -293,7 +302,7 @@
                             </span>
                         </summary>
                         <div class="faq-answer">
-                            <p><strong>No prior experience is necessary!</strong> We welcome members from all backgrounds and skill levels. Station 46 provides all personal protective turnout gear, in-house mentorship, and formal academy training (such as NJ State Firefighter 1 certification) at <strong>absolutely no cost to you</strong>.</p>
+                            <p><strong>No prior experience is necessary!</strong> We welcome members from all backgrounds and skill levels. MTVFC #2 provides all personal protective turnout gear, in-house mentorship, and formal academy training (such as NJ State Firefighter 1 certification) at <strong>absolutely no cost to you</strong>.</p>
                         </div>
                     </details>
 
@@ -326,13 +335,13 @@
                     <!-- FAQ Item 4 -->
                     <details class="faq-item">
                         <summary class="faq-question">
-                            <span>What are the age requirements to join Station 46?</span>
+                            <span>What are the age requirements to join MTVFC #2?</span>
                             <span class="faq-icon">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </span>
                         </summary>
                         <div class="faq-answer">
-                            <p>Active firefighting, fire police, and associate membership is open to anyone <strong>18 years of age and older</strong>. For high school students ages <strong>16 to 18</strong>, we offer an active <a href="juniors.html">Junior Firefighter Program</a> that teaches hands-on skills, emergency operations, and leadership while prioritizing school and family.</p>
+                            <p>Active firefighting, fire police, and associate membership is open to anyone <strong>18 years of age and older</strong>. For trainees ages <strong>16 to 18</strong>, we offer an active <a href="juniors.html">Junior Firefighter Program</a> that teaches hands-on skills, emergency operations, and leadership while prioritizing school and family.</p>
                         </div>
                     </details>
 
@@ -345,14 +354,14 @@
                             </span>
                         </summary>
                         <div class="faq-answer">
-                            <p><strong>Yes, absolutely!</strong> There are numerous critical roles that do not involve interior structure firefighting. You can serve as a <strong>Fire Police Officer</strong> (scene safety &amp; traffic management), an <strong>Exterior Firefighter</strong> or <strong>Apparatus Driver / Pump Operator</strong>, or an <strong>Associate Member</strong> assisting with administration, IT, community outreach, and station logistics.</p>
+                            <p><strong>Yes, absolutely!</strong> There are numerous critical roles that do not involve interior structure firefighting. You can serve as a <strong>Fire Police Officer</strong> (scene safety &amp; traffic management), an <strong>Exterior Firefighter</strong>, or an <strong>Associate Member</strong> assisting with administration, IT, community outreach, and station logistics.</p>
                         </div>
                     </details>
 
                     <!-- FAQ Item 6 -->
                     <details class="faq-item">
                         <summary class="faq-question">
-                            <span>How does Station 46 get dispatched to emergencies?</span>
+                            <span>How does MTVFC #2 get dispatched to emergencies?</span>
                             <span class="faq-icon">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </span>
@@ -365,13 +374,13 @@
                     <!-- FAQ Item 7 -->
                     <details class="faq-item">
                         <summary class="faq-question">
-                            <span>How is Station 46 funded, and are donations tax-deductible?</span>
+                            <span>How is MTVFC #2 funded, and are donations tax-deductible?</span>
                             <span class="faq-icon">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </span>
                         </summary>
                         <div class="faq-answer">
-                            <p>Montgomery Township Volunteer Fire Company #2 is an independent, <strong>501(c)(3) non-profit organization</strong>. While we receive municipal assistance for baseline operational expenses, we rely heavily on community contributions and annual fund drives to purchase lifesaving rescue gear and maintain our fleet. All donations are 100% tax-deductible and can be made through our <a href="index.html#donate">Donate section</a>.</p>
+                            <p>Montgomery Township Volunteer Fire Company #2 is an independent, <strong>501(c)(3) non-profit organization</strong>. While we receive municipal assistance and support from the Montgomery Township Board of Fire Commissioners District #2 (<a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="text-decoration: underline; font-weight: 600;">BOFC46.com</a>) for baseline operational expenses, we rely heavily on community contributions and annual fund drives to purchase lifesaving rescue gear and maintain our fleet. All donations are 100% tax-deductible and can be made through our <a href="index.html#donate">Donate section</a>.</p>
                         </div>
                     </details>
                 </div>
@@ -382,12 +391,13 @@
     <footer>
         <div class="footer-container">
             <div class="footer-brand">
-                <img src="logo.png" alt="Station 46 Logo" class="footer-badge-img">
+                <img src="logo.png" alt="MTVFC #2 Logo" class="footer-badge-img">
                 <span>Montgomery Township Volunteer Fire Company #2</span>
             </div>
             <div class="footer-info">
-                <p><strong>Station 46</strong> | 529 County Route 518, Skillman, NJ 08558</p>
+                <p><strong>MTVFC #2</strong> (Station 46) | 529 County Route 518, Skillman, NJ 08558</p>
                 <p>Emergency: <strong>911</strong> | Non-Emergency: (609) 466-3926</p>
+                <p><a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--fire-red); font-weight: 600; text-decoration: underline;">Board of Fire Commissioners (BOFC46.com) &rarr;</a></p>
             </div>
             <div class="footer-social">
                 <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="footer-social-link facebook" aria-label="Facebook">
@@ -398,13 +408,9 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
                     <span>Instagram</span>
                 </a>
-                <a href="https://x.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="footer-social-link twitter" aria-label="Twitter">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg>
-                    <span>Twitter</span>
-                </a>
             </div>
             <div class="footer-copy">
-                &copy; <span id="year">2026</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="admin.html" class="admin-link" style="color: var(--text-secondary); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
+                &copy; <span id="year">2026</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary); text-decoration: underline;">Fire District Website (BOFC46.com)</a> | <a href="admin.html" class="admin-link" style="color: var(--text-secondary); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
             </div>
         </div>
     </footer>

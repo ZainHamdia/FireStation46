@@ -319,9 +319,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Real form submission via FormSubmit.co (handles membership & recruitment forms)
-    const membershipForms = document.querySelectorAll('.membership-application-form, #membership-application-form');
-    membershipForms.forEach(form => {
+    // Real form submission via FormSubmit.co (handles membership & recruitment/inquiry forms)
+    const formsToHandle = document.querySelectorAll('.membership-application-form, #membership-application-form, #home-recruit-form, .contact-form');
+    formsToHandle.forEach(form => {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const btn = form.querySelector('button[type="submit"]') || form.querySelector('button');
@@ -334,12 +334,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const nameEl = form.querySelector('[name="name"]') || form.querySelector('#name') || form.querySelector('.form-name');
             const emailEl = form.querySelector('[name="email"]') || form.querySelector('#email') || form.querySelector('.form-email');
             const phoneEl = form.querySelector('[name="phone"]') || form.querySelector('#phone') || form.querySelector('.form-phone');
-            const typeEl = form.querySelector('[name="membership_type"]') || form.querySelector('#membership-type') || form.querySelector('.form-type');
+            const typeEl = form.querySelector('[name="membership_type"]') || form.querySelector('[name="topic"]') || form.querySelector('#membership-type') || form.querySelector('.form-type');
+            const msgEl = form.querySelector('[name="message"]') || form.querySelector('textarea');
 
             const name = nameEl ? nameEl.value : '';
             const email = emailEl ? emailEl.value : '';
             const phone = phoneEl ? phoneEl.value : '';
-            const membershipType = typeEl ? typeEl.value : '';
+            const topic = typeEl ? typeEl.value : 'General Inquiry';
+            const message = msgEl ? msgEl.value : '';
+
+            const isRecruit = form.id === 'membership-application-form' || form.classList.contains('membership-application-form');
+            const subject = isRecruit 
+                ? "New Membership Application for MTVFC #2 (Station 46)" 
+                : `MTVFC #2 Inquiry: ${topic || 'General Contact'}`;
+
+            const payload = {
+                name: name,
+                email: email,
+                phone: phone,
+                topic: topic,
+                _subject: subject
+            };
+            if (message) payload.message = message;
 
             fetch("https://formsubmit.co/ajax/membership@mtvfc2.com", {
                 method: "POST",
@@ -347,17 +363,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    membership_type: membershipType,
-                    _subject: "New Membership Application for Station 46"
-                })
+                body: JSON.stringify(payload)
             })
             .then(response => response.json())
             .then(data => {
-                btn.textContent = 'Application Sent!';
+                btn.textContent = 'Message Sent!';
                 btn.style.background = '#2a9d8f'; // Success green color
                 form.reset();
                 
@@ -378,6 +388,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.style.opacity = '1';
                 }, 3000);
             });
+        });
+    });
+
+    // History Accordion Dropdown on About Page
+    const historyBtn = document.getElementById('history-dropdown-btn');
+    if (historyBtn) {
+        historyBtn.addEventListener('click', () => {
+            const isExpanded = historyBtn.getAttribute('aria-expanded') === 'true';
+            historyBtn.setAttribute('aria-expanded', !isExpanded);
+        });
+
+        // If URL has #history or on hashchange, automatically expand and scroll
+        const checkHistoryHash = () => {
+            if (window.location.hash === '#history') {
+                historyBtn.setAttribute('aria-expanded', 'true');
+                setTimeout(() => {
+                    historyBtn.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 200);
+            }
+        };
+        checkHistoryHash();
+        window.addEventListener('hashchange', checkHistoryHash);
+    }
+
+    // Navigation Dropdown Mobile Toggle
+    document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                const dropdown = toggle.closest('.nav-dropdown');
+                if (dropdown) {
+                    const isOpen = dropdown.classList.contains('is-open');
+                    dropdown.classList.toggle('is-open', !isOpen);
+                }
+            }
         });
     });
 
