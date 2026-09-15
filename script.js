@@ -740,6 +740,11 @@ document.addEventListener('DOMContentLoaded', () => {
             element.id === 'admin-save-git-btn' ||
             element.id === 'admin-typography-btn' ||
             element.id === 'admin-quick-logout-btn' ||
+            element.id === 'hero-btn-active-fleet' ||
+            element.id === 'hero-btn-retired-apparatus' ||
+            element.id === 'hero-btn-upcoming-rescue' ||
+            element.classList.contains('hero-upcoming-btn') ||
+            (element.closest('.hero-content') && element.tagName === 'A') ||
             element.classList.contains('admin-link') ||
             element.classList.contains('search-clear-btn') ||
             element.classList.contains('empty-state-actions') ||
@@ -870,15 +875,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const stored = localStorage.getItem('station46_text_edits');
             if (stored) {
                 const raw = JSON.parse(stored);
-                let hasLegacy = false;
+                let changed = false;
                 for (const k in raw) {
                     if (k.match(/^edit_text_[a-zA-Z0-9_\-\.]+\.html_\d+$/)) {
-                        hasLegacy = true;
-                        break;
+                        delete raw[k];
+                        changed = true;
+                    }
+                    // Purge any stale apparatus hero buttons edits that could overwrite navigation buttons
+                    if (k.includes('apparatus') && (k.includes('hero') || k.includes('btn') || k.includes('a:nth-of-type') || k.includes('retired'))) {
+                        delete raw[k];
+                        changed = true;
                     }
                 }
-                if (hasLegacy) {
-                    localStorage.removeItem('station46_text_edits');
+                if (changed) {
+                    localStorage.setItem('station46_text_edits', JSON.stringify(raw));
                 }
             }
         } catch(e) {
@@ -923,6 +933,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const elements = getEditableElements();
         elements.forEach((element) => {
+            if (element.id === 'hero-btn-active-fleet' ||
+                element.id === 'hero-btn-retired-apparatus' ||
+                element.id === 'hero-btn-upcoming-rescue' ||
+                element.classList.contains('hero-upcoming-btn') ||
+                (element.closest('.hero-content') && element.tagName === 'A')) {
+                return;
+            }
             const selectorPath = getElementSelectorPath(element);
             const storageKey = `edit_v2_${pageKey}_${selectorPath}`;
             const fontKey = `font_v2_${pageKey}_${selectorPath}`;
