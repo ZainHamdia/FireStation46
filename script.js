@@ -986,12 +986,20 @@ document.addEventListener('DOMContentLoaded', () => {
             ranks: ['Junior Firefighter']
         },
         'fire-police': {
-            title: 'Fire Police & Associate Members',
+            title: 'Fire Police',
             gridClass: 'roster-grid-modern',
             cardTier: '',
             avatarClass: 'avatar-police',
             defaultBadge: 'badge-police',
-            ranks: ['Captain (Fire Police)', 'Sergeant (Fire Police)', 'Corporal (Fire Police)', 'Fire Police', 'Associate Member']
+            ranks: ['Captain (Fire Police)', 'Sergeant (Fire Police)', 'Corporal (Fire Police)', 'Fire Police']
+        },
+        'associate-members': {
+            title: 'Associate Members',
+            gridClass: 'roster-grid-modern',
+            cardTier: '',
+            avatarClass: 'avatar-associate',
+            defaultBadge: 'badge-associate',
+            ranks: ['Associate Member']
         }
     };
 
@@ -1387,13 +1395,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (category === 'firefighters') {
             badgeClass = role.toLowerCase().includes('probationary') ? 'badge-probationary' : 'badge-firefighter';
         } else if (category === 'fire-police') {
-            if (role.toLowerCase().includes('associate')) {
-                badgeClass = 'badge-associate';
-                avatarClass = 'avatar-associate';
-            } else {
-                badgeClass = 'badge-police';
-                avatarClass = 'avatar-police';
-            }
+            badgeClass = 'badge-police';
+            avatarClass = 'avatar-police';
+        } else if (category === 'associate-members') {
+            badgeClass = 'badge-associate';
+            avatarClass = 'avatar-associate';
         }
 
         const card = document.createElement('div');
@@ -1466,7 +1472,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (newCategory === 'firefighters') {
                 badgeClass = role.toLowerCase().includes('probationary') ? 'badge-probationary' : 'badge-firefighter';
             } else if (newCategory === 'fire-police') {
-                badgeClass = role.toLowerCase().includes('associate') ? 'badge-associate' : 'badge-police';
+                badgeClass = 'badge-police';
+            } else if (newCategory === 'associate-members') {
+                badgeClass = 'badge-associate';
             }
             badge.classList.add(badgeClass);
         }

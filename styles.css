@@ -334,6 +334,45 @@ a {
     color: #0a0f1d !important;
 }
 
+/* Suppress browser focus rings on mouse/touch clicks while preserving keyboard accessibility */
+.btn:focus:not(:focus-visible),
+.btn-primary:focus:not(:focus-visible),
+.btn-secondary:focus:not(:focus-visible),
+.btn-outline:focus:not(:focus-visible),
+.hero-upcoming-btn:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Hero Upcoming Apparatus Button & Live Status Beacon */
+.hero-upcoming-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.hero-upcoming-btn .hero-live-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(74, 222, 128, 0.7);
+    margin-right: 2px;
+}
+
+.hero-upcoming-btn .hero-btn-arrow {
+    flex-shrink: 0;
+    margin-left: 2px;
+    transition: transform var(--transition-fast);
+}
+
+.hero-upcoming-btn:hover .hero-btn-arrow {
+    transform: translateY(2px);
+}
+
 :root[data-theme="dark"] .btn-secondary,
 :root[data-theme="dark"] .btn-secondary {
     background: #18243c;
@@ -3227,19 +3266,37 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
    Homepage Recruitment Enhancement Styles (Wix Civic Template Style)
    ========================================================================== */
 
-/* Role Pathway Cards */
+/* Role Pathway Cards - 4 in Line */
+#roles .container {
+    max-width: 1400px;
+}
+
 .roles-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
     margin-top: 2.5rem;
     align-items: stretch;
+}
+
+@media (max-width: 1120px) {
+    .roles-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .roles-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
 }
 
 .role-card {
     background: var(--bg-card);
     border-radius: 4px;
-    padding: 2.25rem;
+    padding: 1.85rem 1.25rem;
     display: flex;
     flex-direction: column;
     text-align: left;
@@ -3313,7 +3370,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 .role-card h3 {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     color: var(--text-heading);
     font-family: var(--font-heading);
     font-weight: 800;
@@ -3322,26 +3379,26 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 
 .role-desc {
     color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.55;
+    font-size: 0.9rem;
+    line-height: 1.5;
     margin-bottom: 1.25rem;
 }
 
 .role-features {
     list-style: none;
     padding: 0;
-    margin: 0 0 2rem 0;
+    margin: 0 0 1.5rem 0;
     flex: 1;
 }
 
 .role-features li {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    padding: 8px 0;
+    gap: 8px;
+    padding: 7px 0;
     color: var(--text-primary);
-    font-size: 0.92rem;
-    line-height: 1.5;
+    font-size: 0.88rem;
+    line-height: 1.45;
     border-bottom: 1px solid var(--border-divider);
 }
 
@@ -3354,6 +3411,14 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     stroke: var(--fire-red);
     flex-shrink: 0;
     margin-top: 3px;
+}
+
+.role-card .btn {
+    padding: 11px 12px;
+    font-size: 0.86rem;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    margin-top: auto;
 }
 
 /* Homepage Quick Application Form Section */
@@ -3957,6 +4022,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     border-top: 2px solid var(--border-light);
     background: var(--bg-surface-alt);
     position: relative;
+    scroll-margin-top: 80px;
 }
 
 .upcoming-feature-card {
