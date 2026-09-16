@@ -743,6 +743,8 @@ document.addEventListener('DOMContentLoaded', () => {
             element.id === 'hero-btn-active-fleet' ||
             element.id === 'hero-btn-retired-apparatus' ||
             element.id === 'hero-btn-upcoming-rescue' ||
+            element.id === 'hero-subtitle-text' ||
+            element.id === 'hero-title-text' ||
             element.classList.contains('hero-upcoming-btn') ||
             (element.closest('.hero-content') && element.tagName === 'A') ||
             element.classList.contains('admin-link') ||
@@ -886,6 +888,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         delete raw[k];
                         changed = true;
                     }
+                    // Purge any stale hero subtitle/title edits on homepage
+                    if (k.includes('index') && (k.includes('hero-subtitle') || k.includes('hero-title') || k.includes('h1') || k.includes('h2'))) {
+                        delete raw[k];
+                        changed = true;
+                    }
                 }
                 if (changed) {
                     localStorage.setItem('station46_text_edits', JSON.stringify(raw));
@@ -933,7 +940,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const elements = getEditableElements();
         elements.forEach((element) => {
-            if (element.id === 'hero-btn-active-fleet' ||
+            if (element.id === 'hero-subtitle-text' ||
+                element.id === 'hero-title-text' ||
+                element.id === 'hero-btn-active-fleet' ||
                 element.id === 'hero-btn-retired-apparatus' ||
                 element.id === 'hero-btn-upcoming-rescue' ||
                 element.classList.contains('hero-upcoming-btn') ||
