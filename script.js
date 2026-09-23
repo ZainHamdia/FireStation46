@@ -23,11 +23,13 @@ function persistTheme(theme) {
 (function initTheme() {
     const initialTheme = getStoredTheme();
     document.documentElement.setAttribute('data-theme', initialTheme);
+    document.documentElement.style.colorScheme = initialTheme;
 
     // Sync across browser tabs in real-time
     window.addEventListener('storage', (e) => {
         if (e.key === 'station46_theme' && (e.newValue === 'dark' || e.newValue === 'light')) {
             document.documentElement.setAttribute('data-theme', e.newValue);
+            document.documentElement.style.colorScheme = e.newValue;
             if (window.updateThemeSwitchUI) {
                 window.updateThemeSwitchUI(e.newValue);
             }
@@ -43,6 +45,7 @@ function persistTheme(theme) {
             if (!hasManualChoice) {
                 const newTheme = e.matches ? 'dark' : 'light';
                 document.documentElement.setAttribute('data-theme', newTheme);
+                document.documentElement.style.colorScheme = newTheme;
                 if (window.updateThemeSwitchUI) {
                     window.updateThemeSwitchUI(newTheme);
                 }
@@ -147,6 +150,7 @@ function setupThemeSwitch() {
             // Trigger smooth theme transition animation
             document.documentElement.classList.add('theme-transition');
             document.documentElement.setAttribute('data-theme', nextTheme);
+            document.documentElement.style.colorScheme = nextTheme;
             persistTheme(nextTheme);
             updateUI(nextTheme);
 
@@ -464,10 +468,15 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const contentString = typeof dataObj === 'string' ? dataObj : JSON.stringify(dataObj, null, 2);
             // Safe UTF-8 to Base64 encoding in browser
-            const utf8Bytes = new TextEncoder().encode(contentString);
-            let binaryString = '';
-            utf8Bytes.forEach(byte => binaryString += String.fromCharCode(byte));
-            const contentBase64 = btoa(binaryString);
+            let contentBase64 = '';
+            if (typeof TextEncoder !== 'undefined') {
+                const utf8Bytes = new TextEncoder().encode(contentString);
+                let binaryString = '';
+                utf8Bytes.forEach(byte => binaryString += String.fromCharCode(byte));
+                contentBase64 = btoa(binaryString);
+            } else {
+                contentBase64 = btoa(unescape(encodeURIComponent(contentString)));
+            }
 
             // 1. Fetch current SHA & content from GitHub
             let sha = null;
@@ -623,6 +632,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
+    // Expose helpers globally for Station 46 systems
+    window.syncToGitHub = syncToGitHub;
+    window.fetchRemoteData = fetchRemoteData;
+    window.showAdminToast = showAdminToast;
+
     // Helper: Get posts from localStorage
     function getStoredPosts() {
         const posts = localStorage.getItem('station46_posts');
@@ -708,15 +722,39 @@ document.addEventListener('DOMContentLoaded', () => {
     function isEditableElement(element) {
         if (!element || element.nodeType !== Node.ELEMENT_NODE) return false;
 
+        // On admin.html, only the welcome heading is editable; never edit admin cards or controls
+        const isCurrentAdminPage = window.location.pathname.endsWith('admin.html') || window.location.pathname.includes('admin.html');
+        if (isCurrentAdminPage && element.id !== 'admin-welcome-heading') {
+            return false;
+        }
+
+        // Never edit buttons, links inside buttons, or weather controls
+        if (element.tagName === 'BUTTON' ||
+            element.closest('button') ||
+            element.closest('.btn') ||
+            element.closest('#admin-weather-card') ||
+            element.closest('#admin-login-storm-status') ||
+            element.closest('#admin-storm-toggle-group') ||
+            element.closest('#login-storm-toggle-group') ||
+            element.closest('.storm-toggle-btn') ||
+            element.closest('#station46-storm-banner') ||
+            element.closest('#station46-storm-floating-pill') ||
+            element.closest('#storm-hub-modal') ||
+            element.closest('.storm-modal-backdrop') ||
+            element.closest('#theme-switch-wrapper') ||
+            element.closest('.theme-switch-btn')) {
+            return false;
+        }
+
         // Never edit internal admin controls, forms, toasts, navigation bars, chart rows, or external widgets
         if (element.closest('#admin-floating-bar') ||
             element.closest('#admin-font-toolbar') ||
             element.closest('.admin-font-modal-overlay') ||
             element.closest('#admin-toast-notification') ||
-            element.closest('#admin-dashboard-view') ||
+            (element.closest('#admin-dashboard-view') && element.id !== 'admin-welcome-heading') ||
             element.closest('#admin-login-view') ||
             element.closest('.admin-form-container') ||
-            element.closest('.admin-dashboard') ||
+            (element.closest('.admin-dashboard') && element.id !== 'admin-welcome-heading') ||
             element.closest('#admin-posts-list-container') ||
             element.closest('.news-filter-bar') ||
             element.closest('.chart-bar-row') ||
@@ -2233,6 +2271,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ['index.html', 'about.html', 'apparatus.html', 'news.html', 'membership.html', 'juniors.html', 'santa.html'].forEach(p => editedPages.add(p));
         }
 
+        // Include admin.html if admin welcome heading was edited
+        if (localStorage.getItem('station46_admin_welcome') || (edits && edits['edit_v2_admin.html_#admin-welcome-heading'])) {
+            editedPages.add('admin.html');
+        }
+
         let allHtmlSuccess = true;
 
         for (const pageName of editedPages) {
@@ -2273,6 +2316,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (docRoster && liveRosterCleanHtml) {
                     if (docRoster.innerHTML.trim() !== liveRosterCleanHtml.trim()) {
                         docRoster.innerHTML = liveRosterCleanHtml;
+                        pageHasChanges = true;
+                    }
+                }
+
+                // Synchronize admin welcome heading if syncing admin.html
+                if (pageName === 'admin.html') {
+                    const docWelcome = doc.getElementById('admin-welcome-heading');
+                    const savedAdminWelcome = localStorage.getItem('station46_admin_welcome') || (edits && edits['edit_v2_admin.html_#admin-welcome-heading']);
+                    if (docWelcome && savedAdminWelcome && docWelcome.innerHTML.trim() !== savedAdminWelcome.trim()) {
+                        docWelcome.innerHTML = savedAdminWelcome.trim();
                         pageHasChanges = true;
                     }
                 }
@@ -2414,8 +2467,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Add a floating admin control bar on all pages when logged in
-    if (isAdminLoggedIn && !document.getElementById('admin-floating-bar')) {
+    // Add a floating admin control bar on public pages when logged in (never on admin.html)
+    const isActualAdminPortal = window.location.pathname.endsWith('admin.html') || window.location.pathname.includes('admin.html');
+    if (isAdminLoggedIn && !isActualAdminPortal && !document.getElementById('admin-floating-bar')) {
         const bar = document.createElement('div');
         bar.id = 'admin-floating-bar';
         bar.style.position = 'fixed';
@@ -2610,12 +2664,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function setupAdminWelcomeHeading() {
+        const welcomeHeading = document.getElementById('admin-welcome-heading');
+        const editHint = document.getElementById('admin-welcome-edit-hint');
+        if (!welcomeHeading) return;
+
+        // Restore saved greeting
+        const saved = localStorage.getItem('station46_admin_welcome') || 
+            (getStoredTextEdits() && getStoredTextEdits()['edit_v2_admin.html_#admin-welcome-heading']);
+        if (saved) {
+            welcomeHeading.innerHTML = saved;
+        }
+
+        welcomeHeading.setAttribute('contenteditable', 'true');
+        welcomeHeading.setAttribute('spellcheck', 'false');
+
+        if (editHint) {
+            editHint.addEventListener('click', (e) => {
+                e.preventDefault();
+                welcomeHeading.focus();
+                const range = document.createRange();
+                range.selectNodeContents(welcomeHeading);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+        }
+
+        welcomeHeading.addEventListener('input', () => {
+            const val = welcomeHeading.innerHTML.trim();
+            if (val) {
+                localStorage.setItem('station46_admin_welcome', val);
+                saveTextEdit('edit_v2_admin.html_#admin-welcome-heading', val);
+            }
+        });
+
+        welcomeHeading.addEventListener('blur', () => {
+            let val = welcomeHeading.innerHTML.trim();
+            if (!val || val === '<br>') {
+                val = 'Welcome, Administrator';
+                welcomeHeading.innerHTML = val;
+            }
+            localStorage.setItem('station46_admin_welcome', val);
+            saveTextEdit('edit_v2_admin.html_#admin-welcome-heading', val);
+        });
+
+        welcomeHeading.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                welcomeHeading.blur();
+            }
+        });
+    }
+
     if (loginForm && loginView && dashboardView) {
         // Redirect to dashboard if session exists
         if (sessionStorage.getItem('admin_logged_in') === 'true') {
             loginView.style.display = 'none';
             dashboardView.style.display = 'block';
             toggleAdminLayout(true);
+            setupAdminWelcomeHeading();
             renderAdminPosts();
         } else {
             toggleAdminLayout(false);
@@ -3111,6 +3219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(removeWidgetBranding, 800);
 
     syncFromRemoteDatabase();
+    setupAdminWelcomeHeading();
 });
 
 // ==========================================================================
@@ -3195,4 +3304,1425 @@ document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight') window.changeBlueprint(1);
     }
 });
+
+/* ==========================================================================
+   Station 46 Inclement Weather & Storm Mode System
+   National Weather Service (NWS) API Integration (Somerset County NJZ010 / Station 46)
+   ========================================================================== */
+
+(function initStation46WeatherMode() {
+    const NWS_CONFIG = {
+        zone: 'NJZ010', // Somerset County, NJ
+        point: '40.418,-74.708', // Station 46, Skillman, NJ
+        forecastGrid: 'PHI/62,102',
+        cacheKey: 'station46_nws_weather_cache',
+        cacheTtlMs: 10 * 60 * 1000, // 10 minutes cache
+        overrideKey: 'station46_storm_override',
+        noticeKey: 'station46_storm_custom_notice',
+        dismissKey: 'station46_storm_dismiss_timestamp',
+        globalConfigKey: 'station46_global_storm_mode',
+        remoteConfigPath: 'data/storm_mode.json'
+    };
+
+    // Pre-defined scenario content for community instructions
+    const SCENARIOS = {
+        flood: {
+            id: 'flood',
+            tabName: 'Flooding & Flash Floods',
+            title: 'Flash Floods & Rising Water Safety',
+            desc: 'Skillman and Montgomery Township feature several low-lying river and stream basins—particularly Bedens Brook, the Millstone River, and Pike Run. Flash flooding can develop rapidly during heavy rainfall.',
+            dos: [
+                '<strong>Turn Around, Don\'t Drown:</strong> Never drive through flooded roads. 6 inches of rushing water can stall cars or knock down adults; 12 inches can sweep away small SUVs.',
+                '<strong>Move to Higher Ground:</strong> If rising water approaches your house, safely relocate to an upper floor. Bring phones, chargers, and flashlights.',
+                '<strong>Shut off Utilities if Instructed:</strong> If you can do so safely before water reaches the basement, shut off the main electrical breaker.',
+                '<strong>Monitor Local Road Closures:</strong> Check Montgomery Township Police and Somerset County alerts for road closures on Route 518, River Rd, and Griggstown causeway.'
+            ],
+            donts: [
+                '<strong>Never drive around police road closed barricades.</strong> Barricades are placed because roads or bridge approaches are washed out or underwater.',
+                '<strong>Do NOT enter a flooded basement with standing water</strong> if electricity is still on or outlets/appliances are submerged. Severe electrocution hazard!',
+                '<strong>Never walk or swim in floodwater:</strong> Hidden open manholes, swift underwater currents, bacteria, and fallen power lines pose fatal threats.',
+                '<strong>Do not park vehicles near stream banks</strong> or drainage culverts when flood watches are active.'
+            ],
+            localTip: '<strong>Montgomery High-Risk Flood Spots:</strong> Watch for sudden pooling on Route 518 near Bedens Brook, Belle Mead-Blawenburg Rd, River Rd near Millstone River, and Dead Tree Run Rd.'
+        },
+        tornado: {
+            id: 'tornado',
+            tabName: 'Tornadoes & High Winds',
+            title: 'Tornado Warning & Damaging Wind Action',
+            desc: 'Severe supercells can produce destructive straight-line winds (microbursts) or tornadoes in Central New Jersey. When a Tornado Warning is issued, you have only minutes to take shelter.',
+            dos: [
+                '<strong>Go to the Lowest Level:</strong> The safest place is a basement. If no basement exists, seek shelter in an interior hallway, bathroom, or closet on the ground floor.',
+                '<strong>Put as Many Walls Between You and the Outside:</strong> Stay away from all windows, skylights, and exterior doors.',
+                '<strong>Protect Your Head and Neck:</strong> Use thick blankets, pillows, mattresses, or bicycle/sports helmets to cushion against flying debris.',
+                '<strong>Bring Pets on Leashes / in Carriers:</strong> Secure household pets in the shelter room before the storm hits.'
+            ],
+            donts: [
+                '<strong>Do NOT open windows:</strong> Opening windows to "equalize pressure" is a dangerous myth that lets damaging wind inside your home.',
+                '<strong>Never stay inside a vehicle, trailer, or shed:</strong> Automobiles and temporary outbuildings offer zero protection in tornadic winds. Seek sturdy building shelter immediately.',
+                '<strong>Avoid rooms with large wide-span roofs</strong> like garages, school gymnasiums, or commercial barns.'
+            ],
+            localTip: '<strong>Immediate Action:</strong> If Montgomery Township outdoor sirens sound or your phone receives a WEA Tornado Warning, stop what you are doing and take shelter underground or in an interior room immediately.'
+        },
+        wires: {
+            id: 'wires',
+            tabName: 'Downed Wires & Trees',
+            title: 'Downed Power Lines & Fallen Trees',
+            desc: 'High winds, saturated soil, and heavy ice frequently topple mature trees across roadways and power lines in Somerset County. Fallen lines can remain energized and deadly.',
+            dos: [
+                '<strong>Always Assume Every Downed Wire is Energized:</strong> Power lines can look like harmless telephone or cable wires. Treat ALL lines as high-voltage and lethal.',
+                '<strong>Keep a Minimum 30-Foot Perimeter:</strong> Stay at least 30 feet away (two full car lengths). Electricity can arc across ground, puddle water, and chain-link fences.',
+                '<strong>If a Wire Falls on Your Vehicle:</strong> STAY INSIDE THE VEHICLE. Honk your horn, call 911, and wait for firefighters and utility crews to de-energize the line.',
+                '<strong>Call 911 to Report Live Arcing Wires</strong>, and notify PSE&G (1-800-436-7734) or JCP&L (1-888-544-4877).'
+            ],
+            donts: [
+                '<strong>Never attempt to touch or move branches</strong> that are resting on or near wires—wood conducts electricity when wet or at high voltages.',
+                '<strong>Do not drive over downed wires:</strong> Tires can snag lines, pulling live poles and transformers down onto your vehicle.',
+                '<strong>If your car is on fire and you MUST escape:</strong> Jump clear without touching the car and the ground at the same time. Land on both feet together and bunny-hop away.'
+            ],
+            localTip: '<strong>Utility Providers:</strong> Montgomery Township is served by PSE&G (Eastern/Central) and JCP&L (Western). Report outages to your utility first so restoration tickets are opened.'
+        },
+        thunderstorm: {
+            id: 'thunderstorm',
+            tabName: 'Severe Thunderstorms',
+            title: 'Severe Thunderstorms, Lightning & Hail',
+            desc: 'Severe thunderstorm watches and warnings indicate winds over 58 mph, dangerous cloud-to-ground lightning, and hail that can shatter windshields and damage property.',
+            dos: [
+                '<strong>"When Thunder Roars, Go Indoors":</strong> If you hear thunder, lightning is close enough to strike you. Safe shelter means an enclosed, substantial building.',
+                '<strong>Unplug Expensive Electronics:</strong> Before the storm reaches your street, disconnect computers, televisions, and charging devices to prevent surge damage.',
+                '<strong>Secure Outdoor Furniture:</strong> Patio umbrellas, trampolines, and trash cans must be brought indoors or tied down securely.',
+                '<strong>Wait 30 Minutes After the Last Thunderclap</strong> before resuming outdoor activities or swimming.'
+            ],
+            donts: [
+                '<strong>Never seek shelter under tall, isolated trees</strong>, picnic pavilions, baseball dugouts, or metal canopies.',
+                '<strong>Avoid running water or plumbing:</strong> Do not shower, wash dishes, or handle corded landlines during active electrical storms; lightning travels through pipes.',
+                '<strong>Do not leave pets outdoors:</strong> Dogs and cats frequently bolt when frightened by lightning and hail.'
+            ],
+            localTip: '<strong>Lightning Safety:</strong> Lightning can strike up to 10 miles away from where it is raining ("bolt from the blue"). Seek shelter as soon as dark storm clouds build.'
+        },
+        winter: {
+            id: 'winter',
+            tabName: 'Winter Weather & Ice',
+            title: 'Blizzards, Snow & Freezing Rain',
+            desc: 'Northeasters and winter ice storms bring heavy snow, sub-freezing temperatures, hazardous ice-coated roads, and potential multi-day power loss.',
+            dos: [
+                '<strong>Prevent Frozen & Burst Pipes:</strong> Let faucets drip slightly during severe sub-zero cold spells and keep under-sink cabinet doors open to warm air.',
+                '<strong>Keep Fire Hydrants Clear:</strong> If you have a hydrant near your property, please shovel a 3-foot perimeter around it. This saves vital seconds for Station 46 crews.',
+                '<strong>Stock Warm Essentials:</strong> Keep flashlights, extra warm blankets, rock salt, batteries, and non-perishable canned food ready.',
+                '<strong>Check on Seniors and Neighbors:</strong> Verify vulnerable community members have working heat and adequate supplies.'
+            ],
+            donts: [
+                '<strong>NEVER heat your home with a gas stove</strong>, oven, or outdoor charcoal grill. Deadly carbon monoxide builds up quickly.',
+                '<strong>Avoid overexertion while shoveling:</strong> Cold weather constricts blood vessels while heavy snow increases cardiac strain. Take frequent breaks.',
+                '<strong>Do not drive during active plowing operations</strong> unless in a dire emergency. Give snowplows and emergency apparatus at least 150 feet of following distance.'
+            ],
+            localTip: '<strong>Freezing Rain Danger:</strong> Even a quarter-inch of ice accretion weighs down tree limbs and snaps electrical wires throughout Somerset County.'
+        },
+        generator: {
+            id: 'generator',
+            tabName: 'Generator & CO Safety',
+            title: 'Power Outages, Generator & Carbon Monoxide',
+            desc: 'During power outages, improper use of portable generators and secondary heating sources is the leading cause of fatal carbon monoxide (CO) poisonings and structure fires.',
+            dos: [
+                '<strong>The 20-Foot Rule:</strong> Always operate portable generators OUTDOORS only, placed at least 20 feet away from any door, window, or air vent.',
+                '<strong>Point the Exhaust Away:</strong> Ensure generator exhaust points away from your house and neighboring properties.',
+                '<strong>Test Carbon Monoxide Alarms:</strong> Verify working CO alarms are installed on every floor and outside every bedroom.',
+                '<strong>Food Safety:</strong> Keep refrigerator and freezer doors shut. An unopened refrigerator keeps food safe for 4 hours; a full freezer preserves food for 48 hours.'
+            ],
+            donts: [
+                '<strong>NEVER run a generator inside a home, basement, crawlspace, or garage</strong>—even with doors or windows open! Carbon monoxide is invisible, odorless, and lethal within minutes.',
+                '<strong>Never plug a generator into a regular wall outlet ("backfeeding"):</strong> This bypasses home circuit breakers and energizes power lines outside, which can electrocute utility linemen.',
+                '<strong>Never refuel a hot generator:</strong> Turn the generator off and allow the engine to cool for at least 15 minutes before pouring gasoline to prevent vapor explosions.'
+            ],
+            localTip: '<strong>CO Poisoning Symptoms:</strong> Dizziness, headache, nausea, confusion, and shortness of breath. If your CO detector sounds, EVACUATE immediately and call 911 from outside.'
+        },
+        call911: {
+            id: 'call911',
+            tabName: 'When to Call 911',
+            title: 'Emergency 911 vs. Non-Emergency Guidance',
+            desc: 'During severe weather, dispatch centers experience high call volumes. Following this guidance helps Station 46 firefighters and first responders respond rapidly to life threats.',
+            dos: [
+                '<strong>DIAL 911 IMMEDIATELY FOR:</strong><br>• Life-threatening medical emergencies<br>• Structural fires, smoke, or flames<br>• Downed wires arcing, smoking, or sparking<br>• Motorists trapped in floodwaters<br>• Tree limbs that have collapsed into living spaces<br>• Odor of natural gas or sound of screaming Carbon Monoxide alarms',
+                '<strong>CALL NON-EMERGENCY FOR:</strong><br>• Minor basement seepage with NO electrical danger: Call a licensed plumber<br>• Normal utility outage report: Call PSE&G or JCP&L directly<br>• Station 46 Non-Emergency questions: <strong>(609) 466-3926</strong><br>• Montgomery Police Non-Emergency: <strong>(908) 359-3222</strong>'
+            ],
+            donts: [
+                '<strong>Do NOT call 911 to ask when your power or internet will be restored.</strong> Dispatchers do not have utility restoration schedules.',
+                '<strong>Do not call 911 for general weather updates.</strong> Monitor National Weather Service or local news broadcasts instead.',
+                '<strong>Do not hang up if you accidentally call 911.</strong> Stay on the line to confirm to the operator that you are safe so units aren\'t dispatched needlessly.'
+            ],
+            localTip: '<strong>Montgomery Emergency Dispatch:</strong> In an emergency, dial 911. If calling from a cell phone near township borders, clearly state you are in Montgomery Township, Somerset County.'
+        }
+    };
+
+    // Simulation / Testing Presets
+    const SIM_PRESETS = {
+        tornado: {
+            level: 'warning',
+            event: 'Tornado Warning',
+            headline: 'NWS Mount Holly: Tornado Warning for Somerset County including Montgomery Twp',
+            description: 'The National Weather Service in Mount Holly has issued a Tornado Warning for Somerset County. Severe supercell thunderstorms capable of producing a tornado and quarter size hail are located near Skillman.',
+            instruction: 'TAKE SHELTER NOW! Move to a basement or an interior room on the lowest floor of a sturdy building. Avoid windows. If in an automobile or outdoors, move to the closest substantial shelter.',
+            expires: 'Expires in 45 minutes',
+            activeScenario: 'tornado',
+            temp: '74°F',
+            winds: 'Gusts to 70 mph',
+            radar: 'KDIX Mount Holly Radar Active'
+        },
+        flood: {
+            level: 'watch',
+            event: 'Flood Watch / Flash Flood Warning',
+            headline: 'NWS Mount Holly: Flood Watch in Effect for Bedens Brook & Millstone Basins',
+            description: 'Flooding caused by excessive rainfall is possible. Flash flooding of rivers, creeks, streams, and other low-lying and flood-prone locations is imminent or occurring across southern Somerset County.',
+            instruction: 'Monitor local forecasts and be prepared to take action should Flash Flood Warnings be issued. Turn Around, Don\'t Drown. Avoid low spots on Route 518 and River Road.',
+            expires: 'In effect until tomorrow 6:00 AM',
+            activeScenario: 'flood',
+            temp: '66°F',
+            winds: 'NE 20 mph with heavy rain',
+            radar: 'High precipitation core over Skillman'
+        },
+        thunderstorm: {
+            level: 'watch',
+            event: 'Severe Thunderstorm Watch',
+            headline: 'NWS Storm Prediction Center: Severe Thunderstorm Watch #412 for Central New Jersey',
+            description: 'Severe thunderstorms with damaging wind gusts to 65 mph, large hail, and frequent cloud-to-ground lightning are expected across Somerset County through this evening.',
+            instruction: 'Persons in these areas should be on the lookout for threatening weather conditions and listen for later statements and possible warnings. Secure loose outdoor items.',
+            expires: 'In effect until 10:00 PM EDT',
+            activeScenario: 'thunderstorm',
+            temp: '78°F',
+            winds: 'W 25 mph, gusts to 60 mph',
+            radar: 'Scattered squall line approaching'
+        },
+        winter: {
+            level: 'watch',
+            event: 'Winter Storm Watch',
+            headline: 'NWS Mount Holly: Winter Storm & Freezing Rain Watch for Somerset County',
+            description: 'Heavy snow and ice accumulation expected. Total snow accumulations of 6 to 10 inches and ice accretion up to one-tenth of an inch. Travel will become treacherous.',
+            instruction: 'Prepare for hazardous road conditions and potential tree limb and power line outages. Ensure generator exhaust is kept 20ft outdoors and faucets are dripped to avoid pipe freeze.',
+            expires: 'In effect tomorrow morning through Friday',
+            activeScenario: 'winter',
+            temp: '28°F',
+            winds: 'NNE 20 mph, gusts to 35 mph',
+            radar: 'Winter precipitation shield advancing'
+        },
+        wires: {
+            level: 'advisory',
+            event: 'High Wind Warning & Downed Wire Advisory',
+            headline: 'NWS Mount Holly: High Wind Warning with Sustained 30-40 MPH & Gusts to 60 MPH',
+            description: 'Damaging winds will blow down trees and power lines. Widespread power outages are expected across Montgomery, Belle Mead, and Rocky Hill.',
+            instruction: 'Treat all fallen wires as live and dangerous. Keep at least 30 feet back. Report downed wires immediately to 911 and utility companies.',
+            expires: 'In effect until 8:00 PM EDT',
+            activeScenario: 'wires',
+            temp: '58°F',
+            winds: 'NW 35 mph, gusts to 60 mph',
+            radar: 'Fast-moving dry cold front'
+        },
+        upcoming: {
+            level: 'upcoming',
+            event: 'Inclement Storm Expected in Forecast',
+            headline: 'NWS Forecast: Strong to Severe Thunderstorms Approaching Skillman This Evening',
+            description: 'The National Weather Service forecast predicts strong thunderstorms developing between 4 PM and 9 PM, bringing locally heavy rainfall, gusty winds, and localized lightning.',
+            instruction: 'Review your storm safety plan. Make sure mobile devices are fully charged and loose outdoor patio items are secured before rain begins.',
+            expires: 'Expected onset: 4:30 PM EDT',
+            activeScenario: 'thunderstorm',
+            temp: '72°F',
+            winds: 'Increasing to 15-25 mph',
+            radar: 'Storm cells developing west of Delaware River'
+        }
+    };
+
+    let weatherState = {
+        isActive: false,
+        level: 'watch', // warning, watch, advisory, upcoming
+        event: '',
+        headline: '',
+        description: '',
+        instruction: '',
+        expires: '',
+        activeScenario: 'flood',
+        temp: '',
+        winds: '',
+        radar: '',
+        isSimulated: false,
+        stationNotice: ''
+    };
+
+    // Helper: Determine scenario key from text
+    function detectScenarioKey(text) {
+        const lower = (text || '').toLowerCase();
+        if (lower.includes('tornado')) return 'tornado';
+        if (lower.includes('flood') || lower.includes('water') || lower.includes('rain')) return 'flood';
+        if (lower.includes('wind') || lower.includes('wire') || lower.includes('power')) return 'wires';
+        if (lower.includes('winter') || lower.includes('snow') || lower.includes('blizzard') || lower.includes('ice')) return 'winter';
+        if (lower.includes('thunder') || lower.includes('lightning') || lower.includes('hail')) return 'thunderstorm';
+        return 'flood';
+    }
+
+    // Helper: Read global admin storm mode configuration (from localStorage & synced file data/storm_mode.json)
+    async function getGlobalStormConfig() {
+        let localConfig = null;
+        try {
+            const raw = localStorage.getItem(NWS_CONFIG.globalConfigKey);
+            if (raw) localConfig = JSON.parse(raw);
+        } catch (e) {}
+
+        try {
+            let remoteConfig = null;
+            if (window.fetchRemoteData) {
+                remoteConfig = await window.fetchRemoteData(NWS_CONFIG.remoteConfigPath);
+            } else {
+                const res = await fetch(`${NWS_CONFIG.remoteConfigPath}?t=${Date.now()}`, { cache: 'no-store' });
+                if (res.ok) remoteConfig = await res.json();
+            }
+            if (remoteConfig && typeof remoteConfig === 'object' && remoteConfig.status) {
+                const remoteTime = remoteConfig.updatedAt ? new Date(remoteConfig.updatedAt).getTime() : 0;
+                const localTime = (localConfig && localConfig.updatedAt) ? new Date(localConfig.updatedAt).getTime() : 0;
+
+                // Remote must be strictly newer by at least 2000ms to override local changes
+                if (!localConfig || (remoteTime > localTime + 2000)) {
+                    localConfig = remoteConfig;
+                    try { localStorage.setItem(NWS_CONFIG.globalConfigKey, JSON.stringify(remoteConfig)); } catch (e) {}
+                }
+            }
+        } catch (e) {}
+
+        return localConfig || { status: 'force_active', scenario: 'flood', customTitle: '', customNotice: '' };
+    }
+
+    // Helper: Fetch NWS live alerts and forecast with cache
+    async function fetchNWSData() {
+        // Check cache
+        try {
+            const cached = sessionStorage.getItem(NWS_CONFIG.cacheKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (Date.now() - parsed.timestamp < NWS_CONFIG.cacheTtlMs) {
+                    return parsed.data;
+                }
+            }
+        } catch (e) {}
+
+        // Live fetch from api.weather.gov
+        try {
+            const headers = { 'Accept': 'application/geo+json' };
+            
+            // 1. Fetch active alerts for Somerset County (NJZ010)
+            const alertsUrl = `https://api.weather.gov/alerts/active?zone=${NWS_CONFIG.zone}`;
+            const alertsPromise = fetch(alertsUrl, { headers }).then(r => r.ok ? r.json() : null).catch(() => null);
+
+            // 2. Fetch forecast for PHI/62,102
+            const forecastUrl = `https://api.weather.gov/gridpoints/${NWS_CONFIG.forecastGrid}/forecast`;
+            const forecastPromise = fetch(forecastUrl, { headers }).then(r => r.ok ? r.json() : null).catch(() => null);
+
+            const [alertsData, forecastData] = await Promise.all([alertsPromise, forecastPromise]);
+
+            const result = {
+                alerts: alertsData?.features || [],
+                periods: forecastData?.properties?.periods || [],
+                timestamp: Date.now()
+            };
+
+            try {
+                sessionStorage.setItem(NWS_CONFIG.cacheKey, JSON.stringify({ timestamp: Date.now(), data: result }));
+            } catch (e) {}
+
+            return result;
+        } catch (err) {
+            console.warn('[Station 46 Weather] Live NWS fetch error, using default calm state:', err);
+            return { alerts: [], periods: [] };
+        }
+    }
+
+    let weatherEvalCounter = 0;
+
+    // Evaluate live, admin-activated, or simulated data into weatherState
+    async function evaluateWeather() {
+        const currentEval = ++weatherEvalCounter;
+
+        // 1. Check for URL query simulation first: ?storm_mode=tornado, ?storm_mode=flood, etc.
+        let queryMode = null;
+        try {
+            if (typeof URLSearchParams !== 'undefined' && window.location && window.location.search) {
+                const urlParams = new URLSearchParams(window.location.search);
+                queryMode = urlParams.get('storm_mode');
+            } else if (window.location && window.location.search) {
+                const match = window.location.search.match(/[?&]storm_mode=([^&]+)/);
+                if (match) queryMode = decodeURIComponent(match[1]);
+            }
+        } catch (e) {}
+
+        if (queryMode) {
+            if (currentEval !== weatherEvalCounter) return;
+            if (queryMode === 'clear' || queryMode === 'off') {
+                weatherState.isActive = false;
+                return;
+            }
+            if (SIM_PRESETS[queryMode]) {
+                const preset = SIM_PRESETS[queryMode];
+                weatherState = {
+                    isActive: true,
+                    level: preset.level,
+                    event: preset.event,
+                    headline: preset.headline,
+                    description: preset.description,
+                    instruction: preset.instruction,
+                    expires: preset.expires,
+                    activeScenario: preset.activeScenario,
+                    temp: preset.temp,
+                    winds: preset.winds,
+                    radar: preset.radar,
+                    isSimulated: true,
+                    stationNotice: ''
+                };
+                loadCustomStationNotice();
+                return;
+            }
+        }
+
+        // 2. Check Global Admin Activation FIRST (before local simulator override or live NWS)
+        const globalConfig = await getGlobalStormConfig();
+        if (currentEval !== weatherEvalCounter) return;
+
+        if (globalConfig && globalConfig.status === 'force_active') {
+            const scKey = globalConfig.scenario || 'flood';
+            const preset = SIM_PRESETS[scKey] || SIM_PRESETS.flood;
+            const title = (globalConfig.customTitle && globalConfig.customTitle.trim()) ? globalConfig.customTitle.trim() : preset.headline;
+            const notice = (globalConfig.customNotice && globalConfig.customNotice.trim()) ? globalConfig.customNotice.trim() : '';
+
+            weatherState = {
+                isActive: true,
+                level: preset.level || 'watch',
+                event: preset.event,
+                headline: title,
+                description: preset.description,
+                instruction: preset.instruction,
+                expires: 'Emergency Alert Issued by Montgomery Township Volunteer Fire Company #2',
+                activeScenario: scKey,
+                temp: preset.temp || 'Active Alert',
+                winds: preset.winds || 'Hazardous',
+                radar: preset.radar || 'Mount Holly KDIX Doppler Active',
+                isSimulated: false,
+                isGlobalForced: true,
+                stationNotice: notice
+            };
+            return;
+        } else if (globalConfig && globalConfig.status === 'force_inactive') {
+            weatherState.isActive = false;
+            return;
+        }
+
+        // 3. Check for local simulation override set by tester in modal simulator
+        try {
+            const storedOverride = localStorage.getItem(NWS_CONFIG.overrideKey);
+            if (storedOverride) {
+                if (storedOverride === 'clear') {
+                    weatherState.isActive = false;
+                    return;
+                }
+                if (SIM_PRESETS[storedOverride]) {
+                    const preset = SIM_PRESETS[storedOverride];
+                    weatherState = {
+                        isActive: true,
+                        level: preset.level,
+                        event: preset.event,
+                        headline: preset.headline,
+                        description: preset.description,
+                        instruction: preset.instruction,
+                        expires: preset.expires,
+                        activeScenario: preset.activeScenario,
+                        temp: preset.temp,
+                        winds: preset.winds,
+                        radar: preset.radar,
+                        isSimulated: true,
+                        stationNotice: ''
+                    };
+                    loadCustomStationNotice();
+                    return;
+                }
+            }
+        } catch (e) {}
+
+        // 4. Otherwise Auto Mode: Proceed with Live NWS API Check
+        const raw = await fetchNWSData();
+        if (currentEval !== weatherEvalCounter) return;
+
+        // Live evaluation
+        const alerts = raw?.alerts || [];
+        const periods = raw?.periods || [];
+
+        // Check active watches / warnings
+        if (alerts.length > 0) {
+            // Find most severe alert
+            let topAlert = null;
+            let highestSeverity = 0;
+
+            alerts.forEach(feat => {
+                const props = feat.properties || {};
+                const eventName = (props.event || '').toLowerCase();
+                // Filter out test messages
+                if (eventName.includes('test') || props.status === 'Test') return;
+
+                let score = 1;
+                if (eventName.includes('warning')) score = 3;
+                else if (eventName.includes('watch')) score = 2;
+                else if (eventName.includes('advisory')) score = 1.5;
+
+                if (score > highestSeverity) {
+                    highestSeverity = score;
+                    topAlert = props;
+                }
+            });
+
+            if (topAlert) {
+                let lvl = 'advisory';
+                if (highestSeverity >= 3) lvl = 'warning';
+                else if (highestSeverity >= 2) lvl = 'watch';
+
+                const expiresDate = topAlert.expires ? new Date(topAlert.expires).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Until further notice';
+
+                weatherState = {
+                    isActive: true,
+                    level: lvl,
+                    event: topAlert.event || 'Severe Weather Alert',
+                    headline: topAlert.headline || topAlert.event,
+                    description: topAlert.description || 'Active alert issued by the National Weather Service.',
+                    instruction: topAlert.instruction || 'Follow guidance from local Montgomery Township emergency management officials.',
+                    expires: `Expires around ${expiresDate}`,
+                    activeScenario: detectScenarioKey(topAlert.event + ' ' + (topAlert.description || '')),
+                    temp: periods[0] ? `${periods[0].temperature}°${periods[0].temperatureUnit}` : '',
+                    winds: periods[0] ? `${periods[0].windSpeed} ${periods[0].windDirection}` : '',
+                    radar: 'NWS KDIX Mount Holly Radar',
+                    isSimulated: false,
+                    stationNotice: ''
+                };
+                loadCustomStationNotice();
+                return;
+            }
+        }
+
+        // If no active watch/warning, inspect upcoming forecast for storms
+        if (periods.length > 0) {
+            // Check next 2 periods (today & tonight or next 24-36h)
+            const stormKeywords = ['thunderstorm', 'severe', 'tornado', 'flood', 'blizzard', 'heavy rain', 'damaging wind', 'hail', 'tropical storm'];
+            let upcomingStormPeriod = null;
+
+            for (let i = 0; i < Math.min(periods.length, 3); i++) {
+                const p = periods[i];
+                const text = ((p.shortForecast || '') + ' ' + (p.detailedForecast || '')).toLowerCase();
+                const hasStorm = stormKeywords.some(kw => text.includes(kw));
+                if (hasStorm) {
+                    upcomingStormPeriod = p;
+                    break;
+                }
+            }
+
+            if (upcomingStormPeriod) {
+                weatherState = {
+                    isActive: true,
+                    level: 'upcoming',
+                    event: `${upcomingStormPeriod.name}: Storm in Forecast`,
+                    headline: `Upcoming Storm Alert for Skillman / Montgomery: ${upcomingStormPeriod.shortForecast}`,
+                    description: upcomingStormPeriod.detailedForecast || 'The National Weather Service forecast indicates storm conditions approaching our area.',
+                    instruction: 'Stay alert to weather changes. Secure loose outdoor furniture and review family storm emergency plans.',
+                    expires: `Forecast for ${upcomingStormPeriod.name}`,
+                    activeScenario: detectScenarioKey(upcomingStormPeriod.shortForecast + ' ' + upcomingStormPeriod.detailedForecast),
+                    temp: `${upcomingStormPeriod.temperature}°${upcomingStormPeriod.temperatureUnit}`,
+                    winds: `${upcomingStormPeriod.windSpeed} ${upcomingStormPeriod.windDirection}`,
+                    radar: 'NWS KDIX Mount Holly Radar',
+                    isSimulated: false,
+                    stationNotice: ''
+                };
+                loadCustomStationNotice();
+                return;
+            }
+        }
+
+        // Otherwise calm/clear
+        weatherState.isActive = false;
+        loadCustomStationNotice();
+    }
+
+    function loadCustomStationNotice() {
+        try {
+            const notice = localStorage.getItem(NWS_CONFIG.noticeKey);
+            if (notice && notice.trim()) {
+                weatherState.stationNotice = notice.trim();
+            }
+        } catch (e) {}
+    }
+
+    // Render Emergency Alert Banner at Top of Page (In-place updates to prevent screen jitter/flashing)
+    function renderStormBanner() {
+        let banner = document.getElementById('station46-storm-banner');
+        const pill = document.getElementById('station46-storm-floating-pill');
+
+        if (!weatherState.isActive) {
+            document.body.classList.remove('storm-mode-active', 'storm-level-warning', 'storm-level-watch', 'storm-level-upcoming');
+            if (banner) banner.remove();
+            if (pill) pill.remove();
+            return;
+        }
+
+        // Check if user dismissed banner for this session
+        let isDismissed = false;
+        try {
+            const dismissedAt = sessionStorage.getItem(NWS_CONFIG.dismissKey);
+            if (dismissedAt) isDismissed = true;
+        } catch (e) {}
+
+        // Add class to body for styling
+        document.body.classList.add('storm-mode-active');
+        document.body.classList.remove('storm-level-warning', 'storm-level-watch', 'storm-level-upcoming');
+        document.body.classList.add(`storm-level-${weatherState.level}`);
+
+        if (isDismissed) {
+            if (banner) banner.remove();
+            renderFloatingPill();
+            return;
+        }
+
+        let levelTag = 'NWS WATCH';
+        if (weatherState.level === 'warning') levelTag = 'CRITICAL WARNING';
+        else if (weatherState.level === 'watch') levelTag = 'WEATHER WATCH';
+        else if (weatherState.level === 'upcoming') levelTag = 'UPCOMING STORM';
+        else levelTag = 'ADVISORY';
+
+        const bannerHtml = `
+            <div class="storm-banner-container">
+                <div class="storm-banner-left">
+                    <div class="storm-pulse-dot" aria-hidden="true"></div>
+                    <span class="storm-banner-tag">${levelTag}</span>
+                    <div class="storm-banner-text">
+                        <span class="storm-banner-title">${escapeHtml(weatherState.event)}:</span>
+                        <span>Somerset County / Montgomery Twp.</span>
+                        <span class="storm-banner-timing">(${escapeHtml(weatherState.expires)})</span>
+                    </div>
+                </div>
+                <div class="storm-banner-right">
+                    <button type="button" class="storm-banner-btn" id="open-storm-hub-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <span>Weather Safety Guide</span>
+                    </button>
+                    <button type="button" class="storm-banner-dismiss" id="dismiss-storm-banner-btn" aria-label="Dismiss banner" title="Minimize alert banner">
+                        &times;
+                    </button>
+                </div>
+            </div>
+        `;
+
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'station46-storm-banner';
+            banner.setAttribute('role', 'alert');
+            banner.className = `storm-alert-banner storm-banner-${weatherState.level}`;
+            banner.innerHTML = bannerHtml;
+            document.body.prepend(banner);
+        } else {
+            banner.className = `storm-alert-banner storm-banner-${weatherState.level}`;
+            banner.innerHTML = bannerHtml;
+        }
+
+        // Event listeners
+        const openBtn = banner.querySelector('#open-storm-hub-btn');
+        if (openBtn && !openBtn.dataset.bound) {
+            openBtn.dataset.bound = 'true';
+            openBtn.addEventListener('click', () => {
+                openStormHubModal(weatherState.activeScenario);
+            });
+        }
+
+        const dismissBtn = banner.querySelector('#dismiss-storm-banner-btn');
+        if (dismissBtn && !dismissBtn.dataset.bound) {
+            dismissBtn.dataset.bound = 'true';
+            dismissBtn.addEventListener('click', () => {
+                banner.remove();
+                try {
+                    sessionStorage.setItem(NWS_CONFIG.dismissKey, Date.now().toString());
+                } catch (e) {}
+                renderFloatingPill();
+            });
+        }
+
+        renderFloatingPill();
+    }
+
+    // Floating Emergency Weather Pill (Bottom-Left)
+    function renderFloatingPill() {
+        let pill = document.getElementById('station46-storm-floating-pill');
+        if (!pill) {
+            pill = document.createElement('button');
+            pill.id = 'station46-storm-floating-pill';
+            pill.setAttribute('type', 'button');
+            pill.setAttribute('aria-label', 'Open Station 46 Weather Safety Hub');
+            document.body.appendChild(pill);
+        }
+
+        pill.className = `storm-floating-pill pill-${weatherState.level}`;
+        pill.innerHTML = `
+            <span class="storm-pulse-dot" aria-hidden="true"></span>
+            <span>Severe Weather Safety Guide</span>
+        `;
+
+        if (!pill.dataset.bound) {
+            pill.dataset.bound = 'true';
+            pill.addEventListener('click', () => {
+                openStormHubModal(weatherState.activeScenario);
+            });
+        }
+    }
+
+    // Render the Storm & Inclement Weather Safety Hub Modal
+    function buildStormHubModal() {
+        let modalBackdrop = document.getElementById('storm-hub-modal');
+        if (modalBackdrop) return modalBackdrop;
+
+        modalBackdrop = document.createElement('div');
+        modalBackdrop.id = 'storm-hub-modal';
+        modalBackdrop.className = 'storm-modal-backdrop';
+        modalBackdrop.setAttribute('role', 'dialog');
+        modalBackdrop.setAttribute('aria-modal', 'true');
+        modalBackdrop.setAttribute('aria-hidden', 'true');
+
+        modalBackdrop.innerHTML = `
+            <div class="storm-modal-container">
+                <!-- Header -->
+                <div class="storm-modal-header">
+                    <div class="storm-modal-title-wrap">
+                        <div class="storm-modal-header-top">
+                            <span class="storm-modal-badge badge-${weatherState.level}" id="storm-modal-level-badge">
+                                ${weatherState.level === 'warning' ? 'CRITICAL WARNING' : (weatherState.level === 'watch' ? 'WEATHER WATCH' : 'UPCOMING STORM')}
+                            </span>
+                            <span class="storm-modal-office">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                                <span id="storm-modal-meta-office">NWS Mount Holly / PHI &bull; Somerset County Zone NJZ010</span>
+                            </span>
+                        </div>
+                        <h2 class="storm-modal-title" id="storm-modal-title-text">${escapeHtml(weatherState.headline || 'Inclement Weather & Storm Emergency Center')}</h2>
+                    </div>
+                    <button type="button" class="storm-modal-close-btn" id="storm-modal-close-btn" aria-label="Close dialog">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="storm-modal-body">
+                    
+                    <!-- Station Custom Notice (if active) -->
+                    <div class="storm-station-notice" id="storm-station-notice-box" style="${weatherState.stationNotice ? '' : 'display: none;'}">
+                        <div class="storm-notice-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                        </div>
+                        <div class="storm-notice-content">
+                            <h4>Station 46 Community Notice</h4>
+                            <p id="storm-station-notice-text">${escapeHtml(weatherState.stationNotice || '')}</p>
+                        </div>
+                    </div>
+
+                    <!-- Direct Emergency One-Click Contact Grid -->
+                    <div class="storm-contacts-grid">
+                        <a href="tel:911" class="storm-contact-card emergency-card">
+                            <div class="storm-contact-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            </div>
+                            <div class="storm-contact-details">
+                                <span class="storm-contact-label">Life Threat / Active Fire</span>
+                                <span class="storm-contact-number">Dial 911</span>
+                            </div>
+                        </a>
+                        <a href="tel:6094663926" class="storm-contact-card">
+                            <div class="storm-contact-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                            </div>
+                            <div class="storm-contact-details">
+                                <span class="storm-contact-label">Station 46 Non-Emergency</span>
+                                <span class="storm-contact-number">(609) 466-3926</span>
+                            </div>
+                        </a>
+                        <a href="tel:9083593222" class="storm-contact-card">
+                            <div class="storm-contact-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            </div>
+                            <div class="storm-contact-details">
+                                <span class="storm-contact-label">Montgomery Twp Police</span>
+                                <span class="storm-contact-number">(908) 359-3222</span>
+                            </div>
+                        </a>
+                        <a href="tel:18004367734" class="storm-contact-card">
+                            <div class="storm-contact-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                            </div>
+                            <div class="storm-contact-details">
+                                <span class="storm-contact-label">PSE&G Outage Line</span>
+                                <span class="storm-contact-number">1-800-436-7734</span>
+                            </div>
+                        </a>
+                        <a href="tel:18885444877" class="storm-contact-card">
+                            <div class="storm-contact-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                            </div>
+                            <div class="storm-contact-details">
+                                <span class="storm-contact-label">JCP&L Outage Line</span>
+                                <span class="storm-contact-number">1-888-544-4877</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Live Weather & NWS Bulletin Details -->
+                    <div class="storm-live-weather-card">
+                        <div class="storm-live-header">
+                            <div class="storm-live-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
+                                <span>Current Weather & Live Alert Details</span>
+                            </div>
+                            <a href="https://radar.weather.gov/station/KDIX/standard" target="_blank" rel="noopener noreferrer" class="storm-radar-link">
+                                <span>Live Mount Holly Doppler Radar &rarr;</span>
+                            </a>
+                        </div>
+                        <div class="storm-live-stats">
+                            <div class="storm-stat-item">
+                                <span class="storm-stat-label">Area</span>
+                                <span class="storm-stat-val">Skillman / Montgomery</span>
+                            </div>
+                            <div class="storm-stat-item">
+                                <span class="storm-stat-label">Status</span>
+                                <span class="storm-stat-val" id="storm-stat-event">${escapeHtml(weatherState.event || 'Calm / Standard')}</span>
+                            </div>
+                            <div class="storm-stat-item">
+                                <span class="storm-stat-label">Timing</span>
+                                <span class="storm-stat-val" id="storm-stat-timing">${escapeHtml(weatherState.expires || 'N/A')}</span>
+                            </div>
+                            <div class="storm-stat-item">
+                                <span class="storm-stat-label">Wind / Gusts</span>
+                                <span class="storm-stat-val" id="storm-stat-wind">${escapeHtml(weatherState.winds || 'Normal')}</span>
+                            </div>
+                        </div>
+                        <div class="storm-nws-statement" id="storm-nws-statement-text">
+                            <strong>Official Statement:</strong> ${escapeHtml(weatherState.description || 'No severe weather alerts are currently active for Montgomery Township. Stay prepared by reviewing the safety scenarios below.')}
+                            ${weatherState.instruction ? `<br><br><strong>Instruction:</strong> ${escapeHtml(weatherState.instruction)}` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Interactive Scenario Action Guides -->
+                    <div class="storm-scenarios-section">
+                        <div class="storm-scenarios-header">
+                            <h3>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span>Emergency Safety Protocols</span>
+                            </h3>
+                        </div>
+
+                        <!-- Scenario Tabs -->
+                        <div class="storm-tab-buttons" id="storm-tab-buttons" role="tablist">
+                            ${Object.keys(SCENARIOS).map(key => {
+                                const sc = SCENARIOS[key];
+                                return `<button type="button" class="storm-tab-btn" data-scenario="${sc.id}" role="tab" aria-selected="false">${sc.tabName}</button>`;
+                            }).join('')}
+                        </div>
+
+                        <!-- Tab Panels Container -->
+                        <div id="storm-tab-panels-container">
+                            ${Object.keys(SCENARIOS).map(key => {
+                                const sc = SCENARIOS[key];
+                                return `
+                                    <div class="storm-tab-panel" id="panel-${sc.id}" role="tabpanel">
+                                        <h4 class="scenario-panel-title">${sc.title}</h4>
+                                        <p class="scenario-panel-desc">${sc.desc}</p>
+                                        
+                                        <div class="scenario-action-grid">
+                                            <div class="action-column dos">
+                                                <div class="action-column-header">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                    <span>Actions To Take</span>
+                                                </div>
+                                                <ul class="action-list">
+                                                    ${sc.dos.map(item => `<li>${item}</li>`).join('')}
+                                                </ul>
+                                            </div>
+                                            <div class="action-column donts">
+                                                <div class="action-column-header">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                                    <span>Safety Hazards To Avoid</span>
+                                                </div>
+                                                <ul class="action-list">
+                                                    ${sc.donts.map(item => `<li>${item}</li>`).join('')}
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="scenario-local-tip">
+                                            ${sc.localTip}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="storm-modal-footer">
+                    <div class="storm-modal-source">
+                        Official source: <strong>National Weather Service (NWS Mount Holly)</strong> &amp; Montgomery Township Volunteer Fire Company #2
+                    </div>
+                    <div class="storm-modal-footer-actions">
+                        <button type="button" class="btn btn-secondary storm-modal-close-action" id="storm-modal-done-btn">Close</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modalBackdrop);
+
+        // Bind Close
+        modalBackdrop.querySelector('#storm-modal-close-btn').addEventListener('click', closeStormHubModal);
+        modalBackdrop.querySelector('#storm-modal-done-btn').addEventListener('click', closeStormHubModal);
+        modalBackdrop.addEventListener('click', (e) => {
+            if (e.target === modalBackdrop) closeStormHubModal();
+        });
+
+        // Bind Scenario Tabs
+        const tabBtns = modalBackdrop.querySelectorAll('.storm-tab-btn');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetScenario = btn.getAttribute('data-scenario');
+                switchScenarioTab(targetScenario);
+            });
+        });
+
+        // Bind Simulator dropdown
+        const simSelect = modalBackdrop.querySelector('#storm-sim-select');
+        if (simSelect) {
+            // Set current selected value
+            const currentOverride = localStorage.getItem(NWS_CONFIG.overrideKey) || 'auto';
+            simSelect.value = currentOverride;
+
+            simSelect.addEventListener('change', (e) => {
+                const val = e.target.value;
+                if (val === 'auto') {
+                    localStorage.removeItem(NWS_CONFIG.overrideKey);
+                    sessionStorage.removeItem(NWS_CONFIG.cacheKey);
+                } else {
+                    localStorage.setItem(NWS_CONFIG.overrideKey, val);
+                }
+                // Re-evaluate and re-render
+                evaluateWeather().then(() => {
+                    updateModalContent();
+                    renderStormBanner();
+                    switchScenarioTab(weatherState.activeScenario || 'flood');
+                });
+            });
+        }
+
+        return modalBackdrop;
+    }
+
+    function switchScenarioTab(scenarioId) {
+        const modalBackdrop = document.getElementById('storm-hub-modal');
+        if (!modalBackdrop) return;
+
+        const targetId = SCENARIOS[scenarioId] ? scenarioId : 'flood';
+
+        modalBackdrop.querySelectorAll('.storm-tab-btn').forEach(b => {
+            const isMatch = b.getAttribute('data-scenario') === targetId;
+            b.classList.toggle('active', isMatch);
+            b.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+        });
+
+        modalBackdrop.querySelectorAll('.storm-tab-panel').forEach(p => {
+            p.classList.toggle('active', p.id === `panel-${targetId}`);
+        });
+    }
+
+    function updateModalContent() {
+        const modalBackdrop = document.getElementById('storm-hub-modal');
+        if (!modalBackdrop) return;
+
+        const badge = modalBackdrop.querySelector('#storm-modal-level-badge');
+        if (badge) {
+            badge.className = `storm-modal-badge badge-${weatherState.level}`;
+            badge.textContent = weatherState.level === 'warning' ? 'CRITICAL WARNING' : (weatherState.level === 'watch' ? 'WEATHER WATCH' : (weatherState.level === 'upcoming' ? 'UPCOMING STORM' : 'WEATHER ADVISORY'));
+        }
+
+        const title = modalBackdrop.querySelector('#storm-modal-title-text');
+        if (title) title.textContent = weatherState.headline || 'Inclement Weather & Storm Emergency Center';
+
+        const statEvent = modalBackdrop.querySelector('#storm-stat-event');
+        if (statEvent) statEvent.textContent = weatherState.event || 'Normal / Clear';
+
+        const statTiming = modalBackdrop.querySelector('#storm-stat-timing');
+        if (statTiming) statTiming.textContent = weatherState.expires || 'N/A';
+
+        const statWind = modalBackdrop.querySelector('#storm-stat-wind');
+        if (statWind) statWind.textContent = weatherState.winds || 'Normal';
+
+        const stmt = modalBackdrop.querySelector('#storm-nws-statement-text');
+        if (stmt) {
+            stmt.innerHTML = `<strong>Official Statement:</strong> ${escapeHtml(weatherState.description || 'No severe weather alerts are currently active for Montgomery Township.')}` + 
+                             (weatherState.instruction ? `<br><br><strong>Instruction:</strong> ${escapeHtml(weatherState.instruction)}` : '');
+        }
+
+        const noticeBox = modalBackdrop.querySelector('#storm-station-notice-box');
+        const noticeText = modalBackdrop.querySelector('#storm-station-notice-text');
+        if (noticeBox && noticeText) {
+            if (weatherState.stationNotice) {
+                noticeBox.style.display = 'flex';
+                noticeText.textContent = weatherState.stationNotice;
+            } else {
+                noticeBox.style.display = 'none';
+            }
+        }
+    }
+
+    function openStormHubModal(preferredScenario) {
+        let modalBackdrop = buildStormHubModal();
+        updateModalContent();
+        switchScenarioTab(preferredScenario || weatherState.activeScenario || 'flood');
+
+        modalBackdrop.classList.add('active');
+        modalBackdrop.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeStormHubModal() {
+        const modalBackdrop = document.getElementById('storm-hub-modal');
+        if (modalBackdrop) {
+            modalBackdrop.classList.remove('active');
+            modalBackdrop.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Global keyboard listener for escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('storm-hub-modal');
+            if (modal && modal.classList.contains('active')) {
+                closeStormHubModal();
+            }
+        }
+    });
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function applyConfigToState(config) {
+        if (!config || config.status === 'auto') {
+            weatherState.isGlobalForced = false;
+            return;
+        }
+        if (config.status === 'force_inactive') {
+            weatherState.isActive = false;
+            weatherState.isGlobalForced = true;
+            return;
+        }
+        if (config.status === 'force_active') {
+            const scKey = config.scenario || 'flood';
+            const preset = SIM_PRESETS[scKey] || SIM_PRESETS.flood;
+            const title = (config.customTitle && config.customTitle.trim()) ? config.customTitle.trim() : preset.headline;
+            const notice = (config.customNotice && config.customNotice.trim()) ? config.customNotice.trim() : '';
+
+            weatherState = {
+                isActive: true,
+                level: preset.level || 'watch',
+                event: preset.event,
+                headline: title,
+                description: preset.description,
+                instruction: preset.instruction,
+                expires: 'Emergency Alert Issued by Montgomery Township Volunteer Fire Company #2',
+                activeScenario: scKey,
+                temp: preset.temp || 'Active Alert',
+                winds: preset.winds || 'Hazardous',
+                radar: preset.radar || 'Mount Holly KDIX Doppler Active',
+                isSimulated: false,
+                isGlobalForced: true,
+                stationNotice: notice
+            };
+        }
+    }
+
+    // Public API on window
+    window.Station46Weather = {
+        getState: () => ({ ...weatherState }),
+        getGlobalConfig: () => getGlobalStormConfig(),
+        openHub: (scenario) => openStormHubModal(scenario),
+        closeHub: () => closeStormHubModal(),
+        
+        // Admin Portal Activation: Activates Storm Mode globally for all website visitors
+        activateGlobalMode: async (scenario, customTitle, customNotice) => {
+            weatherEvalCounter++; // Invalidate any in-flight evaluateWeather calls!
+            const scKey = scenario || 'flood';
+            const preset = SIM_PRESETS[scKey] || SIM_PRESETS.flood;
+            const config = {
+                status: 'force_active',
+                scenario: scKey,
+                level: preset.level || 'watch',
+                customTitle: customTitle || '',
+                customNotice: customNotice || '',
+                updatedAt: new Date().toISOString(),
+                activatedBy: 'Montgomery Township Volunteer Fire Company #2'
+            };
+            try {
+                localStorage.setItem(NWS_CONFIG.globalConfigKey, JSON.stringify(config));
+                localStorage.removeItem(NWS_CONFIG.overrideKey); // clear local test override
+                sessionStorage.removeItem(NWS_CONFIG.cacheKey);
+                sessionStorage.removeItem(NWS_CONFIG.dismissKey); // Clear dismissal so alert banner ALWAYS pops up!
+            } catch (e) {}
+
+            applyConfigToState(config);
+            renderStormBanner();
+            updateModalContent();
+
+            // Background non-blocking GitHub sync
+            if (window.syncToGitHub) {
+                window.syncToGitHub(NWS_CONFIG.remoteConfigPath, config, `Station 46: Activate Storm Mode (${scKey})`)
+                    .then(ok => console.log('[Station 46] Storm Mode GitHub sync:', ok))
+                    .catch(err => console.warn('[Station 46] Background GitHub sync error:', err));
+            }
+
+            return true;
+        },
+
+        // Admin Portal Deactivation: Forces Storm Mode off
+        deactivateGlobalMode: async () => {
+            weatherEvalCounter++;
+            const config = {
+                status: 'force_inactive',
+                scenario: 'flood',
+                customTitle: '',
+                customNotice: '',
+                updatedAt: new Date().toISOString(),
+                activatedBy: 'Montgomery Township Volunteer Fire Company #2'
+            };
+            try {
+                localStorage.setItem(NWS_CONFIG.globalConfigKey, JSON.stringify(config));
+                localStorage.removeItem(NWS_CONFIG.overrideKey);
+            } catch (e) {}
+
+            applyConfigToState(config);
+            renderStormBanner();
+            updateModalContent();
+
+            if (window.syncToGitHub) {
+                window.syncToGitHub(NWS_CONFIG.remoteConfigPath, config, 'Station 46: Deactivate Storm Mode')
+                    .then(ok => console.log('[Station 46] Storm Mode Deactivate sync:', ok))
+                    .catch(err => console.warn('[Station 46] Background GitHub sync error:', err));
+            }
+
+            return true;
+        },
+
+        // Reset to Automatic NWS Detection
+        resetGlobalToAuto: async () => {
+            weatherEvalCounter++;
+            const config = {
+                status: 'auto',
+                scenario: 'flood',
+                customTitle: '',
+                customNotice: '',
+                updatedAt: new Date().toISOString(),
+                activatedBy: 'Montgomery Township Volunteer Fire Company #2'
+            };
+            try {
+                localStorage.setItem(NWS_CONFIG.globalConfigKey, JSON.stringify(config));
+                localStorage.removeItem(NWS_CONFIG.overrideKey);
+                sessionStorage.removeItem(NWS_CONFIG.cacheKey);
+            } catch (e) {}
+
+            weatherState.isGlobalForced = false;
+            evaluateWeather().then(() => {
+                renderStormBanner();
+                updateModalContent();
+            });
+
+            if (window.syncToGitHub) {
+                window.syncToGitHub(NWS_CONFIG.remoteConfigPath, config, 'Admin: Reset Storm Mode to Auto (NWS)')
+                    .then(ok => console.log('[Station 46] Storm Mode Auto sync:', ok))
+                    .catch(err => console.warn('[Station 46] Background GitHub sync error:', err));
+            }
+
+            return true;
+        },
+
+        // Local tester simulation override
+        setSimulatorMode: (mode) => {
+            if (mode === 'auto') {
+                localStorage.removeItem(NWS_CONFIG.overrideKey);
+                sessionStorage.removeItem(NWS_CONFIG.cacheKey);
+            } else {
+                localStorage.setItem(NWS_CONFIG.overrideKey, mode);
+            }
+            return evaluateWeather().then(() => {
+                updateModalContent();
+                renderStormBanner();
+            });
+        },
+
+        setCustomNotice: (notice) => {
+            if (notice && notice.trim()) {
+                localStorage.setItem(NWS_CONFIG.noticeKey, notice.trim());
+            } else {
+                localStorage.removeItem(NWS_CONFIG.noticeKey);
+            }
+            return evaluateWeather().then(() => {
+                updateModalContent();
+                renderStormBanner();
+            });
+        },
+
+        refresh: () => {
+            sessionStorage.removeItem(NWS_CONFIG.cacheKey);
+            return evaluateWeather().then(() => {
+                updateModalContent();
+                renderStormBanner();
+            });
+        }
+    };
+
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            evaluateWeather().then(renderStormBanner);
+            setupAdminWeatherIntegration();
+        });
+    } else {
+        evaluateWeather().then(renderStormBanner);
+        setupAdminWeatherIntegration();
+    }
+
+    // Admin Dashboard Weather Panel & Activation Command Center
+    function setupAdminWeatherIntegration() {
+        const loginStatusText = document.getElementById('login-weather-status-text');
+        const loginOpenHubBtn = document.getElementById('login-open-hub-btn');
+        if (loginOpenHubBtn && !loginOpenHubBtn.dataset.bound) {
+            loginOpenHubBtn.dataset.bound = 'true';
+            loginOpenHubBtn.addEventListener('click', () => {
+                if (window.Station46Weather) window.Station46Weather.openHub();
+            });
+        }
+
+        const headerHubBtn = document.getElementById('admin-header-storm-hub-btn');
+        if (headerHubBtn && !headerHubBtn.dataset.bound) {
+            headerHubBtn.dataset.bound = 'true';
+            headerHubBtn.addEventListener('click', () => {
+                if (window.Station46Weather) window.Station46Weather.openHub();
+            });
+        }
+
+        // Shared helper to trigger mode switches from any toggle button
+        async function switchWeatherMode(targetMode) {
+            const scenarioSelect = document.getElementById('admin-storm-scenario-select');
+            const titleInput = document.getElementById('admin-storm-title-input');
+            const noticeInput = document.getElementById('admin-storm-notice-input');
+
+            const sc = scenarioSelect ? scenarioSelect.value : (weatherState.activeScenario || 'flood');
+            const title = titleInput ? titleInput.value.trim() : '';
+            const notice = noticeInput ? noticeInput.value.trim() : '';
+
+            if (targetMode === 'force_active') {
+                await window.Station46Weather.activateGlobalMode(sc, title, notice);
+                updateWeatherControlsUI({
+                    status: 'force_active',
+                    scenario: sc,
+                    customTitle: title,
+                    customNotice: notice,
+                    updatedAt: new Date().toISOString()
+                });
+                if (window.showAdminToast) {
+                    window.showAdminToast('🚨 Storm Mode ACTIVATED on Website!');
+                }
+            } else if (targetMode === 'auto') {
+                await window.Station46Weather.resetGlobalToAuto();
+                updateWeatherControlsUI({
+                    status: 'auto',
+                    scenario: sc,
+                    customTitle: title,
+                    customNotice: notice,
+                    updatedAt: new Date().toISOString()
+                });
+                if (window.showAdminToast) {
+                    window.showAdminToast('🟢 Website set to Automatic NWS Detection.');
+                }
+            } else if (targetMode === 'force_inactive') {
+                await window.Station46Weather.deactivateGlobalMode();
+                updateWeatherControlsUI({
+                    status: 'force_inactive',
+                    scenario: sc,
+                    customTitle: title,
+                    customNotice: notice,
+                    updatedAt: new Date().toISOString()
+                });
+                if (window.showAdminToast) {
+                    window.showAdminToast('⚪ Storm Mode deactivated.');
+                }
+            }
+        }
+
+        // Bind interactive toggle buttons in dashboard card (inside admin portal only)
+        const adminToggleBtns = document.querySelectorAll('#admin-storm-toggle-group .storm-toggle-btn');
+        adminToggleBtns.forEach(btn => {
+            if (!btn.dataset.bound) {
+                btn.dataset.bound = 'true';
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const mode = btn.getAttribute('data-mode');
+                    switchWeatherMode(mode);
+                });
+            }
+        });
+
+        // Universal UI synchronizer for all status indicators and toggle buttons
+        function updateWeatherControlsUI(cfg) {
+            const status = cfg.status || 'auto';
+            const scenario = cfg.scenario || 'flood';
+            const customTitle = cfg.customTitle || '';
+            const customNotice = cfg.customNotice || '';
+
+            // 1. Update toggle buttons active class
+            document.querySelectorAll('#login-storm-toggle-group .storm-toggle-btn, #admin-storm-toggle-group .storm-toggle-btn').forEach(b => {
+                const bMode = b.getAttribute('data-mode');
+                b.classList.toggle('active', bMode === status);
+            });
+
+            // 2. Update hidden or select input if present
+            const statusSelect = document.getElementById('admin-storm-status-select');
+            if (statusSelect) statusSelect.value = status;
+
+            const scenarioSelect = document.getElementById('admin-storm-scenario-select');
+            if (scenarioSelect && scenario) scenarioSelect.value = scenario;
+
+            const titleInput = document.getElementById('admin-storm-title-input');
+            if (titleInput && customTitle !== undefined) titleInput.value = customTitle;
+
+            const noticeInput = document.getElementById('admin-storm-notice-input');
+            if (noticeInput && customNotice !== undefined) noticeInput.value = customNotice;
+
+            // 3. Update login card status text
+            if (loginStatusText) {
+                if (status === 'force_active') {
+                    loginStatusText.innerHTML = '<span style="color: #dc2626;">🚨 Live Active on Website</span>';
+                } else if (status === 'force_inactive') {
+                    loginStatusText.innerHTML = '<span style="color: #64748b;">⚪ Standby / Deactivated</span>';
+                } else {
+                    loginStatusText.innerHTML = '<span style="color: #10b981;">🟢 Auto-Detect (NWS Active)</span>';
+                }
+            }
+
+            // 4. Update dashboard card banner
+            const bannerWrap = document.getElementById('admin-weather-status-banner-wrap');
+            if (bannerWrap) {
+                if (status === 'force_active') {
+                    const scName = SCENARIOS[scenario]?.tabName || scenario;
+                    bannerWrap.innerHTML = `
+                        <div style="background: linear-gradient(90deg, #991b1b 0%, #dc2626 100%); color: #ffffff; padding: 12px 18px; border-radius: 6px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.4rem;">🚨</span>
+                                <div>
+                                    <div style="font-weight: 800; font-size: 0.95rem; letter-spacing: 0.3px;">STORM MODE IS ACTIVATED ON THE WEBSITE (LIVE FOR ALL VISITORS)</div>
+                                    <div style="font-size: 0.82rem; opacity: 0.92;">Active Scenario: <strong>${escapeHtml(scName)}</strong> • Issued by MTVFC #2</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" id="admin-quick-auto-btn" class="btn" style="background: #ffffff; color: #0f172a; font-weight: 700; padding: 6px 14px; font-size: 0.8rem; border-radius: 4px; border: none; cursor: pointer;">Switch to Auto</button>
+                                <button type="button" id="admin-quick-deactivate-btn" class="btn" style="background: rgba(0,0,0,0.3); color: #ffffff; border: 1px solid rgba(255,255,255,0.4); font-weight: 600; padding: 6px 14px; font-size: 0.8rem; border-radius: 4px; cursor: pointer;">Deactivate</button>
+                            </div>
+                        </div>
+                    `;
+                    const qAuto = bannerWrap.querySelector('#admin-quick-auto-btn');
+                    const qDeact = bannerWrap.querySelector('#admin-quick-deactivate-btn');
+                    if (qAuto) qAuto.addEventListener('click', () => switchWeatherMode('auto'));
+                    if (qDeact) qDeact.addEventListener('click', () => switchWeatherMode('force_inactive'));
+                } else if (status === 'force_inactive') {
+                    bannerWrap.innerHTML = `
+                        <div class="admin-weather-status-inactive">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 1.1rem;">⚪</span>
+                                <span><strong>Storm Mode Deactivated / Standby:</strong> The website is currently in standard calm mode.</span>
+                            </div>
+                            <button type="button" id="admin-quick-auto-btn" class="btn btn-admin-action" style="font-weight: 600; padding: 5px 12px; font-size: 0.8rem; height: auto;">Enable Auto-Detect</button>
+                        </div>
+                    `;
+                    const qAuto = bannerWrap.querySelector('#admin-quick-auto-btn');
+                    if (qAuto) qAuto.addEventListener('click', () => switchWeatherMode('auto'));
+                } else {
+                    bannerWrap.innerHTML = `
+                        <div class="admin-weather-status-auto">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; flex-shrink: 0;"></span>
+                            <span><strong>🟢 Automatic NWS Detection Active:</strong> The website continuously monitors live National Weather Service watches, warnings, and upcoming forecasts for Somerset County (Zone NJZ010). It automatically activates whenever severe weather occurs.</span>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Read stored configuration immediately
+        let initialConfig = null;
+        try {
+            const raw = localStorage.getItem(NWS_CONFIG.globalConfigKey);
+            if (raw) initialConfig = JSON.parse(raw);
+        } catch (e) {}
+        const activeConfig = initialConfig || { status: 'force_active', scenario: 'flood', customTitle: '', customNotice: '' };
+        updateWeatherControlsUI(activeConfig);
+
+        // Background sync check
+        getGlobalStormConfig().then(cfg => {
+            if (cfg) updateWeatherControlsUI(cfg);
+        }).catch(() => {});
+
+        const weatherCard = document.getElementById('admin-weather-card');
+        if (!weatherCard || weatherCard.dataset.listenersBound === 'true') return;
+        weatherCard.dataset.listenersBound = 'true';
+
+        // Action Buttons Bar listeners
+        const activateBtn = document.getElementById('admin-save-activate-btn');
+        const setAutoBtn = document.getElementById('admin-set-auto-btn');
+        const deactivateBtn = document.getElementById('admin-deactivate-btn');
+        const previewBtn = document.getElementById('admin-test-storm-hub-btn');
+
+        if (activateBtn) {
+            activateBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const origHtml = activateBtn.innerHTML;
+                activateBtn.innerHTML = '<span>✅ ACTIVATED!</span>';
+                activateBtn.style.background = '#15803d';
+
+                await switchWeatherMode('force_active');
+
+                setTimeout(() => {
+                    activateBtn.innerHTML = origHtml;
+                    activateBtn.style.background = '';
+                }, 1600);
+            });
+        }
+
+        if (setAutoBtn) {
+            setAutoBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchWeatherMode('auto');
+            });
+        }
+
+        if (deactivateBtn) {
+            deactivateBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchWeatherMode('force_inactive');
+            });
+        }
+
+        if (previewBtn) {
+            previewBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const scenarioSelect = document.getElementById('admin-storm-scenario-select');
+                const sc = scenarioSelect ? scenarioSelect.value : 'flood';
+                window.Station46Weather.openHub(sc);
+            });
+        }
+    }
+})();
+
+
 

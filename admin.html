@@ -47,10 +47,20 @@
                         (document.cookie.match(/(?:^|;)\s*station46_theme=([^;]+)/) || [])[1] || 
                         (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
                 document.documentElement.setAttribute('data-theme', t);
+                document.documentElement.style.colorScheme = t;
+            } catch(e) {}
+            try {
+                var savedW = localStorage.getItem('station46_admin_welcome');
+                if (savedW) {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var el = document.getElementById('admin-welcome-heading');
+                        if (el) el.innerHTML = savedW;
+                    });
+                }
             } catch(e) {}
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=96">
+    <link rel="stylesheet" href="styles.css?v=103">
 </head>
 <body>
     <!-- Civic Top Utility Bar -->
@@ -139,7 +149,7 @@
                     </form>
 
                     <div style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border-light); text-align: center;">
-                        <a href="santa.html" class="btn" style="background: #f8fafc; color: var(--navy-blue); border: 1.5px solid var(--border-subtle); display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; font-weight: 600; text-transform: none; border-radius: 4px; padding: 11px 20px;">
+                        <a href="santa.html" class="btn btn-admin-action" style="width: 100%; padding: 11px 20px;">
                             🎅 Go to Operation Santa Page
                         </a>
                     </div>
@@ -148,13 +158,116 @@
                 <!-- Logged In Dashboard View -->
                 <div class="admin-dashboard fade-in" id="admin-dashboard-view" style="display: none;">
                     <div class="admin-dashboard-header">
-                        <h2>Welcome, Administrator</h2>
+                        <div class="admin-welcome-wrap">
+                            <h2 id="admin-welcome-heading" contenteditable="true" spellcheck="false" title="Click to edit greeting">Welcome, Administrator</h2>
+                            <button type="button" id="admin-welcome-edit-hint" class="admin-welcome-edit-btn" title="Click to edit greeting" aria-label="Edit greeting">✏️</button>
+                        </div>
                         <div class="admin-header-actions">
-                            <a href="about.html#roster" class="btn" style="background: #ffffff; color: var(--navy-blue); border: 1.5px solid var(--border-subtle); font-weight: 600; text-transform: none; padding: 10px 18px; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.4rem;">👥 Manage Roster</a>
-                            <a href="santa.html" class="btn" style="background: #ffffff; color: var(--navy-blue); border: 1.5px solid var(--border-subtle); font-weight: 600; text-transform: none; padding: 10px 18px; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.4rem;">🎅 Santa Page</a>
-                            <button class="btn" id="admin-force-git-push-btn" style="background: var(--navy-blue); color: #ffffff; font-weight: 600; text-transform: none; padding: 10px 18px; border-radius: 4px; border: none; cursor: pointer;">💾 Push to Git</button>
-                            <a href="news.html" class="btn" style="background: #ffffff; color: var(--navy-blue); border: 1.5px solid var(--border-subtle); font-weight: 600; text-transform: none; padding: 10px 18px; border-radius: 4px;">View Feed</a>
-                            <button class="btn btn-primary" id="admin-logout-btn" style="font-weight: 600; text-transform: none; padding: 10px 18px; border-radius: 4px;">Log Out</button>
+                            <a href="about.html#roster" class="btn btn-admin-action">👥 Manage Roster</a>
+                            <a href="santa.html" class="btn btn-admin-action">🎅 Santa Page</a>
+                            <button type="button" class="btn btn-admin-action" id="admin-header-storm-hub-btn" onclick="if(window.Station46Weather)window.Station46Weather.openHub();">⚡ Storm Hub</button>
+                            <button type="button" class="btn btn-admin-git" id="admin-force-git-push-btn">💾 Push to Git</button>
+                            <a href="news.html" class="btn btn-admin-action">View Feed</a>
+                            <button type="button" class="btn btn-admin-logout" id="admin-logout-btn">Log Out</button>
+                        </div>
+                    </div>
+
+                    <!-- Station 46 Weather & Storm Mode Command Center -->
+                    <div class="glass-card" id="admin-weather-card" style="margin-bottom: 2rem; border-left: 5px solid var(--fire-red); padding: 1.75rem;">
+                        <!-- Header -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(230, 57, 70, 0.12); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">⛈️</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.2rem; color: var(--navy-blue); font-weight: 800;">Storm Mode & Emergency Weather Center</h3>
+                                    <p style="margin: 0; font-size: 0.84rem; color: var(--text-secondary);">Direct Station 46 website activation & National Weather Service integration</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button type="button" id="admin-test-storm-hub-btn" class="btn btn-admin-action" style="padding: 7px 15px; font-size: 0.82rem; height: auto;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <span>Preview Safety Hub</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Status Banner Container -->
+                        <div id="admin-weather-status-banner-wrap">
+                            <div class="admin-weather-status-auto">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; flex-shrink: 0;"></span>
+                                <span><strong>🟢 Automatic NWS Detection Active:</strong> The website continuously monitors live National Weather Service watches, warnings, and upcoming forecasts for Somerset County (Zone NJZ010). It automatically activates whenever severe weather occurs.</span>
+                            </div>
+                        </div>
+
+                        <!-- Activation Controls Form -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <!-- Left: Mode and Scenario Selection -->
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: var(--navy-blue);">
+                                        Website Mode Toggle:
+                                    </label>
+                                    <div class="storm-toggle-group" id="admin-storm-toggle-group">
+                                        <button type="button" class="storm-toggle-btn active" data-mode="force_active" id="admin-toggle-active" title="Force Storm Mode ON for all website visitors">
+                                            <span>🚨 Force Active</span>
+                                        </button>
+                                        <button type="button" class="storm-toggle-btn" data-mode="auto" id="admin-toggle-auto" title="Automatic activation during NWS watches & warnings">
+                                            <span>🟢 Auto-Detect</span>
+                                        </button>
+                                        <button type="button" class="storm-toggle-btn" data-mode="force_inactive" id="admin-toggle-inactive" title="Deactivate and keep website in standard calm mode">
+                                            <span>⚪ Deactivate</span>
+                                        </button>
+                                    </div>
+                                    <input type="hidden" id="admin-storm-status-select" value="force_active">
+                                </div>
+
+                                <div>
+                                    <label for="admin-storm-scenario-select" style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">
+                                        Scenario / Severe Weather Type:
+                                    </label>
+                                    <select id="admin-storm-scenario-select" style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1.5px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-main); font-family: inherit; font-size: 0.9rem;">
+                                        <option value="flood" selected>🌊 Flood Watch / Flash Flood Warning (Bedens Brook / Millstone)</option>
+                                        <option value="tornado">🌪️ Tornado Warning (Critical Danger - Immediate Shelter)</option>
+                                        <option value="thunderstorm">⚡ Severe Thunderstorm Watch (High Winds, Lightning, Hail)</option>
+                                        <option value="winter">❄️ Winter Storm & Freezing Ice Watch</option>
+                                        <option value="wires">🔌 High Wind & Downed Power Lines Advisory</option>
+                                        <option value="upcoming">⛈️ Approaching Storm in Forecast Outlook</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label for="admin-storm-title-input" style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">
+                                        Custom Alert Headline (Optional):
+                                    </label>
+                                    <input type="text" id="admin-storm-title-input" placeholder="Leave blank for automatic NWS headline" style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-main); font-family: inherit; font-size: 0.88rem; box-sizing: border-box;">
+                                </div>
+                            </div>
+
+                            <!-- Right: Custom Station Bulletin / Notice -->
+                            <div style="display: flex; flex-direction: column;">
+                                <label for="admin-storm-notice-input" style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">
+                                    Custom Station 46 Community Advisory (Displayed in Safety Hub):
+                                </label>
+                                <textarea id="admin-storm-notice-input" rows="7" placeholder="e.g. Station 46 volunteers are staffed at the firehouse. Please avoid low-lying sections of Route 518 near Bedens Brook. If you see downed wires, stay at least 30 feet back and dial 911." style="width: 100%; height: 100%; min-height: 140px; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-main); font-family: inherit; font-size: 0.88rem; line-height: 1.5; resize: vertical; box-sizing: border-box;"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons Bar -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid var(--border-light);">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <button type="button" id="admin-save-activate-btn" class="btn" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: #ffffff; font-weight: 700; font-size: 0.9rem; padding: 11px 22px; border-radius: 4px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);">
+                                    <span>🚨 ACTIVATE STORM MODE FOR ALL VISITORS</span>
+                                </button>
+                                <button type="button" id="admin-set-auto-btn" class="btn btn-admin-action" style="padding: 10px 18px; font-size: 0.88rem; height: auto;">
+                                    <span>🟢 Switch to Auto-Detect</span>
+                                </button>
+                                <button type="button" id="admin-deactivate-btn" class="btn btn-admin-action btn-admin-standby" style="padding: 10px 18px; font-size: 0.88rem; height: auto;">
+                                    <span>⏹️ Deactivate</span>
+                                </button>
+                            </div>
+                            <div id="admin-weather-sync-indicator" style="font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                                <span>Changes sync immediately across all pages and visitors.</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -246,7 +359,7 @@
                 </a>
             </div>
             <div class="footer-copy">
-                &copy; <span id="year">2026</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary); text-decoration: underline;">Fire District Website (BOFC46.com)</a> | <a href="admin.html" class="admin-link" style="color: var(--text-secondary); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
+                &copy; <span id="year">2026</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer">Fire District Website (BOFC46.com)</a> | <a href="admin.html" class="admin-link">Admin Portal</a>
             </div>
         </div>
     </footer>
@@ -331,6 +444,6 @@
         <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
     </div>
 
-    <script src="script.js?v=95"></script>
+    <script src="script.js?v=103"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 :root {
-    color-scheme: light dark;
+    color-scheme: light;
 
     /* Color Palette - Authentic Community Fire Station (Wix Template Style) */
     --fire-red: #c62828;
@@ -65,7 +65,8 @@
    Dark Theme (Automatic Device Preference & Manual Data Attribute)
    ========================================================================== */
 @media (prefers-color-scheme: dark) {
-    :root[data-theme="dark"] {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
         /* Brand Colors - High Contrast for Dark Mode */
         --fire-red: #ef4444;
         --fire-red-dark: #dc2626;
@@ -105,7 +106,12 @@
     }
 }
 
+:root[data-theme="light"] {
+    color-scheme: light;
+}
+
 :root[data-theme="dark"] {
+    color-scheme: dark;
     /* Brand Colors - High Contrast for Dark Mode */
     --fire-red: #ef4444;
     --fire-red-dark: #dc2626;
@@ -1452,6 +1458,25 @@ body.menu-open {
     display: block;
 }
 
+/* Fix browser autofill / autocomplete background & text color contrast */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-primary) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+    box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+    color: var(--text-primary) !important;
+    caret-color: var(--text-primary) !important;
+    transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s;
+}
+
 .contact-form input::placeholder,
 .contact-form textarea::placeholder,
 .recruit-form-card input::placeholder,
@@ -1641,8 +1666,20 @@ footer {
     padding-top: 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     width: 100%;
-    color: #64748b;
+    color: #94a3b8;
     font-size: 0.88rem;
+}
+
+.footer-copy a {
+    color: #cbd5e1;
+    text-decoration: underline;
+    transition: color var(--transition-fast);
+}
+
+.footer-copy a:hover,
+.footer-copy a:focus {
+    color: #ffffff;
+    text-decoration: underline;
 }
 
 /* Responsive Layouts */
@@ -2994,12 +3031,316 @@ footer {
     font-weight: 800;
 }
 
+.admin-welcome-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+#admin-welcome-heading {
+    margin-bottom: 0;
+    font-size: 1.85rem;
+    color: var(--text-heading);
+    font-weight: 800;
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin-left: -8px;
+    cursor: text;
+    transition: all var(--transition-fast);
+    outline: none;
+    border: 1.5px solid transparent;
+}
+
+#admin-welcome-heading:hover {
+    border-color: rgba(22, 37, 61, 0.35);
+    background: rgba(22, 37, 61, 0.04);
+}
+
+#admin-welcome-heading:focus {
+    border-color: var(--fire-red);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15);
+}
+
+.admin-welcome-edit-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0.45;
+    padding: 4px;
+    border-radius: 4px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.admin-welcome-wrap:hover .admin-welcome-edit-btn {
+    opacity: 0.9;
+}
+
+.admin-welcome-edit-btn:hover {
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+:root[data-theme="dark"] #admin-welcome-heading:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+:root[data-theme="dark"] #admin-welcome-heading:focus {
+    border-color: var(--fire-red);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+}
+
 .admin-header-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.65rem;
     flex-wrap: wrap;
     align-items: center;
 }
+
+.admin-header-actions .btn,
+.btn-admin-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    height: 42px;
+    padding: 0 16px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 4px;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
+    color: #16253d;
+    text-transform: none;
+    letter-spacing: normal;
+    cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
+    vertical-align: middle;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all var(--transition-fast);
+    text-decoration: none;
+}
+
+.admin-header-actions .btn:hover,
+.btn-admin-action:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+/* Standby / subtle admin button */
+.btn-admin-standby {
+    background: #f8fafc;
+    color: #475569;
+    border: 1.5px solid #cbd5e1;
+}
+
+.btn-admin-standby:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+    border-color: #94a3b8;
+}
+
+/* Push to Git - Admin Header Button */
+.admin-header-actions .btn-admin-git,
+#admin-force-git-push-btn {
+    background: #16253d !important;
+    color: #ffffff !important;
+    border: 1.5px solid #16253d !important;
+}
+
+.admin-header-actions .btn-admin-git:hover,
+#admin-force-git-push-btn:hover {
+    background: #0d1726 !important;
+    border-color: #0d1726 !important;
+    color: #ffffff !important;
+}
+
+/* Log Out - Admin Header Button */
+.admin-header-actions .btn-admin-logout,
+#admin-logout-btn {
+    background: var(--fire-red) !important;
+    color: #ffffff !important;
+    border: 1.5px solid var(--fire-red) !important;
+}
+
+.admin-header-actions .btn-admin-logout:hover,
+#admin-logout-btn:hover {
+    background: var(--fire-red-dark) !important;
+    border-color: var(--fire-red-dark) !important;
+    color: #ffffff !important;
+}
+
+/* Dark Mode support for Admin Header & Action Buttons */
+[data-theme="dark"] .admin-header-actions .btn,
+[data-theme="dark"] .btn-admin-action,
+:root[data-theme="dark"] .admin-header-actions .btn,
+:root[data-theme="dark"] .btn-admin-action {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .admin-header-actions .btn:hover,
+[data-theme="dark"] .btn-admin-action:hover,
+:root[data-theme="dark"] .admin-header-actions .btn:hover,
+:root[data-theme="dark"] .btn-admin-action:hover {
+    background: #27354a !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-admin-standby,
+:root[data-theme="dark"] .btn-admin-standby {
+    background: #0f172a !important;
+    color: #94a3b8 !important;
+    border-color: #334155 !important;
+}
+
+[data-theme="dark"] .btn-admin-standby:hover,
+:root[data-theme="dark"] .btn-admin-standby:hover {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
+}
+
+[data-theme="dark"] .admin-header-actions .btn-admin-git,
+[data-theme="dark"] #admin-force-git-push-btn,
+:root[data-theme="dark"] .admin-header-actions .btn-admin-git,
+:root[data-theme="dark"] #admin-force-git-push-btn {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .admin-header-actions .btn-admin-git:hover,
+[data-theme="dark"] #admin-force-git-push-btn:hover,
+:root[data-theme="dark"] .admin-header-actions .btn-admin-git:hover,
+:root[data-theme="dark"] #admin-force-git-push-btn:hover {
+    background: #0f172a !important;
+    border-color: #475569 !important;
+}
+
+/* System Dark Mode fallbacks */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .admin-header-actions .btn,
+    :root:not([data-theme="light"]) .btn-admin-action {
+        background: #1e293b !important;
+        color: #f8fafc !important;
+        border-color: #334155 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+    }
+    :root:not([data-theme="light"]) .admin-header-actions .btn:hover,
+    :root:not([data-theme="light"]) .btn-admin-action:hover {
+        background: #27354a !important;
+        border-color: #475569 !important;
+        color: #ffffff !important;
+    }
+    :root:not([data-theme="light"]) .btn-admin-standby {
+        background: #0f172a !important;
+        color: #94a3b8 !important;
+        border-color: #334155 !important;
+    }
+    :root:not([data-theme="light"]) .btn-admin-standby:hover {
+        background: #1e293b !important;
+        color: #f1f5f9 !important;
+        border-color: #475569 !important;
+    }
+    :root:not([data-theme="light"]) .admin-header-actions .btn-admin-git,
+    :root:not([data-theme="light"]) #admin-force-git-push-btn {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        color: #ffffff !important;
+    }
+    :root:not([data-theme="light"]) .admin-header-actions .btn-admin-git:hover,
+    :root:not([data-theme="light"]) #admin-force-git-push-btn:hover {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+    }
+}
+
+/* Weather Status Banners on Admin Dashboard */
+.admin-weather-status-auto {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #065f46;
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-weather-status-inactive {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+[data-theme="dark"] .admin-weather-status-auto,
+:root[data-theme="dark"] .admin-weather-status-auto {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(52, 211, 153, 0.4);
+    color: #6ee7b7;
+}
+
+[data-theme="dark"] .admin-weather-status-inactive,
+:root[data-theme="dark"] .admin-weather-status-inactive {
+    background: #1e293b;
+    border-color: #334155;
+    color: #cbd5e1;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .admin-weather-status-auto {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: rgba(52, 211, 153, 0.4);
+        color: #6ee7b7;
+    }
+    :root:not([data-theme="light"]) .admin-weather-status-inactive {
+        background: #1e293b;
+        border-color: #334155;
+        color: #cbd5e1;
+    }
+}
+
+/* Ensure select dropdown options render clearly in dark mode */
+[data-theme="dark"] select option,
+:root[data-theme="dark"] select option {
+    background-color: #1e293b;
+    color: #f8fafc;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) select option {
+        background-color: #1e293b;
+        color: #f8fafc;
+    }
+}
+
 
 .admin-dashboard-grid {
     display: grid;
@@ -4790,17 +5131,15 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     :root[data-theme="dark"] .membership-application-form input,
     :root[data-theme="dark"] .membership-application-form textarea,
     :root[data-theme="dark"] .membership-application-form select,
-    :root[data-theme="dark"] .roster-modal-form input[type="text"],
-    :root[data-theme="dark"] .roster-modal-form select,
-    :root[data-theme="dark"] .contact-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
-    :root[data-theme="dark"] .contact-form textarea,
-    :root[data-theme="dark"] .contact-form select,
-    :root[data-theme="dark"] .recruit-form-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
-    :root[data-theme="dark"] .recruit-form-card textarea,
-    :root[data-theme="dark"] .recruit-form-card select,
-    :root[data-theme="dark"] .membership-application-form input,
-    :root[data-theme="dark"] .membership-application-form textarea,
-    :root[data-theme="dark"] .membership-application-form select,
+    :root[data-theme="dark"] .admin-form-container input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    :root[data-theme="dark"] .admin-form-container textarea,
+    :root[data-theme="dark"] .admin-form-container select,
+    :root[data-theme="dark"] .admin-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    :root[data-theme="dark"] .admin-form textarea,
+    :root[data-theme="dark"] .admin-form select,
+    :root[data-theme="dark"] #admin-login-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    :root[data-theme="dark"] #admin-publish-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    :root[data-theme="dark"] #admin-publish-form select,
     :root[data-theme="dark"] .roster-modal-form input[type="text"],
     :root[data-theme="dark"] .roster-modal-form select {
         background: var(--bg-input) !important;
@@ -4808,14 +5147,42 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
         color: #f8fafc !important;
     }
 
+    /* Dark Mode Autofill */
+    :root[data-theme="dark"] input:-webkit-autofill,
+    :root[data-theme="dark"] input:-webkit-autofill:hover, 
+    :root[data-theme="dark"] input:-webkit-autofill:focus, 
+    :root[data-theme="dark"] input:-webkit-autofill:active,
+    :root[data-theme="dark"] textarea:-webkit-autofill,
+    :root[data-theme="dark"] select:-webkit-autofill {
+        -webkit-text-fill-color: #f8fafc !important;
+        -webkit-box-shadow: 0 0 0 1000px #121d33 inset !important;
+        box-shadow: 0 0 0 1000px #121d33 inset !important;
+        color: #f8fafc !important;
+        caret-color: #f8fafc !important;
+    }
+
+    /* Light Mode Autofill */
+    :root[data-theme="light"] input:-webkit-autofill,
+    :root[data-theme="light"] input:-webkit-autofill:hover, 
+    :root[data-theme="light"] input:-webkit-autofill:focus, 
+    :root[data-theme="light"] input:-webkit-autofill:active,
+    :root[data-theme="light"] textarea:-webkit-autofill,
+    :root[data-theme="light"] select:-webkit-autofill {
+        -webkit-text-fill-color: #0a0f1d !important;
+        -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+        box-shadow: 0 0 0 1000px #ffffff inset !important;
+        color: #0a0f1d !important;
+        caret-color: #0a0f1d !important;
+    }
+
     :root[data-theme="dark"] .contact-form input::placeholder,
     :root[data-theme="dark"] .contact-form textarea::placeholder,
     :root[data-theme="dark"] .recruit-form-card input::placeholder,
     :root[data-theme="dark"] .recruit-form-card textarea::placeholder,
-    :root[data-theme="dark"] .contact-form input::placeholder,
-    :root[data-theme="dark"] .contact-form textarea::placeholder,
-    :root[data-theme="dark"] .recruit-form-card input::placeholder,
-    :root[data-theme="dark"] .recruit-form-card textarea::placeholder {
+    :root[data-theme="dark"] .admin-form-container input::placeholder,
+    :root[data-theme="dark"] .admin-form input::placeholder,
+    :root[data-theme="dark"] #admin-login-form input::placeholder,
+    :root[data-theme="dark"] #admin-publish-form input::placeholder {
         color: #64748b !important;
     }
 
@@ -5590,5 +5957,1173 @@ html.theme-transition *::after {
     border-color: var(--fire-red);
     box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15);
 }
+
+/* ==========================================================================
+   Station 46 Inclement Weather & Storm Mode System
+   ========================================================================== */
+
+/* Emergency Top Alert Banner */
+.storm-alert-banner {
+    position: relative;
+    z-index: 1002;
+    padding: 10px 1.5rem;
+    font-size: 0.88rem;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+.storm-banner-warning {
+    background: linear-gradient(90deg, #991b1b 0%, #dc2626 50%, #991b1b 100%);
+    border-bottom-color: #ef4444;
+}
+
+.storm-banner-watch {
+    background: linear-gradient(90deg, #92400e 0%, #d97706 50%, #92400e 100%);
+    border-bottom-color: #f59e0b;
+}
+
+.storm-banner-advisory,
+.storm-banner-upcoming {
+    background: linear-gradient(90deg, #075985 0%, #0284c7 50%, #075985 100%);
+    border-bottom-color: #38bdf8;
+}
+
+.storm-banner-container {
+    max-width: var(--nav-container-width);
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.storm-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex: 1;
+    min-width: 280px;
+}
+
+.storm-pulse-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    animation: stormPulse 1.8s infinite;
+    flex-shrink: 0;
+}
+
+@keyframes stormPulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8);
+    }
+    70% {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+.storm-banner-tag {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
+}
+
+.storm-banner-text {
+    line-height: 1.35;
+    font-weight: 500;
+}
+
+.storm-banner-title {
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.storm-banner-timing {
+    opacity: 0.9;
+    font-size: 0.8rem;
+    margin-left: 6px;
+}
+
+.storm-banner-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.storm-banner-btn {
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 6px 14px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.storm-banner-btn:hover {
+    background: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.storm-banner-dismiss {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    transition: background var(--transition-fast);
+}
+
+.storm-banner-dismiss:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Atmospheric Storm State */
+body.storm-mode-active .top-bar {
+    border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+body.storm-mode-active.storm-level-warning .top-bar {
+    border-bottom: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* Floating Quick-Access Pill (Bottom-Left) */
+.storm-floating-pill {
+    position: fixed;
+    bottom: 22px;
+    left: 22px;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 16px;
+    border-radius: 50px;
+    background: #0f172a;
+    color: #ffffff;
+    border: 1.5px solid #d97706;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    text-decoration: none;
+}
+
+.storm-floating-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+.storm-floating-pill.pill-warning {
+    border-color: #ef4444;
+    background: #1e1b18;
+}
+
+.storm-floating-pill.pill-warning .storm-pulse-dot {
+    background-color: #ef4444;
+}
+
+.storm-floating-pill.pill-watch {
+    border-color: #f59e0b;
+    background: #1c1917;
+}
+
+.storm-floating-pill.pill-watch .storm-pulse-dot {
+    background-color: #f59e0b;
+}
+
+.storm-floating-pill.pill-upcoming {
+    border-color: #38bdf8;
+    background: #0c1a2e;
+}
+
+.storm-floating-pill.pill-upcoming .storm-pulse-dot {
+    background-color: #38bdf8;
+}
+
+/* ==========================================================================
+   Storm & Inclement Weather Safety Hub (Modal Dialog)
+   ========================================================================== */
+
+.storm-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 16, 26, 0.78);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    box-sizing: border-box;
+}
+
+.storm-modal-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.storm-modal-container {
+    background: #ffffff;
+    color: #1e293b;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 980px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    transform: translateY(6px);
+    transition: transform 0.2s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+[data-theme="dark"] .storm-modal-container {
+    background: #0f172a;
+    color: #f1f5f9;
+    border-color: #334155;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.storm-modal-backdrop.active .storm-modal-container {
+    transform: translateY(0);
+}
+
+/* Modal Header - Civic Fire Department Header */
+.storm-modal-header {
+    padding: 1.15rem 1.5rem;
+    background: #111827;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 3px solid #b91c1c;
+}
+
+.storm-modal-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.storm-modal-header-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.storm-modal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.badge-warning {
+    background: #b91c1c;
+}
+
+.badge-watch {
+    background: #b45309;
+}
+
+.badge-upcoming {
+    background: #0369a1;
+}
+
+.storm-modal-office {
+    font-size: 0.76rem;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+}
+
+.storm-modal-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0;
+    color: #ffffff;
+    line-height: 1.3;
+    font-family: var(--font-heading);
+    letter-spacing: 0.2px;
+}
+
+.storm-modal-close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #cbd5e1;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.storm-modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+/* Modal Body */
+.storm-modal-body {
+    padding: 1.25rem 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    background: #f8fafc;
+}
+
+[data-theme="dark"] .storm-modal-body {
+    background: #0b1120;
+}
+
+/* Station Custom Announcement Notice */
+.storm-station-notice {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-left: 4px solid #b91c1c;
+    padding: 0.9rem 1.15rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+[data-theme="dark"] .storm-station-notice {
+    background: rgba(185, 28, 28, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    border-left-color: #ef4444;
+}
+
+.storm-notice-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #b91c1c;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+[data-theme="dark"] .storm-notice-icon {
+    color: #f87171;
+}
+
+.storm-notice-content h4 {
+    margin: 0 0 3px 0;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #991b1b;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+[data-theme="dark"] .storm-notice-content h4 {
+    color: #fca5a5;
+}
+
+.storm-notice-content p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #334155;
+}
+
+[data-theme="dark"] .storm-notice-content p {
+    color: #cbd5e1;
+}
+
+/* Emergency One-Click Contact Bar - Authentic Civic Cards */
+.storm-contacts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.65rem;
+}
+
+.storm-contact-card {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #1e293b;
+    min-width: 0;
+    box-sizing: border-box;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+[data-theme="dark"] .storm-contact-card {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f8fafc;
+}
+
+.storm-contact-card:hover {
+    border-color: #94a3b8;
+    background: #f1f5f9;
+}
+
+[data-theme="dark"] .storm-contact-card:hover {
+    border-color: #64748b;
+    background: #27354a;
+}
+
+.storm-contact-card.emergency-card {
+    background: #fef2f2;
+    border: 1.5px solid #dc2626;
+}
+
+[data-theme="dark"] .storm-contact-card.emergency-card {
+    background: rgba(185, 28, 28, 0.2);
+    border-color: #ef4444;
+}
+
+.storm-contact-card.emergency-card:hover {
+    background: #fee2e2;
+}
+
+[data-theme="dark"] .storm-contact-card.emergency-card:hover {
+    background: rgba(185, 28, 28, 0.3);
+}
+
+.storm-contact-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background: #f1f5f9;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.storm-contact-icon svg {
+    width: 15px;
+    height: 15px;
+}
+
+[data-theme="dark"] .storm-contact-icon {
+    background: #0f172a;
+    color: #94a3b8;
+}
+
+.emergency-card .storm-contact-icon {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .emergency-card .storm-contact-icon {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.storm-contact-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.storm-contact-label {
+    font-size: 0.65rem;
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.25px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+[data-theme="dark"] .storm-contact-label {
+    color: #94a3b8;
+}
+
+.storm-contact-number {
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: #0f172a;
+    white-space: nowrap;
+    line-height: 1.25;
+    letter-spacing: -0.35px;
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+[data-theme="dark"] .storm-contact-number {
+    color: #ffffff;
+}
+
+.emergency-card .storm-contact-number {
+    color: #b91c1c;
+}
+
+[data-theme="dark"] .emergency-card .storm-contact-number {
+    color: #fca5a5;
+}
+
+/* Live Weather & NWS Statement Card - Clean Meteorological Panel */
+.storm-live-weather-card {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 1.15rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+[data-theme="dark"] .storm-live-weather-card {
+    background: #151f32;
+    border-color: #334155;
+}
+
+.storm-live-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme="dark"] .storm-live-header {
+    border-bottom-color: #27354a;
+}
+
+.storm-live-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+[data-theme="dark"] .storm-live-title {
+    color: #e2e8f0;
+}
+
+.storm-radar-link {
+    font-size: 0.78rem;
+    color: #b91c1c;
+    text-decoration: none;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+[data-theme="dark"] .storm-radar-link {
+    color: #f87171;
+}
+
+.storm-radar-link:hover {
+    text-decoration: underline;
+}
+
+.storm-live-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.65rem;
+}
+
+@media (max-width: 768px) {
+    .storm-live-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.storm-stat-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 7px 10px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+[data-theme="dark"] .storm-stat-item {
+    background: #0f172a;
+    border-color: #27354a;
+}
+
+.storm-stat-label {
+    font-size: 0.68rem;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+[data-theme="dark"] .storm-stat-label {
+    color: #94a3b8;
+}
+
+.storm-stat-val {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+[data-theme="dark"] .storm-stat-val {
+    color: #f8fafc;
+}
+
+.storm-nws-statement {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 9px 12px;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: #475569;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+[data-theme="dark"] .storm-nws-statement {
+    background: #0f172a;
+    border-color: #27354a;
+    color: #cbd5e1;
+}
+
+.storm-nws-statement strong {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .storm-nws-statement strong {
+    color: #ffffff;
+}
+
+/* Scenario Tabs Navigation */
+.storm-scenarios-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.storm-scenarios-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.storm-scenarios-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+[data-theme="dark"] .storm-scenarios-header h3 {
+    color: #e2e8f0;
+}
+
+.storm-tab-buttons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme="dark"] .storm-tab-buttons {
+    border-bottom-color: #334155;
+}
+
+.storm-tab-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-radius: 4px 4px 0 0;
+    padding: 7px 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all var(--transition-fast);
+    font-family: inherit;
+    margin-bottom: -1px;
+}
+
+[data-theme="dark"] .storm-tab-btn {
+    color: #94a3b8;
+}
+
+.storm-tab-btn:hover {
+    color: #0f172a;
+    background: #e2e8f0;
+}
+
+[data-theme="dark"] .storm-tab-btn:hover {
+    color: #ffffff;
+    background: #1e293b;
+}
+
+.storm-tab-btn.active {
+    background: #ffffff;
+    color: #b91c1c;
+    border-color: #cbd5e1 #cbd5e1 transparent #cbd5e1;
+    border-bottom: 2px solid #b91c1c;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .storm-tab-btn.active {
+    background: #1e293b;
+    color: #f87171;
+    border-color: #334155 #334155 transparent #334155;
+    border-bottom: 2px solid #ef4444;
+}
+
+/* Tab Panels */
+.storm-tab-panel {
+    display: none;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 0 0 6px 6px;
+    padding: 1.25rem;
+    animation: stormFadeIn 0.2s ease;
+}
+
+[data-theme="dark"] .storm-tab-panel {
+    background: #151f32;
+    border-color: #334155;
+}
+
+.storm-tab-panel.active {
+    display: block;
+}
+
+@keyframes stormFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.scenario-panel-title {
+    margin: 0 0 0.35rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+[data-theme="dark"] .scenario-panel-title {
+    color: #ffffff;
+}
+
+.scenario-panel-desc {
+    margin: 0 0 1rem 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #475569;
+}
+
+[data-theme="dark"] .scenario-panel-desc {
+    color: #94a3b8;
+}
+
+.scenario-action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .scenario-action-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.action-column {
+    border-radius: 4px;
+    padding: 0.9rem 1rem;
+}
+
+.action-column.dos {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+}
+
+[data-theme="dark"] .action-column.dos {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.action-column.donts {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+}
+
+[data-theme="dark"] .action-column.donts {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.action-column-header {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.action-column.dos .action-column-header {
+    color: #166534;
+}
+
+[data-theme="dark"] .action-column.dos .action-column-header {
+    color: #4ade80;
+}
+
+.action-column.donts .action-column-header {
+    color: #991b1b;
+}
+
+[data-theme="dark"] .action-column.donts .action-column-header {
+    color: #f87171;
+}
+
+.action-list {
+    margin: 0;
+    padding-left: 1.15rem;
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: #1e293b;
+}
+
+[data-theme="dark"] .action-list {
+    color: #cbd5e1;
+}
+
+.action-list li {
+    margin-bottom: 0.4rem;
+}
+
+.scenario-local-tip {
+    background: #fffbeb;
+    border-left: 3px solid #d97706;
+    padding: 8px 12px;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: #78350f;
+}
+
+[data-theme="dark"] .scenario-local-tip {
+    background: rgba(217, 119, 6, 0.15);
+    border-left-color: #f59e0b;
+    color: #fde68a;
+}
+
+.scenario-local-tip strong {
+    color: #78350f;
+}
+
+[data-theme="dark"] .scenario-local-tip strong {
+    color: #fef3c7;
+}
+
+/* Modal Footer - Official Civic Footer */
+.storm-modal-footer {
+    padding: 0.85rem 1.5rem;
+    background: #f1f5f9;
+    border-top: 1px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: #64748b;
+}
+
+[data-theme="dark"] .storm-modal-footer {
+    background: #0f172a;
+    border-top-color: #334155;
+    color: #94a3b8;
+}
+
+.storm-modal-source strong {
+    color: #334155;
+}
+
+[data-theme="dark"] .storm-modal-source strong {
+    color: #cbd5e1;
+}
+
+.storm-modal-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.storm-modal-close-action {
+    background: #334155;
+    color: #ffffff !important;
+    border: none;
+    padding: 7px 18px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.storm-modal-close-action:hover {
+    background: #1e293b;
+}
+
+[data-theme="dark"] .storm-modal-close-action {
+    background: #475569;
+}
+
+[data-theme="dark"] .storm-modal-close-action:hover {
+    background: #64748b;
+}
+
+/* Simulator Toggle Box (Admin / Preview) */
+.storm-sim-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+}
+
+[data-theme="dark"] .storm-sim-bar {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.storm-sim-bar select {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 0.8rem;
+    font-family: inherit;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+}
+
+@media (max-width: 640px) {
+    .storm-alert-banner {
+        padding: 10px 1rem;
+    }
+    .storm-banner-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+    }
+    .storm-banner-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .storm-modal-body {
+        padding: 1rem;
+    }
+    .storm-modal-header {
+        padding: 1rem;
+    }
+    .storm-contacts-grid {
+        grid-template-columns: 1fr;
+    }
+    .storm-floating-pill {
+        bottom: 74px;
+        left: 14px;
+        padding: 8px 12px;
+        font-size: 0.78rem;
+    }
+}
+
+/* ==========================================================================
+   Interactive Storm Mode Toggle Switch Group
+   ========================================================================== */
+.storm-toggle-group {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 4px;
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.storm-toggle-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    outline: none;
+}
+
+.storm-toggle-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-main);
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .storm-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.storm-toggle-btn:active {
+    transform: translateY(1px);
+}
+
+/* Active State: Force Active */
+.storm-toggle-btn.active[data-mode="force_active"] {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: #ffffff;
+    border-color: #ef4444;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+}
+
+/* Active State: Auto Detect */
+.storm-toggle-btn.active[data-mode="auto"] {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    border-color: #34d399;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+/* Active State: Deactivated */
+.storm-toggle-btn.active[data-mode="force_inactive"] {
+    background: #cbd5e1;
+    color: #0f172a;
+    border-color: #94a3b8;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .storm-toggle-btn.active[data-mode="force_inactive"] {
+    background: #334155;
+    color: #f8fafc;
+    border-color: #475569;
+}
+
+.login-storm-toggle-group .storm-toggle-btn {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+}
+
 
 

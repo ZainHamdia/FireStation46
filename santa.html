@@ -25,22 +25,78 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=96">
+    <link rel="stylesheet" href="styles.css?v=103">
     <style>
+        .hero-santa-header {
+            min-height: 600px;
+            height: auto;
+            padding: calc(var(--top-bar-height, 38px) + var(--nav-height, 80px) + 2.5rem) 1.5rem 4.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: visible;
+        }
+        /* Santa Badge - Light Mode (Default) */
         .santa-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: var(--fire-red);
-            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1.5px solid rgba(198, 40, 40, 0.35);
+            color: #b71c1c;
+            padding: 7px 20px;
             border-radius: 50px;
-            font-size: 0.9rem;
+            font-size: 0.82rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
             margin-bottom: 1.2rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            text-shadow: none !important;
+            transition: background var(--transition-normal), border-color var(--transition-normal), color var(--transition-normal), box-shadow var(--transition-normal);
+        }
+        .santa-badge .santa-icon {
+            font-size: 1.05rem;
+            line-height: 1;
+            transition: filter var(--transition-normal);
+        }
+        .santa-badge .santa-badge-text {
+            color: #b71c1c;
+            letter-spacing: 1.2px;
+            text-shadow: none !important;
+            transition: color var(--transition-normal);
+        }
+
+        /* Santa Badge - Dark Mode */
+        :root[data-theme="dark"] .santa-badge {
+            background: rgba(15, 23, 42, 0.88) !important;
+            border-color: rgba(239, 68, 68, 0.6) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+        }
+        :root[data-theme="dark"] .santa-badge .santa-badge-text {
+            color: #ffffff !important;
+        }
+        :root[data-theme="dark"] .santa-badge .santa-icon {
+            filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) .santa-badge {
+                background: rgba(15, 23, 42, 0.88) !important;
+                border-color: rgba(239, 68, 68, 0.6) !important;
+                color: #ffffff !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+            }
+            :root:not([data-theme="light"]) .santa-badge .santa-badge-text {
+                color: #ffffff !important;
+            }
+            :root:not([data-theme="light"]) .santa-badge .santa-icon {
+                filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+            }
         }
         .dates-container {
             display: grid;
@@ -291,13 +347,16 @@
     </nav>
 
     <!-- Hero Section -->
-    <header class="hero hero-short">
-        <div class="hero-bg hero-santa" style="background-image: linear-gradient(rgba(10, 11, 13, 0.15), rgba(10, 11, 13, 0.40)), url('santatitle.jpg'); background-position: center;"></div>
-        <div class="hero-content" style="margin-top: 80px; text-shadow: 0 3px 12px rgba(0,0,0,0.9);">
-            <div class="santa-badge">🎅 Annual Holiday Tradition</div>
-            <h1 class="hero-title" style="font-size: clamp(2.8rem, 6vw, 4.8rem); line-height: 1.15;">Operation Santa 2025</h1>
-            <p class="hero-subtitle" style="color: var(--gold); letter-spacing: 2px;">Santa Claus is Coming to Town on a Fire Engine!</p>
-            <p class="hero-desc" style="color: #f0f0f0; max-width: 750px; margin: 0 auto 1.5rem auto;">
+    <header class="hero hero-santa-header">
+        <div class="hero-bg hero-santa"></div>
+        <div class="hero-content" style="text-shadow: 0 3px 12px rgba(0,0,0,0.9);">
+            <div class="santa-badge">
+                <span class="santa-icon" aria-hidden="true">🎅</span>
+                <span class="santa-badge-text">Annual Holiday Tradition</span>
+            </div>
+            <h1 class="hero-title" style="font-size: clamp(2.6rem, 5.5vw, 4.4rem); line-height: 1.15; margin-bottom: 1rem;">Operation Santa 2025</h1>
+            <p class="hero-subtitle" style="color: var(--gold); letter-spacing: 2px; margin-bottom: 0.75rem;">Santa Claus is Coming to Town on a Fire Engine!</p>
+            <p class="hero-desc" style="color: #f1f5f9; max-width: 720px; margin: 0 auto 1.75rem auto;">
                 Imagine how excited your children will be to have Santa Claus arrive at their house on a fire engine this Christmas season!
             </p>
             <div class="hero-actions">
@@ -694,7 +753,7 @@
                 </a>
             </div>
             <div class="footer-copy">
-                &copy; <span id="year"></span> Montgomery Township Volunteer Fire Company #2. All rights reserved. | <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary); text-decoration: underline;">Fire District Website (BOFC46.com)</a> | <a href="admin.html" class="admin-link" style="color: var(--text-secondary); text-decoration: underline; margin-left: 5px;">Admin Portal</a>
+                &copy; <span id="year"></span> Montgomery Township Volunteer Fire Company #2. All rights reserved. | <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer">Fire District Website (BOFC46.com)</a> | <a href="admin.html" class="admin-link">Admin Portal</a>
             </div>
         </div>
     </footer>
@@ -752,6 +811,6 @@
         <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
     </div>
 
-    <script src="script.js?v=95"></script>
+    <script src="script.js?v=103"></script>
 </body>
 </html>
