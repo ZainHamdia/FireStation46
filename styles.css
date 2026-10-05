@@ -1304,37 +1304,49 @@ body.menu-open {
 }
 
 /* Specific placeholder backgrounds based on text */
-.card:nth-child(1) .card-img-placeholder {
+#active-fleet .card:nth-child(1) .card-img-placeholder {
     background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('truck46.jpg') center/cover;
     color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
 }
-.card:nth-child(2) .card-img-placeholder {
+#active-fleet .card:nth-child(2) .card-img-placeholder {
     background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('engine46-8.jpg') center/cover;
     color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
 }
-.card:nth-child(3) .card-img-placeholder {
+#active-fleet .card:nth-child(3) .card-img-placeholder {
     background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('engine46-7.jpg') center/cover;
     color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
 }
-.card:nth-child(4) .card-img-placeholder {
+#active-fleet .card:nth-child(4) .card-img-placeholder {
     background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('rescue46.jpg') center/cover;
     color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
 }
-.card:nth-child(5) .card-img-placeholder {
+#active-fleet .card:nth-child(5) .card-img-placeholder {
     background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('brush46.jpg') center/cover;
     color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
 }
-.card:nth-child(6) .card-img-placeholder {
+#active-fleet .card:nth-child(6) .card-img-placeholder {
     background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('marine46.jpg?v=2') center/cover;
     color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
 }
-.card:nth-child(7) .card-img-placeholder {
+#active-fleet .card:nth-child(7) .card-img-placeholder {
     background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('car46.jpg') center/cover;
     color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
 }
 .card-img-placeholder.img-car462,
-.card:nth-child(8) .card-img-placeholder {
+#active-fleet .card:nth-child(8) .card-img-placeholder {
     background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('car462.jpg?v=3') center 65% / 140% no-repeat;
+    color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+}
+.card-img-placeholder.img-retired108 {
+    background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('retired108.jpg') center/cover;
+    color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+}
+.card-img-placeholder.img-retiredtower {
+    background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('retiredtower.jpg') center/cover;
+    color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+}
+.card-img-placeholder.img-retiredbrush {
+    background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('retiredbrush.jpg') center/cover;
     color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);
 }
 
