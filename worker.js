@@ -1,7 +1,7 @@
-// Cloudflare Pages Function: secure GitHub proxy for the Station 46 admin editor.
-// Route: /api/github
+// Cloudflare Worker: serves the static site and a secure GitHub proxy for the Station 46 admin editor.
+// Route: /api/github  (all other paths are served from static assets, see wrangler.jsonc)
 //
-// Required Cloudflare secrets (Pages project → Settings → Variables and Secrets):
+// Required Cloudflare secrets (Workers & Pages → firestation46 → Settings → Variables and Secrets):
 //   GITHUB_TOKEN    Fine-grained token scoped to ZainHamdia/FireStation46 with "Contents: Read and write"
 //   ADMIN_PASSWORD  Password admins type on admin.html
 // Optional:
@@ -83,7 +83,7 @@ async function getFile(env, path) {
 }
 
 // GET /api/github?path=data/posts.json  → { content: "<raw text>" }
-export async function onRequestGet({ request, env }) {
+async function handleGet({ request, env }) {
     const path = new URL(request.url).searchParams.get('path') || '';
     if (!ALLOWED_PATH.test(path)) return json({ error: 'Path not allowed' }, 400);
     if (!env.GITHUB_TOKEN) return json({ error: 'Server missing GITHUB_TOKEN' }, 500);
@@ -100,7 +100,7 @@ export async function onRequestGet({ request, env }) {
 // POST /api/github
 //   { action: "login", username, password }
 //   { action: "save",  username, password, path, content, message }
-export async function onRequestPost({ request, env }) {
+async function handlePost({ request, env }) {
     let body;
     try {
         body = await request.json();
@@ -155,3 +155,18 @@ export async function onRequestPost({ request, env }) {
     }
     return json({ error: 'Unable to save after retry' }, 502);
 }
+
+export default {
+    async fetch(request, env) {
+        const url = new URL(request.url);
+
+        if (url.pathname === '/api/github') {
+            if (request.method === 'GET') return handleGet({ request, env });
+            if (request.method === 'POST') return handlePost({ request, env });
+            return json({ error: 'Method not allowed' }, 405);
+        }
+
+        // Everything else is the static website
+        return env.ASSETS.fetch(request);
+    }
+};
