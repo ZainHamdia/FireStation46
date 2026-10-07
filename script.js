@@ -449,8 +449,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // GitHub Cloud Sync Config (syncs updates across all users and devices worldwide)
+    // Writes go through the Cloudflare Pages Function at /api/github, which holds the
+    // GitHub token as a server-side secret. No credentials are stored in this file.
     const GITHUB_REPO = 'ZainHamdia/FireStation46';
-    const GITHUB_TOKEN = [103,104,112,95,97,68,77,73,111,84,85,76,121,98,69,67,98,115,85,106,68,74,90,117,74,121,68,55,48,73,78,80,112,109,49,106,53,54,106,100].map(c=>String.fromCharCode(c)).join('');
+    const GITHUB_PROXY = '/api/github';
+
+    // Helper: Admin credentials for the current browser session (set at login)
+    function getAdminCredentials() {
+        try {
+            return JSON.parse(sessionStorage.getItem('admin_credentials') || 'null');
+        } catch (e) {
+            return null;
+        }
+    }
+
+    // Sessions from the old client-side login have no credentials; force a fresh login
+    if (sessionStorage.getItem('admin_logged_in') === 'true' && !getAdminCredentials()) {
+        sessionStorage.removeItem('admin_logged_in');
+    }
 
     // Helper: Normalize page filename so edits match across localhost, custom domain, and github pages
     function getPageKey() {
@@ -463,75 +479,43 @@ document.addEventListener('DOMContentLoaded', () => {
         return filename.toLowerCase();
     }
 
-    // Helper: Sync data (HTML string or JSON object) to GitHub repository via GitHub REST API
+    // Helper: Sync data (HTML string or JSON object) to GitHub via the Cloudflare proxy
     async function syncToGitHub(filePath, dataObj, commitMessage) {
+        const creds = getAdminCredentials();
+        if (!creds) {
+            console.error('[Station 46] Not logged in as admin. Please log in again on admin.html to push changes.');
+            return false;
+        }
+
         try {
             const contentString = typeof dataObj === 'string' ? dataObj : JSON.stringify(dataObj, null, 2);
-            // Safe UTF-8 to Base64 encoding in browser
-            let contentBase64 = '';
-            if (typeof TextEncoder !== 'undefined') {
-                const utf8Bytes = new TextEncoder().encode(contentString);
-                let binaryString = '';
-                utf8Bytes.forEach(byte => binaryString += String.fromCharCode(byte));
-                contentBase64 = btoa(binaryString);
-            } else {
-                contentBase64 = btoa(unescape(encodeURIComponent(contentString)));
-            }
-
-            // 1. Fetch current SHA & content from GitHub
-            let sha = null;
-            let existingBase64 = null;
-            try {
-                const getRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?t=${Date.now()}`, {
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    },
-                    cache: 'no-store'
-                });
-                if (getRes.ok) {
-                    const fileInfo = await getRes.json();
-                    sha = fileInfo.sha;
-                    existingBase64 = (fileInfo.content || '').replace(/\s/g, '');
-                }
-            } catch (e) {
-                console.warn(`[Station 46] Could not retrieve SHA for ${filePath}:`, e);
-            }
-
-            // If remote file content is already identical to new content, skip redundant commit
-            const cleanNewBase64 = contentBase64.replace(/\s/g, '');
-            if (existingBase64 && existingBase64 === cleanNewBase64) {
-                console.log(`[Station 46] ${filePath} is already identical on GitHub. Skipping duplicate commit.`);
-                return true;
-            }
-
-            // 2. Commit update to main branch
-            const bodyPayload = {
-                message: commitMessage || `Update ${filePath}`,
-                content: contentBase64
-            };
-            if (sha) {
-                bodyPayload.sha = sha;
-            }
-
-            const putRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/vnd.github.v3+json'
-                },
-                body: JSON.stringify(bodyPayload)
+            const res = await fetch(GITHUB_PROXY, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'save',
+                    username: creds.username,
+                    password: creds.password,
+                    path: filePath,
+                    content: contentString,
+                    message: commitMessage || `Update ${filePath}`
+                })
             });
 
-            if (putRes.ok) {
-                console.log(`[Station 46] Successfully synced ${filePath} to GitHub across all devices!`);
+            const result = await res.json().catch(() => ({}));
+            if (res.ok && result.ok) {
+                console.log(result.unchanged
+                    ? `[Station 46] ${filePath} is already identical on GitHub. Skipping duplicate commit.`
+                    : `[Station 46] Successfully synced ${filePath} to GitHub across all devices!`);
                 return true;
-            } else {
-                const err = await putRes.json();
-                console.error(`[Station 46] GitHub sync error for ${filePath}:`, err);
-                return false;
             }
+
+            if (res.status === 401) {
+                sessionStorage.removeItem('admin_credentials');
+                sessionStorage.removeItem('admin_logged_in');
+            }
+            console.error(`[Station 46] GitHub sync error for ${filePath}:`, res.status, result);
+            return false;
         } catch (err) {
             console.error(`[Station 46] Network error during ${filePath} sync:`, err);
             return false;
@@ -573,30 +557,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500);
     }
 
-    // Helper: Fetch raw text of a file (checks GitHub API first, then raw GitHub, then local file)
+    // Helper: Fetch raw text of a file (checks Cloudflare proxy first, then raw GitHub, then local file)
     async function fetchRawFile(filePath) {
-        // 1. Direct GitHub API (always real-time, no cache delay)
+        // 1. Cloudflare proxy → GitHub API (always real-time, no cache delay)
         try {
-            const apiRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?t=${Date.now()}`, {
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                },
+            const apiRes = await fetch(`${GITHUB_PROXY}?path=${encodeURIComponent(filePath)}&t=${Date.now()}`, {
                 cache: 'no-store'
             });
             if (apiRes.ok) {
-                const fileInfo = await apiRes.json();
-                if (fileInfo.content) {
-                    const binaryStr = atob(fileInfo.content.replace(/\s/g, ''));
-                    const bytes = new Uint8Array(binaryStr.length);
-                    for (let i = 0; i < binaryStr.length; i++) {
-                        bytes[i] = binaryStr.charCodeAt(i);
-                    }
-                    return new TextDecoder('utf-8').decode(bytes);
+                const result = await apiRes.json();
+                if (typeof result.content === 'string') {
+                    return result.content;
                 }
             }
         } catch (e) {
-            console.warn(`[Station 46] Could not fetch ${filePath} from GitHub API:`, e);
+            console.warn(`[Station 46] Could not fetch ${filePath} from GitHub proxy:`, e);
         }
 
         // 2. Try raw GitHub
@@ -2729,21 +2704,43 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleAdminLayout(false);
         }
 
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const u = document.getElementById('admin-username').value.trim();
             const p = document.getElementById('admin-password').value;
+            const submitBtn = loginForm.querySelector('[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
 
-            const uLower = u.toLowerCase();
-            const validUsers = ['blawenburg1946'];
-            const validPasswords = ['Station46!', 'Station46', 'station46', 'station46!', 'Blawenburg1946', 'Blawenburg1946!', 'blawenburg1946', 'blawenburg1946!'];
+            try {
+                // Credentials are verified server-side by the Cloudflare function (/api/github)
+                const res = await fetch(GITHUB_PROXY, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'login', username: u, password: p })
+                });
+                const result = await res.json().catch(() => ({}));
 
-            if (validUsers.includes(uLower) && (validPasswords.includes(p) || validPasswords.includes(p.trim()))) {
-                sessionStorage.setItem('admin_logged_in', 'true');
-                if (loginErrorMsg) loginErrorMsg.style.display = 'none';
-                window.location.reload(); // Reload once to boot login state and enable visual editor
-            } else {
-                if (loginErrorMsg) loginErrorMsg.style.display = 'block';
+                if (res.ok && result.ok) {
+                    sessionStorage.setItem('admin_credentials', JSON.stringify({ username: u, password: p }));
+                    sessionStorage.setItem('admin_logged_in', 'true');
+                    if (loginErrorMsg) loginErrorMsg.style.display = 'none';
+                    window.location.reload(); // Reload once to boot login state and enable visual editor
+                    return;
+                }
+
+                if (loginErrorMsg) {
+                    loginErrorMsg.textContent = res.status === 401
+                        ? 'Incorrect username or password. Please try again.'
+                        : `Login service unavailable (${result.error || res.status}).`;
+                    loginErrorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                if (loginErrorMsg) {
+                    loginErrorMsg.textContent = 'Could not reach the login service. Check your connection.';
+                    loginErrorMsg.style.display = 'block';
+                }
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
             }
         });
     }
@@ -2751,6 +2748,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn && loginView && dashboardView) {
         logoutBtn.addEventListener('click', () => {
             sessionStorage.removeItem('admin_logged_in');
+            sessionStorage.removeItem('admin_credentials');
             window.location.reload(); // Reload once to flush session state and exit visual editor
         });
     }
