@@ -68,9 +68,9 @@
     :root:not([data-theme="light"]) {
         color-scheme: dark;
         /* Brand Colors - High Contrast for Dark Mode */
-        --fire-red: #dc3a45;
-        --fire-red-dark: #b3212b;
-        --fire-red-light: #e8656e;
+        --fire-red: #9b1b24;
+        --fire-red-dark: #7a151d;
+        --fire-red-light: #b3212b;
         --navy-blue: #f8fafc;
         --navy-dark: #060a12;
         --gold: #f59e0b;
@@ -113,9 +113,9 @@
 :root[data-theme="dark"] {
     color-scheme: dark;
     /* Brand Colors - High Contrast for Dark Mode */
-    --fire-red: #dc3a45;
-    --fire-red-dark: #b3212b;
-    --fire-red-light: #e8656e;
+    --fire-red: #9b1b24;
+    --fire-red-dark: #7a151d;
+    --fire-red-light: #b3212b;
     --navy-blue: #f8fafc;
     --navy-dark: #060a12;
     --gold: #f59e0b;
@@ -989,10 +989,11 @@ body.menu-open {
 }
 
 .hero-title span {
-    color: #dc3a45;
+    color: var(--fire-red);
     display: inline-block;
     position: relative;
     white-space: nowrap;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
 }
 
 .hero-title span::before {
@@ -1056,10 +1057,10 @@ body.menu-open {
 }
 
 .hero-badge-pill svg {
-    color: #dc3a45;
-    stroke: #dc3a45;
+    color: var(--fire-red);
+    stroke: var(--fire-red);
     flex-shrink: 0;
-    filter: drop-shadow(0 0 6px rgba(220, 58, 69, 0.6));
+    filter: drop-shadow(0 0 6px rgba(155, 27, 36, 0.6));
 }
 
 /* Civic Trust Highlights Strip */
@@ -2719,13 +2720,13 @@ footer {
 
 .faq-item:hover .faq-icon {
     background: rgba(179, 33, 43, 0.15);
-    color: #dc3a45;
+    color: var(--fire-red);
 }
 
 .faq-item[open] .faq-icon {
     transform: rotate(180deg);
     background: rgba(179, 33, 43, 0.25);
-    color: #dc3a45;
+    color: var(--fire-red);
 }
 
 .faq-answer {
@@ -2746,7 +2747,7 @@ footer {
 }
 
 .faq-answer a {
-    color: #dc3a45;
+    color: var(--fire-red);
     text-decoration: underline;
     font-weight: 500;
     transition: color 0.2s ease;
@@ -4984,20 +4985,20 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 
     :root[data-theme="dark"] .nav-links a:not(.btn-primary)::after,
     :root[data-theme="dark"] .nav-links a:not(.btn-primary)::after {
-        background: #dc3a45;
-        box-shadow: 0 0 10px rgba(220, 58, 69, 0.8);
+        background: var(--fire-red);
+        box-shadow: 0 0 10px rgba(155, 27, 36, 0.8);
     }
 
     :root[data-theme="dark"] .nav-links a.nav-btn-donate,
     :root[data-theme="dark"] .nav-links a.nav-btn-donate {
-        background: #b3212b;
-        box-shadow: 0 2px 10px rgba(179, 33, 43, 0.4);
+        background: var(--fire-red);
+        box-shadow: 0 2px 10px rgba(155, 27, 36, 0.4);
     }
 
     :root[data-theme="dark"] .nav-links a.nav-btn-donate:hover,
     :root[data-theme="dark"] .nav-links a.nav-btn-donate:hover {
-        background: #dc3a45;
-        box-shadow: 0 4px 18px rgba(220, 58, 69, 0.6);
+        background: var(--fire-red-light);
+        box-shadow: 0 4px 18px rgba(155, 27, 36, 0.6);
     }
 
     :root[data-theme="dark"] .logo-text .mtvfc,
@@ -5022,9 +5023,9 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     
     :root[data-theme="dark"] .hero-badge-pill svg,
     :root[data-theme="dark"] .hero-badge-pill svg {
-        color: #dc3a45 !important;
-        stroke: #dc3a45 !important;
-        filter: drop-shadow(0 0 6px rgba(220, 58, 69, 0.6));
+        color: var(--fire-red) !important;
+        stroke: var(--fire-red) !important;
+        filter: drop-shadow(0 0 6px rgba(155, 27, 36, 0.6));
     }
 
     :root[data-theme="dark"] .hero-trust-bar,

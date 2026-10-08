@@ -669,26 +669,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.head.appendChild(link);
     }
 
-    // Comprehensive Editable Selectors (covering all pages: headings, body, subtitles, stats, roster, tags, apparatus, santa, FAQs, etc.)
+    // Comprehensive Editable Selectors (covering all content text across every page)
     const editableSelectors = [
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'p',
-        'li',
-        '.hero-subtitle', '.hero-desc',
-        '.section-subtitle', '.section-title',
+        'p', 'blockquote', 'figcaption', 'address',
+        'li', 'dt', 'dd',
+        'a', 'button',
+        '.btn', '.btn-primary', '.btn-secondary', '.btn-action',
+        'span', 'strong', 'b', 'em', 'i', 'label', 'small', 'cite',
+        'td', 'th',
+        '.hero-title', '.hero-subtitle', '.hero-desc',
+        '.section-title', '.section-subtitle',
         '.stat-number', '.stat-label',
         '.rank-badge', '.roster-name', '.roster-avatar', '.roster-category-title',
-        '.card-img-placeholder',
-        '.santa-badge',
-        '.date-card-title', '.date-card-subtitle',
-        '.guideline-num',
-        '.guideline-text h4', '.guideline-text p',
+        '.card-title', '.card-desc', '.card-text', '.card-img-placeholder',
+        '.santa-badge', '.date-card-title', '.date-card-subtitle',
+        '.guideline-num', '.guideline-text h4', '.guideline-text p',
         '.printable-form-preview h3', '.printable-form-preview p',
         '.faq-question', '.faq-question > span:first-child', '.faq-answer p',
-        '.donation-desc',
-        '.form-note',
-        '.btn', '.btn-primary', '.btn-secondary',
-        '.footer-info p', '.footer-brand span',
+        '.donation-desc', '.form-note',
+        '.footer-info p', '.footer-brand span', '.footer-links a',
+        '.top-bar-item', '.top-bar-link',
         '.tag-new', '.news-card-tag', '.recent-post-tag', '.membership-badge-tag',
         '.role-badge-tag', '.upcoming-badge-tag', '.blueprint-tag', '.badge', '.top-bar-badge'
     ].join(', ');
@@ -697,92 +698,55 @@ document.addEventListener('DOMContentLoaded', () => {
     function isEditableElement(element) {
         if (!element || element.nodeType !== Node.ELEMENT_NODE) return false;
 
-        // On admin.html, only the welcome heading is editable; never edit admin cards or controls
+        // Technical / system / non-content elements
+        const tagName = element.tagName.toUpperCase();
+        if (['SCRIPT', 'STYLE', 'LINK', 'META', 'SVG', 'PATH', 'POLYLINE', 'CIRCLE', 'RECT', 'LINE', 'IMG', 'IFRAME', 'VIDEO', 'AUDIO', 'CANVAS', 'INPUT', 'TEXTAREA', 'SELECT', 'OPTION'].includes(tagName)) {
+            return false;
+        }
+
+        // On admin.html, only the welcome heading is editable; never edit admin management controls
         const isCurrentAdminPage = window.location.pathname.endsWith('admin.html') || window.location.pathname.includes('admin.html');
         if (isCurrentAdminPage && element.id !== 'admin-welcome-heading') {
             return false;
         }
 
-        // Never edit buttons, links inside buttons, or weather controls
-        if (element.tagName === 'BUTTON' ||
-            element.closest('button') ||
-            element.closest('.btn') ||
-            element.closest('#admin-weather-card') ||
-            element.closest('#admin-login-storm-status') ||
-            element.closest('#admin-storm-toggle-group') ||
-            element.closest('#login-storm-toggle-group') ||
-            element.closest('.storm-toggle-btn') ||
-            element.closest('#station46-storm-banner') ||
-            element.closest('#station46-storm-floating-pill') ||
-            element.closest('#storm-hub-modal') ||
-            element.closest('.storm-modal-backdrop') ||
-            element.closest('#theme-switch-wrapper') ||
-            element.closest('.theme-switch-btn')) {
-            return false;
-        }
-
-        // Never edit internal admin controls, forms, toasts, navigation bars, chart rows, or external widgets
+        // Never edit internal admin controls, floating bar, font toolbar, modals, or toasts
         if (element.closest('#admin-floating-bar') ||
             element.closest('#admin-font-toolbar') ||
             element.closest('.admin-font-modal-overlay') ||
             element.closest('#admin-toast-notification') ||
-            (element.closest('#admin-dashboard-view') && element.id !== 'admin-welcome-heading') ||
+            element.closest('#admin-posts-list-container') ||
+            element.closest('#admin-dashboard-view') ||
             element.closest('#admin-login-view') ||
             element.closest('.admin-form-container') ||
-            (element.closest('.admin-dashboard') && element.id !== 'admin-welcome-heading') ||
-            element.closest('#admin-posts-list-container') ||
-            element.closest('.news-filter-bar') ||
-            element.closest('.chart-bar-row') ||
-            element.closest('.chart-bars') ||
-            element.closest('.powr-social-feed') ||
-            element.closest('.roster-card-remove-btn') ||
-            element.closest('.btn-roster-add-member') ||
+            element.closest('.admin-dashboard')) {
+            if (element.id !== 'admin-welcome-heading') return false;
+        }
+
+        // Never edit system/automated widgets: storm banner/hub, theme toggle, mobile hamburger toggle, dynamic year
+        if (element.closest('#theme-switch-wrapper') ||
+            element.closest('.theme-switch-btn') ||
+            element.closest('.mobile-menu-btn') ||
+            element.closest('#station46-storm-banner') ||
+            element.closest('#station46-storm-floating-pill') ||
+            element.closest('#storm-hub-modal') ||
+            element.closest('.storm-modal-backdrop') ||
+            element.closest('#admin-weather-card') ||
+            element.closest('.storm-toggle-btn') ||
+            element.id === 'year' ||
+            element.classList.contains('roster-card-remove-btn') ||
+            element.classList.contains('btn-roster-add-member') ||
+            element.classList.contains('roster-card-drag-handle') ||
+            element.classList.contains('roster-drag-placeholder') ||
+            element.classList.contains('roster-card-tag-btn') ||
+            element.classList.contains('roster-tag-delete-btn') ||
             element.closest('.roster-modal-overlay') ||
-            element.closest('.roster-card-tag-btn') ||
-            element.closest('.roster-tag-delete-btn') ||
-            element.closest('form') ||
-            element.closest('.mobile-menu-btn')) {
+            element.closest('form')) {
             return false;
         }
 
-        // Never edit system buttons, icons, or non-text tags
-        if (element.id === 'year' ||
-            element.id === 'admin-logout-btn' ||
-            element.id === 'admin-force-git-push-btn' ||
-            element.id === 'edit-mode-toggle-btn' ||
-            element.id === 'admin-save-git-btn' ||
-            element.id === 'admin-typography-btn' ||
-            element.id === 'admin-quick-logout-btn' ||
-            element.id === 'hero-btn-active-fleet' ||
-            element.id === 'hero-btn-retired-apparatus' ||
-            element.id === 'hero-btn-upcoming-rescue' ||
-            element.id === 'hero-subtitle-text' ||
-            element.id === 'hero-title-text' ||
-            element.classList.contains('hero-upcoming-btn') ||
-            (element.closest('.hero-content') && element.tagName === 'A') ||
-            element.classList.contains('admin-link') ||
-            element.classList.contains('search-clear-btn') ||
-            element.classList.contains('empty-state-actions') ||
-            element.classList.contains('roster-card-remove-btn') ||
-            element.classList.contains('roster-card-drag-handle') ||
-            element.classList.contains('roster-drag-placeholder') ||
-            element.classList.contains('btn-roster-add-member') ||
-            element.classList.contains('roster-card-tag-btn') ||
-            element.classList.contains('roster-tag-delete-btn') ||
-            element.tagName === 'INPUT' ||
-            element.tagName === 'TEXTAREA' ||
-            element.tagName === 'SELECT' ||
-            element.tagName === 'OPTION' ||
-            element.tagName === 'SVG' ||
-            element.tagName === 'PATH' ||
-            element.tagName === 'POLYLINE' ||
-            element.tagName === 'CIRCLE' ||
-            element.tagName === 'RECT' ||
-            element.tagName === 'LINE' ||
-            element.tagName === 'IMG' ||
-            element.tagName === 'SCRIPT' ||
-            element.tagName === 'STYLE' ||
-            element.closest('.info-card-icon') ||
+        // Skip non-text icons
+        if (element.closest('.info-card-icon') ||
             element.closest('.donation-list-icon') ||
             element.closest('.date-icon-box') ||
             element.closest('.paypal-badge') ||
@@ -793,9 +757,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
-        // Avoid nested contenteditable by skipping container elements that contain child editable elements
-        const nestedChildSelectors = 'h1, h2, h3, h4, h5, h6, p, .stat-number, .stat-label, .rank-badge, .roster-name, .card-img-placeholder, .santa-badge, .date-card-title, .date-card-subtitle, .tag-new';
-        if (element.querySelector(nestedChildSelectors)) {
+        // Skip major layout containers that enclose nested block content
+        const layoutContainers = ['HTML', 'BODY', 'MAIN', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'TABLE', 'TBODY', 'THEAD', 'TR', 'UL', 'OL'];
+        if (layoutContainers.includes(tagName)) {
+            return false;
+        }
+
+        // If this element contains nested block containers, skip the outer wrapper so inner text elements are editable
+        if (element.querySelector('h1, h2, h3, h4, h5, h6, p, ul, ol, table, section, article, header, footer, form')) {
             return false;
         }
 
@@ -831,7 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return path.join(' > ');
     }
 
-    // Helper: Collect all editable elements in deterministic DOM order
+    // Helper: Collect all editable elements in deterministic DOM order without duplicate nesting
     function getEditableElements(root = document) {
         const list = [];
         const seen = new Set();
@@ -841,7 +810,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 list.push(el);
             }
         });
-        return list;
+        // De-duplicate: If an element's ancestor is already directly editable, don't double-register child inline elements
+        return list.filter(el => {
+            let p = el.parentElement;
+            while (p && p !== root) {
+                if (seen.has(p)) return false;
+                p = p.parentElement;
+            }
+            return true;
+        });
     }
 
     // Helper: Client-side Image Compression to avoid QuotaExceededError in localStorage
@@ -896,16 +873,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         delete raw[k];
                         changed = true;
                     }
-                    // Purge any stale apparatus hero buttons edits that could overwrite navigation buttons
-                    if (k.includes('apparatus') && (k.includes('hero') || k.includes('btn') || k.includes('a:nth-of-type') || k.includes('retired'))) {
-                        delete raw[k];
-                        changed = true;
-                    }
-                    // Purge any stale hero subtitle/title edits on homepage
-                    if (k.includes('index') && (k.includes('hero-subtitle') || k.includes('hero-title') || k.includes('h1') || k.includes('h2'))) {
-                        delete raw[k];
-                        changed = true;
-                    }
                 }
                 if (changed) {
                     localStorage.setItem('station46_text_edits', JSON.stringify(raw));
@@ -953,15 +920,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const elements = getEditableElements();
         elements.forEach((element) => {
-            if (element.id === 'hero-subtitle-text' ||
-                element.id === 'hero-title-text' ||
-                element.id === 'hero-btn-active-fleet' ||
-                element.id === 'hero-btn-retired-apparatus' ||
-                element.id === 'hero-btn-upcoming-rescue' ||
-                element.classList.contains('hero-upcoming-btn') ||
-                (element.closest('.hero-content') && element.tagName === 'A')) {
-                return;
-            }
             const selectorPath = getElementSelectorPath(element);
             const storageKey = `edit_v2_${pageKey}_${selectorPath}`;
             const fontKey = `font_v2_${pageKey}_${selectorPath}`;
@@ -2192,17 +2150,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                // Prevent link navigation during active edit mode so admin can edit link text
-                if (element.tagName === 'A' || element.closest('a')) {
+                // Prevent link navigation or button action during active edit mode so admin can edit text
+                if (element.tagName === 'A' || element.closest('a') || element.tagName === 'BUTTON' || element.closest('button')) {
                     element.addEventListener('click', (e) => {
-                        if (editModeActive) {
+                        if (editModeActive && !element.closest('#admin-floating-bar')) {
                             e.preventDefault();
                         }
                     });
                 }
                 
-                // Handle Enter key for single-line titles, initials, and badges to blur instead of inserting line breaks
-                if (element.tagName.match(/^H[1-6]$/) || element.classList.contains('roster-avatar') || element.classList.contains('rank-badge') || element.classList.contains('tag-new')) {
+                // Handle Enter key for single-line elements to blur instead of inserting line breaks
+                if (element.tagName.match(/^H[1-6]$/) || element.tagName === 'BUTTON' || element.classList.contains('btn') || element.classList.contains('roster-avatar') || element.classList.contains('rank-badge') || element.classList.contains('tag-new')) {
                     element.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
