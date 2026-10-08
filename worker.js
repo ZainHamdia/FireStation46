@@ -82,11 +82,20 @@ async function getFile(env, path) {
     return res.json();
 }
 
+// Error for a missing secret; lists visible setting NAMES only (never values) to help spot typos
+function missingSecret(env, name) {
+    const visible = Object.keys(env || {}).filter(k => k !== 'ASSETS');
+    return json({
+        error: `Server missing ${name}`,
+        visibleSettings: visible.length ? visible : '(none)'
+    }, 500);
+}
+
 // GET /api/github?path=data/posts.json  → { content: "<raw text>" }
 async function handleGet({ request, env }) {
     const path = new URL(request.url).searchParams.get('path') || '';
     if (!ALLOWED_PATH.test(path)) return json({ error: 'Path not allowed' }, 400);
-    if (!env.GITHUB_TOKEN) return json({ error: 'Server missing GITHUB_TOKEN' }, 500);
+    if (!env.GITHUB_TOKEN) return missingSecret(env, 'GITHUB_TOKEN');
 
     try {
         const file = await getFile(env, path);
@@ -108,7 +117,7 @@ async function handlePost({ request, env }) {
         return json({ error: 'Invalid JSON' }, 400);
     }
 
-    if (!env.ADMIN_PASSWORD) return json({ error: 'Server missing ADMIN_PASSWORD' }, 500);
+    if (!env.ADMIN_PASSWORD) return missingSecret(env, 'ADMIN_PASSWORD');
     if (!isAuthorized(env, body.username, body.password)) {
         return json({ error: 'Invalid username or password' }, 401);
     }
@@ -116,7 +125,7 @@ async function handlePost({ request, env }) {
     if (body.action === 'login') return json({ ok: true });
 
     if (body.action !== 'save') return json({ error: 'Unknown action' }, 400);
-    if (!env.GITHUB_TOKEN) return json({ error: 'Server missing GITHUB_TOKEN' }, 500);
+    if (!env.GITHUB_TOKEN) return missingSecret(env, 'GITHUB_TOKEN');
 
     const { path, content, message } = body;
     if (!ALLOWED_PATH.test(path || '')) return json({ error: 'Path not allowed' }, 400);
