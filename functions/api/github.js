@@ -1,7 +1,7 @@
-// Cloudflare Worker: serves the static site and a secure GitHub proxy for the Station 46 admin editor.
-// Route: /api/github  (all other paths are served from static assets, see wrangler.jsonc)
+// Cloudflare Pages Function: secure GitHub proxy for the Station 46 admin editor.
+// Route: /api/github
 //
-// Required Cloudflare secrets (Workers & Pages → firestation46 → Settings → Variables and Secrets):
+// Required Cloudflare secrets (Cloudflare Dashboard → Workers & Pages → firestation46 → Settings → Environment variables):
 //   GITHUB_TOKEN    Fine-grained token scoped to ZainHamdia/FireStation46 with "Contents: Read and write"
 //   ADMIN_PASSWORD  Password admins type on admin.html
 // Optional:
@@ -9,7 +9,7 @@
 //   GITHUB_REPO     Defaults to "ZainHamdia/FireStation46"
 //   GITHUB_BRANCH   Defaults to "main"
 //
-// The token never leaves Cloudflare; browsers only ever see this endpoint.
+// The token never leaves Cloudflare; browsers only ever interact with this endpoint.
 
 const DEFAULT_REPO = 'ZainHamdia/FireStation46';
 const DEFAULT_USER = 'blawenburg1946';
@@ -20,7 +20,11 @@ const ALLOWED_PATH = /^(?:[a-z0-9_-]+\.html|data\/[a-z0-9_-]+\.json)$/i;
 function json(body, status = 200) {
     return new Response(JSON.stringify(body), {
         status,
-        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+        headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store',
+            'Access-Control-Allow-Origin': '*'
+        }
     });
 }
 
@@ -91,8 +95,21 @@ function missingSecret(env, name) {
     }, 500);
 }
 
+// OPTIONS /api/github (CORS preflight)
+export async function onRequestOptions() {
+    return new Response(null, {
+        status: 204,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '86400'
+        }
+    });
+}
+
 // GET /api/github?path=data/posts.json  → { content: "<raw text>" }
-async function handleGet({ request, env }) {
+export async function onRequestGet({ request, env }) {
     const path = new URL(request.url).searchParams.get('path') || '';
     if (!ALLOWED_PATH.test(path)) return json({ error: 'Path not allowed' }, 400);
     if (!env.GITHUB_TOKEN) return missingSecret(env, 'GITHUB_TOKEN');
@@ -109,7 +126,7 @@ async function handleGet({ request, env }) {
 // POST /api/github
 //   { action: "login", username, password }
 //   { action: "save",  username, password, path, content, message }
-async function handlePost({ request, env }) {
+export async function onRequestPost({ request, env }) {
     let body;
     try {
         body = await request.json();
@@ -164,18 +181,3 @@ async function handlePost({ request, env }) {
     }
     return json({ error: 'Unable to save after retry' }, 502);
 }
-
-export default {
-    async fetch(request, env) {
-        const url = new URL(request.url);
-
-        if (url.pathname === '/api/github') {
-            if (request.method === 'GET') return handleGet({ request, env });
-            if (request.method === 'POST') return handlePost({ request, env });
-            return json({ error: 'Method not allowed' }, 405);
-        }
-
-        // Everything else is the static website
-        return env.ASSETS.fetch(request);
-    }
-};
