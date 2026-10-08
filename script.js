@@ -545,8 +545,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         toast.innerHTML = message;
-        toast.style.background = isError ? '#b91c1c' : '#15803d';
-        toast.style.border = isError ? '1px solid #991b1b' : '1px solid #166534';
+        toast.style.background = isError ? '#9b1b24' : '#15803d';
+        toast.style.border = isError ? '1px solid #7a151d' : '1px solid #166534';
         toast.style.opacity = '1';
 
         setTimeout(() => {
@@ -2014,7 +2014,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="admin-font-modal-actions">
-                        <button type="button" class="btn" id="modal-font-reset-all-btn" style="background: #f8fafc; color: #dc2626; border: 1px solid #fca5a5; padding: 9px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Reset to Defaults</button>
+                        <button type="button" class="btn" id="modal-font-reset-all-btn" style="background: #f8fafc; color: #b3212b; border: 1px solid #f0a3a8; padding: 9px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Reset to Defaults</button>
                         <button type="button" class="btn btn-primary" id="modal-font-save-btn" style="padding: 9px 20px; border-radius: 6px; font-weight: 700; cursor: pointer;">Save Typography</button>
                     </div>
                 </div>
@@ -2420,7 +2420,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 if (triggerElement) {
                     triggerElement.innerHTML = '❌ Push Failed (Check console)';
-                    triggerElement.style.background = 'rgba(211, 47, 47, 0.95)';
+                    triggerElement.style.background = 'rgba(179, 33, 43, 0.95)';
                 }
                 showAdminToast('❌ Failed to push changes to GitHub. Please check console.', true);
             }
@@ -2428,7 +2428,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('[Station 46] Universal sync error:', err);
             if (triggerElement) {
                 triggerElement.innerHTML = '❌ Push Error';
-                triggerElement.style.background = 'rgba(211, 47, 47, 0.95)';
+                triggerElement.style.background = 'rgba(179, 33, 43, 0.95)';
             }
             showAdminToast('❌ Error pushing to GitHub: ' + (err.message || err), true);
         } finally {
@@ -2547,7 +2547,7 @@ document.addEventListener('DOMContentLoaded', () => {
         portalBtn.addEventListener('mouseenter', () => portalBtn.style.background = 'rgba(255, 255, 255, 0.2)');
         portalBtn.addEventListener('mouseleave', () => portalBtn.style.background = 'rgba(255, 255, 255, 0.1)');
         quickLogoutBtn.addEventListener('mouseenter', () => {
-            quickLogoutBtn.style.background = 'rgba(211, 47, 47, 0.9)';
+            quickLogoutBtn.style.background = 'rgba(179, 33, 43, 0.9)';
             quickLogoutBtn.style.color = 'white';
         });
         quickLogoutBtn.addEventListener('mouseleave', () => {
@@ -2585,7 +2585,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 hideFontToolbar();
                 document.body.classList.remove('admin-edit-mode');
-                toggleBtn.style.background = 'rgba(211, 47, 47, 0.9)'; // Red for OFF
+                toggleBtn.style.background = 'rgba(179, 33, 43, 0.9)'; // Red for OFF
                 toggleBtn.innerHTML = '⚡ Edit Mode: OFF';
                 
                 getEditableElements().forEach(element => {
@@ -4602,7 +4602,7 @@ document.addEventListener('keydown', (e) => {
             // 3. Update login card status text
             if (loginStatusText) {
                 if (status === 'force_active') {
-                    loginStatusText.innerHTML = '<span style="color: #dc2626;">🚨 Live Active on Website</span>';
+                    loginStatusText.innerHTML = '<span style="color: #b3212b;">🚨 Live Active on Website</span>';
                 } else if (status === 'force_inactive') {
                     loginStatusText.innerHTML = '<span style="color: #64748b;">⚪ Standby / Deactivated</span>';
                 } else {
@@ -4616,7 +4616,7 @@ document.addEventListener('keydown', (e) => {
                 if (status === 'force_active') {
                     const scName = SCENARIOS[scenario]?.tabName || scenario;
                     bannerWrap.innerHTML = `
-                        <div style="background: linear-gradient(90deg, #991b1b 0%, #dc2626 100%); color: #ffffff; padding: 12px 18px; border-radius: 6px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);">
+                        <div style="background: linear-gradient(90deg, #7a151d 0%, #b3212b 100%); color: #ffffff; padding: 12px 18px; border-radius: 6px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-shadow: 0 4px 12px rgba(179, 33, 43, 0.25);">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.4rem;">🚨</span>
                                 <div>

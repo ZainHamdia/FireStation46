@@ -43,8 +43,8 @@
             align-items: center;
             gap: 8px;
             background: rgba(255, 255, 255, 0.92);
-            border: 1.5px solid rgba(198, 40, 40, 0.35);
-            color: #b71c1c;
+            border: 1.5px solid rgba(155, 27, 36, 0.35);
+            color: #7a151d;
             padding: 7px 20px;
             border-radius: 50px;
             font-size: 0.82rem;
@@ -64,7 +64,7 @@
             transition: filter var(--transition-normal);
         }
         .santa-badge .santa-badge-text {
-            color: #b71c1c;
+            color: #7a151d;
             letter-spacing: 1.2px;
             text-shadow: none !important;
             transition: color var(--transition-normal);
@@ -73,7 +73,7 @@
         /* Santa Badge - Dark Mode */
         :root[data-theme="dark"] .santa-badge {
             background: rgba(15, 23, 42, 0.88) !important;
-            border-color: rgba(239, 68, 68, 0.6) !important;
+            border-color: rgba(220, 58, 69, 0.6) !important;
             color: #ffffff !important;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
         }
@@ -81,13 +81,13 @@
             color: #ffffff !important;
         }
         :root[data-theme="dark"] .santa-badge .santa-icon {
-            filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+            filter: drop-shadow(0 0 6px rgba(220, 58, 69, 0.6));
         }
 
         @media (prefers-color-scheme: dark) {
             :root:not([data-theme="light"]) .santa-badge {
                 background: rgba(15, 23, 42, 0.88) !important;
-                border-color: rgba(239, 68, 68, 0.6) !important;
+                border-color: rgba(220, 58, 69, 0.6) !important;
                 color: #ffffff !important;
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
             }
@@ -95,7 +95,7 @@
                 color: #ffffff !important;
             }
             :root:not([data-theme="light"]) .santa-badge .santa-icon {
-                filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+                filter: drop-shadow(0 0 6px rgba(220, 58, 69, 0.6));
             }
         }
         .dates-container {
@@ -127,7 +127,7 @@
         .date-icon-box {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, var(--fire-red), #991b1b);
+            background: linear-gradient(135deg, var(--fire-red), #7a151d);
             color: white;
             border-radius: 8px;
             display: flex;
@@ -169,7 +169,7 @@
         .guideline-num {
             width: 36px;
             height: 36px;
-            background: rgba(226, 35, 26, 0.1);
+            background: rgba(179, 33, 43, 0.1);
             color: var(--fire-red);
             font-weight: 800;
             font-family: var(--font-heading);
@@ -179,7 +179,7 @@
             justify-content: center;
             flex-shrink: 0;
             font-size: 1.1rem;
-            border: 2px solid rgba(226, 35, 26, 0.3);
+            border: 2px solid rgba(179, 33, 43, 0.3);
         }
         .guideline-text h4 {
             margin: 0 0 4px 0;
@@ -216,7 +216,7 @@
         }
         .district-box.active-dist {
             border: 2px solid var(--fire-red);
-            background: rgba(226, 35, 26, 0.02);
+            background: rgba(179, 33, 43, 0.02);
         }
         .printable-form-preview {
             background: white;
@@ -450,12 +450,12 @@
                     </div>
 
                     <!-- Delivery Day Card -->
-                    <div class="date-card fade-in delay-1" style="border-color: rgba(226, 35, 26, 0.4);">
+                    <div class="date-card fade-in delay-1" style="border-color: rgba(179, 33, 43, 0.4);">
                         <div class="date-card-header">
                             <div class="date-icon-box" style="background: linear-gradient(135deg, #d4a017, #e67e22);">🚒</div>
                             <div>
                                 <h3 class="date-card-title">Santa Delivery Day</h3>
-                                <p class="date-card-subtitle" style="color: #ff6b6b;">Sunday, December 21st, 2025</p>
+                                <p class="date-card-subtitle" style="color: #e8656e;">Sunday, December 21st, 2025</p>
                             </div>
                         </div>
                         <ul class="tech-specs" style="font-size: 1rem; line-height: 1.8;">
@@ -552,7 +552,7 @@
                 <!-- Printable Sheet -->
                 <div id="print-area" class="printable-form-preview fade-in">
                     <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 1.5rem; text-align: center;">
-                        <h3 style="color: #b91c1c; font-size: 1.6rem; margin: 0 0 5px 0; text-transform: uppercase;">Montgomery Township Volunteer Fire Company #2</h3>
+                        <h3 style="color: #9b1b24; font-size: 1.6rem; margin: 0 0 5px 0; text-transform: uppercase;">Montgomery Township Volunteer Fire Company #2</h3>
                         <h4 style="margin: 0; color: #1f2937; font-size: 1.25rem;">Operation Santa 2025 — Registration & Contact Form</h4>
                         <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9rem;">MTVFC #2 (Station 46) • 529 Route 518, Skillman, NJ 08558 • (609) 466-3926</p>
                     </div>

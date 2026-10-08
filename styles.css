@@ -2,9 +2,9 @@
     color-scheme: light;
 
     /* Color Palette - Authentic Community Fire Station (Wix Template Style) */
-    --fire-red: #c62828;
-    --fire-red-dark: #b71c1c;
-    --fire-red-light: #d32f2f;
+    --fire-red: #9b1b24;
+    --fire-red-dark: #7a151d;
+    --fire-red-light: #b3212b;
     --navy-blue: #16253d;
     --navy-dark: #0f192b;
     --gold: #d97706;
@@ -37,7 +37,7 @@
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+    --gradient-primary: linear-gradient(135deg, #9b1b24 0%, #7a151d 100%);
     --gradient-glow: none;
     --bg-gradient: #f4f6f9;
     
@@ -68,9 +68,9 @@
     :root:not([data-theme="light"]) {
         color-scheme: dark;
         /* Brand Colors - High Contrast for Dark Mode */
-        --fire-red: #ef4444;
-        --fire-red-dark: #dc2626;
-        --fire-red-light: #f87171;
+        --fire-red: #dc3a45;
+        --fire-red-dark: #b3212b;
+        --fire-red-light: #e8656e;
         --navy-blue: #f8fafc;
         --navy-dark: #060a12;
         --gold: #f59e0b;
@@ -100,7 +100,7 @@
         
         /* Shadows - Rich Depth with Subtle Flame Aura */
         --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
-        --card-shadow-hover: 0 10px 32px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(239, 68, 68, 0.35);
+        --card-shadow-hover: 0 10px 32px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(220, 58, 69, 0.35);
         --nav-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
         --nav-scrolled-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
     }
@@ -113,9 +113,9 @@
 :root[data-theme="dark"] {
     color-scheme: dark;
     /* Brand Colors - High Contrast for Dark Mode */
-    --fire-red: #ef4444;
-    --fire-red-dark: #dc2626;
-    --fire-red-light: #f87171;
+    --fire-red: #dc3a45;
+    --fire-red-dark: #b3212b;
+    --fire-red-light: #e8656e;
     --navy-blue: #f8fafc;
     --navy-dark: #060a12;
     --gold: #f59e0b;
@@ -145,7 +145,7 @@
     
     /* Shadows - Rich Depth with Subtle Flame Aura */
     --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
-    --card-shadow-hover: 0 10px 32px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(239, 68, 68, 0.35);
+    --card-shadow-hover: 0 10px 32px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(220, 58, 69, 0.35);
     --nav-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
     --nav-scrolled-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
 }
@@ -306,12 +306,12 @@ a {
 .btn-primary {
     background: var(--fire-red);
     color: #ffffff !important;
-    box-shadow: 0 2px 6px rgba(198, 40, 40, 0.25);
+    box-shadow: 0 2px 6px rgba(155, 27, 36, 0.25);
 }
 
 .btn-primary:hover {
     background: var(--fire-red-dark);
-    box-shadow: 0 3px 8px rgba(198, 40, 40, 0.3);
+    box-shadow: 0 3px 8px rgba(155, 27, 36, 0.3);
     color: #ffffff !important;
 }
 
@@ -499,12 +499,12 @@ button:disabled {
 /* Officer Card Special Styling */
 .roster-card.tier-line-officer {
     background: var(--bg-card);
-    border-color: #fca5a5;
+    border-color: #f0a3a8;
     border-left: 4px solid var(--fire-red);
 }
 
 .roster-card.tier-line-officer:hover {
-    border-color: #f87171;
+    border-color: #e8656e;
     border-left: 4px solid var(--fire-red);
     transform: none !important;
     box-shadow: var(--card-shadow-hover);
@@ -539,9 +539,9 @@ button:disabled {
 }
 
 .avatar-line {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1.5px solid #fca5a5;
+    background: #fae5e7;
+    color: #7a151d;
+    border: 1.5px solid #f0a3a8;
 }
 
 .avatar-company {
@@ -630,9 +630,9 @@ button:disabled {
 }
 
 .badge-chief, .badge-line {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: #fae5e7;
+    color: #7a151d;
+    border: 1px solid #f5cdd0;
 }
 
 .badge-president, .badge-company {
@@ -744,7 +744,7 @@ button:disabled {
     font-weight: 800;
     padding: 10px 15px;
     border-radius: 4px;
-    box-shadow: 0 2px 6px rgba(198, 40, 40, 0.3);
+    box-shadow: 0 2px 6px rgba(155, 27, 36, 0.3);
 }
 
 .nav-badge-img {
@@ -837,14 +837,14 @@ button:disabled {
     padding: 8px 18px;
     border-radius: 4px;
     font-weight: 800;
-    box-shadow: 0 2px 6px rgba(198, 40, 40, 0.25);
+    box-shadow: 0 2px 6px rgba(155, 27, 36, 0.25);
     transition: all var(--transition-fast);
 }
 
 .nav-links a.nav-btn-donate:hover {
     background: var(--fire-red-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(198, 40, 40, 0.35);
+    box-shadow: 0 4px 10px rgba(155, 27, 36, 0.35);
 }
 
 .nav-links a.nav-btn-donate::after {
@@ -889,8 +889,8 @@ button:disabled {
 .mobile-menu-btn span:nth-child(3) { top: 28px; }
 
 .mobile-menu-btn.active {
-    background: #fee2e2;
-    border-color: #fca5a5;
+    background: #fae5e7;
+    border-color: #f0a3a8;
 }
 
 .mobile-menu-btn.active span {
@@ -989,7 +989,7 @@ body.menu-open {
 }
 
 .hero-title span {
-    color: #ef4444;
+    color: #dc3a45;
     display: inline-block;
     position: relative;
     white-space: nowrap;
@@ -1056,10 +1056,10 @@ body.menu-open {
 }
 
 .hero-badge-pill svg {
-    color: #ef4444;
-    stroke: #ef4444;
+    color: #dc3a45;
+    stroke: #dc3a45;
     flex-shrink: 0;
-    filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+    filter: drop-shadow(0 0 6px rgba(220, 58, 69, 0.6));
 }
 
 /* Civic Trust Highlights Strip */
@@ -1394,7 +1394,7 @@ body.menu-open {
 
 /* Volunteer Form */
 .hero-like {
-    background: linear-gradient(to bottom, transparent, rgba(230, 57, 70, 0.05));
+    background: linear-gradient(to bottom, transparent, rgba(179, 33, 43, 0.05));
 }
 
 .cta-wrapper {
@@ -1524,7 +1524,7 @@ select:-webkit-autofill:focus {
 #admin-publish-form select:focus {
     outline: none;
     border-color: var(--fire-red);
-    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15);
+    box-shadow: 0 0 0 3px rgba(155, 27, 36, 0.15);
     background: var(--bg-input);
 }
 
@@ -1648,7 +1648,7 @@ footer {
 .footer-social-link:focus-visible {
     outline: none;
     border-color: var(--fire-red);
-    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.3);
+    box-shadow: 0 0 0 3px rgba(155, 27, 36, 0.3);
 }
 
 .footer-social-link:hover {
@@ -1809,7 +1809,7 @@ footer {
 
     .nav-links a:hover,
     .nav-links a.active {
-        background: rgba(198, 40, 40, 0.12);
+        background: rgba(155, 27, 36, 0.12);
         color: var(--fire-red) !important;
     }
 
@@ -2196,8 +2196,8 @@ footer {
     width: 36px;
     height: 36px;
     border-radius: 6px;
-    background: #fee2e2;
-    border: 1px solid #fecaca;
+    background: #fae5e7;
+    border: 1px solid #f5cdd0;
     color: var(--fire-red);
     display: flex;
     align-items: center;
@@ -2323,9 +2323,9 @@ footer {
 }
 
 .recent-post-tag.tag-calls {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: #fae5e7;
+    color: #7a151d;
+    border: 1px solid #f5cdd0;
 }
 
 .recent-post-date {
@@ -2510,8 +2510,8 @@ footer {
 }
 
 .donation-list-icon {
-    background: #fee2e2;
-    border: 1px solid #fecaca;
+    background: #fae5e7;
+    border: 1px solid #f5cdd0;
     border-radius: 6px;
     padding: 10px;
     color: var(--fire-red);
@@ -2718,14 +2718,14 @@ footer {
 }
 
 .faq-item:hover .faq-icon {
-    background: rgba(230, 57, 70, 0.15);
-    color: #ff5252;
+    background: rgba(179, 33, 43, 0.15);
+    color: #dc3a45;
 }
 
 .faq-item[open] .faq-icon {
     transform: rotate(180deg);
-    background: rgba(230, 57, 70, 0.25);
-    color: #ff5252;
+    background: rgba(179, 33, 43, 0.25);
+    color: #dc3a45;
 }
 
 .faq-answer {
@@ -2746,7 +2746,7 @@ footer {
 }
 
 .faq-answer a {
-    color: #ff5252;
+    color: #dc3a45;
     text-decoration: underline;
     font-weight: 500;
     transition: color 0.2s ease;
@@ -2801,7 +2801,7 @@ footer {
     background: var(--fire-red);
     color: #ffffff !important;
     border-color: var(--fire-red);
-    box-shadow: 0 2px 10px rgba(198, 40, 40, 0.35);
+    box-shadow: 0 2px 10px rgba(155, 27, 36, 0.35);
     transform: none;
 }
 
@@ -2829,14 +2829,14 @@ footer {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: rgba(211, 47, 47, 0.1);
-    border: 1px solid rgba(211, 47, 47, 0.25);
+    background: rgba(179, 33, 43, 0.1);
+    border: 1px solid rgba(179, 33, 43, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--fire-red);
     margin-bottom: 0.5rem;
-    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.15);
+    box-shadow: 0 4px 15px rgba(179, 33, 43, 0.15);
     transition: transform var(--transition-normal);
 }
 
@@ -2940,9 +2940,9 @@ footer {
 }
 
 .tag-calls {
-    background: rgba(211, 47, 47, 0.15);
+    background: rgba(179, 33, 43, 0.15);
     color: var(--fire-red);
-    border: 1px solid rgba(211, 47, 47, 0.25);
+    border: 1px solid rgba(179, 33, 43, 0.25);
 }
 
 .news-card-date {
@@ -2980,7 +2980,7 @@ footer {
     border-radius: 50px;
     font-weight: 600;
     font-size: 0.9rem;
-    box-shadow: 0 4px 20px rgba(211, 47, 47, 0.4);
+    box-shadow: 0 4px 20px rgba(179, 33, 43, 0.4);
     z-index: 999;
     display: flex;
     align-items: center;
@@ -2990,7 +2990,7 @@ footer {
 
 .floating-admin-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 25px rgba(211, 47, 47, 0.6);
+    box-shadow: 0 6px 25px rgba(179, 33, 43, 0.6);
     color: white;
 }
 
@@ -3072,7 +3072,7 @@ footer {
 #admin-welcome-heading:focus {
     border-color: var(--fire-red);
     background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15);
+    box-shadow: 0 0 0 3px rgba(155, 27, 36, 0.15);
 }
 
 .admin-welcome-edit-btn {
@@ -3107,7 +3107,7 @@ footer {
 :root[data-theme="dark"] #admin-welcome-heading:focus {
     border-color: var(--fire-red);
     background: var(--bg-card);
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+    box-shadow: 0 0 0 3px rgba(220, 58, 69, 0.25);
 }
 
 .admin-header-actions {
@@ -3432,18 +3432,18 @@ footer {
 }
 
 .btn-danger {
-    background: #c62828;
+    background: #9b1b24;
     color: white;
 }
 .btn-danger:hover {
-    background: #b71c1c;
+    background: #7a151d;
     transform: translateY(-2px);
 }
 
 .error-message {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #991b1b;
+    background: #fcf1f2;
+    border: 1px solid #f5cdd0;
+    color: #7a151d;
     padding: 12px 16px;
     border-radius: 4px;
     margin-bottom: 1.5rem;
@@ -3574,16 +3574,16 @@ body.admin-edit-mode [contenteditable="true"] {
 }
 
 body.admin-edit-mode [contenteditable="true"]:hover {
-    outline: 2px dashed rgba(230, 57, 70, 0.5);
+    outline: 2px dashed rgba(179, 33, 43, 0.5);
     outline-offset: 4px;
-    background-color: rgba(230, 57, 70, 0.05);
+    background-color: rgba(179, 33, 43, 0.05);
     cursor: pointer;
 }
 
 body.admin-edit-mode [contenteditable="true"]:focus {
     outline: 2px solid var(--fire-red);
     outline-offset: 4px;
-    background-color: rgba(230, 57, 70, 0.08);
+    background-color: rgba(179, 33, 43, 0.08);
 }
 
 /* Hide Third-Party POWR Watermark & Branding */
@@ -3705,9 +3705,9 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 .role-card.role-firefighter .role-badge-tag {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: #fae5e7;
+    color: #7a151d;
+    border: 1px solid #f5cdd0;
 }
 
 .role-card.role-junior .role-badge-tag {
@@ -3919,9 +3919,9 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 .membership-badge-tag.tag-firefighter {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: #fae5e7;
+    color: #7a151d;
+    border: 1px solid #f5cdd0;
 }
 
 .membership-badge-tag.tag-police {
@@ -4019,9 +4019,9 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: rgba(230, 57, 70, 0.2);
-    border: 1px solid rgba(230, 57, 70, 0.4);
-    color: #ff8585;
+    background: rgba(179, 33, 43, 0.2);
+    border: 1px solid rgba(179, 33, 43, 0.4);
+    color: #ec8088;
     display: none;
     align-items: center;
     justify-content: center;
@@ -4039,14 +4039,14 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     color: #ffffff;
     border-color: var(--fire-red);
     transform: scale(1.15);
-    box-shadow: 0 0 10px rgba(230, 57, 70, 0.6);
+    box-shadow: 0 0 10px rgba(179, 33, 43, 0.6);
 }
 
 /* Roster Section Add Member Button */
 .btn-roster-add-member {
-    background: rgba(230, 57, 70, 0.12);
-    color: #ff8585;
-    border: 1px solid rgba(230, 57, 70, 0.3);
+    background: rgba(179, 33, 43, 0.12);
+    color: #ec8088;
+    border: 1px solid rgba(179, 33, 43, 0.3);
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 0.78rem;
@@ -4066,7 +4066,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     background: var(--fire-red);
     color: #ffffff;
     border-color: var(--fire-red);
-    box-shadow: 0 0 12px rgba(230, 57, 70, 0.4);
+    box-shadow: 0 0 12px rgba(179, 33, 43, 0.4);
     transform: translateY(-1px);
 }
 
@@ -4152,7 +4152,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 .roster-tag-delete-btn:hover {
-    background: #ef4444;
+    background: #dc3a45;
     transform: translateY(-50%) scale(1.15);
 }
 
@@ -4253,7 +4253,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 .roster-modal-form select:focus {
     outline: none;
     border-color: var(--fire-red);
-    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15);
+    box-shadow: 0 0 0 3px rgba(155, 27, 36, 0.15);
     background: var(--bg-input);
 }
 
@@ -4395,9 +4395,9 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #991b1b;
-    background: #fee2e2;
-    border: 1px solid #fecaca;
+    color: #7a151d;
+    background: #fae5e7;
+    border: 1px solid #f5cdd0;
     padding: 4px 12px;
     border-radius: 4px;
     margin-bottom: 1.25rem;
@@ -4530,7 +4530,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     font-size: 0.9rem;
     padding: 10px 18px;
     border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(198, 40, 40, 0.4);
+    box-shadow: 0 2px 8px rgba(155, 27, 36, 0.4);
 }
 
 .blueprint-details {
@@ -4594,7 +4594,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(230, 57, 70, 0.2);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(179, 33, 43, 0.2);
     display: flex;
     flex-direction: column;
     max-height: 92vh;
@@ -4834,7 +4834,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 #admin-font-toolbar .font-toolbar-close:hover {
-    color: #f87171;
+    color: #e8656e;
 }
 
 /* Admin Global Typography Modal */
@@ -4974,7 +4974,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 
     :root[data-theme="dark"] .nav-links a:not(.btn-primary):hover,
     :root[data-theme="dark"] .nav-links a:not(.btn-primary):hover {
-        color: #f87171;
+        color: #e8656e;
     }
 
     :root[data-theme="dark"] .nav-links a:not(.btn-primary).active,
@@ -4984,20 +4984,20 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 
     :root[data-theme="dark"] .nav-links a:not(.btn-primary)::after,
     :root[data-theme="dark"] .nav-links a:not(.btn-primary)::after {
-        background: #ef4444;
-        box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+        background: #dc3a45;
+        box-shadow: 0 0 10px rgba(220, 58, 69, 0.8);
     }
 
     :root[data-theme="dark"] .nav-links a.nav-btn-donate,
     :root[data-theme="dark"] .nav-links a.nav-btn-donate {
-        background: #dc2626;
-        box-shadow: 0 2px 10px rgba(220, 38, 38, 0.4);
+        background: #b3212b;
+        box-shadow: 0 2px 10px rgba(179, 33, 43, 0.4);
     }
 
     :root[data-theme="dark"] .nav-links a.nav-btn-donate:hover,
     :root[data-theme="dark"] .nav-links a.nav-btn-donate:hover {
-        background: #ef4444;
-        box-shadow: 0 4px 18px rgba(239, 68, 68, 0.6);
+        background: #dc3a45;
+        box-shadow: 0 4px 18px rgba(220, 58, 69, 0.6);
     }
 
     :root[data-theme="dark"] .logo-text .mtvfc,
@@ -5007,7 +5007,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 
     :root[data-theme="dark"] .logo-text .subtitle,
     :root[data-theme="dark"] .logo-text .subtitle {
-        color: #f87171;
+        color: #e8656e;
     }
 
     /* Hero Elements */
@@ -5022,9 +5022,9 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     
     :root[data-theme="dark"] .hero-badge-pill svg,
     :root[data-theme="dark"] .hero-badge-pill svg {
-        color: #ef4444 !important;
-        stroke: #ef4444 !important;
-        filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+        color: #dc3a45 !important;
+        stroke: #dc3a45 !important;
+        filter: drop-shadow(0 0 6px rgba(220, 58, 69, 0.6));
     }
 
     :root[data-theme="dark"] .hero-trust-bar,
@@ -5080,7 +5080,7 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     :root[data-theme="dark"] .blueprint-card:hover,
     :root[data-theme="dark"] .roster-card:hover {
         background: var(--bg-card-hover) !important;
-        border-color: rgba(239, 68, 68, 0.4) !important;
+        border-color: rgba(220, 58, 69, 0.4) !important;
         box-shadow: var(--card-shadow-hover) !important;
     }
 
@@ -5229,9 +5229,9 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     :root[data-theme="dark"] .badge-chief,
     :root[data-theme="dark"] .badge-line,
     :root[data-theme="dark"] .avatar-line {
-        background: rgba(239, 68, 68, 0.16) !important;
-        color: #fca5a5 !important;
-        border: 1px solid rgba(239, 68, 68, 0.35) !important;
+        background: rgba(220, 58, 69, 0.16) !important;
+        color: #f0a3a8 !important;
+        border: 1px solid rgba(220, 58, 69, 0.35) !important;
     }
 
     :root[data-theme="dark"] .role-card.role-police .role-badge-tag,
@@ -5292,14 +5292,14 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 
     :root[data-theme="dark"] .station-detail-icon,
     :root[data-theme="dark"] .station-detail-icon {
-        background: rgba(239, 68, 68, 0.18);
-        border-color: rgba(239, 68, 68, 0.4);
+        background: rgba(220, 58, 69, 0.18);
+        border-color: rgba(220, 58, 69, 0.4);
     }
 
     :root[data-theme="dark"] .donation-list-icon,
     :root[data-theme="dark"] .donation-list-icon {
-        background: rgba(239, 68, 68, 0.18);
-        border-color: rgba(239, 68, 68, 0.4);
+        background: rgba(220, 58, 69, 0.18);
+        border-color: rgba(220, 58, 69, 0.4);
     }
 
     :root[data-theme="dark"] .contact-form select,
@@ -5606,12 +5606,12 @@ html.theme-transition *::after {
 }
 
 .nav-dropdown-item:hover {
-    background: rgba(230, 57, 70, 0.08);
+    background: rgba(179, 33, 43, 0.08);
     color: var(--fire-red) !important;
 }
 
 :root[data-theme="dark"] .nav-dropdown-item:hover {
-    background: rgba(230, 57, 70, 0.2);
+    background: rgba(179, 33, 43, 0.2);
 }
 
 @media (max-width: 768px) {
@@ -5751,7 +5751,7 @@ html.theme-transition *::after {
     display: inline-block;
     padding: 3px 10px;
     border-radius: 4px;
-    background: #fee2e2;
+    background: #fae5e7;
     color: var(--fire-red);
     font-size: 0.75rem;
     font-weight: 700;
@@ -5761,8 +5761,8 @@ html.theme-transition *::after {
 }
 
 :root[data-theme="dark"] .history-badge {
-    background: rgba(230, 57, 70, 0.2);
-    color: #ff6b6b;
+    background: rgba(179, 33, 43, 0.2);
+    color: #e8656e;
 }
 
 .history-dropdown-title {
@@ -5910,7 +5910,7 @@ html.theme-transition *::after {
     width: 48px;
     height: 48px;
     border-radius: 8px;
-    background: rgba(230, 57, 70, 0.1);
+    background: rgba(179, 33, 43, 0.1);
     color: var(--fire-red);
     display: flex;
     align-items: center;
@@ -5967,7 +5967,7 @@ html.theme-transition *::after {
 .form-textarea:focus {
     outline: none;
     border-color: var(--fire-red);
-    box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15);
+    box-shadow: 0 0 0 3px rgba(179, 33, 43, 0.15);
 }
 
 /* ==========================================================================
@@ -5993,8 +5993,8 @@ html.theme-transition *::after {
 }
 
 .storm-banner-warning {
-    background: linear-gradient(90deg, #991b1b 0%, #dc2626 50%, #991b1b 100%);
-    border-bottom-color: #ef4444;
+    background: linear-gradient(90deg, #7a151d 0%, #b3212b 50%, #7a151d 100%);
+    border-bottom-color: #dc3a45;
 }
 
 .storm-banner-watch {
@@ -6137,7 +6137,7 @@ body.storm-mode-active .top-bar {
 }
 
 body.storm-mode-active.storm-level-warning .top-bar {
-    border-bottom: 1px solid rgba(239, 68, 68, 0.4);
+    border-bottom: 1px solid rgba(220, 58, 69, 0.4);
 }
 
 /* Floating Quick-Access Pill (Bottom-Left) */
@@ -6169,12 +6169,12 @@ body.storm-mode-active.storm-level-warning .top-bar {
 }
 
 .storm-floating-pill.pill-warning {
-    border-color: #ef4444;
+    border-color: #dc3a45;
     background: #1e1b18;
 }
 
 .storm-floating-pill.pill-warning .storm-pulse-dot {
-    background-color: #ef4444;
+    background-color: #dc3a45;
 }
 
 .storm-floating-pill.pill-watch {
@@ -6261,7 +6261,7 @@ body.storm-mode-active.storm-level-warning .top-bar {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border-bottom: 3px solid #b91c1c;
+    border-bottom: 3px solid #9b1b24;
 }
 
 .storm-modal-title-wrap {
@@ -6293,7 +6293,7 @@ body.storm-mode-active.storm-level-warning .top-bar {
 }
 
 .badge-warning {
-    background: #b91c1c;
+    background: #9b1b24;
 }
 
 .badge-watch {
@@ -6361,9 +6361,9 @@ body.storm-mode-active.storm-level-warning .top-bar {
 
 /* Station Custom Announcement Notice */
 .storm-station-notice {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    border-left: 4px solid #b91c1c;
+    background: #fcf1f2;
+    border: 1px solid #f5cdd0;
+    border-left: 4px solid #9b1b24;
     padding: 0.9rem 1.15rem;
     border-radius: 4px;
     display: flex;
@@ -6372,35 +6372,35 @@ body.storm-mode-active.storm-level-warning .top-bar {
 }
 
 [data-theme="dark"] .storm-station-notice {
-    background: rgba(185, 28, 28, 0.15);
-    border-color: rgba(239, 68, 68, 0.3);
-    border-left-color: #ef4444;
+    background: rgba(155, 27, 36, 0.15);
+    border-color: rgba(220, 58, 69, 0.3);
+    border-left-color: #dc3a45;
 }
 
 .storm-notice-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #b91c1c;
+    color: #9b1b24;
     flex-shrink: 0;
     margin-top: 1px;
 }
 
 [data-theme="dark"] .storm-notice-icon {
-    color: #f87171;
+    color: #e8656e;
 }
 
 .storm-notice-content h4 {
     margin: 0 0 3px 0;
     font-size: 0.88rem;
     font-weight: 700;
-    color: #991b1b;
+    color: #7a151d;
     text-transform: uppercase;
     letter-spacing: 0.4px;
 }
 
 [data-theme="dark"] .storm-notice-content h4 {
-    color: #fca5a5;
+    color: #f0a3a8;
 }
 
 .storm-notice-content p {
@@ -6453,21 +6453,21 @@ body.storm-mode-active.storm-level-warning .top-bar {
 }
 
 .storm-contact-card.emergency-card {
-    background: #fef2f2;
-    border: 1.5px solid #dc2626;
+    background: #fcf1f2;
+    border: 1.5px solid #b3212b;
 }
 
 [data-theme="dark"] .storm-contact-card.emergency-card {
-    background: rgba(185, 28, 28, 0.2);
-    border-color: #ef4444;
+    background: rgba(155, 27, 36, 0.2);
+    border-color: #dc3a45;
 }
 
 .storm-contact-card.emergency-card:hover {
-    background: #fee2e2;
+    background: #fae5e7;
 }
 
 [data-theme="dark"] .storm-contact-card.emergency-card:hover {
-    background: rgba(185, 28, 28, 0.3);
+    background: rgba(155, 27, 36, 0.3);
 }
 
 .storm-contact-icon {
@@ -6493,12 +6493,12 @@ body.storm-mode-active.storm-level-warning .top-bar {
 }
 
 .emergency-card .storm-contact-icon {
-    background: #dc2626;
+    background: #b3212b;
     color: #ffffff;
 }
 
 [data-theme="dark"] .emergency-card .storm-contact-icon {
-    background: #ef4444;
+    background: #dc3a45;
     color: #ffffff;
 }
 
@@ -6543,11 +6543,11 @@ body.storm-mode-active.storm-level-warning .top-bar {
 }
 
 .emergency-card .storm-contact-number {
-    color: #b91c1c;
+    color: #9b1b24;
 }
 
 [data-theme="dark"] .emergency-card .storm-contact-number {
-    color: #fca5a5;
+    color: #f0a3a8;
 }
 
 /* Live Weather & NWS Statement Card - Clean Meteorological Panel */
@@ -6597,7 +6597,7 @@ body.storm-mode-active.storm-level-warning .top-bar {
 
 .storm-radar-link {
     font-size: 0.78rem;
-    color: #b91c1c;
+    color: #9b1b24;
     text-decoration: none;
     font-weight: 700;
     display: inline-flex;
@@ -6606,7 +6606,7 @@ body.storm-mode-active.storm-level-warning .top-bar {
 }
 
 [data-theme="dark"] .storm-radar-link {
-    color: #f87171;
+    color: #e8656e;
 }
 
 .storm-radar-link:hover {
@@ -6770,17 +6770,17 @@ body.storm-mode-active.storm-level-warning .top-bar {
 
 .storm-tab-btn.active {
     background: #ffffff;
-    color: #b91c1c;
+    color: #9b1b24;
     border-color: #cbd5e1 #cbd5e1 transparent #cbd5e1;
-    border-bottom: 2px solid #b91c1c;
+    border-bottom: 2px solid #9b1b24;
     font-weight: 700;
 }
 
 [data-theme="dark"] .storm-tab-btn.active {
     background: #1e293b;
-    color: #f87171;
+    color: #e8656e;
     border-color: #334155 #334155 transparent #334155;
-    border-bottom: 2px solid #ef4444;
+    border-bottom: 2px solid #dc3a45;
 }
 
 /* Tab Panels */
@@ -6861,13 +6861,13 @@ body.storm-mode-active.storm-level-warning .top-bar {
 }
 
 .action-column.donts {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: #fcf1f2;
+    border: 1px solid #f5cdd0;
 }
 
 [data-theme="dark"] .action-column.donts {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(220, 58, 69, 0.1);
+    border-color: rgba(220, 58, 69, 0.3);
 }
 
 .action-column-header {
@@ -6890,11 +6890,11 @@ body.storm-mode-active.storm-level-warning .top-bar {
 }
 
 .action-column.donts .action-column-header {
-    color: #991b1b;
+    color: #7a151d;
 }
 
 [data-theme="dark"] .action-column.donts .action-column-header {
-    color: #f87171;
+    color: #e8656e;
 }
 
 .action-list {
@@ -7104,10 +7104,10 @@ body.storm-mode-active.storm-level-warning .top-bar {
 
 /* Active State: Force Active */
 .storm-toggle-btn.active[data-mode="force_active"] {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: linear-gradient(135deg, #b3212b 0%, #9b1b24 100%);
     color: #ffffff;
-    border-color: #ef4444;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+    border-color: #dc3a45;
+    box-shadow: 0 4px 12px rgba(179, 33, 43, 0.35);
 }
 
 /* Active State: Auto Detect */
