@@ -1101,7 +1101,7 @@ body.menu-open {
 }
 .hero-membership {
     background: linear-gradient(rgba(15, 25, 43, 0.28), rgba(15, 25, 43, 0.48)),
-                url('family.jpg?v=2') center center/cover !important;
+                url('family.jpg?v=2') center 25%/cover !important;
 }
 .hero-apparatus {
     background: linear-gradient(rgba(10, 15, 25, 0.22), rgba(10, 15, 25, 0.45)),
@@ -1114,7 +1114,7 @@ body.menu-open {
 
 :root[data-theme="dark"] .hero-membership {
     background: linear-gradient(rgba(10, 15, 25, 0.55), rgba(10, 15, 25, 0.72)),
-                url('family.jpg?v=2') center center/cover !important;
+                url('family.jpg?v=2') center 25%/cover !important;
 }
 :root[data-theme="dark"] .hero-apparatus {
     background: linear-gradient(rgba(10, 15, 25, 0.52), rgba(10, 15, 25, 0.70)),
