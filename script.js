@@ -3741,6 +3741,212 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// ==========================================================================
+// Interactive Apparatus Lightbox & Technical Specs Modal Logic
+// ==========================================================================
+(function initApparatusModalSystem() {
+    let apparatusList = [];
+    let currentApparatusIndex = 0;
+    let modalEl = null;
+
+    function getOrCreateApparatusModal() {
+        if (modalEl) return modalEl;
+        modalEl = document.getElementById('apparatus-modal');
+        if (modalEl) return modalEl;
+
+        modalEl = document.createElement('div');
+        modalEl.id = 'apparatus-modal';
+        modalEl.className = 'apparatus-modal-backdrop';
+        modalEl.setAttribute('role', 'dialog');
+        modalEl.setAttribute('aria-modal', 'true');
+        modalEl.setAttribute('aria-hidden', 'true');
+        modalEl.innerHTML = `
+            <div class="apparatus-modal-content">
+                <button type="button" class="apparatus-modal-close" id="apparatus-modal-close" aria-label="Close dialog" title="Close (Esc)">✕</button>
+                <button type="button" class="apparatus-modal-nav prev" id="apparatus-modal-prev" aria-label="Previous apparatus" title="Previous (Left Arrow)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button type="button" class="apparatus-modal-nav next" id="apparatus-modal-next" aria-label="Next apparatus" title="Next (Right Arrow)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+                <div class="apparatus-modal-img-wrapper">
+                    <img id="apparatus-modal-img" src="" alt="Apparatus photo">
+                </div>
+                <div class="apparatus-modal-details">
+                    <div class="apparatus-modal-header">
+                        <div>
+                            <span class="apparatus-modal-badge" id="apparatus-modal-badge">STATION 46 APPARATUS</span>
+                            <h3 class="apparatus-modal-title" id="apparatus-modal-title">Apparatus Name</h3>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="apparatus-modal-specs-title">Technical Specifications & Equipment</h4>
+                        <ul class="apparatus-modal-specs-list" id="apparatus-modal-specs"></ul>
+                    </div>
+                    <div class="apparatus-modal-footer-bar">
+                        <span class="apparatus-modal-counter" id="apparatus-modal-counter">1 of 8</span>
+                        <a id="apparatus-modal-full" href="#" target="_blank" class="apparatus-modal-full-btn" title="Open full-resolution photo in new tab">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            <span>View Full Resolution</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modalEl);
+
+        // Backdrop click to close
+        modalEl.addEventListener('click', (e) => {
+            if (e.target === modalEl) closeApparatusModal();
+        });
+
+        // Close button
+        const closeBtn = modalEl.querySelector('#apparatus-modal-close');
+        if (closeBtn) closeBtn.addEventListener('click', closeApparatusModal);
+
+        // Prev & Next buttons
+        const prevBtn = modalEl.querySelector('#apparatus-modal-prev');
+        const nextBtn = modalEl.querySelector('#apparatus-modal-next');
+        if (prevBtn) prevBtn.addEventListener('click', () => changeApparatus(-1));
+        if (nextBtn) nextBtn.addEventListener('click', () => changeApparatus(1));
+
+        return modalEl;
+    }
+
+    function extractApparatusFromCards() {
+        const activeSection = document.getElementById('active-fleet');
+        const retiredSection = document.getElementById('retired-fleet');
+        const cards = Array.from(document.querySelectorAll('#active-fleet .card, #retired-fleet .card, .cards-grid .card'));
+        
+        apparatusList = [];
+        cards.forEach((card, index) => {
+            const h3 = card.querySelector('h3');
+            const title = h3 ? h3.textContent.trim() : 'Apparatus';
+            
+            // Extract image URL from placeholder background-image
+            const placeholder = card.querySelector('.card-img-placeholder');
+            let imgSrc = '';
+            if (placeholder) {
+                const bg = window.getComputedStyle(placeholder).backgroundImage || '';
+                const match = bg.match(/url\(["']?([^"']+)["']?\)/i);
+                if (match && match[1]) {
+                    imgSrc = match[1];
+                }
+            }
+
+            // Extract specs
+            const specItems = Array.from(card.querySelectorAll('.tech-specs li')).map(li => li.innerHTML.trim());
+            const isRetired = card.closest('#retired-fleet') !== null;
+            const badge = isRetired ? 'RETIRED FLEET' : 'ACTIVE FLEET';
+
+            apparatusList.push({
+                index,
+                title,
+                imgSrc,
+                badge,
+                specs: specItems
+            });
+
+            // Attach card click listener
+            if (!card.dataset.modalBound) {
+                card.dataset.modalBound = 'true';
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('role', 'button');
+                card.setAttribute('aria-label', `View photo and specs for ${title}`);
+                
+                card.addEventListener('click', (e) => {
+                    // Avoid opening when admin inline editing is active on text
+                    if (document.body.classList.contains('admin-edit-mode') && (e.target.isContentEditable || e.target.closest('[contenteditable="true"]'))) {
+                        return;
+                    }
+                    openApparatusModal(index);
+                });
+
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openApparatusModal(index);
+                    }
+                });
+            }
+        });
+    }
+
+    function openApparatusModal(index) {
+        if (!apparatusList.length) extractApparatusFromCards();
+        if (index < 0 || index >= apparatusList.length) return;
+        currentApparatusIndex = index;
+        updateApparatusModalUI();
+        const modal = getOrCreateApparatusModal();
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeApparatusModal() {
+        const modal = document.getElementById('apparatus-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function changeApparatus(dir) {
+        if (!apparatusList.length) return;
+        currentApparatusIndex = (currentApparatusIndex + dir + apparatusList.length) % apparatusList.length;
+        updateApparatusModalUI();
+    }
+
+    function updateApparatusModalUI() {
+        const item = apparatusList[currentApparatusIndex];
+        if (!item) return;
+
+        const modal = getOrCreateApparatusModal();
+        const imgEl = modal.querySelector('#apparatus-modal-img');
+        const titleEl = modal.querySelector('#apparatus-modal-title');
+        const badgeEl = modal.querySelector('#apparatus-modal-badge');
+        const specsListEl = modal.querySelector('#apparatus-modal-specs');
+        const fullLinkEl = modal.querySelector('#apparatus-modal-full');
+        const counterEl = modal.querySelector('#apparatus-modal-counter');
+
+        if (imgEl) {
+            imgEl.style.opacity = '0.3';
+            imgEl.src = item.imgSrc;
+            imgEl.alt = `${item.title} photo`;
+            imgEl.onload = () => { imgEl.style.opacity = '1'; };
+        }
+        if (titleEl) titleEl.textContent = item.title;
+        if (badgeEl) badgeEl.textContent = item.badge;
+        if (fullLinkEl) fullLinkEl.href = item.imgSrc;
+        if (counterEl) counterEl.textContent = `${currentApparatusIndex + 1} of ${apparatusList.length}`;
+
+        if (specsListEl) {
+            specsListEl.innerHTML = '';
+            item.specs.forEach(spec => {
+                const li = document.createElement('li');
+                li.innerHTML = spec;
+                specsListEl.appendChild(li);
+            });
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        const modal = document.getElementById('apparatus-modal');
+        if (modal && modal.classList.contains('active')) {
+            if (e.key === 'Escape') closeApparatusModal();
+            if (e.key === 'ArrowLeft') changeApparatus(-1);
+            if (e.key === 'ArrowRight') changeApparatus(1);
+        }
+    });
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', extractApparatusFromCards);
+    } else {
+        extractApparatusFromCards();
+    }
+})();
+
 /* ==========================================================================
    Station 46 Inclement Weather & Storm Mode System
    National Weather Service (NWS) API Integration (Somerset County NJZ010 / Station 46)
