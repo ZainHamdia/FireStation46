@@ -1302,6 +1302,10 @@ body.menu-open {
     font-size: 1.5rem;
     color: var(--text-secondary);
     transition: transform var(--transition-normal);
+    filter: none !important;
+    -webkit-filter: none !important;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: high-quality;
 }
 
 /* Specific placeholder backgrounds based on text */
@@ -7762,6 +7766,10 @@ body.storm-mode-active.storm-level-warning .top-bar {
     object-fit: cover;
     display: block;
     user-select: none;
+    filter: none !important;
+    -webkit-filter: none !important;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: high-quality;
     transition: opacity 0.2s ease;
 }
 
