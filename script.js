@@ -741,6 +741,12 @@ document.addEventListener('DOMContentLoaded', () => {
             element.classList.contains('roster-card-tag-btn') ||
             element.classList.contains('roster-tag-delete-btn') ||
             element.closest('.roster-modal-overlay') ||
+            element.closest('.station-slider-admin-actions') ||
+            element.closest('.slider-card-admin-controls') ||
+            element.classList.contains('stat-row-remove-btn') ||
+            element.classList.contains('slider-nav-btn') ||
+            element.classList.contains('slider-dot') ||
+            element.closest('.station-slider-modal-overlay') ||
             element.closest('form')) {
             return false;
         }
@@ -2172,7 +2178,459 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ==========================================================================
+    // Station Sliders (Call Volume & Statistics) Engine & Admin Management
+    // ==========================================================================
+    let currentSlideIndex = 0;
+
+    function getCleanSlidersHtml() {
+        const track = document.getElementById('station-sliders-track');
+        if (!track) return null;
+        const clone = track.cloneNode(true);
+
+        // Remove active slide classes from all slides so on reload it starts cleanly
+        clone.querySelectorAll('.station-slider-card').forEach((card, idx) => {
+            if (idx === 0) {
+                card.classList.add('active-slide');
+            } else {
+                card.classList.remove('active-slide');
+            }
+        });
+
+        // Remove contenteditable attributes and runtime admin controls
+        clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+        clone.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
+            el.style.display = 'none';
+        });
+
+        return clone.innerHTML;
+    }
+
+    function saveSlidersState() {
+        const cleanHtml = getCleanSlidersHtml();
+        if (cleanHtml !== null) {
+            localStorage.setItem('station46_sliders_html', cleanHtml);
+        }
+    }
+
+    function updateSliderCarouselUI() {
+        const track = document.getElementById('station-sliders-track');
+        const dotsContainer = document.getElementById('station-slider-dots');
+        const prevBtn = document.getElementById('slider-prev-btn');
+        const nextBtn = document.getElementById('slider-next-btn');
+        if (!track) return;
+
+        const slides = Array.from(track.querySelectorAll('.station-slider-card'));
+        const total = slides.length;
+
+        if (total === 0) {
+            if (dotsContainer) dotsContainer.innerHTML = '';
+            if (prevBtn) prevBtn.style.display = 'none';
+            if (nextBtn) nextBtn.style.display = 'none';
+            return;
+        }
+
+        // Clamp index
+        if (currentSlideIndex >= total) currentSlideIndex = total - 1;
+        if (currentSlideIndex < 0) currentSlideIndex = 0;
+
+        // Toggle slides
+        slides.forEach((slide, idx) => {
+            if (idx === currentSlideIndex) {
+                slide.classList.add('active-slide');
+            } else {
+                slide.classList.remove('active-slide');
+            }
+        });
+
+        // Navigation buttons
+        if (prevBtn && nextBtn) {
+            if (total <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        // Render dots
+        if (dotsContainer) {
+            dotsContainer.innerHTML = '';
+            if (total > 1) {
+                slides.forEach((slide, idx) => {
+                    const dot = document.createElement('button');
+                    dot.type = 'button';
+                    dot.className = `slider-dot ${idx === currentSlideIndex ? 'active' : ''}`;
+                    const title = slide.getAttribute('data-title') || slide.querySelector('.slider-card-title')?.textContent.trim() || `Slide ${idx + 1}`;
+                    dot.title = title;
+                    dot.setAttribute('aria-label', `Go to ${title}`);
+                    dot.addEventListener('click', () => {
+                        currentSlideIndex = idx;
+                        updateSliderCarouselUI();
+                    });
+                    dotsContainer.appendChild(dot);
+                });
+            }
+        }
+    }
+
+    function attachSliderCardControls(card) {
+        // Wire up remove button on each stat row
+        card.querySelectorAll('.slider-stat-row').forEach(row => {
+            attachRowRemoveButton(row);
+        });
+
+        // Wire up "Add Item" button
+        const addItemBtn = card.querySelector('.btn-add-item-ctrl');
+        if (addItemBtn && !addItemBtn.dataset.listenerBound) {
+            addItemBtn.dataset.listenerBound = 'true';
+            addItemBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openAddItemToSliderModal(card);
+            });
+        }
+
+        // Wire up "Delete Slider" button
+        const delSliderBtn = card.querySelector('.btn-del-slider-ctrl');
+        if (delSliderBtn && !delSliderBtn.dataset.listenerBound) {
+            delSliderBtn.dataset.listenerBound = 'true';
+            delSliderBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const title = card.querySelector('.slider-card-title')?.textContent.trim() || 'this slider';
+                if (confirm(`Are you sure you want to delete "${title}"?`)) {
+                    card.remove();
+                    currentSlideIndex = 0;
+                    updateSliderCarouselUI();
+                    saveSlidersState();
+                    showAdminToast(`🗑️ Deleted slider "${title}".`);
+                }
+            });
+        }
+    }
+
+    function attachRowRemoveButton(row) {
+        let removeBtn = row.querySelector('.stat-row-remove-btn');
+        if (!removeBtn) {
+            removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'stat-row-remove-btn';
+            removeBtn.title = 'Remove this statistic item';
+            removeBtn.innerHTML = '✕';
+            row.appendChild(removeBtn);
+        }
+
+        if (isAdminLoggedIn && editModeActive) {
+            removeBtn.style.display = 'flex';
+        } else {
+            removeBtn.style.display = 'none';
+        }
+
+        if (!removeBtn.dataset.bound) {
+            removeBtn.dataset.bound = 'true';
+            removeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const label = row.querySelector('.stat-year-badge')?.textContent.trim() || row.querySelector('.stat-row-label')?.textContent.trim() || 'item';
+                if (confirm(`Remove "${label}" from this slider?`)) {
+                    row.remove();
+                    saveSlidersState();
+                    showAdminToast(`Removed "${label}".`);
+                }
+            });
+        }
+    }
+
+    function openAddItemToSliderModal(card) {
+        let modalOverlay = document.getElementById('station-slider-add-item-modal');
+        if (!modalOverlay) {
+            modalOverlay = document.createElement('div');
+            modalOverlay.id = 'station-slider-add-item-modal';
+            modalOverlay.className = 'roster-modal-overlay station-slider-modal-overlay';
+            modalOverlay.innerHTML = `
+                <div class="roster-modal-card" style="max-width: 440px;">
+                    <div class="roster-modal-header">
+                        <h3 class="roster-modal-title">Add Statistic Item</h3>
+                        <p class="roster-modal-subtitle" id="slider-add-item-target-label">Add to slider</p>
+                    </div>
+                    <form class="roster-modal-form" id="slider-add-item-form">
+                        <div class="form-group">
+                            <label for="item-year-or-tag">Year or Prefix Badge (e.g. 2026, Q1, MUTUAL AID)</label>
+                            <input type="text" id="item-year-or-tag" placeholder="e.g. 2026" required autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="item-label-text">Metric Label (e.g. Call Volume, Drills Held, Training Hours)</label>
+                            <input type="text" id="item-label-text" placeholder="e.g. Call Volume" value="Call Volume" required autocomplete="off">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem;">
+                            <div class="form-group">
+                                <label for="item-value-text">Number / Value (e.g. 412)</label>
+                                <input type="text" id="item-value-text" placeholder="e.g. 412" required autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="item-unit-text">Unit (e.g. calls)</label>
+                                <input type="text" id="item-unit-text" placeholder="e.g. calls" value="calls" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="roster-modal-actions">
+                            <button type="button" class="btn btn-roster-cancel" id="slider-add-item-cancel">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Add Item</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modalOverlay);
+
+            modalOverlay.querySelector('#slider-add-item-cancel').addEventListener('click', () => {
+                modalOverlay.classList.remove('active');
+            });
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) modalOverlay.classList.remove('active');
+            });
+        }
+
+        const sliderTitle = card.querySelector('.slider-card-title')?.textContent.trim() || 'Selected Slider';
+        document.getElementById('slider-add-item-target-label').textContent = `Adding to: ${sliderTitle}`;
+
+        const form = document.getElementById('slider-add-item-form');
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const yearTag = document.getElementById('item-year-or-tag').value.trim();
+            const labelText = document.getElementById('item-label-text').value.trim() || 'Call Volume';
+            const valueText = document.getElementById('item-value-text').value.trim();
+            const unitText = document.getElementById('item-unit-text').value.trim();
+
+            if (!yearTag || !valueText) return;
+
+            const itemsList = card.querySelector('.slider-items-list');
+            if (itemsList) {
+                const row = document.createElement('div');
+                row.className = 'slider-stat-row';
+                row.innerHTML = `
+                    <div class="stat-row-left">
+                        <span class="stat-year-badge">${escapeHtml(yearTag)}</span>
+                        <span class="stat-row-label">${escapeHtml(labelText)}</span>
+                    </div>
+                    <div class="stat-row-dots"></div>
+                    <div class="stat-row-right">
+                        <span class="stat-row-value">${escapeHtml(valueText)}</span>
+                        ${unitText ? `<span class="stat-unit">${escapeHtml(unitText)}</span>` : ''}
+                    </div>
+                    <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: flex;">✕</button>
+                `;
+                // Insert at the top of the list
+                itemsList.insertBefore(row, itemsList.firstChild);
+                attachRowRemoveButton(row);
+                initLiveEditor();
+                saveSlidersState();
+                showAdminToast(`✅ Added ${yearTag}: ${valueText} ${unitText} to ${sliderTitle}!`);
+            }
+
+            modalOverlay.classList.remove('active');
+            form.reset();
+        };
+
+        modalOverlay.classList.add('active');
+        document.getElementById('item-year-or-tag').focus();
+    }
+
+    function openCreateSliderModal() {
+        let modalOverlay = document.getElementById('station-slider-create-deck-modal');
+        if (!modalOverlay) {
+            modalOverlay = document.createElement('div');
+            modalOverlay.id = 'station-slider-create-deck-modal';
+            modalOverlay.className = 'roster-modal-overlay station-slider-modal-overlay';
+            modalOverlay.innerHTML = `
+                <div class="roster-modal-card" style="max-width: 480px;">
+                    <div class="roster-modal-header">
+                        <h3 class="roster-modal-title">Create New Statistics Slider</h3>
+                        <p class="roster-modal-subtitle">Add a new slider deck to display custom metrics (e.g., Mutual Aid Responses, Training Hours, Apparatus Runs)</p>
+                    </div>
+                    <form class="roster-modal-form" id="slider-create-deck-form">
+                        <div class="form-group">
+                            <label for="new-slider-badge">Category Badge</label>
+                            <input type="text" id="new-slider-badge" placeholder="e.g. OPERATIONS, DISPATCH METRICS, TRAINING" value="STATION METRICS" required autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-slider-title">Slider Title</label>
+                            <input type="text" id="new-slider-title" placeholder="e.g. Mutual Aid Incident Runs" required autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-slider-desc">Subtitle / Description</label>
+                            <input type="text" id="new-slider-desc" placeholder="e.g. Calls assisted in neighboring communities and districts" autocomplete="off">
+                        </div>
+                        <div class="roster-modal-actions">
+                            <button type="button" class="btn btn-roster-cancel" id="slider-create-deck-cancel">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create Slider</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modalOverlay);
+
+            modalOverlay.querySelector('#slider-create-deck-cancel').addEventListener('click', () => {
+                modalOverlay.classList.remove('active');
+            });
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) modalOverlay.classList.remove('active');
+            });
+        }
+
+        const form = document.getElementById('slider-create-deck-form');
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const badge = document.getElementById('new-slider-badge').value.trim() || 'STATION METRICS';
+            const title = document.getElementById('new-slider-title').value.trim();
+            const desc = document.getElementById('new-slider-desc').value.trim() || 'Station performance and operational milestones';
+
+            if (!title) return;
+
+            const track = document.getElementById('station-sliders-track');
+            if (track) {
+                const sliderId = 'slider-' + Date.now();
+                const card = document.createElement('div');
+                card.className = 'station-slider-card glass-panel';
+                card.setAttribute('data-slider-id', sliderId);
+                card.setAttribute('data-title', title);
+                card.innerHTML = `
+                    <div class="slider-card-header">
+                        <div class="slider-card-heading-group">
+                            <span class="slider-card-badge">${escapeHtml(badge)}</span>
+                            <h4 class="slider-card-title">${escapeHtml(title)}</h4>
+                            <p class="slider-card-desc">${escapeHtml(desc)}</p>
+                        </div>
+                        <div class="slider-card-admin-controls" style="display: ${isAdminLoggedIn && editModeActive ? 'flex' : 'none'};">
+                            <button type="button" class="btn-slider-ctrl btn-add-item-ctrl" title="Add another year/item to this slider">+ Add Item</button>
+                            <button type="button" class="btn-slider-ctrl btn-del-slider-ctrl" title="Delete this slider">✕ Delete Slider</button>
+                        </div>
+                    </div>
+                    <div class="slider-items-list" id="items-list-${sliderId}">
+                        <div class="slider-stat-row">
+                            <div class="stat-row-left">
+                                <span class="stat-year-badge">2025</span>
+                                <span class="stat-row-label">Activity Total</span>
+                            </div>
+                            <div class="stat-row-dots"></div>
+                            <div class="stat-row-right">
+                                <span class="stat-row-value">120</span>
+                                <span class="stat-unit">runs</span>
+                            </div>
+                            <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: ${isAdminLoggedIn && editModeActive ? 'flex' : 'none'};">✕</button>
+                        </div>
+                    </div>
+                `;
+
+                track.appendChild(card);
+                attachSliderCardControls(card);
+
+                // Switch to the newly created slide
+                const slides = Array.from(track.querySelectorAll('.station-slider-card'));
+                currentSlideIndex = slides.length - 1;
+                updateSliderCarouselUI();
+
+                initLiveEditor();
+                saveSlidersState();
+                showAdminToast(`✅ Created new slider "${title}"! Click '+ Add Item' to customize it.`);
+            }
+
+            modalOverlay.classList.remove('active');
+            form.reset();
+        };
+
+        modalOverlay.classList.add('active');
+        document.getElementById('new-slider-title').focus();
+    }
+
+    function initStationSliders() {
+        const section = document.getElementById('station-sliders-section');
+        const track = document.getElementById('station-sliders-track');
+        if (!section || !track) return;
+
+        // Restore pending local edits if any
+        const pendingSliders = localStorage.getItem('station46_sliders_html');
+        if (pendingSliders && pendingSliders.trim().length > 50) {
+            track.innerHTML = pendingSliders;
+        }
+
+        // Setup Carousel Navigation buttons
+        const prevBtn = document.getElementById('slider-prev-btn');
+        const nextBtn = document.getElementById('slider-next-btn');
+
+        if (prevBtn && !prevBtn.dataset.bound) {
+            prevBtn.dataset.bound = 'true';
+            prevBtn.addEventListener('click', () => {
+                const total = track.querySelectorAll('.station-slider-card').length;
+                if (total <= 1) return;
+                currentSlideIndex = (currentSlideIndex - 1 + total) % total;
+                updateSliderCarouselUI();
+            });
+        }
+
+        if (nextBtn && !nextBtn.dataset.bound) {
+            nextBtn.dataset.bound = 'true';
+            nextBtn.addEventListener('click', () => {
+                const total = track.querySelectorAll('.station-slider-card').length;
+                if (total <= 1) return;
+                currentSlideIndex = (currentSlideIndex + 1) % total;
+                updateSliderCarouselUI();
+            });
+        }
+
+        // Touch swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        track.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        track.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchEndX - touchStartX;
+            const total = track.querySelectorAll('.station-slider-card').length;
+            if (total <= 1) return;
+            if (diff < -50) {
+                // Swipe left -> Next
+                currentSlideIndex = (currentSlideIndex + 1) % total;
+                updateSliderCarouselUI();
+            } else if (diff > 50) {
+                // Swipe right -> Prev
+                currentSlideIndex = (currentSlideIndex - 1 + total) % total;
+                updateSliderCarouselUI();
+            }
+        }, { passive: true });
+
+        // Admin Actions Setup
+        const adminBar = document.getElementById('slider-section-admin-bar');
+        const addDeckBtn = document.getElementById('btn-add-slider-deck');
+
+        if (isAdminLoggedIn) {
+            if (adminBar) adminBar.style.display = 'flex';
+            if (addDeckBtn && !addDeckBtn.dataset.bound) {
+                addDeckBtn.dataset.bound = 'true';
+                addDeckBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openCreateSliderModal();
+                });
+            }
+        }
+
+        // Wire controls for each card in the track
+        track.querySelectorAll('.station-slider-card').forEach(card => {
+            attachSliderCardControls(card);
+            const adminCtrl = card.querySelector('.slider-card-admin-controls');
+            if (adminCtrl) {
+                adminCtrl.style.display = (isAdminLoggedIn && editModeActive) ? 'flex' : 'none';
+            }
+        });
+
+        // Initialize Carousel Display
+        updateSliderCarouselUI();
+    }
+
     initRosterAdmin();
+    initStationSliders();
     initLiveEditor();
 
     // Helper: Push actual modified HTML files directly to GitHub
@@ -2194,8 +2652,8 @@ document.addEventListener('DOMContentLoaded', () => {
             editedPages.add(currentPage);
         }
 
-        // Always include about.html if there are pending roster modifications
-        if (localStorage.getItem('station46_roster_html')) {
+        // Always include about.html if there are pending roster modifications or slider changes
+        if (localStorage.getItem('station46_roster_html') || localStorage.getItem('station46_sliders_html')) {
             editedPages.add('about.html');
         }
 
@@ -2250,6 +2708,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (docRoster.innerHTML.trim() !== liveRosterCleanHtml.trim()) {
                         docRoster.innerHTML = liveRosterCleanHtml;
                         pageHasChanges = true;
+                    }
+                }
+
+                // Synchronize station sliders track if present on about.html
+                if (pageName === 'about.html') {
+                    const docSlidersTrack = doc.getElementById('station-sliders-track');
+                    const liveSlidersCleanHtml = (pageName === currentPage && document.getElementById('station-sliders-track'))
+                        ? (typeof getCleanSlidersHtml === 'function' ? getCleanSlidersHtml() : null)
+                        : localStorage.getItem('station46_sliders_html');
+
+                    if (docSlidersTrack && liveSlidersCleanHtml) {
+                        if (docSlidersTrack.innerHTML.trim() !== liveSlidersCleanHtml.trim()) {
+                            docSlidersTrack.innerHTML = liveSlidersCleanHtml;
+                            pageHasChanges = true;
+                        }
                     }
                 }
 
@@ -2357,10 +2830,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4. Update the actual HTML files directly on GitHub (e.g. index.html, about.html, etc.)
             const htmlSuccess = await syncHtmlPagesToGitHub(mergedEdits);
 
-            // 5. If HTML files updated, clear local text edits and roster buffer so future reloads use clean HTML
+            // 5. If HTML files updated, clear local text edits, roster buffer and sliders buffer so future reloads use clean HTML
             if (htmlSuccess) {
                 localStorage.removeItem('station46_text_edits');
                 localStorage.removeItem('station46_roster_html');
+                localStorage.removeItem('station46_sliders_html');
                 await syncToGitHub('data/edits.json', {}, 'Admin: Reset edits buffer after HTML sync');
             } else {
                 await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits buffer');
@@ -2540,6 +3014,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.roster-card.roster-card-draggable').forEach(card => {
                     card.setAttribute('draggable', 'true');
                 });
+                document.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
+                    el.style.display = 'flex';
+                });
             } else {
                 hideFontToolbar();
                 document.body.classList.remove('admin-edit-mode');
@@ -2554,6 +3031,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 document.querySelectorAll('.roster-card.roster-card-draggable').forEach(card => {
                     card.removeAttribute('draggable');
+                });
+                document.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
+                    el.style.display = 'none';
                 });
             }
         });
