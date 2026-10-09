@@ -1302,9 +1302,9 @@ body.menu-open {
     font-size: 1.5rem;
     color: var(--text-secondary);
     transition: transform var(--transition-normal), filter var(--transition-normal);
-    filter: blur(1.2px);
-    -webkit-filter: blur(1.2px);
-    transform: scale(1.02);
+    filter: blur(0.6px);
+    -webkit-filter: blur(0.6px);
+    transform: scale(1.01);
 }
 
 /* Specific placeholder backgrounds based on text */
