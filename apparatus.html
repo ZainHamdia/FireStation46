@@ -23,7 +23,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=110">
+    <link rel="stylesheet" href="styles.css?v=112">
 </head>
 <body>
     <!-- Civic Top Utility Bar -->
@@ -108,7 +108,16 @@
         <!-- Apparatus Grid Section -->
         <section class="section" id="active-fleet">
             <div class="container">
-                <div class="cards-grid" style="margin-top: 0;">
+                <div class="section-header text-center fade-in" style="margin-bottom: 2rem;">
+                    <h2 class="section-title">Active Fleet</h2>
+                    <p class="section-subtitle mw-800 mx-auto">Frontline response apparatus and emergency vehicles serving Montgomery Township.</p>
+                    <div class="apparatus-admin-actions" style="margin-top: 1.25rem; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-sm btn-apparatus-add" id="btn-add-apparatus-active">
+                            ➕ Add New Apparatus
+                        </button>
+                    </div>
+                </div>
+                <div class="cards-grid" id="active-apparatus-list" style="margin-top: 0;">
                     <div class="card glass-card hover-lift fade-in">
                         <div class="card-img-wrapper">
                             <div class="card-img-placeholder">Truck 46</div>
@@ -461,7 +470,7 @@
         <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
     </div>
 
-    <script src="script.js?v=105"></script>
+    <script src="script.js?v=106"></script>
 
 
 </body></html>

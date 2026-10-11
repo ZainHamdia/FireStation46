@@ -4372,6 +4372,258 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 /* ==========================================================================
+   Apparatus Admin Management Styles (Active & Retired)
+   ========================================================================== */
+.btn-apparatus-add {
+    background: linear-gradient(135deg, #b3212b 0%, #9b1b24 100%);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(179, 33, 43, 0.35);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-apparatus-add:hover {
+    background: #8b1820;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(179, 33, 43, 0.5);
+    color: #ffffff;
+}
+
+.admin-edit-mode .btn-apparatus-add {
+    display: inline-flex !important;
+}
+
+.apparatus-card-remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(220, 38, 38, 0.92);
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.apparatus-card-remove-btn:hover {
+    background: #991b1b;
+    transform: scale(1.15);
+    box-shadow: 0 0 12px rgba(220, 38, 38, 0.8);
+}
+
+.admin-edit-mode .apparatus-card-remove-btn {
+    display: inline-flex !important;
+}
+
+/* Add Apparatus Modal */
+.apparatus-add-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 15, 25, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 999999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    box-sizing: border-box;
+}
+
+.apparatus-add-modal-overlay.active {
+    display: flex;
+}
+
+.apparatus-add-modal-card {
+    background: var(--bg-surface, #ffffff);
+    color: var(--text-main, #0f172a);
+    width: 100%;
+    max-width: 580px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border-light, rgba(255,255,255,0.1));
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+    padding: 2rem;
+    position: relative;
+    animation: modalSlideUp 0.25s ease-out;
+}
+
+:root[data-theme="dark"] .apparatus-add-modal-card {
+    background: #151f32;
+    color: #f1f5f9;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.apparatus-add-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light, rgba(255,255,255,0.1));
+}
+
+.apparatus-add-modal-title {
+    margin: 0;
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--text-heading, #0f172a);
+}
+
+:root[data-theme="dark"] .apparatus-add-modal-title {
+    color: #ffffff;
+}
+
+.apparatus-add-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    color: var(--text-secondary, #64748b);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+    transition: color 0.15s ease;
+}
+
+.apparatus-add-modal-close:hover {
+    color: var(--fire-red);
+}
+
+.apparatus-status-toggle-group {
+    display: flex;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.05);
+    padding: 5px;
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--border-subtle, rgba(255,255,255,0.08));
+}
+
+:root[data-theme="dark"] .apparatus-status-toggle-group {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.apparatus-status-btn {
+    flex: 1;
+    padding: 9px 14px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary, #64748b);
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.apparatus-status-btn.active {
+    background: var(--fire-red);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(179, 33, 43, 0.35);
+}
+
+.apparatus-form-group {
+    margin-bottom: 1.25rem;
+}
+
+.apparatus-form-label {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text-heading, #0f172a);
+}
+
+:root[data-theme="dark"] .apparatus-form-label {
+    color: #e2e8f0;
+}
+
+.apparatus-form-input,
+.apparatus-form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-subtle, #cbd5e1);
+    background: var(--bg-surface, #ffffff);
+    color: var(--text-main, #0f172a);
+    font-family: inherit;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+:root[data-theme="dark"] .apparatus-form-input,
+:root[data-theme="dark"] .apparatus-form-textarea {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+.apparatus-form-input:focus,
+.apparatus-form-textarea:focus {
+    outline: none;
+    border-color: var(--fire-red);
+    box-shadow: 0 0 0 3px rgba(179, 33, 43, 0.15);
+}
+
+.apparatus-photo-preview-wrap {
+    margin-top: 8px;
+    width: 100%;
+    height: 140px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #0f172a;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: 1px solid var(--border-subtle, rgba(255,255,255,0.1));
+}
+
+.apparatus-photo-preview-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.apparatus-add-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-light, rgba(255,255,255,0.1));
+}
+
+/* ==========================================================================
    Upcoming Apparatus & Blueprints Showcase (Wix Civic Style)
    ========================================================================== */
 .upcoming-apparatus-section {

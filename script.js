@@ -747,6 +747,11 @@ document.addEventListener('DOMContentLoaded', () => {
             element.classList.contains('slider-nav-btn') ||
             element.classList.contains('slider-dot') ||
             element.closest('.station-slider-modal-overlay') ||
+            element.classList.contains('apparatus-card-remove-btn') ||
+            element.classList.contains('btn-apparatus-add') ||
+            element.closest('.apparatus-admin-actions') ||
+            element.closest('.apparatus-add-modal-overlay') ||
+            element.closest('#apparatus-modal') ||
             element.closest('form')) {
             return false;
         }
@@ -1758,6 +1763,393 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
+    // Apparatus Fleet Admin Management (Active & Retired)
+    // ==========================================
+    function getCleanApparatusHtml(type = 'active') {
+        const containerId = (type === 'retired') ? 'retired-apparatus-list' : 'active-apparatus-list';
+        const container = document.getElementById(containerId);
+        if (!container) return null;
+
+        const clone = container.cloneNode(true);
+        // Remove admin-only remove buttons and modal overlays if any were nested
+        clone.querySelectorAll('.apparatus-card-remove-btn, .apparatus-add-modal-overlay').forEach(el => el.remove());
+        // Clean runtime contenteditable and initialization markers
+        clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+        clone.querySelectorAll('[data-editor-init]').forEach(el => el.removeAttribute('data-editor-init'));
+        clone.querySelectorAll('[data-modal-bound]').forEach(el => el.removeAttribute('data-modal-bound'));
+        clone.querySelectorAll('[data-apparatus-index]').forEach(el => el.removeAttribute('data-apparatus-index'));
+        return clone.innerHTML;
+    }
+
+    function saveApparatusState(type) {
+        if (!type || type === 'active') {
+            const cleanActive = getCleanApparatusHtml('active');
+            if (cleanActive !== null) {
+                localStorage.setItem('station46_active_apparatus_html', cleanActive);
+            }
+        }
+        if (!type || type === 'retired') {
+            const cleanRetired = getCleanApparatusHtml('retired');
+            if (cleanRetired !== null) {
+                localStorage.setItem('station46_retired_apparatus_html', cleanRetired);
+            }
+        }
+    }
+
+    function attachApparatusRemoveButton(card, type = 'active') {
+        if (!isAdminLoggedIn) return;
+        if (card.querySelector('.apparatus-card-remove-btn')) return;
+
+        card.style.position = 'relative';
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'apparatus-card-remove-btn';
+        btn.title = 'Delete apparatus';
+        btn.setAttribute('aria-label', 'Delete apparatus');
+        btn.setAttribute('contenteditable', 'false');
+        btn.innerHTML = '✕';
+        if (editModeActive) {
+            btn.style.display = 'inline-flex';
+        }
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            const title = card.querySelector('h3')?.textContent.trim() || 'this apparatus';
+            if (confirm(`Are you sure you want to delete ${title}? This will remove it from the apparatus fleet.`)) {
+                card.remove();
+                saveApparatusState(type);
+                if (typeof window.refreshApparatusModalList === 'function') {
+                    window.refreshApparatusModalList();
+                }
+                showAdminToast(`🗑️ Removed ${title}. Remember to click 'Save & Push to Git' to publish.`);
+            }
+        });
+
+        card.appendChild(btn);
+    }
+
+    async function addCardToRemoteApparatusPage(type, cardHtml) {
+        const pageName = (type === 'retired') ? 'retired-apparatus.html' : 'apparatus.html';
+        const listId = (type === 'retired') ? 'retired-apparatus-list' : 'active-apparatus-list';
+        const storageKey = (type === 'retired') ? 'station46_retired_apparatus_html' : 'station46_active_apparatus_html';
+
+        let currentListHtml = localStorage.getItem(storageKey);
+        if (!currentListHtml) {
+            try {
+                const raw = await fetchRawFile(pageName);
+                if (raw) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(raw, 'text/html');
+                    const listEl = doc.getElementById(listId);
+                    if (listEl) {
+                        currentListHtml = listEl.innerHTML;
+                    }
+                }
+            } catch (err) {
+                console.error('[Station 46] Failed loading remote page HTML', err);
+            }
+        }
+
+        if (currentListHtml) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = currentListHtml;
+            tempDiv.insertAdjacentHTML('beforeend', cardHtml);
+            tempDiv.querySelectorAll('.apparatus-card-remove-btn').forEach(el => el.remove());
+            tempDiv.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            tempDiv.querySelectorAll('[data-editor-init]').forEach(el => el.removeAttribute('data-editor-init'));
+            tempDiv.querySelectorAll('[data-modal-bound]').forEach(el => el.removeAttribute('data-modal-bound'));
+            tempDiv.querySelectorAll('[data-apparatus-index]').forEach(el => el.removeAttribute('data-apparatus-index'));
+            localStorage.setItem(storageKey, tempDiv.innerHTML);
+        }
+    }
+
+    let apparatusAddModalOverlay = null;
+    let selectedApparatusType = 'active';
+    let uploadedApparatusBase64 = null;
+
+    function createAddApparatusModal() {
+        if (apparatusAddModalOverlay) return apparatusAddModalOverlay;
+
+        apparatusAddModalOverlay = document.createElement('div');
+        apparatusAddModalOverlay.id = 'apparatus-add-modal-overlay';
+        apparatusAddModalOverlay.className = 'apparatus-add-modal-overlay';
+        apparatusAddModalOverlay.innerHTML = `
+            <div class="apparatus-add-modal-card">
+                <div class="apparatus-add-modal-header">
+                    <div>
+                        <h3 class="apparatus-add-modal-title">➕ Add New Apparatus</h3>
+                        <p class="apparatus-add-modal-subtitle">Add a frontline response or retired vehicle to the fleet</p>
+                    </div>
+                    <button type="button" class="apparatus-add-modal-close" id="apparatus-modal-close-btn" aria-label="Close dialog">&times;</button>
+                </div>
+                <form id="apparatus-add-form" class="apparatus-add-form">
+                    <div class="form-group">
+                        <label>Fleet Assignment</label>
+                        <div class="apparatus-status-toggle">
+                            <button type="button" class="apparatus-status-btn active" data-type="active" id="btn-status-active">
+                                🚒 Active Fleet (apparatus.html)
+                            </button>
+                            <button type="button" class="apparatus-status-btn" data-type="retired" id="btn-status-retired">
+                                🏛️ Retired Fleet (retired-apparatus.html)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="apparatus-input-title">Apparatus Name / Call-Sign <span style="color: var(--fire-red);">*</span></label>
+                        <input type="text" id="apparatus-input-title" placeholder="e.g. Engine 46-9, Tower 46, Marine 46-2" required autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="apparatus-input-specs">Technical Specifications &amp; Equipment</label>
+                        <textarea id="apparatus-input-specs" rows="4" placeholder="Enter one specification or detail per line, e.g.:&#10;2026 Pierce Velocity Custom Chassis&#10;2000 GPM Waterous Pump / 1000 Gal Tank&#10;Seats 6 Firefighters / 5 SCBA&#10;Full Complement of Tools &amp; Equipment" autocomplete="off"></textarea>
+                        <small style="display:block; margin-top: 4px; color: #94a3b8; font-size: 0.78rem;">Tip: Each line will become a bullet point on the apparatus card and popup modal.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="apparatus-input-img-url">Apparatus Photo (File Upload or Image URL)</label>
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <input type="text" id="apparatus-input-img-url" placeholder="e.g. engine46.jpg or https://..." autocomplete="off" style="flex: 1;">
+                            <label class="btn" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; white-space: nowrap; margin-bottom: 0;">
+                                📁 Choose File
+                                <input type="file" id="apparatus-input-file" accept="image/*" style="display: none;">
+                            </label>
+                        </div>
+
+                        <div id="apparatus-img-preview-box" class="apparatus-img-preview" style="display: none;">
+                            <img id="apparatus-img-preview-thumb" src="" alt="Preview">
+                            <span id="apparatus-img-preview-label" style="font-size: 0.82rem; color: #cbd5e1; flex: 1; word-break: break-all;"></span>
+                            <button type="button" id="apparatus-img-preview-clear" style="background: rgba(220,38,38,0.2); color: #f87171; border: 1px solid rgba(220,38,38,0.4); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.78rem;">Remove</button>
+                        </div>
+                    </div>
+
+                    <div class="apparatus-add-modal-actions">
+                        <button type="button" class="btn" id="apparatus-add-cancel-btn" style="background: rgba(255,255,255,0.06); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.15); padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer;">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="apparatus-add-submit-btn" style="padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer;">➕ Add to Fleet</button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        document.body.appendChild(apparatusAddModalOverlay);
+
+        // Status Toggle listeners
+        const btnActive = apparatusAddModalOverlay.querySelector('#btn-status-active');
+        const btnRetired = apparatusAddModalOverlay.querySelector('#btn-status-retired');
+        const setStatusType = (type) => {
+            selectedApparatusType = type;
+            if (type === 'active') {
+                btnActive.classList.add('active');
+                btnRetired.classList.remove('active');
+            } else {
+                btnRetired.classList.add('active');
+                btnActive.classList.remove('active');
+            }
+        };
+
+        btnActive.addEventListener('click', () => setStatusType('active'));
+        btnRetired.addEventListener('click', () => setStatusType('retired'));
+
+        // Close handlers
+        const closeBtn = apparatusAddModalOverlay.querySelector('#apparatus-modal-close-btn');
+        const cancelBtn = apparatusAddModalOverlay.querySelector('#apparatus-add-cancel-btn');
+        const closeModal = () => apparatusAddModalOverlay.classList.remove('active');
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        apparatusAddModalOverlay.addEventListener('click', (e) => {
+            if (e.target === apparatusAddModalOverlay) closeModal();
+        });
+
+        // Image handlers
+        const urlInput = apparatusAddModalOverlay.querySelector('#apparatus-input-img-url');
+        const fileInput = apparatusAddModalOverlay.querySelector('#apparatus-input-file');
+        const previewBox = apparatusAddModalOverlay.querySelector('#apparatus-img-preview-box');
+        const previewThumb = apparatusAddModalOverlay.querySelector('#apparatus-img-preview-thumb');
+        const previewLabel = apparatusAddModalOverlay.querySelector('#apparatus-img-preview-label');
+        const previewClear = apparatusAddModalOverlay.querySelector('#apparatus-img-preview-clear');
+
+        urlInput.addEventListener('input', () => {
+            const val = urlInput.value.trim();
+            if (val && !uploadedApparatusBase64) {
+                previewThumb.src = val;
+                previewLabel.textContent = val;
+                previewBox.style.display = 'flex';
+            } else if (!val && !uploadedApparatusBase64) {
+                previewBox.style.display = 'none';
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files && fileInput.files[0];
+            if (file) {
+                compressImage(file, (base64) => {
+                    uploadedApparatusBase64 = base64;
+                    previewThumb.src = base64;
+                    previewLabel.textContent = `${file.name} (uploaded photo)`;
+                    previewBox.style.display = 'flex';
+                    urlInput.value = '';
+                });
+            }
+        });
+
+        previewClear.addEventListener('click', () => {
+            uploadedApparatusBase64 = null;
+            fileInput.value = '';
+            urlInput.value = '';
+            previewBox.style.display = 'none';
+            previewThumb.src = '';
+            previewLabel.textContent = '';
+        });
+
+        // Form Submission
+        const form = apparatusAddModalOverlay.querySelector('#apparatus-add-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = apparatusAddModalOverlay.querySelector('#apparatus-input-title').value.trim();
+            const specsRaw = apparatusAddModalOverlay.querySelector('#apparatus-input-specs').value.trim();
+            const manualUrl = urlInput.value.trim();
+            const finalImgSrc = uploadedApparatusBase64 || manualUrl;
+
+            if (!title) {
+                alert('Please enter an apparatus title / call-sign.');
+                return;
+            }
+
+            // Generate tech specs list items
+            const specsLines = specsRaw ? specsRaw.split('\n').map(l => l.trim()).filter(Boolean) : [];
+            let specsHtml = '';
+            specsLines.forEach(line => {
+                specsHtml += `<li>${escapeHtml(line)}</li>\n                                `;
+            });
+            if (!specsHtml) {
+                specsHtml = `<li>Montgomery Township Volunteer Fire Company #2</li>`;
+            }
+
+            const bgStyle = finalImgSrc
+                ? `background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('${finalImgSrc}') center/cover; color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);`
+                : `background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; font-weight: 800;`;
+
+            const card = document.createElement('div');
+            card.className = 'card glass-card hover-lift fade-in';
+            card.innerHTML = `
+                <div class="card-img-wrapper">
+                    <div class="card-img-placeholder" style="${bgStyle}">${escapeHtml(title)}</div>
+                </div>
+                <div class="card-content">
+                    <h3>${escapeHtml(title)}</h3>
+                    <ul class="tech-specs">
+                        ${specsHtml}
+                    </ul>
+                </div>
+            `;
+
+            const targetContainerId = (selectedApparatusType === 'retired') ? 'retired-apparatus-list' : 'active-apparatus-list';
+            const liveContainer = document.getElementById(targetContainerId);
+
+            if (liveContainer) {
+                liveContainer.appendChild(card);
+                attachApparatusRemoveButton(card, selectedApparatusType);
+                initLiveEditor();
+                saveApparatusState(selectedApparatusType);
+                if (typeof window.refreshApparatusModalList === 'function') {
+                    window.refreshApparatusModalList();
+                }
+                showAdminToast(`✅ Added ${title} to ${selectedApparatusType === 'retired' ? 'Retired Fleet' : 'Active Fleet'}!`);
+            } else {
+                // Admin is adding to the other fleet page
+                await addCardToRemoteApparatusPage(selectedApparatusType, card.outerHTML);
+                showAdminToast(`✅ Added ${title} to ${selectedApparatusType === 'retired' ? 'Retired Fleet' : 'Active Fleet'}! Saved for ${selectedApparatusType === 'retired' ? 'retired-apparatus.html' : 'apparatus.html'}.`);
+            }
+
+            // Reset and close
+            form.reset();
+            uploadedApparatusBase64 = null;
+            previewBox.style.display = 'none';
+            previewThumb.src = '';
+            previewLabel.textContent = '';
+            closeModal();
+        });
+
+        return apparatusAddModalOverlay;
+    }
+
+    function openAddApparatusModal(defaultType = 'active') {
+        const modal = createAddApparatusModal();
+        selectedApparatusType = defaultType;
+        const btnActive = modal.querySelector('#btn-status-active');
+        const btnRetired = modal.querySelector('#btn-status-retired');
+        if (defaultType === 'retired') {
+            btnRetired.classList.add('active');
+            btnActive.classList.remove('active');
+        } else {
+            btnActive.classList.add('active');
+            btnRetired.classList.remove('active');
+        }
+        modal.classList.add('active');
+        const titleInput = modal.querySelector('#apparatus-input-title');
+        if (titleInput) {
+            setTimeout(() => titleInput.focus(), 80);
+        }
+    }
+
+    function initApparatusAdmin() {
+        const activeContainer = document.getElementById('active-apparatus-list');
+        const retiredContainer = document.getElementById('retired-apparatus-list');
+
+        // Restore pending local edits for active fleet
+        if (activeContainer) {
+            const pendingActive = localStorage.getItem('station46_active_apparatus_html');
+            if (pendingActive && pendingActive.trim().length > 50) {
+                activeContainer.innerHTML = pendingActive;
+            }
+        }
+
+        // Restore pending local edits for retired fleet
+        if (retiredContainer) {
+            const pendingRetired = localStorage.getItem('station46_retired_apparatus_html');
+            if (pendingRetired && pendingRetired.trim().length > 50) {
+                retiredContainer.innerHTML = pendingRetired;
+            }
+        }
+
+        if (isAdminLoggedIn) {
+            createAddApparatusModal();
+
+            const btnAddActive = document.getElementById('btn-add-apparatus-active');
+            if (btnAddActive && !btnAddActive.dataset.bound) {
+                btnAddActive.dataset.bound = 'true';
+                btnAddActive.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openAddApparatusModal('active');
+                });
+            }
+
+            const btnAddRetired = document.getElementById('btn-add-apparatus-retired');
+            if (btnAddRetired && !btnAddRetired.dataset.bound) {
+                btnAddRetired.dataset.bound = 'true';
+                btnAddRetired.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openAddApparatusModal('retired');
+                });
+            }
+
+            if (activeContainer) {
+                activeContainer.querySelectorAll('.card').forEach(card => {
+                    attachApparatusRemoveButton(card, 'active');
+                });
+            }
+
+            if (retiredContainer) {
+                retiredContainer.querySelectorAll('.card').forEach(card => {
+                    attachApparatusRemoveButton(card, 'retired');
+                });
+            }
+        }
+    }
+
+    // ==========================================
     // Typography & Font Customization System
     // ==========================================
     let currentFontTarget = null;
@@ -1810,6 +2202,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentFontTarget.closest('#roster-container')) {
                 saveRosterState();
             }
+            if (currentFontTarget.closest('#active-apparatus-list')) {
+                saveApparatusState('active');
+            } else if (currentFontTarget.closest('#retired-apparatus-list')) {
+                saveApparatusState('retired');
+            }
             updateFontToolbarPosition(currentFontTarget);
         });
 
@@ -1823,6 +2220,11 @@ document.addEventListener('DOMContentLoaded', () => {
             saveFontEdit(fontKey, null);
             if (currentFontTarget.closest('#roster-container')) {
                 saveRosterState();
+            }
+            if (currentFontTarget.closest('#active-apparatus-list')) {
+                saveApparatusState('active');
+            } else if (currentFontTarget.closest('#retired-apparatus-list')) {
+                saveApparatusState('retired');
             }
             showAdminToast(`Reset font for this text.`);
             updateFontToolbarPosition(currentFontTarget);
@@ -2056,6 +2458,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (document.getElementById('roster-container')) {
                     saveRosterState();
                 }
+                if (document.getElementById('active-apparatus-list')) {
+                    saveApparatusState('active');
+                }
+                if (document.getElementById('retired-apparatus-list')) {
+                    saveApparatusState('retired');
+                }
                 showAdminToast(`✅ Applied font to all ${elements.length} elements on this page!`);
             });
 
@@ -2124,6 +2532,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (element.closest('#roster-container')) {
                         saveRosterState();
                     }
+                    if (element.closest('#active-apparatus-list')) {
+                        saveApparatusState('active');
+                    } else if (element.closest('#retired-apparatus-list')) {
+                        saveApparatusState('retired');
+                    }
                     if (currentFontTarget === element) {
                         updateFontToolbarPosition(element);
                     }
@@ -2153,6 +2566,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveTextEdit(storageKey, currentText);
                     if (element.closest('#roster-container')) {
                         saveRosterState();
+                    }
+                    if (element.closest('#active-apparatus-list')) {
+                        saveApparatusState('active');
+                    } else if (element.closest('#retired-apparatus-list')) {
+                        saveApparatusState('retired');
                     }
                 });
 
@@ -2631,6 +3049,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initRosterAdmin();
     initStationSliders();
+    initApparatusAdmin();
     initLiveEditor();
 
     // Helper: Push actual modified HTML files directly to GitHub
@@ -2657,9 +3076,17 @@ document.addEventListener('DOMContentLoaded', () => {
             editedPages.add('about.html');
         }
 
+        // Always include apparatus pages if there are pending fleet changes
+        if (localStorage.getItem('station46_active_apparatus_html')) {
+            editedPages.add('apparatus.html');
+        }
+        if (localStorage.getItem('station46_retired_apparatus_html')) {
+            editedPages.add('retired-apparatus.html');
+        }
+
         // If global fonts were customized, sync typography across all site pages
         if (edits['global_heading_font'] || edits['global_body_font']) {
-            ['index.html', 'about.html', 'apparatus.html', 'news.html', 'membership.html', 'juniors.html', 'santa.html'].forEach(p => editedPages.add(p));
+            ['index.html', 'about.html', 'apparatus.html', 'retired-apparatus.html', 'news.html', 'membership.html', 'juniors.html', 'santa.html'].forEach(p => editedPages.add(p));
         }
 
         // Include admin.html if admin welcome heading was edited
@@ -2721,6 +3148,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (docSlidersTrack && liveSlidersCleanHtml) {
                         if (docSlidersTrack.innerHTML.trim() !== liveSlidersCleanHtml.trim()) {
                             docSlidersTrack.innerHTML = liveSlidersCleanHtml;
+                            pageHasChanges = true;
+                        }
+                    }
+                }
+
+                // Synchronize active apparatus grid if present on apparatus.html
+                if (pageName === 'apparatus.html') {
+                    const docActiveApparatus = doc.getElementById('active-apparatus-list');
+                    const liveActiveCleanHtml = (pageName === currentPage && document.getElementById('active-apparatus-list'))
+                        ? (typeof getCleanApparatusHtml === 'function' ? getCleanApparatusHtml('active') : null)
+                        : localStorage.getItem('station46_active_apparatus_html');
+
+                    if (docActiveApparatus && liveActiveCleanHtml) {
+                        if (docActiveApparatus.innerHTML.trim() !== liveActiveCleanHtml.trim()) {
+                            docActiveApparatus.innerHTML = liveActiveCleanHtml;
+                            pageHasChanges = true;
+                        }
+                    }
+                }
+
+                // Synchronize retired apparatus grid if present on retired-apparatus.html
+                if (pageName === 'retired-apparatus.html') {
+                    const docRetiredApparatus = doc.getElementById('retired-apparatus-list');
+                    const liveRetiredCleanHtml = (pageName === currentPage && document.getElementById('retired-apparatus-list'))
+                        ? (typeof getCleanApparatusHtml === 'function' ? getCleanApparatusHtml('retired') : null)
+                        : localStorage.getItem('station46_retired_apparatus_html');
+
+                    if (docRetiredApparatus && liveRetiredCleanHtml) {
+                        if (docRetiredApparatus.innerHTML.trim() !== liveRetiredCleanHtml.trim()) {
+                            docRetiredApparatus.innerHTML = liveRetiredCleanHtml;
                             pageHasChanges = true;
                         }
                     }
@@ -2810,6 +3267,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.activeElement.blur();
         }
 
+        if (typeof saveApparatusState === 'function') {
+            saveApparatusState();
+        }
+
         try {
             // 2. Fetch latest edits from GitHub to guarantee no remote edits are lost
             let remoteEdits = {};
@@ -2830,11 +3291,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4. Update the actual HTML files directly on GitHub (e.g. index.html, about.html, etc.)
             const htmlSuccess = await syncHtmlPagesToGitHub(mergedEdits);
 
-            // 5. If HTML files updated, clear local text edits, roster buffer and sliders buffer so future reloads use clean HTML
+            // 5. If HTML files updated, clear local text edits, roster buffer, sliders buffer and apparatus buffers so future reloads use clean HTML
             if (htmlSuccess) {
                 localStorage.removeItem('station46_text_edits');
                 localStorage.removeItem('station46_roster_html');
                 localStorage.removeItem('station46_sliders_html');
+                localStorage.removeItem('station46_active_apparatus_html');
+                localStorage.removeItem('station46_retired_apparatus_html');
                 await syncToGitHub('data/edits.json', {}, 'Admin: Reset edits buffer after HTML sync');
             } else {
                 await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits buffer');
@@ -3017,6 +3480,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
                     el.style.display = 'flex';
                 });
+                document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn').forEach(el => {
+                    el.style.display = 'inline-flex';
+                });
             } else {
                 hideFontToolbar();
                 document.body.classList.remove('admin-edit-mode');
@@ -3033,6 +3499,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.removeAttribute('draggable');
                 });
                 document.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn').forEach(el => {
                     el.style.display = 'none';
                 });
             }
@@ -3847,6 +4316,8 @@ document.addEventListener('keydown', (e) => {
                 specs: specItems
             });
 
+            card.setAttribute('data-apparatus-index', index);
+
             // Attach card click listener
             if (!card.dataset.modalBound) {
                 card.dataset.modalBound = 'true';
@@ -3855,17 +4326,21 @@ document.addEventListener('keydown', (e) => {
                 card.setAttribute('aria-label', `View photo and specs for ${title}`);
                 
                 card.addEventListener('click', (e) => {
+                    if (e.target.closest('.apparatus-card-remove-btn')) return;
                     // Avoid opening when admin inline editing is active on text
                     if (document.body.classList.contains('admin-edit-mode') && (e.target.isContentEditable || e.target.closest('[contenteditable="true"]'))) {
                         return;
                     }
-                    openApparatusModal(index);
+                    const dynamicIdx = parseInt(card.getAttribute('data-apparatus-index'), 10);
+                    openApparatusModal(isNaN(dynamicIdx) ? 0 : dynamicIdx);
                 });
 
                 card.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
+                        if (e.target.closest('.apparatus-card-remove-btn')) return;
                         e.preventDefault();
-                        openApparatusModal(index);
+                        const dynamicIdx = parseInt(card.getAttribute('data-apparatus-index'), 10);
+                        openApparatusModal(isNaN(dynamicIdx) ? 0 : dynamicIdx);
                     }
                 });
             }
@@ -3939,6 +4414,8 @@ document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') changeApparatus(1);
         }
     });
+
+    window.refreshApparatusModalList = extractApparatusFromCards;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', extractApparatusFromCards);
