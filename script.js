@@ -746,8 +746,11 @@ document.addEventListener('DOMContentLoaded', () => {
             element.classList.contains('stat-row-remove-btn') ||
             element.classList.contains('slider-nav-btn') ||
             element.classList.contains('slider-dot') ||
-            element.closest('.station-slider-modal-overlay') ||
             element.classList.contains('apparatus-card-remove-btn') ||
+            element.classList.contains('apparatus-card-drag-handle') ||
+            element.classList.contains('apparatus-move-btn') ||
+            element.closest('.apparatus-card-admin-header') ||
+            element.closest('.apparatus-drag-placeholder') ||
             element.classList.contains('btn-apparatus-add') ||
             element.closest('.apparatus-admin-actions') ||
             element.closest('.apparatus-add-modal-overlay') ||
@@ -1771,13 +1774,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!container) return null;
 
         const clone = container.cloneNode(true);
-        // Remove admin-only remove buttons and modal overlays if any were nested
-        clone.querySelectorAll('.apparatus-card-remove-btn, .apparatus-add-modal-overlay').forEach(el => el.remove());
+        // Remove admin-only controls, reorder handles, remove buttons, placeholders, and modal overlays
+        clone.querySelectorAll('.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder, .apparatus-add-modal-overlay').forEach(el => el.remove());
         // Clean runtime contenteditable and initialization markers
         clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+        clone.querySelectorAll('[draggable]').forEach(el => el.removeAttribute('draggable'));
         clone.querySelectorAll('[data-editor-init]').forEach(el => el.removeAttribute('data-editor-init'));
         clone.querySelectorAll('[data-modal-bound]').forEach(el => el.removeAttribute('data-modal-bound'));
         clone.querySelectorAll('[data-apparatus-index]').forEach(el => el.removeAttribute('data-apparatus-index'));
+        clone.querySelectorAll('[data-apparatus-drag-init]').forEach(el => el.removeAttribute('data-apparatus-drag-init'));
+        clone.querySelectorAll('.apparatus-card-dragging, .apparatus-card-draggable').forEach(el => {
+            el.classList.remove('apparatus-card-dragging', 'apparatus-card-draggable');
+        });
         return clone.innerHTML;
     }
 
@@ -1817,7 +1825,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             e.preventDefault();
             const title = card.querySelector('h3')?.textContent.trim() || 'this apparatus';
-            if (confirm(`Are you sure you want to delete ${title}? This will remove it from the apparatus fleet.`)) {
+            if (confirm(`Are you sure you want to delete ${title}? This will permanently remove it from the apparatus fleet.`)) {
                 card.remove();
                 saveApparatusState(type);
                 if (typeof window.refreshApparatusModalList === 'function') {
@@ -1828,6 +1836,232 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         card.appendChild(btn);
+    }
+
+    // Apparatus Reordering (Move Left/Right & Drag-and-Drop)
+    function moveApparatusCard(card, direction, type) {
+        const parent = card.parentNode;
+        if (!parent) return;
+        const cards = Array.from(parent.querySelectorAll('.card'));
+        const index = cards.indexOf(card);
+        if (index === -1) return;
+
+        if (direction === 'prev' && index > 0) {
+            parent.insertBefore(card, cards[index - 1]);
+        } else if (direction === 'next' && index < cards.length - 1) {
+            parent.insertBefore(card, cards[index + 1].nextSibling);
+        } else {
+            return;
+        }
+
+        saveApparatusState(type);
+        if (typeof window.refreshApparatusModalList === 'function') {
+            window.refreshApparatusModalList();
+        }
+        const title = card.querySelector('h3')?.textContent.trim() || 'Apparatus';
+        showAdminToast(`✅ Moved ${title} ${direction === 'prev' ? 'earlier' : 'later'}. Click "Push to Git" to publish.`);
+    }
+
+    let draggedApparatusCard = null;
+    let apparatusDragPlaceholder = null;
+
+    function createApparatusDragPlaceholder() {
+        const ph = document.createElement('div');
+        ph.className = 'card apparatus-drag-placeholder';
+        ph.innerHTML = `<div class="apparatus-drag-placeholder-inner"><span>Drop Vehicle Here</span></div>`;
+        return ph;
+    }
+
+    function setupApparatusTouchDrag(handle, card, type) {
+        let touchActive = false;
+        let clone = null;
+        let startX = 0, startY = 0;
+
+        handle.addEventListener('touchstart', (e) => {
+            if (!editModeActive) return;
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            touchActive = true;
+            draggedApparatusCard = card;
+
+            if (!apparatusDragPlaceholder) {
+                apparatusDragPlaceholder = createApparatusDragPlaceholder();
+            }
+
+            clone = card.cloneNode(true);
+            clone.classList.add('apparatus-card-touch-ghost');
+            clone.style.position = 'fixed';
+            clone.style.width = `${card.offsetWidth}px`;
+            clone.style.left = `${card.getBoundingClientRect().left}px`;
+            clone.style.top = `${card.getBoundingClientRect().top}px`;
+            clone.style.zIndex = '9999';
+            clone.style.opacity = '0.85';
+            clone.style.pointerEvents = 'none';
+            clone.style.boxShadow = '0 16px 36px rgba(0,0,0,0.5)';
+            clone.style.border = '2px solid var(--fire-red, #b3212b)';
+            document.body.appendChild(clone);
+
+            card.classList.add('apparatus-card-dragging');
+            card.parentNode.insertBefore(apparatusDragPlaceholder, card);
+        }, { passive: true });
+
+        handle.addEventListener('touchmove', (e) => {
+            if (!touchActive || !clone) return;
+            const touch = e.touches[0];
+            e.preventDefault();
+
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+            clone.style.transform = `translate(${dx}px, ${dy}px) scale(1.02)`;
+
+            clone.style.display = 'none';
+            const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            clone.style.display = '';
+
+            if (!elemBelow) return;
+
+            const targetCard = elemBelow.closest('.card:not(.apparatus-drag-placeholder):not(.apparatus-card-touch-ghost)');
+            if (targetCard && targetCard.parentNode === card.parentNode) {
+                const rect = targetCard.getBoundingClientRect();
+                const isHorizontal = rect.width > 200;
+                const pos = isHorizontal ? (touch.clientX - rect.left) : (touch.clientY - rect.top);
+                const dimension = isHorizontal ? rect.width : rect.height;
+
+                if (pos < dimension / 2) {
+                    targetCard.parentNode.insertBefore(apparatusDragPlaceholder, targetCard);
+                } else {
+                    targetCard.parentNode.insertBefore(apparatusDragPlaceholder, targetCard.nextSibling);
+                }
+            }
+        });
+
+        const endTouch = () => {
+            if (!touchActive) return;
+            touchActive = false;
+            if (clone) {
+                clone.remove();
+                clone = null;
+            }
+            card.classList.remove('apparatus-card-dragging');
+            if (apparatusDragPlaceholder && apparatusDragPlaceholder.parentNode) {
+                apparatusDragPlaceholder.parentNode.insertBefore(card, apparatusDragPlaceholder);
+                apparatusDragPlaceholder.remove();
+                saveApparatusState(type);
+                if (typeof window.refreshApparatusModalList === 'function') {
+                    window.refreshApparatusModalList();
+                }
+                showAdminToast('✅ Updated apparatus order. Remember to click "Push to Git" to publish.');
+            }
+            draggedApparatusCard = null;
+        };
+
+        handle.addEventListener('touchend', endTouch);
+        handle.addEventListener('touchcancel', endTouch);
+    }
+
+    function setupApparatusCardDrag(card, type = 'active') {
+        if (!isAdminLoggedIn) return;
+        if (card.dataset.apparatusDragInit === 'true') return;
+        card.dataset.apparatusDragInit = 'true';
+
+        card.classList.add('apparatus-card-draggable');
+        if (editModeActive) {
+            card.setAttribute('draggable', 'true');
+        }
+
+        // Attach admin header toolbar on top left if not present
+        let adminHeader = card.querySelector('.apparatus-card-admin-header');
+        if (!adminHeader) {
+            adminHeader = document.createElement('div');
+            adminHeader.className = 'apparatus-card-admin-header';
+            adminHeader.innerHTML = `
+                <div class="apparatus-admin-left">
+                    <div class="apparatus-card-drag-handle" title="Drag to reorder apparatus" aria-label="Drag to reorder">⋮⋮</div>
+                    <div class="apparatus-card-reorder-group">
+                        <button type="button" class="apparatus-move-btn apparatus-move-prev" title="Move earlier" aria-label="Move earlier">‹</button>
+                        <button type="button" class="apparatus-move-btn apparatus-move-next" title="Move later" aria-label="Move later">›</button>
+                    </div>
+                </div>
+            `;
+            card.appendChild(adminHeader);
+        }
+
+        // Wire move buttons
+        const prevBtn = adminHeader.querySelector('.apparatus-move-prev');
+        const nextBtn = adminHeader.querySelector('.apparatus-move-next');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                moveApparatusCard(card, 'prev', type);
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                moveApparatusCard(card, 'next', type);
+            });
+        }
+
+        // Setup touch drag for mobile/tablet on drag handle
+        const dragHandle = adminHeader.querySelector('.apparatus-card-drag-handle');
+        if (dragHandle) {
+            setupApparatusTouchDrag(dragHandle, card, type);
+        }
+
+        // HTML5 Drag Events
+        card.addEventListener('dragstart', (e) => {
+            if (e.target.isContentEditable || e.target.closest('[contenteditable="true"]') || e.target.closest('.apparatus-card-remove-btn') || e.target.closest('.apparatus-move-btn')) {
+                e.preventDefault();
+                return;
+            }
+
+            draggedApparatusCard = card;
+            if (!apparatusDragPlaceholder) {
+                apparatusDragPlaceholder = createApparatusDragPlaceholder();
+            }
+
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', card.querySelector('h3')?.textContent.trim() || '');
+
+            setTimeout(() => {
+                card.classList.add('apparatus-card-dragging');
+            }, 0);
+        });
+
+        card.addEventListener('dragend', () => {
+            card.classList.remove('apparatus-card-dragging');
+            if (apparatusDragPlaceholder && apparatusDragPlaceholder.parentNode) {
+                apparatusDragPlaceholder.parentNode.insertBefore(card, apparatusDragPlaceholder);
+                apparatusDragPlaceholder.remove();
+                saveApparatusState(type);
+                if (typeof window.refreshApparatusModalList === 'function') {
+                    window.refreshApparatusModalList();
+                }
+                showAdminToast('✅ Updated apparatus order. Remember to click "Push to Git" to publish.');
+            }
+            draggedApparatusCard = null;
+        });
+
+        card.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!draggedApparatusCard || draggedApparatusCard === card) return;
+
+            if (!apparatusDragPlaceholder) {
+                apparatusDragPlaceholder = createApparatusDragPlaceholder();
+            }
+
+            const rect = card.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            if (mouseX < rect.width / 2) {
+                card.parentNode.insertBefore(apparatusDragPlaceholder, card);
+            } else {
+                card.parentNode.insertBefore(apparatusDragPlaceholder, card.nextSibling);
+            }
+        });
     }
 
     async function addCardToRemoteApparatusPage(type, cardHtml) {
@@ -1856,11 +2090,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = currentListHtml;
             tempDiv.insertAdjacentHTML('beforeend', cardHtml);
-            tempDiv.querySelectorAll('.apparatus-card-remove-btn').forEach(el => el.remove());
+            tempDiv.querySelectorAll('.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder').forEach(el => el.remove());
             tempDiv.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            tempDiv.querySelectorAll('[draggable]').forEach(el => el.removeAttribute('draggable'));
             tempDiv.querySelectorAll('[data-editor-init]').forEach(el => el.removeAttribute('data-editor-init'));
             tempDiv.querySelectorAll('[data-modal-bound]').forEach(el => el.removeAttribute('data-modal-bound'));
             tempDiv.querySelectorAll('[data-apparatus-index]').forEach(el => el.removeAttribute('data-apparatus-index'));
+            tempDiv.querySelectorAll('[data-apparatus-drag-init]').forEach(el => el.removeAttribute('data-apparatus-drag-init'));
+            tempDiv.querySelectorAll('.apparatus-card-dragging, .apparatus-card-draggable').forEach(el => {
+                el.classList.remove('apparatus-card-dragging', 'apparatus-card-draggable');
+            });
             localStorage.setItem(storageKey, tempDiv.innerHTML);
         }
     }
@@ -1878,56 +2117,71 @@ document.addEventListener('DOMContentLoaded', () => {
         apparatusAddModalOverlay.innerHTML = `
             <div class="apparatus-add-modal-card">
                 <div class="apparatus-add-modal-header">
-                    <div>
-                        <h3 class="apparatus-add-modal-title">➕ Add New Apparatus</h3>
-                        <p class="apparatus-add-modal-subtitle">Add a frontline response or retired vehicle to the fleet</p>
+                    <div class="apparatus-modal-header-text">
+                        <h3 class="apparatus-add-modal-title">🚒 Add New Apparatus</h3>
+                        <p class="apparatus-add-modal-subtitle">Add a frontline emergency unit or retired vehicle to Station 46</p>
                     </div>
-                    <button type="button" class="apparatus-add-modal-close" id="apparatus-modal-close-btn" aria-label="Close dialog">&times;</button>
+                    <button type="button" class="apparatus-add-modal-close" id="apparatus-modal-close-btn" aria-label="Close dialog" title="Close">&times;</button>
                 </div>
                 <form id="apparatus-add-form" class="apparatus-add-form">
-                    <div class="form-group">
-                        <label>Fleet Assignment</label>
-                        <div class="apparatus-status-toggle">
+                    <div class="apparatus-form-group">
+                        <label class="apparatus-form-label">Fleet Assignment</label>
+                        <div class="apparatus-status-toggle-group">
                             <button type="button" class="apparatus-status-btn active" data-type="active" id="btn-status-active">
-                                🚒 Active Fleet (apparatus.html)
+                                <span class="status-btn-icon">🚒</span>
+                                <span class="status-btn-text">
+                                    <strong>Active Fleet</strong>
+                                    <small>apparatus.html</small>
+                                </span>
                             </button>
                             <button type="button" class="apparatus-status-btn" data-type="retired" id="btn-status-retired">
-                                🏛️ Retired Fleet (retired-apparatus.html)
+                                <span class="status-btn-icon">🏛️</span>
+                                <span class="status-btn-text">
+                                    <strong>Retired Fleet</strong>
+                                    <small>retired-apparatus.html</small>
+                                </span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="apparatus-input-title">Apparatus Name / Call-Sign <span style="color: var(--fire-red);">*</span></label>
-                        <input type="text" id="apparatus-input-title" placeholder="e.g. Engine 46-9, Tower 46, Marine 46-2" required autocomplete="off">
+                    <div class="apparatus-form-group">
+                        <label class="apparatus-form-label" for="apparatus-input-title">
+                            Apparatus Name / Call-Sign <span class="required-star">*</span>
+                        </label>
+                        <input type="text" id="apparatus-input-title" class="apparatus-form-input" placeholder="e.g. Engine 46-9, Tower 46, Marine 46-2" required autocomplete="off">
                     </div>
 
-                    <div class="form-group">
-                        <label for="apparatus-input-specs">Technical Specifications &amp; Equipment</label>
-                        <textarea id="apparatus-input-specs" rows="4" placeholder="Enter one specification or detail per line, e.g.:&#10;2026 Pierce Velocity Custom Chassis&#10;2000 GPM Waterous Pump / 1000 Gal Tank&#10;Seats 6 Firefighters / 5 SCBA&#10;Full Complement of Tools &amp; Equipment" autocomplete="off"></textarea>
-                        <small style="display:block; margin-top: 4px; color: #94a3b8; font-size: 0.78rem;">Tip: Each line will become a bullet point on the apparatus card and popup modal.</small>
+                    <div class="apparatus-form-group">
+                        <label class="apparatus-form-label" for="apparatus-input-specs">
+                            Technical Specifications &amp; Equipment
+                        </label>
+                        <textarea id="apparatus-input-specs" class="apparatus-form-textarea" rows="4" placeholder="Enter one specification or detail per line, e.g.:&#10;2026 Pierce Velocity Custom Chassis&#10;2000 GPM Waterous Pump / 1000 Gal Tank&#10;Seats 6 Firefighters / 5 SCBA&#10;Full Complement of Tools &amp; Equipment" autocomplete="off"></textarea>
+                        <span class="apparatus-form-hint">💡 Each line will become a bullet point on the apparatus card and popup modal.</span>
                     </div>
 
-                    <div class="form-group">
-                        <label for="apparatus-input-img-url">Apparatus Photo (File Upload or Image URL)</label>
-                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                            <input type="text" id="apparatus-input-img-url" placeholder="e.g. engine46.jpg or https://..." autocomplete="off" style="flex: 1;">
-                            <label class="btn" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; white-space: nowrap; margin-bottom: 0;">
-                                📁 Choose File
-                                <input type="file" id="apparatus-input-file" accept="image/*" style="display: none;">
+                    <div class="apparatus-form-group">
+                        <label class="apparatus-form-label">Apparatus Photo (Upload File or Enter Image URL)</label>
+                        <div class="apparatus-photo-input-row">
+                            <input type="text" id="apparatus-input-img-url" class="apparatus-form-input" placeholder="e.g. engine46.jpg or https://..." autocomplete="off">
+                            <label class="apparatus-file-upload-btn">
+                                <span>📁 Choose File</span>
+                                <input type="file" id="apparatus-input-file" accept="image/*">
                             </label>
                         </div>
 
-                        <div id="apparatus-img-preview-box" class="apparatus-img-preview" style="display: none;">
+                        <div id="apparatus-img-preview-box" class="apparatus-img-preview-card" style="display: none;">
                             <img id="apparatus-img-preview-thumb" src="" alt="Preview">
-                            <span id="apparatus-img-preview-label" style="font-size: 0.82rem; color: #cbd5e1; flex: 1; word-break: break-all;"></span>
-                            <button type="button" id="apparatus-img-preview-clear" style="background: rgba(220,38,38,0.2); color: #f87171; border: 1px solid rgba(220,38,38,0.4); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.78rem;">Remove</button>
+                            <div class="apparatus-img-preview-info">
+                                <span id="apparatus-img-preview-label" class="apparatus-img-preview-name"></span>
+                                <span class="apparatus-img-preview-status">Ready to publish</span>
+                            </div>
+                            <button type="button" id="apparatus-img-preview-clear" class="apparatus-img-preview-remove" title="Remove photo">Remove</button>
                         </div>
                     </div>
 
-                    <div class="apparatus-add-modal-actions">
-                        <button type="button" class="btn" id="apparatus-add-cancel-btn" style="background: rgba(255,255,255,0.06); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.15); padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer;">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="apparatus-add-submit-btn" style="padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer;">➕ Add to Fleet</button>
+                    <div class="apparatus-add-modal-footer">
+                        <button type="button" class="btn apparatus-modal-btn-cancel" id="apparatus-add-cancel-btn">Cancel</button>
+                        <button type="submit" class="btn apparatus-modal-btn-submit" id="apparatus-add-submit-btn">➕ Add to Fleet</button>
                     </div>
                 </form>
             </div>
@@ -2051,6 +2305,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (liveContainer) {
                 liveContainer.appendChild(card);
                 attachApparatusRemoveButton(card, selectedApparatusType);
+                setupApparatusCardDrag(card, selectedApparatusType);
                 initLiveEditor();
                 saveApparatusState(selectedApparatusType);
                 if (typeof window.refreshApparatusModalList === 'function') {
@@ -2138,12 +2393,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeContainer) {
                 activeContainer.querySelectorAll('.card').forEach(card => {
                     attachApparatusRemoveButton(card, 'active');
+                    setupApparatusCardDrag(card, 'active');
                 });
             }
 
             if (retiredContainer) {
                 retiredContainer.querySelectorAll('.card').forEach(card => {
                     attachApparatusRemoveButton(card, 'retired');
+                    setupApparatusCardDrag(card, 'retired');
                 });
             }
         }
@@ -3342,11 +3599,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isAdminLoggedIn && !isActualAdminPortal && !document.getElementById('admin-floating-bar')) {
         const bar = document.createElement('div');
         bar.id = 'admin-floating-bar';
+        bar.className = 'admin-floating-bar';
         bar.style.position = 'fixed';
-        bar.style.bottom = '2rem';
-        bar.style.left = '2rem';
+        bar.style.bottom = '24px';
+        bar.style.left = '50%';
+        bar.style.transform = 'translateX(-50%)';
         bar.style.display = 'flex';
-        bar.style.flexWrap = 'wrap';
         bar.style.alignItems = 'center';
         bar.style.gap = '0.5rem';
         bar.style.zIndex = '99999';
@@ -3354,7 +3612,9 @@ document.addEventListener('DOMContentLoaded', () => {
         bar.style.padding = '8px 14px';
         bar.style.borderRadius = '30px';
         bar.style.border = '1px solid #334155';
-        bar.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
+        bar.style.boxShadow = '0 8px 28px rgba(0,0,0,0.45)';
+        bar.style.maxWidth = 'calc(100vw - 32px)';
+        bar.style.boxSizing = 'border-box';
 
         // 1. Save & Push to Git Button
         const saveGitBtn = document.createElement('button');
@@ -3459,6 +3719,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bar.appendChild(quickLogoutBtn);
         document.body.appendChild(bar);
         document.body.classList.add('admin-edit-mode');
+        document.body.classList.add('has-admin-floating-bar');
 
         toggleBtn.addEventListener('click', () => {
             editModeActive = !editModeActive;
@@ -3477,10 +3738,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.roster-card.roster-card-draggable').forEach(card => {
                     card.setAttribute('draggable', 'true');
                 });
+                document.querySelectorAll('.apparatus-card-draggable').forEach(card => {
+                    card.setAttribute('draggable', 'true');
+                });
                 document.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
                     el.style.display = 'flex';
                 });
-                document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn').forEach(el => {
+                document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn, .apparatus-card-admin-header').forEach(el => {
                     el.style.display = 'inline-flex';
                 });
             } else {
@@ -3498,10 +3762,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.roster-card.roster-card-draggable').forEach(card => {
                     card.removeAttribute('draggable');
                 });
+                document.querySelectorAll('.apparatus-card-draggable').forEach(card => {
+                    card.removeAttribute('draggable');
+                });
                 document.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
                     el.style.display = 'none';
                 });
-                document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn').forEach(el => {
+                document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn, .apparatus-card-admin-header').forEach(el => {
                     el.style.display = 'none';
                 });
             }
@@ -4326,7 +4593,7 @@ document.addEventListener('keydown', (e) => {
                 card.setAttribute('aria-label', `View photo and specs for ${title}`);
                 
                 card.addEventListener('click', (e) => {
-                    if (e.target.closest('.apparatus-card-remove-btn')) return;
+                    if (e.target.closest('.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-card-drag-handle, .apparatus-move-btn')) return;
                     // Avoid opening when admin inline editing is active on text
                     if (document.body.classList.contains('admin-edit-mode') && (e.target.isContentEditable || e.target.closest('[contenteditable="true"]'))) {
                         return;
@@ -4337,7 +4604,7 @@ document.addEventListener('keydown', (e) => {
 
                 card.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                        if (e.target.closest('.apparatus-card-remove-btn')) return;
+                        if (e.target.closest('.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-card-drag-handle, .apparatus-move-btn')) return;
                         e.preventDefault();
                         const dynamicIdx = parseInt(card.getAttribute('data-apparatus-index'), 10);
                         openApparatusModal(isNaN(dynamicIdx) ? 0 : dynamicIdx);
