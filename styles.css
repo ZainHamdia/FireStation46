@@ -8619,7 +8619,10 @@ body.storm-mode-active.storm-level-warning .top-bar {
     border-radius: 8px;
     padding: 8px 14px;
     margin: 0 auto 1.25rem;
+    width: calc(100% - 32px);
     max-width: 1200px;
+    flex: 0 0 100%;
+    box-sizing: border-box;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     z-index: 100;
     position: relative;
@@ -8628,6 +8631,18 @@ body.storm-mode-active.storm-level-warning .top-bar {
 
 body.admin-edit-mode .section-admin-bar {
     display: flex !important;
+}
+
+/* Guard: Never allow section-admin-bar inside hero banners or hero content */
+body.admin-edit-mode .hero .section-admin-bar,
+body.admin-edit-mode .hero-content .section-admin-bar,
+body.admin-edit-mode #home .section-admin-bar,
+body.admin-edit-mode .small-hero .section-admin-bar,
+.hero .section-admin-bar,
+.hero-content .section-admin-bar,
+#home .section-admin-bar,
+.small-hero .section-admin-bar {
+    display: none !important;
 }
 
 .section-admin-bar-title {

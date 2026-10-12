@@ -2829,6 +2829,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainEl = document.querySelector('main');
         if (saved && mainEl) {
             mainEl.innerHTML = saved;
+            // Defensive cleanup: remove any errant toolbars or dividers that may have been saved inside hero
+            mainEl.querySelectorAll('.hero .section-admin-bar, .small-hero .section-admin-bar, #home .section-admin-bar, .hero-content .section-admin-bar, .hero .section-insert-divider, #home .section-insert-divider, .small-hero .section-insert-divider').forEach(el => el.remove());
         }
     }
 
@@ -3111,8 +3113,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function isEligibleContentSection(section) {
+        if (!section || section.nodeType !== Node.ELEMENT_NODE) return false;
+        if (section.tagName !== 'SECTION') return false;
+        if (section.classList.contains('hero') ||
+            section.classList.contains('small-hero') ||
+            section.id === 'home' ||
+            section.closest('.hero') ||
+            section.closest('#home') ||
+            section.closest('.small-hero') ||
+            section.querySelector('.hero-content') ||
+            section.querySelector('.hero-bg') ||
+            section.querySelector('.hero-title')) {
+            return false;
+        }
+        if (section.classList.contains('admin-main-section') ||
+            section.id === 'admin-login-view' ||
+            section.id === 'admin-dashboard-view' ||
+            section.closest('.admin-dashboard') ||
+            section.closest('#admin-login-view')) {
+            return false;
+        }
+        return true;
+    }
+
     function setupSectionControls(section) {
-        if (!section || section.nodeType !== Node.ELEMENT_NODE) return;
+        if (!isEligibleContentSection(section)) return;
         if (section.querySelector(':scope > .section-admin-bar')) return;
 
         const bar = document.createElement('div');
@@ -3133,7 +3159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const actions = document.createElement('div');
         actions.className = 'section-admin-bar-actions';
 
-        // Move Up
+        // Move Up - Only swap with prior eligible content sections (never above hero)
         const upBtn = document.createElement('button');
         upBtn.type = 'button';
         upBtn.className = 'section-admin-btn';
@@ -3142,10 +3168,10 @@ document.addEventListener('DOMContentLoaded', () => {
         upBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             let prev = section.previousElementSibling;
-            while (prev && prev.tagName !== 'SECTION') {
+            while (prev && !isEligibleContentSection(prev)) {
                 prev = prev.previousElementSibling;
             }
-            if (prev && prev.tagName === 'SECTION') {
+            if (prev && isEligibleContentSection(prev)) {
                 section.parentNode.insertBefore(section, prev);
                 ensureSectionInsertDividers();
                 saveMainHtmlState();
@@ -3156,7 +3182,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Move Down
+        // Move Down - Only swap with subsequent eligible content sections
         const downBtn = document.createElement('button');
         downBtn.type = 'button';
         downBtn.className = 'section-admin-btn';
@@ -3165,10 +3191,10 @@ document.addEventListener('DOMContentLoaded', () => {
         downBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             let next = section.nextElementSibling;
-            while (next && next.tagName !== 'SECTION') {
+            while (next && !isEligibleContentSection(next)) {
                 next = next.nextElementSibling;
             }
-            if (next && next.tagName === 'SECTION') {
+            if (next && isEligibleContentSection(next)) {
                 section.parentNode.insertBefore(next, section);
                 ensureSectionInsertDividers();
                 saveMainHtmlState();
@@ -3224,10 +3250,46 @@ document.addEventListener('DOMContentLoaded', () => {
         const main = document.querySelector('main');
         if (!main) return;
 
-        main.querySelectorAll(':scope > .section-insert-divider').forEach(el => el.remove());
+        main.querySelectorAll(':scope > .section-insert-divider, .hero .section-insert-divider, #home .section-insert-divider, .small-hero .section-insert-divider').forEach(el => el.remove());
 
-        const sections = Array.from(main.querySelectorAll(':scope > section'));
-        sections.forEach((sec) => {
+        const heroSec = main.querySelector(':scope > section.hero, :scope > section#home, :scope > section.small-hero');
+        const eligibleSections = Array.from(main.querySelectorAll(':scope > section')).filter(s => isEligibleContentSection(s));
+
+        // Allow inserting directly below the hero banner (above first content section)
+        if (heroSec) {
+            const div = document.createElement('div');
+            div.className = 'section-insert-divider';
+            div.style.display = editModeActive ? 'flex' : 'none';
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'section-insert-divider-btn';
+            btn.innerHTML = '➕ Insert New Section Here';
+            btn.addEventListener('click', () => {
+                openAddSectionModal(heroSec);
+            });
+
+            div.appendChild(btn);
+            heroSec.after(div);
+        } else if (eligibleSections.length === 0) {
+            // Page with no hero and no sections
+            const div = document.createElement('div');
+            div.className = 'section-insert-divider';
+            div.style.display = editModeActive ? 'flex' : 'none';
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'section-insert-divider-btn';
+            btn.innerHTML = '➕ Insert New Section Here';
+            btn.addEventListener('click', () => {
+                openAddSectionModal(null);
+            });
+
+            div.appendChild(btn);
+            main.appendChild(div);
+        }
+
+        eligibleSections.forEach((sec) => {
             const div = document.createElement('div');
             div.className = 'section-insert-divider';
             div.style.display = editModeActive ? 'flex' : 'none';
@@ -3250,8 +3312,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const main = document.querySelector('main');
         if (!main) return;
 
+        // Clean up any errant toolbar in hero or admin view elements
+        main.querySelectorAll('.hero .section-admin-bar, .small-hero .section-admin-bar, #home .section-admin-bar, .hero-content .section-admin-bar, .admin-main-section .section-admin-bar').forEach(el => el.remove());
+
         main.querySelectorAll(':scope > section').forEach(section => {
-            setupSectionControls(section);
+            if (isEligibleContentSection(section)) {
+                setupSectionControls(section);
+            }
         });
 
         ensureSectionInsertDividers();
