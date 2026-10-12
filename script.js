@@ -988,6 +988,94 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTextEdits(getStoredTextEdits());
 
     // ==========================================
+    // Universal Picture Editing Data & Persistence
+    // ==========================================
+    const STATION_MEDIA_ASSETS = [
+        { src: 'truck46.jpg', name: 'Truck 46 (Aerialscope)', category: 'apparatus' },
+        { src: 'engine46-8.jpg', name: 'Engine 46-8 (Pierce Enforcer)', category: 'apparatus' },
+        { src: 'engine46-7.jpg', name: 'Engine 46-7 (Rescue Pumper)', category: 'apparatus' },
+        { src: 'rescue46.jpg', name: 'Rescue 46 (SVI)', category: 'apparatus' },
+        { src: 'brush46.jpg', name: 'Brush 46', category: 'apparatus' },
+        { src: 'car46.jpg', name: 'Car 46 (Chief)', category: 'apparatus' },
+        { src: 'car462.jpg', name: 'Car 46-2 (Deputy Chief)', category: 'apparatus' },
+        { src: 'marine46.jpg', name: 'Marine 46 (Rescue Boat)', category: 'apparatus' },
+        { src: 'hero-bg.jpg', name: 'Station 46 Headquarters', category: 'station' },
+        { src: 'apparatus-bg.jpg', name: 'Apparatus Bay Interior', category: 'station' },
+        { src: 'drill-1.jpg', name: 'Drill: Live Fire Training', category: 'training' },
+        { src: 'drill-2.jpg', name: 'Drill: Structural Burn', category: 'training' },
+        { src: 'drill-3.jpg', name: 'Drill: Vehicle Extrication', category: 'training' },
+        { src: 'drill-4.jpg', name: 'Drill: Ladder & Roof Ventilation', category: 'training' },
+        { src: 'drill-5.jpg', name: 'Drill: Hose Line Advance', category: 'training' },
+        { src: 'family.jpg', name: 'Station 46 Family & Volunteers', category: 'community' },
+        { src: 'class2.jpg', name: 'Company Officers Class', category: 'community' },
+        { src: 'christmas.jpg', name: 'Santa Tour Fire Truck', category: 'community' },
+        { src: 'santapath.png', name: 'District Route Map', category: 'documents' },
+        { src: 'retired108.jpg', name: 'Retired 108 (Mack Pumper)', category: 'retired' },
+        { src: 'retiredbrush.jpg', name: 'Retired Ford Brush', category: 'retired' },
+        { src: 'retiredtower.jpg', name: 'Retired Tower 46', category: 'retired' },
+        { src: 'blueprint-1.jpg', name: 'Rescue Blueprint (Elevations)', category: 'blueprints' },
+        { src: 'blueprint-2.jpg', name: 'Rescue Blueprint (Layout)', category: 'blueprints' },
+        { src: 'blueprint-3.jpg', name: 'Rescue Blueprint (Interior)', category: 'blueprints' },
+        { src: 'logo.png', name: 'Station 46 Official Seal', category: 'station' }
+    ];
+
+    function getStoredImageEdits() {
+        try {
+            const stored = localStorage.getItem('station46_image_edits');
+            return stored ? JSON.parse(stored) : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function saveImageEdit(pageKey, selectorPath, src, isBackground = false) {
+        const edits = getStoredImageEdits();
+        const key = `${isBackground ? 'bg' : 'img'}_v2_${pageKey}_${selectorPath}`;
+        edits[key] = src;
+        localStorage.setItem('station46_image_edits', JSON.stringify(edits));
+    }
+
+    function applyImageEdits(edits = getStoredImageEdits()) {
+        if (!edits || typeof edits !== 'object') return;
+        const pageKey = getPageKey();
+
+        for (const key in edits) {
+            if (!key.includes(`_${pageKey}_`)) continue;
+            const isBg = key.startsWith('bg_v2_');
+            const selectorPath = key.replace(/^(?:bg|img)_v2_[^_]+_/, '');
+            const src = edits[key];
+            if (!src) continue;
+
+            try {
+                const el = document.querySelector(selectorPath);
+                if (el) {
+                    if (isBg) {
+                        if (el.classList.contains('card-img-placeholder')) {
+                            el.style.background = `linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url("${src}") center/cover`;
+                            el.style.color = 'white';
+                            el.style.fontWeight = '800';
+                            el.style.textShadow = '0 2px 8px rgba(0,0,0,0.9)';
+                        } else if (el.classList.contains('hero-bg') || el.classList.contains('hero') || el.classList.contains('small-hero') || el.classList.contains('custom-hero-mini-wrap')) {
+                            el.style.backgroundImage = `linear-gradient(rgba(15, 25, 43, 0.25), rgba(15, 25, 43, 0.48)), url("${src}")`;
+                            el.style.backgroundSize = 'cover';
+                            el.style.backgroundPosition = 'center';
+                        } else {
+                            el.style.backgroundImage = `url("${src}")`;
+                            el.style.backgroundSize = 'cover';
+                            el.style.backgroundPosition = 'center';
+                        }
+                    } else if (el.tagName === 'IMG') {
+                        el.src = src;
+                    }
+                }
+            } catch (e) {}
+        }
+    }
+
+    // Apply local image edits immediately on page load
+    applyImageEdits(getStoredImageEdits());
+
+    // ==========================================
     // Roster Management System (Add/Remove Members & Initials)
     // ==========================================
     const ROSTER_SECTIONS = {
@@ -1055,8 +1143,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('roster-container');
         if (!container) return null;
         const clone = container.cloneNode(true);
-        // Remove admin-only controls, drag handles, modal, placeholders, and tag delete buttons
-        clone.querySelectorAll('.roster-card-remove-btn, .btn-roster-add-member, .roster-modal-overlay, .roster-card-drag-handle, .roster-drag-placeholder, .roster-card-tag-btn, .roster-tag-delete-btn').forEach(el => el.remove());
+        // Remove admin-only controls, drag handles, modal, placeholders, tag delete buttons, and image edit overlays
+        clone.querySelectorAll('.roster-card-remove-btn, .btn-roster-add-member, .roster-modal-overlay, .roster-card-drag-handle, .roster-drag-placeholder, .roster-card-tag-btn, .roster-tag-delete-btn, .station-image-change-btn').forEach(el => el.remove());
         // Clean runtime markers on tag-new elements
         clone.querySelectorAll('.tag-new').forEach(tag => {
             const delBtn = tag.querySelector('.roster-tag-delete-btn');
@@ -1801,8 +1889,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!container) return null;
 
         const clone = container.cloneNode(true);
-        // Remove admin-only controls, reorder handles, remove buttons, placeholders, and modal overlays
-        clone.querySelectorAll('.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder, .apparatus-add-modal-overlay').forEach(el => el.remove());
+        // Remove admin-only controls, reorder handles, remove buttons, placeholders, modal overlays, and image edit overlays
+        clone.querySelectorAll('.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder, .apparatus-add-modal-overlay, .station-image-change-btn').forEach(el => el.remove());
         // Clean runtime contenteditable and initialization markers
         clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
         clone.querySelectorAll('[draggable]').forEach(el => el.removeAttribute('draggable'));
@@ -2797,7 +2885,8 @@ document.addEventListener('DOMContentLoaded', () => {
             '.card-admin-remove-btn, .section-item-upload-btn, .station-builder-modal-overlay, ' +
             '.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder, ' +
             '.apparatus-add-modal-overlay, .roster-admin-header, .roster-drag-placeholder, ' +
-            '.slider-card-admin-controls, .stat-row-remove-btn'
+            '.slider-card-admin-controls, .stat-row-remove-btn, .station-image-change-btn, ' +
+            '.section-drag-handle, .section-drop-indicator, .section-drag-ghost-badge'
         ).forEach(el => el.remove());
 
         // Remove hidden file inputs added for image uploads
@@ -2810,6 +2899,11 @@ document.addEventListener('DOMContentLoaded', () => {
         clone.querySelectorAll('[data-faq-init]').forEach(el => el.removeAttribute('data-faq-init'));
         clone.querySelectorAll('[data-section-init]').forEach(el => el.removeAttribute('data-section-init'));
         clone.querySelectorAll('[data-modal-bound]').forEach(el => el.removeAttribute('data-modal-bound'));
+        clone.querySelectorAll('[data-image-edit-bound]').forEach(el => el.removeAttribute('data-image-edit-bound'));
+        clone.querySelectorAll('[data-bg-edit-bound]').forEach(el => el.removeAttribute('data-bg-edit-bound'));
+        clone.querySelectorAll('.section-dragging, .section-drop-highlight').forEach(el => {
+            el.classList.remove('section-dragging', 'section-drop-highlight');
+        });
 
         return clone.innerHTML;
     }
@@ -2826,13 +2920,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const pageKey = getPageKey();
         if (!pageKey || pageKey === 'admin.html') return;
         const saved = localStorage.getItem('station46_main_html_' + pageKey);
+
+        // If cached main HTML contains stale instagram-media, purge the cache so fresh static HTML with POWr is displayed
+        if (saved && (saved.includes('instagram-media') || saved.includes('instagram.com/embed.js'))) {
+            localStorage.removeItem('station46_main_html_' + pageKey);
+            return;
+        }
+
         const mainEl = document.querySelector('main');
         if (saved && mainEl) {
             mainEl.innerHTML = saved;
             // Defensive cleanup: remove any errant toolbars or dividers that may have been saved inside hero
             mainEl.querySelectorAll('.hero .section-admin-bar, .small-hero .section-admin-bar, #home .section-admin-bar, .hero-content .section-admin-bar, .hero .section-insert-divider, #home .section-insert-divider, .small-hero .section-insert-divider').forEach(el => el.remove());
-            // Remove legacy powr feeds if present in cached state
-            mainEl.querySelectorAll('.powr-social-feed, script[src*="powr.io"]').forEach(el => el.remove());
+
+            // If powr-social-feed is present in restored HTML, ensure powr script initializes
+            if (mainEl.querySelector('.powr-social-feed')) {
+                if (!document.querySelector('script[src*="powr.io/powr.js"]')) {
+                    const ps = document.createElement('script');
+                    ps.src = 'https://www.powr.io/powr.js?platform=html';
+                    document.body.appendChild(ps);
+                } else if (window.loadPowr) {
+                    try { window.loadPowr(); } catch (e) {}
+                }
+            }
         }
     }
 
@@ -2873,6 +2983,377 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(btn);
     }
 
+    // ==========================================================================
+    // Universal Image Editor Suite (Upload, Assets Library, URL & Backgrounds)
+    // ==========================================================================
+    function openImageEditorModal(targetElement = null, isBackground = false) {
+        if (!isAdminLoggedIn) return;
+        const isBrowsingOnly = !targetElement;
+        let overlay = document.getElementById('station-image-editor-modal');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'station-image-editor-modal';
+            overlay.className = 'station-builder-modal-overlay';
+            overlay.innerHTML = `
+                <div class="station-builder-modal-card" style="max-width: 840px;">
+                    <div class="station-builder-modal-header">
+                        <div>
+                            <h3 class="station-builder-modal-title">📷 Change Picture</h3>
+                            <p class="station-builder-modal-subtitle">Upload a photo from your computer, choose from station media, or enter an image URL.</p>
+                        </div>
+                        <button type="button" class="station-builder-modal-close" aria-label="Close modal">&times;</button>
+                    </div>
+                    <div class="station-builder-modal-body">
+                        <!-- Preview Box -->
+                        <div class="image-editor-preview-card">
+                            <img id="image-editor-preview-thumb" class="image-editor-preview-img" src="" alt="Selected Preview">
+                            <div class="image-editor-preview-info">
+                                <span id="image-editor-preview-name">No picture selected</span>
+                                <span id="image-editor-preview-meta"></span>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Tabs -->
+                        <div class="image-editor-tabs">
+                            <button type="button" class="image-editor-tab-btn active" data-tab="upload" id="tab-btn-upload">📁 Upload from Device</button>
+                            <button type="button" class="image-editor-tab-btn" data-tab="library" id="tab-btn-library">🚒 Station Media Library (26)</button>
+                            <button type="button" class="image-editor-tab-btn" data-tab="url" id="tab-btn-url">🔗 Image URL</button>
+                        </div>
+
+                        <!-- Tab 1: Upload from Computer -->
+                        <div id="image-tab-upload" class="image-editor-tab-content">
+                            <label class="image-editor-dropzone">
+                                <input type="file" id="image-editor-file-input" accept="image/*" style="display: none;">
+                                <div class="image-editor-dropzone-icon">☁️</div>
+                                <div class="image-editor-dropzone-title">Click or Drop File to Upload</div>
+                                <div class="image-editor-dropzone-sub">Supports JPG, PNG, WEBP, GIF. Auto-compressed for rapid loading.</div>
+                            </label>
+                        </div>
+
+                        <!-- Tab 2: Media Library -->
+                        <div id="image-tab-library" class="image-editor-tab-content" style="display: none;">
+                            <input type="text" id="image-library-search-input" class="image-library-search" placeholder="🔍 Search station photos (truck, drill, engine, family, blueprint...)...">
+                            <div class="image-library-grid" id="image-library-grid"></div>
+                        </div>
+
+                        <!-- Tab 3: URL -->
+                        <div id="image-tab-url" class="image-editor-tab-content" style="display: none;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">Image URL or Local Filename</label>
+                                <input type="text" id="image-url-input" class="page-creator-input" placeholder="e.g. truck46.jpg, drill-2.jpg or https://images.unsplash.com/...">
+                            </div>
+                        </div>
+
+                        <!-- Alt Text / Caption (for img) -->
+                        <div id="image-alt-group" style="margin-top: 1.25rem;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">Image Description / Alt Text</label>
+                            <input type="text" id="image-alt-input" class="page-creator-input" placeholder="e.g. Truck 46 Seagrave Aerialscope in service">
+                        </div>
+                    </div>
+                    <div class="station-builder-modal-footer">
+                        <button type="button" class="btn btn-secondary station-image-modal-close-btn" style="padding: 9px 18px; border-radius: 6px;">Cancel</button>
+                        <button type="button" id="station-image-apply-btn" class="btn btn-primary" style="padding: 9px 24px; border-radius: 6px; font-weight: 700;">Apply Picture</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            overlay.querySelectorAll('.station-builder-modal-close, .station-image-modal-close-btn').forEach(b => {
+                b.addEventListener('click', () => overlay.classList.remove('active'));
+            });
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+        }
+
+        let selectedSrc = '';
+        const previewThumb = overlay.querySelector('#image-editor-preview-thumb');
+        const previewName = overlay.querySelector('#image-editor-preview-name');
+        const previewMeta = overlay.querySelector('#image-editor-preview-meta');
+        const fileInput = overlay.querySelector('#image-editor-file-input');
+        const urlInput = overlay.querySelector('#image-url-input');
+        const altInput = overlay.querySelector('#image-alt-input');
+        const altGroup = overlay.querySelector('#image-alt-group');
+        const libraryGrid = overlay.querySelector('#image-library-grid');
+        const librarySearch = overlay.querySelector('#image-library-search-input');
+        const applyBtn = overlay.querySelector('#station-image-apply-btn');
+        const modalTitle = overlay.querySelector('.station-builder-modal-title');
+        const modalSubtitle = overlay.querySelector('.station-builder-modal-subtitle');
+
+        if (isBrowsingOnly) {
+            if (modalTitle) modalTitle.textContent = '🖼️ Station Photo Library';
+            if (modalSubtitle) modalSubtitle.textContent = 'Browse 26 official station photos. Click any photo to copy its filename, or use "📷 Change Photo" on any picture on the page.';
+            altGroup.style.display = 'none';
+            applyBtn.textContent = '📋 Copy Photo Name';
+        } else {
+            if (modalTitle) modalTitle.textContent = isBackground ? '📷 Change Background Picture' : '📷 Change Picture';
+            if (modalSubtitle) modalSubtitle.textContent = 'Upload a photo from your computer, choose from station media, or enter an image URL.';
+            applyBtn.textContent = 'Apply Picture';
+        }
+
+        // Determine current image from element
+        let currentSrc = '';
+        if (targetElement) {
+            if (isBackground) {
+                altGroup.style.display = 'none';
+                const bg = targetElement.style.backgroundImage || getComputedStyle(targetElement).backgroundImage;
+                const match = bg.match(/url\(["']?([^"']+)["']?\)/);
+                if (match) currentSrc = match[1];
+            } else {
+                altGroup.style.display = '';
+                currentSrc = targetElement.getAttribute('src') || '';
+                altInput.value = targetElement.getAttribute('alt') || '';
+            }
+        } else {
+            currentSrc = 'truck46.jpg';
+        }
+
+        selectedSrc = currentSrc;
+        previewThumb.src = currentSrc || 'truck46.jpg';
+        previewName.textContent = currentSrc ? (currentSrc.startsWith('data:') ? 'Custom Uploaded Photo' : currentSrc) : (isBrowsingOnly ? 'Select a photo' : 'Current Picture');
+        previewMeta.textContent = isBrowsingOnly ? 'Station Media' : (isBackground ? 'Background Picture' : 'Image Tag');
+        urlInput.value = currentSrc && !currentSrc.startsWith('data:') ? currentSrc : '';
+
+        // Tab switcher
+        overlay.querySelectorAll('.image-editor-tab-btn').forEach(btn => {
+            btn.onclick = () => {
+                overlay.querySelectorAll('.image-editor-tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const targetTab = btn.dataset.tab;
+                overlay.querySelector('#image-tab-upload').style.display = targetTab === 'upload' ? 'block' : 'none';
+                overlay.querySelector('#image-tab-library').style.display = targetTab === 'library' ? 'block' : 'none';
+                overlay.querySelector('#image-tab-url').style.display = targetTab === 'url' ? 'block' : 'none';
+            };
+        });
+
+        // Set default tab for browsing mode
+        if (isBrowsingOnly) {
+            overlay.querySelectorAll('.image-editor-tab-btn').forEach(b => b.classList.remove('active'));
+            const libBtn = overlay.querySelector('.image-editor-tab-btn[data-tab="library"]');
+            if (libBtn) libBtn.classList.add('active');
+            overlay.querySelector('#image-tab-upload').style.display = 'none';
+            overlay.querySelector('#image-tab-library').style.display = 'block';
+            overlay.querySelector('#image-tab-url').style.display = 'none';
+        }
+
+        // Render station media library
+        function renderLibrary(query = '') {
+            libraryGrid.innerHTML = '';
+            const filtered = STATION_MEDIA_ASSETS.filter(a => !query || a.name.toLowerCase().includes(query.toLowerCase()) || a.src.toLowerCase().includes(query.toLowerCase()) || a.category.toLowerCase().includes(query.toLowerCase()));
+            filtered.forEach(asset => {
+                const card = document.createElement('div');
+                card.className = 'image-library-item' + (selectedSrc === asset.src ? ' selected' : '');
+                card.innerHTML = `
+                    <img src="${asset.src}" alt="${asset.name}" class="image-library-thumb" loading="lazy">
+                    <span class="image-library-item-name" title="${asset.name}">${asset.name}</span>
+                `;
+                card.addEventListener('click', () => {
+                    libraryGrid.querySelectorAll('.image-library-item').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selectedSrc = asset.src;
+                    previewThumb.src = asset.src;
+                    previewName.textContent = asset.name;
+                    previewMeta.textContent = asset.src;
+                    urlInput.value = asset.src;
+                    if (isBrowsingOnly) {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(asset.src).catch(() => {});
+                        }
+                        showAdminToast(`📋 Copied "${asset.src}" to clipboard!`);
+                    }
+                });
+                libraryGrid.appendChild(card);
+            });
+        }
+        renderLibrary();
+        librarySearch.oninput = () => renderLibrary(librarySearch.value.trim());
+
+        // File upload with auto-compression
+        fileInput.onchange = () => {
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                previewName.textContent = 'Optimizing ' + file.name + '...';
+                compressImage(file, (dataUrl) => {
+                    selectedSrc = dataUrl;
+                    previewThumb.src = dataUrl;
+                    previewName.textContent = file.name;
+                    previewMeta.textContent = Math.round(dataUrl.length / 1024) + ' KB (optimized)';
+                });
+            }
+        };
+
+        // URL manual typing
+        urlInput.oninput = () => {
+            const val = urlInput.value.trim();
+            if (val) {
+                selectedSrc = val;
+                previewThumb.src = val;
+                previewName.textContent = val;
+                previewMeta.textContent = 'Custom URL';
+            }
+        };
+
+        // Apply changes
+        applyBtn.onclick = () => {
+            if (isBrowsingOnly) {
+                const toCopy = selectedSrc || 'truck46.jpg';
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(toCopy).catch(() => {});
+                }
+                showAdminToast(`📋 Copied "${toCopy}" to clipboard!`);
+                overlay.classList.remove('active');
+                return;
+            }
+
+            if (!selectedSrc) {
+                alert('Please select or upload an image first.');
+                return;
+            }
+
+            if (isBackground) {
+                if (targetElement.classList.contains('card-img-placeholder')) {
+                    targetElement.style.background = `linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url("${selectedSrc}") center/cover`;
+                    targetElement.style.color = 'white';
+                    targetElement.style.fontWeight = '800';
+                    targetElement.style.textShadow = '0 2px 8px rgba(0,0,0,0.9)';
+                } else if (targetElement.classList.contains('hero-bg') || targetElement.classList.contains('hero') || targetElement.classList.contains('small-hero') || targetElement.classList.contains('custom-hero-mini-wrap')) {
+                    targetElement.style.backgroundImage = `linear-gradient(rgba(15, 25, 43, 0.25), rgba(15, 25, 43, 0.48)), url("${selectedSrc}")`;
+                    targetElement.style.backgroundSize = 'cover';
+                    targetElement.style.backgroundPosition = 'center';
+                } else {
+                    targetElement.style.backgroundImage = `url("${selectedSrc}")`;
+                    targetElement.style.backgroundSize = 'cover';
+                    targetElement.style.backgroundPosition = 'center';
+                }
+            } else {
+                targetElement.src = selectedSrc;
+                if (altInput.value.trim()) {
+                    targetElement.alt = altInput.value.trim();
+                }
+            }
+
+            const pageKey = getPageKey();
+            const selectorPath = getElementSelectorPath(targetElement);
+            saveImageEdit(pageKey, selectorPath, selectedSrc, isBackground);
+
+            if (targetElement.closest('main')) {
+                saveMainHtmlState();
+            }
+            if (targetElement.closest('#active-apparatus-list')) {
+                saveApparatusState('active');
+            } else if (targetElement.closest('#retired-apparatus-list')) {
+                saveApparatusState('retired');
+            }
+            if (targetElement.closest('#roster-container')) {
+                saveRosterState();
+            }
+
+            overlay.classList.remove('active');
+            showAdminToast('✅ Picture updated! Click "💾 Save & Push to Git" to publish.');
+        };
+
+        overlay.classList.add('active');
+    }
+
+    function attachImageChangeOverlay(img) {
+        if (!isAdminLoggedIn || !img) return;
+        const parent = img.parentElement;
+        if (!parent) return;
+
+        if (getComputedStyle(parent).position === 'static') {
+            parent.style.position = 'relative';
+        }
+
+        if (!parent.querySelector(':scope > .station-image-change-btn[data-for-img]')) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'station-image-change-btn';
+            btn.dataset.forImg = 'true';
+            btn.style.display = editModeActive ? 'inline-flex' : 'none';
+            btn.innerHTML = '📷 Change Photo';
+            btn.title = 'Click to change this picture';
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                openImageEditorModal(img, false);
+            });
+            parent.appendChild(btn);
+        }
+
+        if (!img.dataset.imageEditBound) {
+            img.dataset.imageEditBound = 'true';
+            img.addEventListener('click', (e) => {
+                if (editModeActive && isAdminLoggedIn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openImageEditorModal(img, false);
+                }
+            });
+        }
+    }
+
+    function attachBackgroundImageChangeOverlay(el) {
+        if (!isAdminLoggedIn || !el) return;
+        if (getComputedStyle(el).position === 'static') {
+            el.style.position = 'relative';
+        }
+
+        if (!el.querySelector(':scope > .station-image-change-btn[data-for-bg]')) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'station-image-change-btn station-image-change-bg-btn';
+            btn.dataset.forBg = 'true';
+            btn.style.display = editModeActive ? 'inline-flex' : 'none';
+            btn.innerHTML = '📷 Change Background';
+            btn.title = 'Click to change background picture';
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                openImageEditorModal(el, true);
+            });
+            el.appendChild(btn);
+        }
+
+        if (el.classList.contains('card-img-placeholder') && !el.dataset.bgEditBound) {
+            el.dataset.bgEditBound = 'true';
+            el.addEventListener('click', (e) => {
+                if (editModeActive && isAdminLoggedIn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openImageEditorModal(el, true);
+                }
+            });
+        }
+    }
+
+    function setupUniversalImageEditors() {
+        if (!isAdminLoggedIn) return;
+
+        // 1. All images across page
+        document.querySelectorAll('img').forEach(img => {
+            if (img.closest('#station-image-editor-modal') ||
+                img.closest('#station-section-picker-modal') ||
+                img.closest('#station-page-creator-modal') ||
+                img.closest('#admin-font-modal-overlay') ||
+                img.closest('#admin-toast-notification') ||
+                img.closest('#admin-floating-bar') ||
+                img.classList.contains('nav-badge-img') ||
+                img.classList.contains('footer-badge-img')) {
+                return;
+            }
+            attachImageChangeOverlay(img);
+        });
+
+        // 2. All background elements (fleet cards, hero banners, custom blocks)
+        document.querySelectorAll(
+            '.card-img-placeholder, .hero-bg, .hero-membership, .hero.small-hero, ' +
+            '.small-hero, .hero#home, .custom-hero-mini-wrap, [style*="background-image"]'
+        ).forEach(el => {
+            if (el.closest('#station-image-editor-modal') || el.closest('#admin-floating-bar')) return;
+            attachBackgroundImageChangeOverlay(el);
+        });
+    }
+
     function attachGalleryControls(card) {
         if (!isAdminLoggedIn || !card) return;
         attachCardRemoveButton(card, () => {
@@ -2881,38 +3362,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showAdminToast('Photo removed');
         });
 
-        if (!card.querySelector('.section-item-upload-btn')) {
-            const uploadBtn = document.createElement('button');
-            uploadBtn.type = 'button';
-            uploadBtn.className = 'section-item-upload-btn';
-            uploadBtn.style.display = editModeActive ? 'inline-flex' : 'none';
-            uploadBtn.innerHTML = '📷 Change Photo';
-
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'image/*';
-            fileInput.style.display = 'none';
-
-            uploadBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                fileInput.click();
-            });
-
-            fileInput.addEventListener('change', () => {
-                if (fileInput.files && fileInput.files[0]) {
-                    compressImage(fileInput.files[0], (dataUrl) => {
-                        const img = card.querySelector('img');
-                        if (img) {
-                            img.src = dataUrl;
-                            saveMainHtmlState();
-                            showAdminToast('Photo updated!');
-                        }
-                    });
-                }
-            });
-
-            card.appendChild(uploadBtn);
-            card.appendChild(fileInput);
+        const img = card.querySelector('img');
+        if (img) {
+            attachImageChangeOverlay(img);
         }
     }
 
@@ -3070,49 +3522,293 @@ document.addEventListener('DOMContentLoaded', () => {
                     attachGalleryControls(newCard);
                     initLiveEditor();
                     saveMainHtmlState();
-                    showAdminToast('Photo added! Click Change Photo to upload.');
+                    showAdminToast('Photo added! Click Change Photo to change picture.');
                 });
                 grid.after(addBtn);
             }
         });
 
-        // 5. Spotlight Media Image Upload
-        const spotlightMedias = section.querySelectorAll('.custom-spotlight-media');
-        spotlightMedias.forEach(media => {
-            if (!media.querySelector('.section-item-upload-btn')) {
-                const uploadBtn = document.createElement('button');
-                uploadBtn.type = 'button';
-                uploadBtn.className = 'section-item-upload-btn';
-                uploadBtn.style.display = editModeActive ? 'inline-flex' : 'none';
-                uploadBtn.innerHTML = '📷 Change Photo';
-
-                const fileInput = document.createElement('input');
-                fileInput.type = 'file';
-                fileInput.accept = 'image/*';
-                fileInput.style.display = 'none';
-
-                uploadBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    fileInput.click();
+        // 5. Timeline Milestones (+ Add Milestone and ✕ Remove)
+        const timelineLists = section.querySelectorAll('.custom-timeline-list');
+        timelineLists.forEach(list => {
+            list.querySelectorAll('.custom-timeline-item').forEach(item => {
+                attachCardRemoveButton(item, () => {
+                    item.remove();
+                    saveMainHtmlState();
+                    showAdminToast('Milestone removed');
                 });
+            });
 
-                fileInput.addEventListener('change', () => {
-                    if (fileInput.files && fileInput.files[0]) {
-                        compressImage(fileInput.files[0], (dataUrl) => {
-                            const img = media.querySelector('img');
-                            if (img) {
-                                img.src = dataUrl;
-                                saveMainHtmlState();
-                                showAdminToast('Spotlight image updated!');
-                            }
-                        });
-                    }
+            if (!list.parentElement.querySelector(':scope > .section-card-add-btn[data-target="timeline"]')) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'section-card-add-btn';
+                addBtn.dataset.target = 'timeline';
+                addBtn.style.display = editModeActive ? 'flex' : 'none';
+                addBtn.innerHTML = '➕ Add Milestone to Timeline';
+                addBtn.addEventListener('click', () => {
+                    const newItem = document.createElement('div');
+                    newItem.className = 'custom-timeline-item glass-card';
+                    newItem.innerHTML = `
+                        <div class="custom-timeline-year" contenteditable="${editModeActive ? 'true' : 'false'}">Year</div>
+                        <div class="custom-timeline-body">
+                            <h3 class="custom-timeline-title" contenteditable="${editModeActive ? 'true' : 'false'}">New Milestone Title</h3>
+                            <p class="custom-timeline-desc" contenteditable="${editModeActive ? 'true' : 'false'}">Description of station accomplishment, history or response milestone.</p>
+                        </div>
+                    `;
+                    list.appendChild(newItem);
+                    attachCardRemoveButton(newItem, () => {
+                        newItem.remove();
+                        saveMainHtmlState();
+                        showAdminToast('Milestone removed');
+                    });
+                    initLiveEditor();
+                    saveMainHtmlState();
+                    showAdminToast('Milestone added!');
                 });
-
-                media.appendChild(uploadBtn);
-                media.appendChild(fileInput);
+                list.after(addBtn);
             }
         });
+
+        // 6. Events Grid (+ Add Event and ✕ Remove)
+        const eventsGrids = section.querySelectorAll('.custom-events-grid');
+        eventsGrids.forEach(grid => {
+            grid.querySelectorAll('.custom-event-card').forEach(card => {
+                attachCardRemoveButton(card, () => {
+                    card.remove();
+                    saveMainHtmlState();
+                    showAdminToast('Event removed');
+                });
+            });
+
+            if (!grid.parentElement.querySelector(':scope > .section-card-add-btn[data-target="events"]')) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'section-card-add-btn';
+                addBtn.dataset.target = 'events';
+                addBtn.style.display = editModeActive ? 'flex' : 'none';
+                addBtn.innerHTML = '➕ Add Event Card';
+                addBtn.addEventListener('click', () => {
+                    const newCard = document.createElement('div');
+                    newCard.className = 'custom-event-card glass-card';
+                    newCard.innerHTML = `
+                        <div class="custom-event-date-badge">
+                            <span class="custom-event-month" contenteditable="${editModeActive ? 'true' : 'false'}">DATE</span>
+                            <span class="custom-event-day" contenteditable="${editModeActive ? 'true' : 'false'}">01</span>
+                        </div>
+                        <div class="custom-event-info">
+                            <h3 class="custom-event-title" contenteditable="${editModeActive ? 'true' : 'false'}">New Station Event</h3>
+                            <div class="custom-event-meta" contenteditable="${editModeActive ? 'true' : 'false'}">Time &bull; Station 46 Headquarters</div>
+                            <p class="custom-event-desc" contenteditable="${editModeActive ? 'true' : 'false'}">Event summary and community details. Click text to edit.</p>
+                            <a href="#" class="btn btn-sm btn-primary" contenteditable="${editModeActive ? 'true' : 'false'}">Event Details &rarr;</a>
+                        </div>
+                    `;
+                    grid.appendChild(newCard);
+                    attachCardRemoveButton(newCard, () => {
+                        newCard.remove();
+                        saveMainHtmlState();
+                        showAdminToast('Event removed');
+                    });
+                    initLiveEditor();
+                    saveMainHtmlState();
+                    showAdminToast('Event added!');
+                });
+                grid.after(addBtn);
+            }
+        });
+
+        // 7. Testimonials Quotes Grid (+ Add Quote and ✕ Remove)
+        const quotesGrids = section.querySelectorAll('.custom-quotes-grid');
+        quotesGrids.forEach(grid => {
+            grid.querySelectorAll('.custom-quote-card').forEach(card => {
+                attachCardRemoveButton(card, () => {
+                    card.remove();
+                    saveMainHtmlState();
+                    showAdminToast('Quote removed');
+                });
+            });
+
+            if (!grid.parentElement.querySelector(':scope > .section-card-add-btn[data-target="quotes"]')) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'section-card-add-btn';
+                addBtn.dataset.target = 'quotes';
+                addBtn.style.display = editModeActive ? 'flex' : 'none';
+                addBtn.innerHTML = '➕ Add Resident Quote';
+                addBtn.addEventListener('click', () => {
+                    const newCard = document.createElement('div');
+                    newCard.className = 'custom-quote-card glass-card';
+                    newCard.innerHTML = `
+                        <div class="custom-quote-stars" contenteditable="${editModeActive ? 'true' : 'false'}">⭐⭐⭐⭐⭐</div>
+                        <p class="custom-quote-text" contenteditable="${editModeActive ? 'true' : 'false'}">"Enter quote or feedback from resident or community partner."</p>
+                        <div class="custom-quote-author" contenteditable="${editModeActive ? 'true' : 'false'}">Resident Name &mdash; Montgomery Township</div>
+                    `;
+                    grid.appendChild(newCard);
+                    attachCardRemoveButton(newCard, () => {
+                        newCard.remove();
+                        saveMainHtmlState();
+                        showAdminToast('Quote removed');
+                    });
+                    initLiveEditor();
+                    saveMainHtmlState();
+                    showAdminToast('Quote added!');
+                });
+                grid.after(addBtn);
+            }
+        });
+
+        // 8. Recruitment Steps Grid (+ Add Step and ✕ Remove)
+        const stepsGrids = section.querySelectorAll('.custom-steps-grid');
+        stepsGrids.forEach(grid => {
+            grid.querySelectorAll('.custom-step-card').forEach(card => {
+                attachCardRemoveButton(card, () => {
+                    card.remove();
+                    saveMainHtmlState();
+                    showAdminToast('Step removed');
+                });
+            });
+
+            if (!grid.parentElement.querySelector(':scope > .section-card-add-btn[data-target="steps"]')) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'section-card-add-btn';
+                addBtn.dataset.target = 'steps';
+                addBtn.style.display = editModeActive ? 'flex' : 'none';
+                addBtn.innerHTML = '➕ Add Process Step';
+                addBtn.addEventListener('click', () => {
+                    const stepCount = grid.querySelectorAll('.custom-step-card').length + 1;
+                    const newCard = document.createElement('div');
+                    newCard.className = 'custom-step-card glass-card';
+                    newCard.innerHTML = `
+                        <div class="custom-step-num" contenteditable="${editModeActive ? 'true' : 'false'}">${stepCount < 10 ? '0' + stepCount : stepCount}</div>
+                        <h3 class="custom-step-title" contenteditable="${editModeActive ? 'true' : 'false'}">New Onboarding Step</h3>
+                        <p class="custom-step-desc" contenteditable="${editModeActive ? 'true' : 'false'}">Describe what candidates or community members do in this step.</p>
+                    `;
+                    grid.appendChild(newCard);
+                    attachCardRemoveButton(newCard, () => {
+                        newCard.remove();
+                        saveMainHtmlState();
+                        showAdminToast('Step removed');
+                    });
+                    initLiveEditor();
+                    saveMainHtmlState();
+                    showAdminToast('Step added!');
+                });
+                grid.after(addBtn);
+            }
+        });
+
+        // 9. Specifications Table (+ Add Row and ✕ Remove)
+        const specsTables = section.querySelectorAll('.custom-specs-table');
+        specsTables.forEach(table => {
+            const tbody = table.querySelector('tbody') || table;
+            tbody.querySelectorAll('.custom-specs-row').forEach(row => {
+                if (!row.querySelector('.stat-row-remove-btn')) {
+                    const cell = row.lastElementChild;
+                    if (cell) {
+                        const removeBtn = document.createElement('button');
+                        removeBtn.type = 'button';
+                        removeBtn.className = 'stat-row-remove-btn';
+                        removeBtn.innerHTML = '✕';
+                        removeBtn.title = 'Remove row';
+                        removeBtn.style.display = editModeActive ? 'inline-flex' : 'none';
+                        removeBtn.style.marginLeft = '8px';
+                        removeBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            row.remove();
+                            saveMainHtmlState();
+                            showAdminToast('Row removed');
+                        });
+                        cell.appendChild(removeBtn);
+                    }
+                }
+            });
+
+            if (!table.parentElement.querySelector(':scope > .section-card-add-btn[data-target="specs"]')) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'section-card-add-btn';
+                addBtn.dataset.target = 'specs';
+                addBtn.style.display = editModeActive ? 'flex' : 'none';
+                addBtn.innerHTML = '➕ Add Table Row';
+                addBtn.addEventListener('click', () => {
+                    const newRow = document.createElement('tr');
+                    newRow.className = 'custom-specs-row';
+                    newRow.innerHTML = `
+                        <td contenteditable="${editModeActive ? 'true' : 'false'}">Equipment / Unit</td>
+                        <td contenteditable="${editModeActive ? 'true' : 'false'}">Make &amp; Model</td>
+                        <td contenteditable="${editModeActive ? 'true' : 'false'}">2024</td>
+                        <td contenteditable="${editModeActive ? 'true' : 'false'}">Capacity / Spec</td>
+                        <td contenteditable="${editModeActive ? 'true' : 'false'}">Operational Role</td>
+                    `;
+                    tbody.appendChild(newRow);
+                    const cell = newRow.lastElementChild;
+                    if (cell) {
+                        const removeBtn = document.createElement('button');
+                        removeBtn.type = 'button';
+                        removeBtn.className = 'stat-row-remove-btn';
+                        removeBtn.innerHTML = '✕';
+                        removeBtn.title = 'Remove row';
+                        removeBtn.style.display = editModeActive ? 'inline-flex' : 'none';
+                        removeBtn.style.marginLeft = '8px';
+                        removeBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            newRow.remove();
+                            saveMainHtmlState();
+                            showAdminToast('Row removed');
+                        });
+                        cell.appendChild(removeBtn);
+                    }
+                    initLiveEditor();
+                    saveMainHtmlState();
+                    showAdminToast('Row added!');
+                });
+                table.after(addBtn);
+            }
+        });
+
+        // 10. Donation Tiers Grid (+ Add Tier and ✕ Remove)
+        const donateGrids = section.querySelectorAll('.custom-donate-tiers-grid');
+        donateGrids.forEach(grid => {
+            grid.querySelectorAll('.custom-donate-tier-card').forEach(card => {
+                attachCardRemoveButton(card, () => {
+                    card.remove();
+                    saveMainHtmlState();
+                    showAdminToast('Tier removed');
+                });
+            });
+
+            if (!grid.parentElement.querySelector(':scope > .section-card-add-btn[data-target="donate"]')) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'section-card-add-btn';
+                addBtn.dataset.target = 'donate';
+                addBtn.style.display = editModeActive ? 'flex' : 'none';
+                addBtn.innerHTML = '➕ Add Donation Tier';
+                addBtn.addEventListener('click', () => {
+                    const newCard = document.createElement('div');
+                    newCard.className = 'custom-donate-tier-card glass-card';
+                    newCard.innerHTML = `
+                        <div class="custom-donate-amount" contenteditable="${editModeActive ? 'true' : 'false'}">$500</div>
+                        <div class="custom-donate-title" contenteditable="${editModeActive ? 'true' : 'false'}">Sponsorship Level</div>
+                        <p class="custom-donate-desc" contenteditable="${editModeActive ? 'true' : 'false'}">Description of equipment purchased with this donation.</p>
+                    `;
+                    grid.appendChild(newCard);
+                    attachCardRemoveButton(newCard, () => {
+                        newCard.remove();
+                        saveMainHtmlState();
+                        showAdminToast('Tier removed');
+                    });
+                    initLiveEditor();
+                    saveMainHtmlState();
+                    showAdminToast('Donation tier added!');
+                });
+                grid.after(addBtn);
+            }
+        });
+
+        // 11. Connect image change triggers on any images or backgrounds within the section
+        setupUniversalImageEditors();
     }
 
     function isEligibleContentSection(section) {
@@ -3139,6 +3835,123 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    // ==========================================================================
+    // Website Builder Drag & Drop Section Reordering Engine
+    // ==========================================================================
+    let draggedSection = null;
+    let sectionDropIndicator = null;
+
+    function removeSectionDropIndicators() {
+        document.querySelectorAll('.section-drop-indicator').forEach(el => el.remove());
+        sectionDropIndicator = null;
+    }
+
+    function showSectionDropIndicator(targetSection, position = 'before') {
+        if (!sectionDropIndicator) {
+            sectionDropIndicator = document.createElement('div');
+            sectionDropIndicator.className = 'section-drop-indicator';
+            sectionDropIndicator.innerHTML = '<span class="section-drop-indicator-badge">↳ Drop Section Here</span>';
+        }
+
+        if (position === 'before') {
+            if (targetSection.previousElementSibling !== sectionDropIndicator) {
+                targetSection.parentNode.insertBefore(sectionDropIndicator, targetSection);
+            }
+        } else {
+            if (targetSection.nextElementSibling !== sectionDropIndicator) {
+                targetSection.parentNode.insertBefore(sectionDropIndicator, targetSection.nextSibling);
+            }
+        }
+    }
+
+    function setupSectionTouchDrag(handle, section) {
+        let startY = 0;
+        let initialTouchMoved = false;
+        let touchGhost = null;
+
+        handle.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            startY = e.touches[0].clientY;
+            initialTouchMoved = false;
+            draggedSection = section;
+        }, { passive: true });
+
+        handle.addEventListener('touchmove', (e) => {
+            if (!draggedSection || e.touches.length !== 1) return;
+            const touch = e.touches[0];
+            const currentY = touch.clientY;
+
+            if (Math.abs(currentY - startY) > 10 && !initialTouchMoved) {
+                initialTouchMoved = true;
+                section.classList.add('section-dragging');
+
+                touchGhost = document.createElement('div');
+                touchGhost.className = 'section-drop-indicator-badge';
+                touchGhost.style.position = 'fixed';
+                touchGhost.style.zIndex = '999999';
+                touchGhost.style.pointerEvents = 'none';
+                touchGhost.textContent = `Moving: ${section.id || 'Section'}`;
+                document.body.appendChild(touchGhost);
+            }
+
+            if (initialTouchMoved) {
+                e.preventDefault();
+                if (touchGhost) {
+                    touchGhost.style.top = `${touch.clientY - 20}px`;
+                    touchGhost.style.left = `${touch.clientX - 60}px`;
+                }
+
+                if (touch.clientY < 80) {
+                    window.scrollBy({ top: -15, behavior: 'auto' });
+                } else if (touch.clientY > window.innerHeight - 80) {
+                    window.scrollBy({ top: 15, behavior: 'auto' });
+                }
+
+                const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+                const targetSec = elementUnderTouch ? elementUnderTouch.closest('section') : null;
+
+                if (targetSec && isEligibleContentSection(targetSec) && targetSec !== section) {
+                    const rect = targetSec.getBoundingClientRect();
+                    const isUpper = (touch.clientY - rect.top) < (rect.height / 2);
+                    showSectionDropIndicator(targetSec, isUpper ? 'before' : 'after');
+                }
+            }
+        }, { passive: false });
+
+        const endTouch = () => {
+            if (touchGhost) {
+                touchGhost.remove();
+                touchGhost = null;
+            }
+
+            if (draggedSection) {
+                draggedSection.classList.remove('section-dragging');
+            }
+
+            if (initialTouchMoved && sectionDropIndicator && sectionDropIndicator.parentNode) {
+                const parent = sectionDropIndicator.parentNode;
+                parent.insertBefore(section, sectionDropIndicator);
+                removeSectionDropIndicators();
+
+                section.classList.add('section-drop-highlight');
+                setTimeout(() => section.classList.remove('section-drop-highlight'), 1200);
+
+                ensureSectionInsertDividers();
+                setupUniversalImageEditors();
+                saveMainHtmlState();
+                showAdminToast('✅ Section moved! Click "Save & Push to Git" to publish.');
+            } else {
+                removeSectionDropIndicators();
+            }
+
+            draggedSection = null;
+            initialTouchMoved = false;
+        };
+
+        handle.addEventListener('touchend', endTouch);
+        handle.addEventListener('touchcancel', endTouch);
+    }
+
     function setupSectionControls(section) {
         if (!isEligibleContentSection(section)) return;
         if (section.querySelector(':scope > .section-admin-bar')) return;
@@ -3146,6 +3959,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const bar = document.createElement('div');
         bar.className = 'section-admin-bar';
         bar.style.display = editModeActive ? 'flex' : 'none';
+
+        // Drag Handle on Left
+        const dragHandle = document.createElement('div');
+        dragHandle.className = 'section-drag-handle';
+        dragHandle.setAttribute('draggable', 'true');
+        dragHandle.title = 'Drag to reorder section anywhere on page';
+        dragHandle.innerHTML = `<span class="section-drag-grip">⋮⋮</span><span>Move</span>`;
 
         const titleWrap = document.createElement('div');
         titleWrap.className = 'section-admin-bar-title';
@@ -3234,6 +4054,57 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Wire HTML5 Drag Events on Handle
+        dragHandle.addEventListener('dragstart', (e) => {
+            draggedSection = section;
+            section.classList.add('section-dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', section.id || 'section');
+        });
+
+        dragHandle.addEventListener('dragend', () => {
+            section.classList.remove('section-dragging');
+            draggedSection = null;
+            removeSectionDropIndicators();
+        });
+
+        setupSectionTouchDrag(dragHandle, section);
+
+        // Section Drop Target Listeners
+        section.addEventListener('dragover', (e) => {
+            if (!draggedSection || draggedSection === section) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const rect = section.getBoundingClientRect();
+            const isUpper = (e.clientY - rect.top) < (rect.height / 2);
+            showSectionDropIndicator(section, isUpper ? 'before' : 'after');
+        });
+
+        section.addEventListener('drop', (e) => {
+            if (!draggedSection || draggedSection === section) return;
+            e.preventDefault();
+            const rect = section.getBoundingClientRect();
+            const isUpper = (e.clientY - rect.top) < (rect.height / 2);
+            removeSectionDropIndicators();
+
+            if (isUpper) {
+                section.parentNode.insertBefore(draggedSection, section);
+            } else {
+                section.parentNode.insertBefore(draggedSection, section.nextSibling);
+            }
+
+            draggedSection.classList.remove('section-dragging');
+            draggedSection.classList.add('section-drop-highlight');
+            setTimeout(() => draggedSection?.classList.remove('section-drop-highlight'), 1200);
+
+            draggedSection = null;
+            ensureSectionInsertDividers();
+            setupUniversalImageEditors();
+            saveMainHtmlState();
+            showAdminToast('✅ Section reordered! Remember to click "Save & Push to Git" to publish.');
+        });
+
+        actions.appendChild(dragHandle);
         actions.appendChild(upBtn);
         actions.appendChild(downBtn);
         actions.appendChild(addBelowBtn);
@@ -3333,15 +4204,25 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.id = 'station-section-picker-modal';
             overlay.className = 'station-builder-modal-overlay';
             overlay.innerHTML = `
-                <div class="station-builder-modal-card" style="max-width: 960px;">
+                <div class="station-builder-modal-card" style="max-width: 980px;">
                     <div class="station-builder-modal-header">
                         <div>
                             <h3 class="station-builder-modal-title">➕ Add New Section</h3>
-                            <p class="station-builder-modal-subtitle">Choose a pre-styled civic block template to insert into this page.</p>
+                            <p class="station-builder-modal-subtitle">Choose from 16 pre-styled civic block templates to insert into this page.</p>
                         </div>
                         <button type="button" class="station-builder-modal-close" aria-label="Close modal">&times;</button>
                     </div>
                     <div class="station-builder-modal-body">
+                        <div class="template-modal-top">
+                            <input type="text" id="section-template-search-input" class="template-search-input" placeholder="🔍 Search templates (e.g. event, timeline, donate, fleet, stats, quotes, alert...)...">
+                            <div class="template-filter-pills" id="section-template-filter-pills">
+                                <button type="button" class="template-filter-pill active" data-category="all">All Templates (16)</button>
+                                <button type="button" class="template-filter-pill" data-category="featured">🌟 Featured</button>
+                                <button type="button" class="template-filter-pill" data-category="grids">🗂️ Grids &amp; Content</button>
+                                <button type="button" class="template-filter-pill" data-category="advisory">🚨 Alerts &amp; Notice</button>
+                                <button type="button" class="template-filter-pill" data-category="community">👥 Community &amp; Team</button>
+                            </div>
+                        </div>
                         <div class="section-template-grid" id="section-template-picker-grid"></div>
                     </div>
                     <div class="station-builder-modal-footer">
@@ -3360,27 +4241,95 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const grid = overlay.querySelector('#section-template-picker-grid');
-        grid.innerHTML = '';
+        const searchInput = overlay.querySelector('#section-template-search-input');
+        const filterPills = overlay.querySelectorAll('.template-filter-pill');
 
         const templates = [
             {
                 key: 'spotlight',
                 title: 'Spotlight / 2-Column Split',
                 tag: 'Featured',
+                category: 'featured',
                 icon: '🌟',
                 desc: 'Story with image upload, heading, checklist bullets, and action buttons.'
+            },
+            {
+                key: 'hero-mini',
+                title: 'Action Banner Showcase',
+                tag: 'Showcase',
+                category: 'featured',
+                icon: '🚒',
+                desc: 'High-impact banner with background photo, bold title, dual buttons, and 3 quick stat pills.'
             },
             {
                 key: 'cards-grid',
                 title: 'Civic Cards Grid',
                 tag: '3 Columns',
+                category: 'grids',
                 icon: '🗂️',
                 desc: 'Grid of glass cards with icons and descriptions. Includes + Add Card button.'
+            },
+            {
+                key: 'stats-grid',
+                title: 'By The Numbers / Stats Grid',
+                tag: 'Metrics',
+                category: 'featured',
+                icon: '📊',
+                desc: 'Key operational statistics counters. Includes + Add Stat button.'
+            },
+            {
+                key: 'events-grid',
+                title: 'Upcoming Events & Calendar',
+                tag: 'Events',
+                category: 'community',
+                icon: '📅',
+                desc: 'Event cards with calendar date badges, time, location, and RSVP links. Includes + Add Event button.'
+            },
+            {
+                key: 'timeline',
+                title: 'Station Milestones Timeline',
+                tag: 'Milestones',
+                category: 'community',
+                icon: '⏳',
+                desc: 'Historical milestones timeline with year badges and story descriptions. Includes + Add Milestone button.'
+            },
+            {
+                key: 'quotes-grid',
+                title: 'Resident Testimonials & Quotes',
+                tag: 'Reviews',
+                category: 'community',
+                icon: '💬',
+                desc: 'Resident review cards with 5-star ratings, quote text, and neighborhood tag. Includes + Add Quote button.'
+            },
+            {
+                key: 'gallery',
+                title: 'Photo & Media Showcase',
+                tag: 'Gallery',
+                category: 'featured',
+                icon: '📸',
+                desc: 'Photo cards with captions and image upload support. Includes + Add Photo button.'
+            },
+            {
+                key: 'alert-box',
+                title: 'Emergency Advisory Box',
+                tag: 'Urgent Alert',
+                category: 'advisory',
+                icon: '⚠️',
+                desc: 'Multi-tier readiness status box, burn ban advisory, weather standby, and dispatch numbers.'
+            },
+            {
+                key: 'callout-banner',
+                title: 'Emergency Callout Banner',
+                tag: 'High Visibility',
+                category: 'advisory',
+                icon: '🚨',
+                desc: 'Full-width civic alert or urgent announcement with icon and action button.'
             },
             {
                 key: 'rich-text',
                 title: 'Rich Content & Notice',
                 tag: 'Official Copy',
+                category: 'advisory',
                 icon: '📜',
                 desc: 'Official station notice, lead paragraph, formatted copy, and safety callout box.'
             },
@@ -3388,51 +4337,95 @@ document.addEventListener('DOMContentLoaded', () => {
                 key: 'faq-accordion',
                 title: 'FAQ / Q&A Accordion',
                 tag: 'Collapsible',
+                category: 'community',
                 icon: '❓',
                 desc: 'Expandable question & answer items. Includes + Add Question button.'
             },
             {
-                key: 'gallery',
-                title: 'Photo & Media Showcase',
-                tag: 'Gallery',
-                icon: '📸',
-                desc: 'Photo cards with captions and image upload support. Includes + Add Photo button.'
+                key: 'recruitment-steps',
+                title: 'Volunteer Onboarding Steps',
+                tag: 'Recruitment',
+                category: 'community',
+                icon: '🪜',
+                desc: '4-step onboarding journey: Connect, Tour, Free Fire Academy, and Ride The Trucks. Includes + Add Step.'
             },
             {
-                key: 'callout-banner',
-                title: 'Emergency Callout Banner',
-                tag: 'High Visibility',
-                icon: '🚨',
-                desc: 'Full-width civic alert or urgent announcement with icon and action button.'
+                key: 'specs-table',
+                title: 'Fleet & Equipment Specs Table',
+                tag: 'Data Table',
+                category: 'grids',
+                icon: '📋',
+                desc: 'Responsive comparison table for apparatus, pumps, chassis, and roles. Includes + Add Row button.'
             },
             {
-                key: 'stats-grid',
-                title: 'By The Numbers / Stats Grid',
-                tag: 'Metrics',
-                icon: '📊',
-                desc: 'Key operational statistics counters. Includes + Add Stat button.'
+                key: 'contact-grid',
+                title: 'Headquarters & Directory Contacts',
+                tag: 'Contacts',
+                category: 'community',
+                icon: '📞',
+                desc: '3-card directory for 911 Dispatch, Headquarters non-emergency line, and station address.'
+            },
+            {
+                key: 'donate-callout',
+                title: 'Fund Drive & Donation Tiers',
+                tag: 'Fundraising',
+                category: 'featured',
+                icon: '❤️',
+                desc: 'Fund drive appeal with donation tier cards ($50, $100, $250, Custom) and equipment impact notes.'
             }
         ];
 
-        templates.forEach(tmpl => {
-            const card = document.createElement('div');
-            card.className = 'section-template-card';
-            card.innerHTML = `
-                <div class="section-template-icon-wrap">
-                    <span class="section-template-icon">${tmpl.icon}</span>
-                    <span class="section-template-tag">${tmpl.tag}</span>
-                </div>
-                <h4 class="section-template-title">${tmpl.title}</h4>
-                <p class="section-template-desc">${tmpl.desc}</p>
-                <button type="button" class="btn btn-primary w-100" style="padding: 8px 14px; font-size: 0.82rem; margin-top: auto;">Select Template</button>
-            `;
+        let currentCategory = 'all';
 
-            card.addEventListener('click', () => {
-                insertSectionFromTemplate(tmpl.key, insertTargetSection);
-                overlay.classList.remove('active');
+        function renderTemplates() {
+            grid.innerHTML = '';
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            const filtered = templates.filter(tmpl => {
+                const matchesCat = (currentCategory === 'all' || tmpl.category === currentCategory);
+                const matchesQuery = !query || tmpl.title.toLowerCase().includes(query) || tmpl.desc.toLowerCase().includes(query) || tmpl.tag.toLowerCase().includes(query);
+                return matchesCat && matchesQuery;
             });
 
-            grid.appendChild(card);
+            filtered.forEach(tmpl => {
+                const card = document.createElement('div');
+                card.className = 'section-template-card';
+                card.innerHTML = `
+                    <div class="section-template-icon-wrap">
+                        <span class="section-template-icon">${tmpl.icon}</span>
+                        <span class="section-template-tag">${tmpl.tag}</span>
+                    </div>
+                    <h4 class="section-template-title">${tmpl.title}</h4>
+                    <p class="section-template-desc">${tmpl.desc}</p>
+                    <button type="button" class="btn btn-primary w-100" style="padding: 8px 14px; font-size: 0.82rem; margin-top: auto;">Select Template</button>
+                `;
+
+                card.addEventListener('click', () => {
+                    insertSectionFromTemplate(tmpl.key, insertTargetSection);
+                    overlay.classList.remove('active');
+                });
+
+                grid.appendChild(card);
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #64748b;">No templates found matching "${escapeHtml(query)}". Try another search or filter.</div>`;
+            }
+        }
+
+        renderTemplates();
+
+        if (searchInput) {
+            searchInput.oninput = () => renderTemplates();
+        }
+
+        filterPills.forEach(pill => {
+            pill.onclick = () => {
+                filterPills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                currentCategory = pill.dataset.category || 'all';
+                renderTemplates();
+            };
         });
 
         overlay.classList.add('active');
@@ -3467,6 +4460,28 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="custom-action-row">
                                 <a href="membership.html" class="btn btn-primary">Join Our Team</a>
                                 <a href="about.html" class="btn btn-secondary">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'hero-mini') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="custom-hero-mini-wrap" style="background-image: url('drill-2.jpeg');">
+                        <div class="custom-hero-mini-overlay"></div>
+                        <div class="custom-hero-mini-content">
+                            <span class="section-badge badge-red">Station 46 Showcase</span>
+                            <h2 class="custom-hero-mini-title">Prepared to Protect, Trained to Save</h2>
+                            <p class="custom-hero-mini-lead">Montgomery Township Volunteer Fire Company #2 has answered the call with pride and honor since 1946. Providing 24-hour fire suppression, heavy rescue, and community safety services.</p>
+                            <div class="custom-action-row">
+                                <a href="membership.html" class="btn btn-primary">Become a Volunteer</a>
+                                <a href="apparatus.html" class="btn btn-secondary" style="color: #ffffff; border-color: rgba(255,255,255,0.4);">View Our Fleet</a>
+                            </div>
+                            <div class="custom-hero-mini-pills">
+                                <span class="custom-mini-stat-pill">⏱️ 24/7 Rapid Response</span>
+                                <span class="custom-mini-stat-pill">🚒 100% Volunteer Staffed</span>
+                                <span class="custom-mini-stat-pill">🎓 Free Certified Fire Academy</span>
                             </div>
                         </div>
                     </div>
@@ -3632,6 +4647,310 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
+        } else if (templateKey === 'events-grid') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-red">Community Calendar</span>
+                        <h2 class="section-title">Upcoming Station Events &amp; Activities</h2>
+                        <p class="section-subtitle">Join us for community open houses, safety workshops, and volunteer drills.</p>
+                    </div>
+                    <div class="custom-events-grid">
+                        <div class="custom-event-card glass-card">
+                            <div class="custom-event-date-badge">
+                                <span class="custom-event-month">OCT</span>
+                                <span class="custom-event-day">24</span>
+                            </div>
+                            <div class="custom-event-info">
+                                <h3 class="custom-event-title">Annual Fire Safety Open House</h3>
+                                <div class="custom-event-meta">11:00 AM - 3:00 PM &bull; Station 46 HQ</div>
+                                <p class="custom-event-desc">Tour apparatus, try on firefighter gear, watch live vehicle extrication demos, and enjoy free refreshments.</p>
+                                <a href="#" class="btn btn-sm btn-primary">Event Info &rarr;</a>
+                            </div>
+                        </div>
+                        <div class="custom-event-card glass-card">
+                            <div class="custom-event-date-badge">
+                                <span class="custom-event-month">NOV</span>
+                                <span class="custom-event-day">15</span>
+                            </div>
+                            <div class="custom-event-info">
+                                <h3 class="custom-event-title">Volunteer Info &amp; Drill Night</h3>
+                                <div class="custom-event-meta">7:30 PM &bull; Station 46 Bay 2</div>
+                                <p class="custom-event-desc">Meet line officers, explore the fleet, and discover how you can become a certified volunteer firefighter with free training.</p>
+                                <a href="membership.html" class="btn btn-sm btn-primary">RSVP Now &rarr;</a>
+                            </div>
+                        </div>
+                        <div class="custom-event-card glass-card">
+                            <div class="custom-event-date-badge">
+                                <span class="custom-event-month">DEC</span>
+                                <span class="custom-event-day">14</span>
+                            </div>
+                            <div class="custom-event-info">
+                                <h3 class="custom-event-title">Santa Tour Neighborhood Run</h3>
+                                <div class="custom-event-meta">9:00 AM - 4:00 PM &bull; District Routes</div>
+                                <p class="custom-event-desc">Santa tours the neighborhood streets of Montgomery Township aboard Truck 46 with holiday lights, sirens, and treats.</p>
+                                <a href="santa.html" class="btn btn-sm btn-primary">View Routes &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'timeline') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-gold">Our Legacy</span>
+                        <h2 class="section-title">Milestones in Station History</h2>
+                        <p class="section-subtitle">Eight decades of volunteer dedication and continuous service to Montgomery Township.</p>
+                    </div>
+                    <div class="custom-timeline-list">
+                        <div class="custom-timeline-item glass-card">
+                            <div class="custom-timeline-year">1946</div>
+                            <div class="custom-timeline-body">
+                                <h3 class="custom-timeline-title">Founding of Company #2</h3>
+                                <p class="custom-timeline-desc">Organized by local Blawenburg and Montgomery residents to establish rapid structural fire defense for township farms and homes.</p>
+                            </div>
+                        </div>
+                        <div class="custom-timeline-item glass-card">
+                            <div class="custom-timeline-year">1975</div>
+                            <div class="custom-timeline-body">
+                                <h3 class="custom-timeline-title">Route 518 Firehouse Headquarters Built</h3>
+                                <p class="custom-timeline-desc">Construction of our 4-bay headquarters station, providing dedicated training bays, meeting halls, and modern apparatus housing.</p>
+                            </div>
+                        </div>
+                        <div class="custom-timeline-item glass-card">
+                            <div class="custom-timeline-year">2010</div>
+                            <div class="custom-timeline-body">
+                                <h3 class="custom-timeline-title">Heavy Rescue &amp; Thermal Imaging Expansion</h3>
+                                <p class="custom-timeline-desc">Upgraded frontline fleet with state-of-the-art hydraulic rescue tools, thermal imaging cameras, and advanced water rescue capabilities.</p>
+                            </div>
+                        </div>
+                        <div class="custom-timeline-item glass-card">
+                            <div class="custom-timeline-year">Today</div>
+                            <div class="custom-timeline-body">
+                                <h3 class="custom-timeline-title">Modern Fleet &amp; 500+ Annual Responses</h3>
+                                <p class="custom-timeline-desc">Operating Seagrave 95' Aerialscope Truck 46 and custom Pierce pumpers with over 40 highly trained active volunteer responders.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'quotes-grid') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-blue">Community Voices</span>
+                        <h2 class="section-title">What Our Neighbors Say</h2>
+                        <p class="section-subtitle">Heartfelt words and testimonials from Montgomery Township families and businesses.</p>
+                    </div>
+                    <div class="custom-quotes-grid">
+                        <div class="custom-quote-card glass-card">
+                            <div class="custom-quote-stars">⭐⭐⭐⭐⭐</div>
+                            <p class="custom-quote-text">"When a downed tree and power line blocked our street during severe weather, Station 46 arrived in under 5 minutes and secured the area safely. True local heroes!"</p>
+                            <div class="custom-quote-author">David M. &mdash; Skillman Resident</div>
+                        </div>
+                        <div class="custom-quote-card glass-card">
+                            <div class="custom-quote-stars">⭐⭐⭐⭐⭐</div>
+                            <p class="custom-quote-text">"The level of professionalism and care these volunteer firefighters bring to our township is extraordinary. They give up their personal time 24/7 to keep us protected."</p>
+                            <div class="custom-quote-author">Sarah T. &mdash; Montgomery Business Owner</div>
+                        </div>
+                        <div class="custom-quote-card glass-card">
+                            <div class="custom-quote-stars">⭐⭐⭐⭐⭐</div>
+                            <p class="custom-quote-text">"Our children look forward to the Santa Run and Open House every year! Station 46 is so much more than an emergency service—they are the heart of our community."</p>
+                            <div class="custom-quote-author">The Chen Family &mdash; Belle Mead</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'alert-box') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="custom-alert-box">
+                        <div class="custom-alert-status-header">
+                            <div>
+                                <span class="custom-alert-status-pill">🟢 Normal Station Readiness</span>
+                                <span style="margin-left: 10px; font-size: 0.82rem; color: #64748b; font-weight: 600;">Live Department Advisory</span>
+                            </div>
+                            <div style="font-weight: 800; color: #b91c1c; font-size: 0.95rem;">Montgomery Fire District #2</div>
+                        </div>
+                        <div class="custom-alert-grid">
+                            <div class="custom-alert-card-item">
+                                <h4>🔥 Open Burning Regulations</h4>
+                                <p>Open campfires and leaf burning are subject to NJ Forest Fire Service restrictions. Always consult township code before burning.</p>
+                            </div>
+                            <div class="custom-alert-card-item">
+                                <h4>⛈️ Severe Storm Standby</h4>
+                                <p>Crews and emergency generators are ready for rapid rollout during high wind and regional flooding conditions.</p>
+                            </div>
+                            <div class="custom-alert-card-item">
+                                <h4>🚒 Hydrant Clearance</h4>
+                                <p>Please keep a 3-foot clearance perimeter around all neighborhood fire hydrants during snow and lawn maintenance.</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; align-items: center;">
+                            <a href="tel:911" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">🚨 Call 911 (Emergency)</a>
+                            <a href="tel:6094663926" class="btn btn-secondary">Non-Emergency: (609) 466-3926</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'recruitment-steps') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-red">Join The Ranks</span>
+                        <h2 class="section-title">4 Simple Steps to Become a Firefighter</h2>
+                        <p class="section-subtitle">No prior experience required. All professional equipment, gear, and certifications 100% free.</p>
+                    </div>
+                    <div class="custom-steps-grid">
+                        <div class="custom-step-card glass-card">
+                            <div class="custom-step-num">01</div>
+                            <h3 class="custom-step-title">Connect &amp; Visit</h3>
+                            <p class="custom-step-desc">Visit any Monday drill night at 7:30 PM. Tour our trucks, meet the volunteer crew, and ask any questions.</p>
+                        </div>
+                        <div class="custom-step-card glass-card">
+                            <div class="custom-step-num">02</div>
+                            <h3 class="custom-step-title">Application &amp; Physical</h3>
+                            <p class="custom-step-desc">Submit your membership application and complete a routine physical exam fully paid for by Company #2.</p>
+                        </div>
+                        <div class="custom-step-card glass-card">
+                            <div class="custom-step-num">03</div>
+                            <h3 class="custom-step-title">Free Academy Training</h3>
+                            <p class="custom-step-desc">Attend state certified Firefighter I training at Somerset County Fire Academy with full station sponsorship.</p>
+                        </div>
+                        <div class="custom-step-card glass-card">
+                            <div class="custom-step-num">04</div>
+                            <h3 class="custom-step-title">Ride The Trucks</h3>
+                            <p class="custom-step-desc">Receive your personalized turnout gear, pager, and badge. Start responding to emergency alarms with Station 46!</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 2.5rem;">
+                        <a href="membership.html" class="btn btn-primary" style="padding: 12px 28px; font-size: 1rem;">Start Your Application &rarr;</a>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'specs-table') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-gold">Apparatus Overview</span>
+                        <h2 class="section-title">Fleet Specifications &amp; Capabilities</h2>
+                        <p class="section-subtitle">Detailed engineering specifications of Station 46 emergency apparatus.</p>
+                    </div>
+                    <div class="custom-specs-table-wrap glass-card">
+                        <table class="custom-specs-table">
+                            <thead>
+                                <tr>
+                                    <th>Apparatus Unit</th>
+                                    <th>Chassis &amp; Manufacturer</th>
+                                    <th>Year</th>
+                                    <th>Pumping / Water Capacity</th>
+                                    <th>Primary Operational Role</th>
+                                </tr>
+                            </thead>
+                            <tbody class="custom-specs-tbody">
+                                <tr class="custom-specs-row">
+                                    <td><strong>Truck 46</strong></td>
+                                    <td>Seagrave Marauder II 95' Aerialscope</td>
+                                    <td>2024</td>
+                                    <td>No Pump / No Tank</td>
+                                    <td>Elevated Master Stream, Ventilation &amp; Heavy Rescue</td>
+                                </tr>
+                                <tr class="custom-specs-row">
+                                    <td><strong>Engine 46-8</strong></td>
+                                    <td>Pierce Enforcer Custom Chassis</td>
+                                    <td>2019</td>
+                                    <td>2000 GPM / 750 Gallon</td>
+                                    <td>Primary Structural Attack, Supply Hose &amp; Foam</td>
+                                </tr>
+                                <tr class="custom-specs-row">
+                                    <td><strong>Engine 46-7</strong></td>
+                                    <td>Pierce Enforcer Custom Chassis</td>
+                                    <td>2015</td>
+                                    <td>2000 GPM / 750 Gallon</td>
+                                    <td>Secondary Structural Attack &amp; Water Supply</td>
+                                </tr>
+                                <tr class="custom-specs-row">
+                                    <td><strong>Rescue 46</strong></td>
+                                    <td>SVI Heavy Rescue Custom Walk-In</td>
+                                    <td>Upcoming</td>
+                                    <td>Specialized Rescue Body</td>
+                                    <td>Vehicle Extrication, Ropes, Watercraft &amp; Technical Rescue</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'contact-grid') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-blue">Connect With Us</span>
+                        <h2 class="section-title">Station Directory &amp; Contact Information</h2>
+                        <p class="section-subtitle">Reach Montgomery Township Volunteer Fire Company #2 anytime.</p>
+                    </div>
+                    <div class="custom-contact-grid">
+                        <div class="custom-contact-card glass-card">
+                            <div class="custom-contact-icon">🚨</div>
+                            <h3>Emergency Dispatch</h3>
+                            <div class="custom-contact-highlight">Dial 911</div>
+                            <p>For active fire, smoke, medical emergency, or vehicle crash, dial 911 immediately for Somerset County dispatch.</p>
+                            <a href="tel:911" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">Call 911 Now</a>
+                        </div>
+                        <div class="custom-contact-card glass-card">
+                            <div class="custom-contact-icon">🏢</div>
+                            <h3>Headquarters Office</h3>
+                            <div class="custom-contact-highlight">(609) 466-3926</div>
+                            <p>Non-emergency station business, membership questions, vendor inquiries, and banquet hall rental reservations.</p>
+                            <a href="tel:6094663926" class="btn btn-secondary">Call Station 46</a>
+                        </div>
+                        <div class="custom-contact-card glass-card">
+                            <div class="custom-contact-icon">📍</div>
+                            <h3>Firehouse Location</h3>
+                            <div class="custom-contact-highlight">Skillman, NJ</div>
+                            <p>529 Route 518, Skillman, NJ 08558. Located in Blawenburg near Great Road intersection.</p>
+                            <a href="https://maps.google.com/?q=529+Route+518+Skillman+NJ+08558" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Get Directions &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'donate-callout') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-gold">Support Your Firefighters</span>
+                        <h2 class="section-title">Help Fund Life-Saving Gear &amp; Equipment</h2>
+                        <p class="section-subtitle">Your tax-deductible contribution directly protects Montgomery Township volunteer firefighters.</p>
+                    </div>
+                    <div class="custom-donate-tiers-grid">
+                        <div class="custom-donate-tier-card glass-card">
+                            <div class="custom-donate-amount">$50</div>
+                            <div class="custom-donate-title">Safety Gloves &amp; Hoods</div>
+                            <p class="custom-donate-desc">Provides particulate-blocking protective hood and thermal structural firefighting gloves for one volunteer.</p>
+                        </div>
+                        <div class="custom-donate-tier-card glass-card">
+                            <div class="custom-donate-amount">$100</div>
+                            <div class="custom-donate-title">SCBA Mask Maintenance</div>
+                            <p class="custom-donate-desc">Supports annual fit-testing, voice amplifier modules, and safety regulator maintenance for breathing apparatus.</p>
+                        </div>
+                        <div class="custom-donate-tier-card glass-card">
+                            <div class="custom-donate-amount">$250</div>
+                            <div class="custom-donate-title">Rescue Tool Upkeep</div>
+                            <p class="custom-donate-desc">Maintains high-pressure hydraulic vehicle extrication cutters, spreaders, and stabilization struts.</p>
+                        </div>
+                        <div class="custom-donate-tier-card glass-card">
+                            <div class="custom-donate-amount">Custom</div>
+                            <div class="custom-donate-title">Community Fund Drive</div>
+                            <p class="custom-donate-desc">Every donation large or small equips our volunteers with modern protective gear and training resources.</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 2rem; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                        <a href="https://www.paypal.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 12px 28px; font-size: 1rem;">Donate Online Now &rarr;</a>
+                        <a href="about.html" class="btn btn-secondary" style="padding: 12px 24px;">Mail-in Contribution Info</a>
+                    </div>
+                </div>
+            `;
         }
 
         if (targetSection && targetSection.parentNode === main) {
@@ -3642,12 +4961,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setupSectionControls(section);
         ensureSectionInsertDividers();
+        setupUniversalImageEditors();
         initCustomFaqAccordions(section);
         initLiveEditor();
         saveMainHtmlState();
 
         section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        showAdminToast('Section added! Click any text to edit.');
+        showAdminToast('Section added! Click any text or photo to edit.');
     }
 
     function openCreatePageModal() {
@@ -4443,6 +5763,7 @@ ${mainContentHtml}
         // Remove contenteditable attributes and runtime admin controls
         clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
         clone.querySelectorAll('[data-editor-init]').forEach(el => el.removeAttribute('data-editor-init'));
+        clone.querySelectorAll('.station-image-change-btn').forEach(el => el.remove());
         clone.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
             el.style.display = 'none';
         });
@@ -4880,8 +6201,10 @@ ${mainContentHtml}
     initStationSliders();
     initApparatusAdmin();
     initLiveEditor();
+    applyImageEdits(getStoredImageEdits());
     if (isAdminLoggedIn) {
         setupAllSectionControls();
+        setupUniversalImageEditors();
     }
 
     // Helper: Push actual modified HTML files directly to GitHub
@@ -4892,6 +6215,15 @@ ${mainContentHtml}
         const editedPages = new Set();
         Object.keys(edits).forEach(key => {
             const match = key.match(/^(?:edit_v2|font_v2)_([a-zA-Z0-9_\-\.]+\.html)_/);
+            if (match && match[1]) {
+                editedPages.add(match[1]);
+            }
+        });
+
+        // Collect all distinct HTML pages that have image or background edits
+        const imageEdits = getStoredImageEdits();
+        Object.keys(imageEdits).forEach(key => {
+            const match = key.match(/^(?:bg|img)_v2_([a-zA-Z0-9_\-\.]+\.html)_/);
             if (match && match[1]) {
                 editedPages.add(match[1]);
             }
@@ -5127,6 +6459,45 @@ ${mainContentHtml}
                     }
                 });
 
+                // Synchronize stored image edits for this page
+                for (const key in imageEdits) {
+                    if (!key.startsWith(`img_v2_${pageName}_`) && !key.startsWith(`bg_v2_${pageName}_`)) continue;
+                    const isBg = key.startsWith(`bg_v2_${pageName}_`);
+                    const selectorPath = isBg ? key.replace(`bg_v2_${pageName}_`, '') : key.replace(`img_v2_${pageName}_`, '');
+                    const src = imageEdits[key];
+                    if (!src) continue;
+
+                    try {
+                        const targetEl = doc.querySelector(selectorPath);
+                        if (targetEl) {
+                            if (isBg) {
+                                if (targetEl.classList.contains('card-img-placeholder')) {
+                                    targetEl.style.background = `linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url("${src}") center/cover`;
+                                    targetEl.style.color = 'white';
+                                    targetEl.style.fontWeight = '800';
+                                    targetEl.style.textShadow = '0 2px 8px rgba(0,0,0,0.9)';
+                                } else if (targetEl.classList.contains('hero-bg') || targetEl.classList.contains('hero') || targetEl.classList.contains('small-hero') || targetEl.classList.contains('custom-hero-mini-wrap')) {
+                                    targetEl.style.backgroundImage = `linear-gradient(rgba(15, 25, 43, 0.25), rgba(15, 25, 43, 0.48)), url("${src}")`;
+                                    targetEl.style.backgroundSize = 'cover';
+                                    targetEl.style.backgroundPosition = 'center';
+                                } else {
+                                    targetEl.style.backgroundImage = `url("${src}")`;
+                                    targetEl.style.backgroundSize = 'cover';
+                                    targetEl.style.backgroundPosition = 'center';
+                                }
+                                pageHasChanges = true;
+                            } else if (targetEl.tagName === 'IMG') {
+                                if (targetEl.getAttribute('src') !== src) {
+                                    targetEl.setAttribute('src', src);
+                                    pageHasChanges = true;
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        console.warn(`[Station 46] Error applying image edit ${key} in ${pageName}:`, err);
+                    }
+                }
+
                 if (pageHasChanges) {
                     // Strip any runtime attributes or markers before generating clean static HTML
                     doc.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
@@ -5134,6 +6505,7 @@ ${mainContentHtml}
                     doc.querySelectorAll('.admin-edit-focus, .apparatus-card-dragging, .roster-card-dragging').forEach(el => {
                         el.classList.remove('admin-edit-focus', 'apparatus-card-dragging', 'roster-card-dragging');
                     });
+                    doc.querySelectorAll('.station-image-change-btn, .section-drag-handle, .section-drop-indicator, .section-drag-ghost-badge, .section-admin-bar, .section-insert-divider, .section-card-add-btn, .card-admin-remove-btn, .section-item-upload-btn').forEach(el => el.remove());
                     const updatedHtml = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
                     const success = await syncToGitHub(pageName, updatedHtml, `Admin: Update content in ${pageName}`);
                     if (!success) allHtmlSuccess = false;
@@ -5192,9 +6564,10 @@ ${mainContentHtml}
             // 4. Update the actual HTML files directly on GitHub (e.g. index.html, about.html, etc.)
             const htmlSuccess = await syncHtmlPagesToGitHub(mergedEdits);
 
-            // 5. If HTML files updated, clear local text edits, roster buffer, sliders buffer and apparatus buffers so future reloads use clean HTML
+            // 5. If HTML files updated, clear local text edits, image edits, roster buffer, sliders buffer and apparatus buffers so future reloads use clean HTML
             if (htmlSuccess) {
                 localStorage.removeItem('station46_text_edits');
+                localStorage.removeItem('station46_image_edits');
                 localStorage.removeItem('station46_roster_html');
                 localStorage.removeItem('station46_sliders_html');
                 localStorage.removeItem('station46_active_apparatus_html');
@@ -5316,7 +6689,24 @@ ${mainContentHtml}
         newPageBtn.title = 'Create a brand new page on the website';
         newPageBtn.addEventListener('click', () => openCreatePageModal());
 
-        // 4. Typography / Fonts Button
+        // 4. Media Library & Photos Button
+        const photosBtn = document.createElement('button');
+        photosBtn.id = 'admin-floating-photos-btn';
+        photosBtn.style.background = 'rgba(255, 255, 255, 0.12)';
+        photosBtn.style.color = 'white';
+        photosBtn.style.padding = '10px 16px';
+        photosBtn.style.borderRadius = '30px';
+        photosBtn.style.fontSize = '0.85rem';
+        photosBtn.style.fontWeight = '600';
+        photosBtn.style.border = 'none';
+        photosBtn.style.cursor = 'pointer';
+        photosBtn.style.transition = 'all 0.2s ease';
+        photosBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
+        photosBtn.innerHTML = '🖼️ Photos';
+        photosBtn.title = 'Browse station photo library and assets';
+        photosBtn.addEventListener('click', () => openImageEditorModal(null, false));
+
+        // 5. Typography / Fonts Button
         const fontsBtn = document.createElement('button');
         fontsBtn.id = 'admin-typography-btn';
         fontsBtn.style.background = 'rgba(255, 255, 255, 0.12)';
@@ -5332,7 +6722,7 @@ ${mainContentHtml}
         fontsBtn.innerHTML = '🔤 Fonts';
         fontsBtn.addEventListener('click', openTypographyModal);
 
-        // 5. Toggle Edit Mode Button
+        // 6. Toggle Edit Mode Button
         const toggleBtn = document.createElement('button');
         toggleBtn.id = 'edit-mode-toggle-btn';
         toggleBtn.style.background = 'rgba(46, 125, 50, 0.9)'; // Green for ON
@@ -5347,7 +6737,7 @@ ${mainContentHtml}
         toggleBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
         toggleBtn.innerHTML = '⚡ Edit Mode: ON';
 
-        // 6. Admin Portal link button
+        // 7. Admin Portal link button
         const portalBtn = document.createElement('a');
         portalBtn.href = 'admin.html';
         portalBtn.style.background = 'rgba(255, 255, 255, 0.1)';
@@ -5361,7 +6751,7 @@ ${mainContentHtml}
         portalBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
         portalBtn.innerHTML = '⚙️ Dashboard';
 
-        // 7. Quick Logout Button
+        // 8. Quick Logout Button
         const quickLogoutBtn = document.createElement('button');
         quickLogoutBtn.id = 'admin-quick-logout-btn';
         quickLogoutBtn.style.background = 'rgba(255, 255, 255, 0.1)';
@@ -5383,6 +6773,8 @@ ${mainContentHtml}
         addSectionBtn.addEventListener('mouseleave', () => { addSectionBtn.style.transform = 'none'; addSectionBtn.style.background = 'rgba(255, 255, 255, 0.12)'; });
         newPageBtn.addEventListener('mouseenter', () => { newPageBtn.style.transform = 'translateY(-2px)'; newPageBtn.style.background = 'rgba(255, 255, 255, 0.22)'; });
         newPageBtn.addEventListener('mouseleave', () => { newPageBtn.style.transform = 'none'; newPageBtn.style.background = 'rgba(255, 255, 255, 0.12)'; });
+        photosBtn.addEventListener('mouseenter', () => { photosBtn.style.transform = 'translateY(-2px)'; photosBtn.style.background = 'rgba(255, 255, 255, 0.22)'; });
+        photosBtn.addEventListener('mouseleave', () => { photosBtn.style.transform = 'none'; photosBtn.style.background = 'rgba(255, 255, 255, 0.12)'; });
         fontsBtn.addEventListener('mouseenter', () => { fontsBtn.style.transform = 'translateY(-2px)'; fontsBtn.style.background = 'rgba(255, 255, 255, 0.22)'; });
         fontsBtn.addEventListener('mouseleave', () => { fontsBtn.style.transform = 'none'; fontsBtn.style.background = 'rgba(255, 255, 255, 0.12)'; });
         toggleBtn.addEventListener('mouseenter', () => toggleBtn.style.transform = 'translateY(-2px)');
@@ -5403,6 +6795,7 @@ ${mainContentHtml}
         bar.appendChild(saveGitBtn);
         bar.appendChild(addSectionBtn);
         bar.appendChild(newPageBtn);
+        bar.appendChild(photosBtn);
         bar.appendChild(fontsBtn);
         bar.appendChild(toggleBtn);
         bar.appendChild(portalBtn);
@@ -5440,10 +6833,11 @@ ${mainContentHtml}
                 document.querySelectorAll('.section-admin-bar, .section-insert-divider, .section-card-add-btn, .card-admin-remove-btn').forEach(el => {
                     el.style.display = 'flex';
                 });
-                document.querySelectorAll('.section-item-upload-btn').forEach(el => {
+                document.querySelectorAll('.section-item-upload-btn, .station-image-change-btn, .section-drag-handle').forEach(el => {
                     el.style.display = 'inline-flex';
                 });
                 setupAllSectionControls();
+                setupUniversalImageEditors();
             } else {
                 hideFontToolbar();
                 document.body.classList.remove('admin-edit-mode');
@@ -5468,7 +6862,7 @@ ${mainContentHtml}
                 document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn, .apparatus-card-admin-header').forEach(el => {
                     el.style.display = 'none';
                 });
-                document.querySelectorAll('.section-admin-bar, .section-insert-divider, .section-card-add-btn, .card-admin-remove-btn, .section-item-upload-btn').forEach(el => {
+                document.querySelectorAll('.section-admin-bar, .section-insert-divider, .section-card-add-btn, .card-admin-remove-btn, .section-item-upload-btn, .station-image-change-btn, .section-drag-handle').forEach(el => {
                     el.style.display = 'none';
                 });
             }
@@ -6082,13 +7476,24 @@ ${mainContentHtml}
         }
     }
 
-    // Process Instagram embeds if loaded dynamically
-    function processInstagramEmbeds() {
-        if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === 'function') {
-            try { window.instgrm.Embeds.process(); } catch(e) {}
-        }
+    // Strip third-party widget branding from DOM
+    function removeWidgetBranding() {
+        const brandingSelectors = [
+            'a[href*="powr.io"]',
+            '[class*="powrBranding"]',
+            '[class*="powr-branding"]',
+            '[id*="powrBranding"]',
+            '.powr-badge'
+        ];
+        brandingSelectors.forEach(sel => {
+            document.querySelectorAll(sel).forEach(el => {
+                el.style.display = 'none';
+                el.style.visibility = 'hidden';
+                try { el.remove(); } catch(e) {}
+            });
+        });
     }
-    setTimeout(processInstagramEmbeds, 600);
+    setInterval(removeWidgetBranding, 800);
 
     syncFromRemoteDatabase();
     setupAdminWelcomeHeading();
