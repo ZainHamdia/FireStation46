@@ -163,6 +163,7 @@
                             <button type="button" id="admin-welcome-edit-hint" class="admin-welcome-edit-btn" title="Click to edit greeting" aria-label="Edit greeting">✏️</button>
                         </div>
                         <div class="admin-header-actions">
+                            <button type="button" class="btn btn-admin-action" id="admin-header-new-page-btn">📄 New Page</button>
                             <a href="apparatus.html" class="btn btn-admin-action">🚒 Apparatus</a>
                             <a href="retired-apparatus.html" class="btn btn-admin-action">🏛️ Retired Fleet</a>
                             <a href="about.html#station-sliders-section" class="btn btn-admin-action">📊 Call Volume</a>
@@ -271,6 +272,28 @@
                             <div id="admin-weather-sync-indicator" style="font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
                                 <span>Changes sync immediately across all pages and visitors.</span>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Website Pages & Navigation Command Center -->
+                    <div class="glass-card" id="admin-pages-management-card" style="margin-bottom: 2rem; border-left: 5px solid #2563eb; padding: 1.75rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(37, 99, 235, 0.12); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">📄</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.2rem; color: var(--navy-blue); font-weight: 800;">Website Pages &amp; Navigation</h3>
+                                    <p style="margin: 0; font-size: 0.84rem; color: var(--text-secondary);">Create new pages, add civic sections, and edit live page layouts</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button type="button" id="admin-add-new-page-btn" class="btn btn-primary" style="padding: 9px 18px; font-size: 0.85rem; font-weight: 700;">
+                                    ➕ Create New Page
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="admin-pages-list-container" class="admin-pages-list">
+                            <!-- Populated dynamically by script.js -->
                         </div>
                     </div>
                     

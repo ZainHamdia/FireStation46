@@ -691,7 +691,10 @@ document.addEventListener('DOMContentLoaded', () => {
         '.footer-info p', '.footer-brand span', '.footer-links a', '.footer-copy',
         '.top-bar-item', '.top-bar-link',
         '.tag-new', '.news-card-tag', '.recent-post-tag', '.membership-badge-tag',
-        '.role-badge-tag', '.upcoming-badge-tag', '.blueprint-tag', '.badge', '.top-bar-badge'
+        '.role-badge-tag', '.upcoming-badge-tag', '.blueprint-tag', '.badge', '.top-bar-badge',
+        '.custom-spotlight-caption', '.custom-card-title', '.custom-card-desc', '.custom-lead-text',
+        '.custom-faq-q', '.custom-callout-title', '.custom-callout-text', '.custom-stat-num',
+        '.custom-stat-label', '.custom-stat-sub', '.custom-gallery-caption'
     ].join(', ');
 
     // Helper: Check if element is allowed to be edited
@@ -756,7 +759,16 @@ document.addEventListener('DOMContentLoaded', () => {
             element.classList.contains('btn-apparatus-add') ||
             element.closest('.apparatus-admin-actions') ||
             element.closest('.apparatus-add-modal-overlay') ||
-            element.closest('#apparatus-modal')) {
+            element.closest('#apparatus-modal') ||
+            element.closest('.station-builder-modal-overlay') ||
+            element.closest('.section-admin-bar') ||
+            element.closest('.section-insert-divider') ||
+            element.classList.contains('section-card-add-btn') ||
+            element.classList.contains('card-admin-remove-btn') ||
+            element.classList.contains('section-item-upload-btn') ||
+            element.classList.contains('section-admin-btn') ||
+            element.classList.contains('section-insert-divider-btn') ||
+            element.closest('form')) {
             return false;
         }
 
@@ -2771,6 +2783,1460 @@ document.addEventListener('DOMContentLoaded', () => {
     // Runtime tracker for bound elements to prevent duplicate listeners without persisting HTML attributes
     const boundEditorElements = new WeakSet();
 
+    // ==========================================================================
+    // Page & Section Builder Suite (Custom Sections, Block Library & Page Creator)
+    // ==========================================================================
+
+    function getCleanMainHtml(mainElement = document.querySelector('main')) {
+        if (!mainElement) return null;
+        const clone = mainElement.cloneNode(true);
+
+        // Remove administrative toolbars, inserters, add/remove buttons, file inputs and temporary markers
+        clone.querySelectorAll(
+            '.section-admin-bar, .section-insert-divider, .section-card-add-btn, ' +
+            '.card-admin-remove-btn, .section-item-upload-btn, .station-builder-modal-overlay, ' +
+            '.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder, ' +
+            '.apparatus-add-modal-overlay, .roster-admin-header, .roster-drag-placeholder, ' +
+            '.slider-card-admin-controls, .stat-row-remove-btn'
+        ).forEach(el => el.remove());
+
+        // Remove hidden file inputs added for image uploads
+        clone.querySelectorAll('input[type="file"]').forEach(el => el.remove());
+
+        // Clean runtime editable and draggable attributes
+        clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+        clone.querySelectorAll('[draggable]').forEach(el => el.removeAttribute('draggable'));
+        clone.querySelectorAll('[data-editor-init]').forEach(el => el.removeAttribute('data-editor-init'));
+        clone.querySelectorAll('[data-faq-init]').forEach(el => el.removeAttribute('data-faq-init'));
+        clone.querySelectorAll('[data-section-init]').forEach(el => el.removeAttribute('data-section-init'));
+        clone.querySelectorAll('[data-modal-bound]').forEach(el => el.removeAttribute('data-modal-bound'));
+
+        return clone.innerHTML;
+    }
+
+    function saveMainHtmlState(pageKey = getPageKey()) {
+        if (!pageKey || pageKey === 'admin.html') return;
+        const cleanHtml = getCleanMainHtml();
+        if (cleanHtml !== null) {
+            localStorage.setItem('station46_main_html_' + pageKey, cleanHtml);
+        }
+    }
+
+    function restoreMainHtmlIfPresent() {
+        const pageKey = getPageKey();
+        if (!pageKey || pageKey === 'admin.html') return;
+        const saved = localStorage.getItem('station46_main_html_' + pageKey);
+        const mainEl = document.querySelector('main');
+        if (saved && mainEl) {
+            mainEl.innerHTML = saved;
+        }
+    }
+
+    function initCustomFaqAccordions(root = document) {
+        root.querySelectorAll('.custom-faq-header').forEach(header => {
+            if (header.dataset.faqInit === 'true') return;
+            header.dataset.faqInit = 'true';
+            header.addEventListener('click', (e) => {
+                // In edit mode, if clicking directly on contenteditable text, don't collapse
+                if (editModeActive && e.target.isContentEditable) return;
+                const item = header.closest('.custom-faq-item');
+                if (item) {
+                    item.classList.toggle('open');
+                }
+            });
+        });
+    }
+
+    function attachCardRemoveButton(container, onRemove) {
+        if (!isAdminLoggedIn || !container) return;
+        if (container.querySelector(':scope > .card-admin-remove-btn')) return;
+
+        container.style.position = 'relative';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'card-admin-remove-btn';
+        btn.innerHTML = '✕';
+        btn.title = 'Remove this item';
+        btn.style.display = editModeActive ? 'flex' : 'none';
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (confirm('Remove this item?')) {
+                if (typeof onRemove === 'function') onRemove();
+            }
+        });
+        container.appendChild(btn);
+    }
+
+    function attachGalleryControls(card) {
+        if (!isAdminLoggedIn || !card) return;
+        attachCardRemoveButton(card, () => {
+            card.remove();
+            saveMainHtmlState();
+            showAdminToast('Photo removed');
+        });
+
+        if (!card.querySelector('.section-item-upload-btn')) {
+            const uploadBtn = document.createElement('button');
+            uploadBtn.type = 'button';
+            uploadBtn.className = 'section-item-upload-btn';
+            uploadBtn.style.display = editModeActive ? 'inline-flex' : 'none';
+            uploadBtn.innerHTML = '📷 Change Photo';
+
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+
+            uploadBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files && fileInput.files[0]) {
+                    compressImage(fileInput.files[0], (dataUrl) => {
+                        const img = card.querySelector('img');
+                        if (img) {
+                            img.src = dataUrl;
+                            saveMainHtmlState();
+                            showAdminToast('Photo updated!');
+                        }
+                    });
+                }
+            });
+
+            card.appendChild(uploadBtn);
+            card.appendChild(fileInput);
+        }
+    }
+
+    function setupChildItemControls(section) {
+        if (!section) return;
+
+        // 1. Cards Grids (+ Add Card and ✕ Remove Card)
+        const cardsGrids = section.querySelectorAll('.custom-cards-grid');
+        cardsGrids.forEach(grid => {
+            grid.querySelectorAll('.custom-feature-card').forEach(card => {
+                attachCardRemoveButton(card, () => {
+                    card.remove();
+                    saveMainHtmlState();
+                    showAdminToast('Card removed');
+                });
+            });
+
+            if (!grid.parentElement.querySelector(':scope > .section-card-add-btn[data-target="cards"]')) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'section-card-add-btn';
+                addBtn.dataset.target = 'cards';
+                addBtn.style.display = editModeActive ? 'flex' : 'none';
+                addBtn.innerHTML = '➕ Add Feature Card';
+                addBtn.addEventListener('click', () => {
+                    const newCard = document.createElement('div');
+                    newCard.className = 'custom-feature-card glass-card';
+                    newCard.innerHTML = `
+                        <div class="custom-card-icon" contenteditable="${editModeActive ? 'true' : 'false'}">⭐</div>
+                        <h3 class="custom-card-title" contenteditable="${editModeActive ? 'true' : 'false'}">New Service or Feature</h3>
+                        <p class="custom-card-desc" contenteditable="${editModeActive ? 'true' : 'false'}">Enter description here. Click to edit any details or add new points.</p>
+                        <a href="#" class="custom-card-link" contenteditable="${editModeActive ? 'true' : 'false'}">Learn More &rarr;</a>
+                    `;
+                    grid.appendChild(newCard);
+                    attachCardRemoveButton(newCard, () => {
+                        newCard.remove();
+                        saveMainHtmlState();
+                        showAdminToast('Card removed');
+                    });
+                    initLiveEditor();
+                    saveMainHtmlState();
+                    showAdminToast('Card added! Click any text to edit.');
+                });
+                grid.after(addBtn);
+            }
+        });
+
+        // 2. FAQ Accordions (+ Add Question and ✕ Remove)
+        const faqLists = section.querySelectorAll('.custom-faq-list');
+        faqLists.forEach(list => {
+            list.querySelectorAll('.custom-faq-item').forEach(item => {
+                attachCardRemoveButton(item, () => {
+                    item.remove();
+                    saveMainHtmlState();
+                    showAdminToast('Question removed');
+                });
+            });
+
+            if (!list.parentElement.querySelector(':scope > .section-card-add-btn[data-target="faq"]')) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'section-card-add-btn';
+                addBtn.dataset.target = 'faq';
+                addBtn.style.display = editModeActive ? 'flex' : 'none';
+                addBtn.innerHTML = '➕ Add FAQ Question';
+                addBtn.addEventListener('click', () => {
+                    const newItem = document.createElement('div');
+                    newItem.className = 'custom-faq-item glass-card open';
+                    newItem.innerHTML = `
+                        <button type="button" class="custom-faq-header">
+                            <span class="custom-faq-q" contenteditable="${editModeActive ? 'true' : 'false'}">New Question Here?</span>
+                            <span class="custom-faq-chevron">▾</span>
+                        </button>
+                        <div class="custom-faq-answer">
+                            <p contenteditable="${editModeActive ? 'true' : 'false'}">Provide the answer here. Click text to edit anytime.</p>
+                        </div>
+                    `;
+                    list.appendChild(newItem);
+                    attachCardRemoveButton(newItem, () => {
+                        newItem.remove();
+                        saveMainHtmlState();
+                        showAdminToast('Question removed');
+                    });
+                    initCustomFaqAccordions(newItem);
+                    initLiveEditor();
+                    saveMainHtmlState();
+                    showAdminToast('Question added!');
+                });
+                list.after(addBtn);
+            }
+        });
+
+        // 3. Stats Grids (+ Add Stat and ✕ Remove)
+        const statsGrids = section.querySelectorAll('.custom-stats-grid');
+        statsGrids.forEach(grid => {
+            grid.querySelectorAll('.custom-stat-box').forEach(box => {
+                attachCardRemoveButton(box, () => {
+                    box.remove();
+                    saveMainHtmlState();
+                    showAdminToast('Stat removed');
+                });
+            });
+
+            if (!grid.parentElement.querySelector(':scope > .section-card-add-btn[data-target="stats"]')) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'section-card-add-btn';
+                addBtn.dataset.target = 'stats';
+                addBtn.style.display = editModeActive ? 'flex' : 'none';
+                addBtn.innerHTML = '➕ Add Stat Box';
+                addBtn.addEventListener('click', () => {
+                    const newBox = document.createElement('div');
+                    newBox.className = 'custom-stat-box glass-card';
+                    newBox.innerHTML = `
+                        <div class="custom-stat-num" contenteditable="${editModeActive ? 'true' : 'false'}">100+</div>
+                        <div class="custom-stat-label" contenteditable="${editModeActive ? 'true' : 'false'}">Metric Title</div>
+                        <p class="custom-stat-sub" contenteditable="${editModeActive ? 'true' : 'false'}">Short note about this metric.</p>
+                    `;
+                    grid.appendChild(newBox);
+                    attachCardRemoveButton(newBox, () => {
+                        newBox.remove();
+                        saveMainHtmlState();
+                        showAdminToast('Stat removed');
+                    });
+                    initLiveEditor();
+                    saveMainHtmlState();
+                    showAdminToast('Stat added!');
+                });
+                grid.after(addBtn);
+            }
+        });
+
+        // 4. Photo Gallery Grid (+ Add Photo and Change Image)
+        const galleryGrids = section.querySelectorAll('.custom-gallery-grid');
+        galleryGrids.forEach(grid => {
+            grid.querySelectorAll('.custom-gallery-card').forEach(card => {
+                attachGalleryControls(card);
+            });
+
+            if (!grid.parentElement.querySelector(':scope > .section-card-add-btn[data-target="gallery"]')) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'section-card-add-btn';
+                addBtn.dataset.target = 'gallery';
+                addBtn.style.display = editModeActive ? 'flex' : 'none';
+                addBtn.innerHTML = '➕ Add Photo to Showcase';
+                addBtn.addEventListener('click', () => {
+                    const newCard = document.createElement('div');
+                    newCard.className = 'custom-gallery-card';
+                    newCard.innerHTML = `
+                        <img src="drill-1.jpg" alt="Photo" class="custom-gallery-img">
+                        <div class="custom-gallery-caption" contenteditable="${editModeActive ? 'true' : 'false'}">Photo Caption Here</div>
+                    `;
+                    grid.appendChild(newCard);
+                    attachGalleryControls(newCard);
+                    initLiveEditor();
+                    saveMainHtmlState();
+                    showAdminToast('Photo added! Click Change Photo to upload.');
+                });
+                grid.after(addBtn);
+            }
+        });
+
+        // 5. Spotlight Media Image Upload
+        const spotlightMedias = section.querySelectorAll('.custom-spotlight-media');
+        spotlightMedias.forEach(media => {
+            if (!media.querySelector('.section-item-upload-btn')) {
+                const uploadBtn = document.createElement('button');
+                uploadBtn.type = 'button';
+                uploadBtn.className = 'section-item-upload-btn';
+                uploadBtn.style.display = editModeActive ? 'inline-flex' : 'none';
+                uploadBtn.innerHTML = '📷 Change Photo';
+
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.style.display = 'none';
+
+                uploadBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', () => {
+                    if (fileInput.files && fileInput.files[0]) {
+                        compressImage(fileInput.files[0], (dataUrl) => {
+                            const img = media.querySelector('img');
+                            if (img) {
+                                img.src = dataUrl;
+                                saveMainHtmlState();
+                                showAdminToast('Spotlight image updated!');
+                            }
+                        });
+                    }
+                });
+
+                media.appendChild(uploadBtn);
+                media.appendChild(fileInput);
+            }
+        });
+    }
+
+    function setupSectionControls(section) {
+        if (!section || section.nodeType !== Node.ELEMENT_NODE) return;
+        if (section.querySelector(':scope > .section-admin-bar')) return;
+
+        const bar = document.createElement('div');
+        bar.className = 'section-admin-bar';
+        bar.style.display = editModeActive ? 'flex' : 'none';
+
+        const titleWrap = document.createElement('div');
+        titleWrap.className = 'section-admin-bar-title';
+
+        let labelText = section.id ? `#${section.id}` : 'Section';
+        const heading = section.querySelector('h1, h2, h3, .section-title');
+        if (heading && heading.textContent.trim()) {
+            const t = heading.textContent.trim();
+            labelText = t.length > 28 ? t.substring(0, 25) + '...' : t;
+        }
+        titleWrap.innerHTML = `<span class="section-admin-bar-icon">📌</span><span class="section-admin-bar-label">${escapeHtml(labelText)}</span>`;
+
+        const actions = document.createElement('div');
+        actions.className = 'section-admin-bar-actions';
+
+        // Move Up
+        const upBtn = document.createElement('button');
+        upBtn.type = 'button';
+        upBtn.className = 'section-admin-btn';
+        upBtn.innerHTML = '▲ Up';
+        upBtn.title = 'Move section up';
+        upBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            let prev = section.previousElementSibling;
+            while (prev && prev.tagName !== 'SECTION') {
+                prev = prev.previousElementSibling;
+            }
+            if (prev && prev.tagName === 'SECTION') {
+                section.parentNode.insertBefore(section, prev);
+                ensureSectionInsertDividers();
+                saveMainHtmlState();
+                showAdminToast('Section moved up');
+                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                showAdminToast('Already at the top of content', true);
+            }
+        });
+
+        // Move Down
+        const downBtn = document.createElement('button');
+        downBtn.type = 'button';
+        downBtn.className = 'section-admin-btn';
+        downBtn.innerHTML = '▼ Down';
+        downBtn.title = 'Move section down';
+        downBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            let next = section.nextElementSibling;
+            while (next && next.tagName !== 'SECTION') {
+                next = next.nextElementSibling;
+            }
+            if (next && next.tagName === 'SECTION') {
+                section.parentNode.insertBefore(next, section);
+                ensureSectionInsertDividers();
+                saveMainHtmlState();
+                showAdminToast('Section moved down');
+                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                showAdminToast('Already at the bottom of content', true);
+            }
+        });
+
+        // Insert Below
+        const addBelowBtn = document.createElement('button');
+        addBelowBtn.type = 'button';
+        addBelowBtn.className = 'section-admin-btn section-btn-add-below';
+        addBelowBtn.innerHTML = '➕ Insert Below';
+        addBelowBtn.title = 'Insert a new section directly below this one';
+        addBelowBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openAddSectionModal(section);
+        });
+
+        // Delete Section
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'section-admin-btn section-btn-delete';
+        deleteBtn.innerHTML = '🗑️ Delete';
+        deleteBtn.title = 'Delete this section';
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm(`Are you sure you want to delete this section (${labelText})?`)) {
+                section.remove();
+                ensureSectionInsertDividers();
+                saveMainHtmlState();
+                showAdminToast('Section deleted');
+            }
+        });
+
+        actions.appendChild(upBtn);
+        actions.appendChild(downBtn);
+        actions.appendChild(addBelowBtn);
+        actions.appendChild(deleteBtn);
+
+        bar.appendChild(titleWrap);
+        bar.appendChild(actions);
+
+        section.insertBefore(bar, section.firstChild);
+
+        setupChildItemControls(section);
+    }
+
+    function ensureSectionInsertDividers() {
+        if (!isAdminLoggedIn) return;
+        const main = document.querySelector('main');
+        if (!main) return;
+
+        main.querySelectorAll(':scope > .section-insert-divider').forEach(el => el.remove());
+
+        const sections = Array.from(main.querySelectorAll(':scope > section'));
+        sections.forEach((sec) => {
+            const div = document.createElement('div');
+            div.className = 'section-insert-divider';
+            div.style.display = editModeActive ? 'flex' : 'none';
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'section-insert-divider-btn';
+            btn.innerHTML = '➕ Insert New Section Here';
+            btn.addEventListener('click', () => {
+                openAddSectionModal(sec);
+            });
+
+            div.appendChild(btn);
+            sec.after(div);
+        });
+    }
+
+    function setupAllSectionControls() {
+        if (!isAdminLoggedIn) return;
+        const main = document.querySelector('main');
+        if (!main) return;
+
+        main.querySelectorAll(':scope > section').forEach(section => {
+            setupSectionControls(section);
+        });
+
+        ensureSectionInsertDividers();
+    }
+
+    function openAddSectionModal(insertTargetSection = null) {
+        let overlay = document.getElementById('station-section-picker-modal');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'station-section-picker-modal';
+            overlay.className = 'station-builder-modal-overlay';
+            overlay.innerHTML = `
+                <div class="station-builder-modal-card" style="max-width: 960px;">
+                    <div class="station-builder-modal-header">
+                        <div>
+                            <h3 class="station-builder-modal-title">➕ Add New Section</h3>
+                            <p class="station-builder-modal-subtitle">Choose a pre-styled civic block template to insert into this page.</p>
+                        </div>
+                        <button type="button" class="station-builder-modal-close" aria-label="Close modal">&times;</button>
+                    </div>
+                    <div class="station-builder-modal-body">
+                        <div class="section-template-grid" id="section-template-picker-grid"></div>
+                    </div>
+                    <div class="station-builder-modal-footer">
+                        <button type="button" class="btn btn-secondary station-builder-modal-close-btn" style="padding: 9px 18px; border-radius: 6px;">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            overlay.querySelectorAll('.station-builder-modal-close, .station-builder-modal-close-btn').forEach(btn => {
+                btn.addEventListener('click', () => overlay.classList.remove('active'));
+            });
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+        }
+
+        const grid = overlay.querySelector('#section-template-picker-grid');
+        grid.innerHTML = '';
+
+        const templates = [
+            {
+                key: 'spotlight',
+                title: 'Spotlight / 2-Column Split',
+                tag: 'Featured',
+                icon: '🌟',
+                desc: 'Story with image upload, heading, checklist bullets, and action buttons.'
+            },
+            {
+                key: 'cards-grid',
+                title: 'Civic Cards Grid',
+                tag: '3 Columns',
+                icon: '🗂️',
+                desc: 'Grid of glass cards with icons and descriptions. Includes + Add Card button.'
+            },
+            {
+                key: 'rich-text',
+                title: 'Rich Content & Notice',
+                tag: 'Official Copy',
+                icon: '📜',
+                desc: 'Official station notice, lead paragraph, formatted copy, and safety callout box.'
+            },
+            {
+                key: 'faq-accordion',
+                title: 'FAQ / Q&A Accordion',
+                tag: 'Collapsible',
+                icon: '❓',
+                desc: 'Expandable question & answer items. Includes + Add Question button.'
+            },
+            {
+                key: 'gallery',
+                title: 'Photo & Media Showcase',
+                tag: 'Gallery',
+                icon: '📸',
+                desc: 'Photo cards with captions and image upload support. Includes + Add Photo button.'
+            },
+            {
+                key: 'callout-banner',
+                title: 'Emergency Callout Banner',
+                tag: 'High Visibility',
+                icon: '🚨',
+                desc: 'Full-width civic alert or urgent announcement with icon and action button.'
+            },
+            {
+                key: 'stats-grid',
+                title: 'By The Numbers / Stats Grid',
+                tag: 'Metrics',
+                icon: '📊',
+                desc: 'Key operational statistics counters. Includes + Add Stat button.'
+            }
+        ];
+
+        templates.forEach(tmpl => {
+            const card = document.createElement('div');
+            card.className = 'section-template-card';
+            card.innerHTML = `
+                <div class="section-template-icon-wrap">
+                    <span class="section-template-icon">${tmpl.icon}</span>
+                    <span class="section-template-tag">${tmpl.tag}</span>
+                </div>
+                <h4 class="section-template-title">${tmpl.title}</h4>
+                <p class="section-template-desc">${tmpl.desc}</p>
+                <button type="button" class="btn btn-primary w-100" style="padding: 8px 14px; font-size: 0.82rem; margin-top: auto;">Select Template</button>
+            `;
+
+            card.addEventListener('click', () => {
+                insertSectionFromTemplate(tmpl.key, insertTargetSection);
+                overlay.classList.remove('active');
+            });
+
+            grid.appendChild(card);
+        });
+
+        overlay.classList.add('active');
+    }
+
+    function insertSectionFromTemplate(templateKey, targetSection = null) {
+        const main = document.querySelector('main');
+        if (!main) return;
+
+        const id = 'section-' + Date.now();
+        const section = document.createElement('section');
+        section.className = 'section custom-section custom-section-' + templateKey;
+        section.id = id;
+
+        if (templateKey === 'spotlight') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="custom-spotlight-wrap">
+                        <div class="custom-spotlight-media">
+                            <img src="drill-1.jpg" alt="Featured Story" class="custom-spotlight-img">
+                            <div class="custom-spotlight-caption">Station 46 Operations</div>
+                        </div>
+                        <div class="custom-spotlight-body">
+                            <span class="section-badge badge-red">Featured Spotlight</span>
+                            <h2 class="section-title">Community Dedication &amp; Preparedness</h2>
+                            <p class="custom-lead-text">Our dedicated volunteers train every week in advanced vehicle extrication, interior firefighting, and structural rescue.</p>
+                            <ul class="custom-check-list">
+                                <li><span>✓</span> Over 40 active volunteer firefighters on call 24/7/365</li>
+                                <li><span>✓</span> State-of-the-art apparatus equipped for rapid deployment</li>
+                                <li><span>✓</span> 100% free professional training and turnout gear provided</li>
+                            </ul>
+                            <div class="custom-action-row">
+                                <a href="membership.html" class="btn btn-primary">Join Our Team</a>
+                                <a href="about.html" class="btn btn-secondary">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'cards-grid') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-blue">Programs &amp; Services</span>
+                        <h2 class="section-title">How We Serve Montgomery</h2>
+                        <p class="section-subtitle">Delivering high-caliber emergency response and community safety resources.</p>
+                    </div>
+                    <div class="custom-cards-grid">
+                        <div class="custom-feature-card glass-card">
+                            <div class="custom-card-icon">🚒</div>
+                            <h3 class="custom-card-title">Fire Suppression</h3>
+                            <p class="custom-card-desc">Rapid structural, brush, and vehicle fire response utilizing modern suppression technology.</p>
+                            <a href="#" class="custom-card-link">Read Details &rarr;</a>
+                        </div>
+                        <div class="custom-feature-card glass-card">
+                            <div class="custom-card-icon">🆘</div>
+                            <h3 class="custom-card-title">Heavy Rescue</h3>
+                            <p class="custom-card-desc">Advanced vehicle extrication, search &amp; rescue, and specialized rope operations.</p>
+                            <a href="#" class="custom-card-link">Read Details &rarr;</a>
+                        </div>
+                        <div class="custom-feature-card glass-card">
+                            <div class="custom-card-icon">🌊</div>
+                            <h3 class="custom-card-title">Water Operations</h3>
+                            <p class="custom-card-desc">Rapid watercraft deployment on Bedens Brook and the Millstone River during severe storms.</p>
+                            <a href="#" class="custom-card-link">Read Details &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'rich-text') {
+            section.innerHTML = `
+                <div class="container custom-container-narrow">
+                    <div class="section-header">
+                        <span class="section-badge badge-gold">Official Notice</span>
+                        <h2 class="section-title">Public Safety Advisory &amp; Station Guidelines</h2>
+                        <p class="section-subtitle">Important regulations and resident guidance from Montgomery Fire Company #2.</p>
+                    </div>
+                    <div class="custom-rich-content glass-card">
+                        <p class="custom-lead-text">Montgomery Township Volunteer Fire Company #2 operates 24 hours a day to safeguard life and property throughout Montgomery and surrounding mutual aid townships.</p>
+                        <p>During winter months and severe storm events, please ensure all nearby fire hydrants are shoveled clear with at least 3 feet of clearance on all sides. Fast hydrant access saves critical minutes during structural emergencies.</p>
+                        <div class="custom-highlight-box">
+                            <h4>⚠️ Important Reminder for Residents</h4>
+                            <p>Never drive through flooded roadways or around barricades. Even six inches of fast-moving water can stall a passenger vehicle and endanger occupants.</p>
+                        </div>
+                        <p>For non-emergency station inquiries or banquet hall rental information, contact our headquarters office at (609) 466-3926.</p>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'faq-accordion') {
+            section.innerHTML = `
+                <div class="container custom-container-narrow">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-blue">Frequently Asked Questions</span>
+                        <h2 class="section-title">Community Questions &amp; Answers</h2>
+                        <p class="section-subtitle">Find fast answers regarding volunteering, services, and station operations.</p>
+                    </div>
+                    <div class="custom-faq-list">
+                        <div class="custom-faq-item glass-card open">
+                            <button type="button" class="custom-faq-header">
+                                <span class="custom-faq-q">Do I need prior firefighting experience to join?</span>
+                                <span class="custom-faq-chevron">▾</span>
+                            </button>
+                            <div class="custom-faq-answer">
+                                <p>No prior experience is necessary. Station 46 sponsors all formal training through the Somerset County Emergency Services Training Academy at no cost to you.</p>
+                            </div>
+                        </div>
+                        <div class="custom-faq-item glass-card">
+                            <button type="button" class="custom-faq-header">
+                                <span class="custom-faq-q">What is the minimum age requirement to volunteer?</span>
+                                <span class="custom-faq-chevron">▾</span>
+                            </button>
+                            <div class="custom-faq-answer">
+                                <p>Junior firefighters can join at age 16 with parental consent. Regular active firefighters can join starting at age 18.</p>
+                            </div>
+                        </div>
+                        <div class="custom-faq-item glass-card">
+                            <button type="button" class="custom-faq-header">
+                                <span class="custom-faq-q">How does Station 46 receive funding?</span>
+                                <span class="custom-faq-chevron">▾</span>
+                            </button>
+                            <div class="custom-faq-answer">
+                                <p>Station 46 is funded through Montgomery Township Fire District #2 taxes, supplemented by community donations and fundraising events.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'gallery') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-red">Photo Showcase</span>
+                        <h2 class="section-title">Station Life &amp; Action Gallery</h2>
+                        <p class="section-subtitle">A glimpse inside our training, emergency responses, and community events.</p>
+                    </div>
+                    <div class="custom-gallery-grid">
+                        <div class="custom-gallery-card">
+                            <img src="drill-2.jpg" alt="Drill Training" class="custom-gallery-img">
+                            <div class="custom-gallery-caption">Weekly Live Fire Simulation</div>
+                        </div>
+                        <div class="custom-gallery-card">
+                            <img src="drill-3.jpg" alt="Vehicle Extrication" class="custom-gallery-img">
+                            <div class="custom-gallery-caption">Hydraulic Rescue Tool Practice</div>
+                        </div>
+                        <div class="custom-gallery-card">
+                            <img src="family.jpg" alt="Community Event" class="custom-gallery-img">
+                            <div class="custom-gallery-caption">Annual Open House &amp; BBQ</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'callout-banner') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="custom-callout-banner">
+                        <div class="custom-callout-icon">🚨</div>
+                        <div class="custom-callout-content">
+                            <span class="custom-callout-badge">Important Community Announcement</span>
+                            <h3 class="custom-callout-title">Severe Weather &amp; Emergency Preparedness</h3>
+                            <p class="custom-callout-text">Station 46 is actively monitoring regional forecasts. Please check the Storm Safety Hub for live road closures and emergency updates.</p>
+                        </div>
+                        <div class="custom-callout-action">
+                            <a href="#" class="btn btn-primary">View Safety Advisory</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (templateKey === 'stats-grid') {
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header text-center">
+                        <span class="section-badge badge-gold">By The Numbers</span>
+                        <h2 class="section-title">Station 46 Operational Metrics</h2>
+                        <p class="section-subtitle">Dedicated service to the township 24 hours a day, 365 days a year.</p>
+                    </div>
+                    <div class="custom-stats-grid">
+                        <div class="custom-stat-box glass-card">
+                            <div class="custom-stat-num">500+</div>
+                            <div class="custom-stat-label">Annual Responses</div>
+                            <p class="custom-stat-sub">Fires, rescues, and severe weather calls.</p>
+                        </div>
+                        <div class="custom-stat-box glass-card">
+                            <div class="custom-stat-num">45+</div>
+                            <div class="custom-stat-label">Active Volunteers</div>
+                            <p class="custom-stat-sub">Firefighters, officers, and fire police.</p>
+                        </div>
+                        <div class="custom-stat-box glass-card">
+                            <div class="custom-stat-num">100%</div>
+                            <div class="custom-stat-label">Volunteer Driven</div>
+                            <p class="custom-stat-sub">Neighbors protecting neighbors since 1946.</p>
+                        </div>
+                        <div class="custom-stat-box glass-card">
+                            <div class="custom-stat-num">4-6 min</div>
+                            <div class="custom-stat-label">Average Rollout Time</div>
+                            <p class="custom-stat-sub">Fast response from Station 46 headquarters.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (targetSection && targetSection.parentNode === main) {
+            targetSection.after(section);
+        } else {
+            main.appendChild(section);
+        }
+
+        setupSectionControls(section);
+        ensureSectionInsertDividers();
+        initCustomFaqAccordions(section);
+        initLiveEditor();
+        saveMainHtmlState();
+
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showAdminToast('Section added! Click any text to edit.');
+    }
+
+    function openCreatePageModal() {
+        let overlay = document.getElementById('station-page-creator-modal');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'station-page-creator-modal';
+            overlay.className = 'station-builder-modal-overlay';
+            overlay.innerHTML = `
+                <div class="station-builder-modal-card" style="max-width: 680px;">
+                    <div class="station-builder-modal-header">
+                        <div>
+                            <h3 class="station-builder-modal-title">📄 Create New Page</h3>
+                            <p class="station-builder-modal-subtitle">Generate a new civic page with matching header, navigation, and footer.</p>
+                        </div>
+                        <button type="button" class="station-builder-modal-close" aria-label="Close modal">&times;</button>
+                    </div>
+                    <div class="station-builder-modal-body">
+                        <form id="station-page-creator-form">
+                            <div class="page-creator-form-group">
+                                <label class="page-creator-label" for="new-page-title">Page Title *</label>
+                                <input type="text" id="new-page-title" class="page-creator-input" placeholder="e.g. Hall Rental, Auxiliary, Community Outreach" required>
+                            </div>
+                            <div class="page-creator-form-group">
+                                <label class="page-creator-label" for="new-page-slug">Filename / URL Slug *</label>
+                                <input type="text" id="new-page-slug" class="page-creator-input" placeholder="e.g. hall-rental.html" required>
+                                <div class="page-creator-hint">Must end in .html (e.g. hall-rental.html). Auto-suggested as you type the title.</div>
+                            </div>
+                            <div class="page-creator-form-group">
+                                <label class="page-creator-label" for="new-page-subtitle">Subtitle / Tagline</label>
+                                <input type="text" id="new-page-subtitle" class="page-creator-input" placeholder="e.g. Banquet facilities, reservations, and community meeting spaces">
+                            </div>
+                            <div class="page-creator-form-group">
+                                <label class="page-creator-label">Starter Layout Template</label>
+                                <div class="page-creator-templates">
+                                    <div class="page-creator-template-option selected" data-template="standard">
+                                        <div class="page-creator-template-option-icon">📄</div>
+                                        <div class="page-creator-template-option-title">Standard Content</div>
+                                        <div class="page-creator-hint" style="font-size: 0.72rem;">Hero + Spotlight + Cards</div>
+                                    </div>
+                                    <div class="page-creator-template-option" data-template="directory">
+                                        <div class="page-creator-template-option-icon">🗂️</div>
+                                        <div class="page-creator-template-option-title">Directory / Cards</div>
+                                        <div class="page-creator-hint" style="font-size: 0.72rem;">Hero + Cards + Stats</div>
+                                    </div>
+                                    <div class="page-creator-template-option" data-template="guide">
+                                        <div class="page-creator-template-option-icon">❓</div>
+                                        <div class="page-creator-template-option-title">Guide &amp; FAQ</div>
+                                        <div class="page-creator-hint" style="font-size: 0.72rem;">Hero + Notice + FAQ</div>
+                                    </div>
+                                    <div class="page-creator-template-option" data-template="blank">
+                                        <div class="page-creator-template-option-icon">📑</div>
+                                        <div class="page-creator-template-option-title">Blank Canvas</div>
+                                        <div class="page-creator-hint" style="font-size: 0.72rem;">Hero + Add Sections</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="new-page-template-type" value="standard">
+                            </div>
+                            <label class="page-creator-checkbox-wrap">
+                                <input type="checkbox" id="new-page-add-to-nav" checked>
+                                <span>Add this page to the main navigation menu</span>
+                            </label>
+                        </form>
+                    </div>
+                    <div class="station-builder-modal-footer">
+                        <button type="button" class="btn btn-secondary station-builder-modal-close-btn" style="padding: 10px 18px; border-radius: 6px;">Cancel</button>
+                        <button type="submit" form="station-page-creator-form" id="create-page-submit-btn" class="btn btn-primary" style="padding: 10px 22px; border-radius: 6px; font-weight: 700;">🚀 Create Page</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            const titleInput = overlay.querySelector('#new-page-title');
+            const slugInput = overlay.querySelector('#new-page-slug');
+            let userHasEditedSlug = false;
+
+            titleInput.addEventListener('input', () => {
+                if (!userHasEditedSlug) {
+                    const slugified = titleInput.value.trim().toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '');
+                    slugInput.value = slugified ? slugified + '.html' : '';
+                }
+            });
+
+            slugInput.addEventListener('input', () => {
+                userHasEditedSlug = true;
+            });
+
+            const templateOptions = overlay.querySelectorAll('.page-creator-template-option');
+            const templateInput = overlay.querySelector('#new-page-template-type');
+            templateOptions.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    templateOptions.forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    templateInput.value = opt.dataset.template;
+                });
+            });
+
+            overlay.querySelectorAll('.station-builder-modal-close, .station-builder-modal-close-btn').forEach(btn => {
+                btn.addEventListener('click', () => overlay.classList.remove('active'));
+            });
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+
+            const form = overlay.querySelector('#station-page-creator-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = overlay.querySelector('#create-page-submit-btn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '⏳ Creating...';
+                submitBtn.disabled = true;
+
+                const title = titleInput.value.trim();
+                let slug = slugInput.value.trim().toLowerCase();
+                if (!slug.endsWith('.html')) slug += '.html';
+                const subtitle = overlay.querySelector('#new-page-subtitle').value.trim() || 'Montgomery Township Volunteer Fire Company #2';
+                const templateType = templateInput.value;
+                const addToNav = overlay.querySelector('#new-page-add-to-nav').checked;
+
+                try {
+                    const fullHtml = generateNewCivicPageHtml({ title, slug, subtitle, templateType, addToNav });
+
+                    // Register in custom pages
+                    const customPages = JSON.parse(localStorage.getItem('station46_custom_pages') || '[]');
+                    if (!customPages.find(p => p.slug === slug)) {
+                        customPages.push({ slug, title, subtitle, templateType, created: new Date().toISOString() });
+                        localStorage.setItem('station46_custom_pages', JSON.stringify(customPages));
+                    }
+
+                    // Register in custom navigation links
+                    if (addToNav) {
+                        const customLinks = JSON.parse(localStorage.getItem('station46_custom_nav_links') || '[]');
+                        if (!customLinks.find(l => l.slug === slug)) {
+                            customLinks.push({ slug, title });
+                            localStorage.setItem('station46_custom_nav_links', JSON.stringify(customLinks));
+                            renderCustomNavLinks();
+                        }
+                    }
+
+                    // Sync to GitHub via Cloudflare Pages proxy
+                    await syncToGitHub(slug, fullHtml, `Admin: Create new page ${slug}`);
+
+                    showAdminToast(`🎉 Page ${slug} created successfully! Opening...`);
+                    overlay.classList.remove('active');
+
+                    setTimeout(() => {
+                        window.location.href = slug;
+                    }, 800);
+                } catch (err) {
+                    console.error('[Station 46] Error creating page:', err);
+                    showAdminToast(`❌ Error creating page: ${err.message || err}`, true);
+                } finally {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+
+        overlay.classList.add('active');
+    }
+
+    function generateNewCivicPageHtml(options) {
+        const { title, slug, subtitle, templateType, addToNav } = options;
+        const customLinks = JSON.parse(localStorage.getItem('station46_custom_nav_links') || '[]');
+        if (addToNav && !customLinks.find(l => l.slug === slug)) {
+            customLinks.push({ slug, title });
+        }
+
+        let extraNavHtml = '';
+        customLinks.forEach(l => {
+            const isActive = (l.slug === slug) ? ' active' : '';
+            extraNavHtml += `\n                <a href="${escapeHtml(l.slug)}" class="nav-link${isActive}">${escapeHtml(l.title)}</a>`;
+        });
+
+        let mainContentHtml = '';
+        if (templateType === 'standard') {
+            mainContentHtml = `
+        <section class="section custom-section custom-section-spotlight" id="overview">
+            <div class="container">
+                <div class="custom-spotlight-wrap">
+                    <div class="custom-spotlight-media">
+                        <img src="drill-1.jpg" alt="${escapeHtml(title)}" class="custom-spotlight-img">
+                        <div class="custom-spotlight-caption">Station 46 - Montgomery, NJ</div>
+                    </div>
+                    <div class="custom-spotlight-body">
+                        <span class="section-badge badge-red">Overview</span>
+                        <h2 class="section-title">${escapeHtml(title)} Information</h2>
+                        <p class="custom-lead-text">${escapeHtml(subtitle || 'Montgomery Township Volunteer Fire Company #2.')}</p>
+                        <ul class="custom-check-list">
+                            <li><span>✓</span> Dedicated community service and volunteer excellence</li>
+                            <li><span>✓</span> Direct coordination with Township emergency services</li>
+                            <li><span>✓</span> Professional facilities and certified emergency personnel</li>
+                        </ul>
+                        <div class="custom-action-row">
+                            <a href="#details" class="btn btn-primary">Learn More</a>
+                            <a href="about.html" class="btn btn-secondary">Contact Station</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section custom-section custom-section-cards" id="details">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-badge badge-blue">Highlights</span>
+                    <h2 class="section-title">Key Information &amp; Services</h2>
+                    <p class="section-subtitle">Explore details and policies for ${escapeHtml(title)}.</p>
+                </div>
+                <div class="custom-cards-grid">
+                    <div class="custom-feature-card glass-card">
+                        <div class="custom-card-icon">📌</div>
+                        <h3 class="custom-card-title">General Guidelines</h3>
+                        <p class="custom-card-desc">Detailed guidelines and standards maintained by Station 46.</p>
+                        <a href="#" class="custom-card-link">View Guidelines &rarr;</a>
+                    </div>
+                    <div class="custom-feature-card glass-card">
+                        <div class="custom-card-icon">📋</div>
+                        <h3 class="custom-card-title">Requirements &amp; Forms</h3>
+                        <p class="custom-card-desc">Downloadable forms, requirements, and registration details.</p>
+                        <a href="#" class="custom-card-link">Download Forms &rarr;</a>
+                    </div>
+                    <div class="custom-feature-card glass-card">
+                        <div class="custom-card-icon">📞</div>
+                        <h3 class="custom-card-title">Direct Inquiries</h3>
+                        <p class="custom-card-desc">Have questions? Contact our company officers directly.</p>
+                        <a href="about.html" class="custom-card-link">Contact Us &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section custom-section custom-section-callout" id="action-banner">
+            <div class="container">
+                <div class="custom-callout-banner">
+                    <div class="custom-callout-icon">🚒</div>
+                    <div class="custom-callout-content">
+                        <span class="custom-callout-badge">Get Involved</span>
+                        <h3 class="custom-callout-title">Support Montgomery Volunteer Fire Company #2</h3>
+                        <p class="custom-callout-text">We are always seeking dedicated volunteers and community supporters to join our mission.</p>
+                    </div>
+                    <div class="custom-callout-action">
+                        <a href="membership.html" class="btn btn-primary">Join Today</a>
+                    </div>
+                </div>
+            </div>
+        </section>`;
+        } else if (templateType === 'directory') {
+            mainContentHtml = `
+        <section class="section custom-section custom-section-cards" id="directory">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-badge badge-blue">Directory</span>
+                    <h2 class="section-title">${escapeHtml(title)} Directory</h2>
+                    <p class="section-subtitle">${escapeHtml(subtitle)}</p>
+                </div>
+                <div class="custom-cards-grid">
+                    <div class="custom-feature-card glass-card">
+                        <div class="custom-card-icon">🏢</div>
+                        <h3 class="custom-card-title">Facility &amp; Operations</h3>
+                        <p class="custom-card-desc">Primary facilities and apparatus bay operations at Station 46.</p>
+                        <a href="#" class="custom-card-link">Read More &rarr;</a>
+                    </div>
+                    <div class="custom-feature-card glass-card">
+                        <div class="custom-card-icon">🤝</div>
+                        <h3 class="custom-card-title">Community Programs</h3>
+                        <p class="custom-card-desc">Fire prevention education and community outreach programs.</p>
+                        <a href="#" class="custom-card-link">Read More &rarr;</a>
+                    </div>
+                    <div class="custom-feature-card glass-card">
+                        <div class="custom-card-icon">📄</div>
+                        <h3 class="custom-card-title">Documents &amp; Requests</h3>
+                        <p class="custom-card-desc">Official documents and request forms for community residents.</p>
+                        <a href="#" class="custom-card-link">Read More &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section custom-section custom-section-stats" id="stats">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-badge badge-gold">By The Numbers</span>
+                    <h2 class="section-title">Station 46 Operational Metrics</h2>
+                    <p class="section-subtitle">Dedicated 24/7 service to Montgomery Township.</p>
+                </div>
+                <div class="custom-stats-grid">
+                    <div class="custom-stat-box glass-card">
+                        <div class="custom-stat-num">500+</div>
+                        <div class="custom-stat-label">Annual Calls</div>
+                        <p class="custom-stat-sub">Emergency response calls per year.</p>
+                    </div>
+                    <div class="custom-stat-box glass-card">
+                        <div class="custom-stat-num">45+</div>
+                        <div class="custom-stat-label">Volunteers</div>
+                        <p class="custom-stat-sub">Active members on roster.</p>
+                    </div>
+                    <div class="custom-stat-box glass-card">
+                        <div class="custom-stat-num">1946</div>
+                        <div class="custom-stat-label">Founded</div>
+                        <p class="custom-stat-sub">Decades of dedicated service.</p>
+                    </div>
+                    <div class="custom-stat-box glass-card">
+                        <div class="custom-stat-num">100%</div>
+                        <div class="custom-stat-label">Volunteer</div>
+                        <p class="custom-stat-sub">Neighbors protecting neighbors.</p>
+                    </div>
+                </div>
+            </div>
+        </section>`;
+        } else if (templateType === 'guide') {
+            mainContentHtml = `
+        <section class="section custom-section custom-section-notice" id="guide">
+            <div class="container custom-container-narrow">
+                <div class="section-header">
+                    <span class="section-badge badge-gold">Official Guide</span>
+                    <h2 class="section-title">${escapeHtml(title)}</h2>
+                    <p class="section-subtitle">${escapeHtml(subtitle)}</p>
+                </div>
+                <div class="custom-rich-content glass-card">
+                    <p class="custom-lead-text">Welcome to the official information page for ${escapeHtml(title)} at Montgomery Township Volunteer Fire Company #2.</p>
+                    <p>Station 46 provides this resource to assist township residents, members, and partner agencies with important guidelines, policies, and procedural information.</p>
+                    <div class="custom-highlight-box">
+                        <h4>📌 Important Note</h4>
+                        <p>All policies and procedures are reviewed annually by the Company Executive Committee and Board of Fire Commissioners.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section custom-section custom-section-faq" id="faq">
+            <div class="container custom-container-narrow">
+                <div class="section-header text-center">
+                    <span class="section-badge badge-blue">Frequently Asked Questions</span>
+                    <h2 class="section-title">Common Questions &amp; Answers</h2>
+                    <p class="section-subtitle">Find fast answers regarding ${escapeHtml(title)}.</p>
+                </div>
+                <div class="custom-faq-list">
+                    <div class="custom-faq-item glass-card open">
+                        <button type="button" class="custom-faq-header">
+                            <span class="custom-faq-q">What are the general rules and requirements?</span>
+                            <span class="custom-faq-chevron">▾</span>
+                        </button>
+                        <div class="custom-faq-answer">
+                            <p>All participants and applicants must comply with Station 46 by-laws and safety protocols.</p>
+                        </div>
+                    </div>
+                    <div class="custom-faq-item glass-card">
+                        <button type="button" class="custom-faq-header">
+                            <span class="custom-faq-q">How do I submit an application or inquiry?</span>
+                            <span class="custom-faq-chevron">▾</span>
+                        </button>
+                        <div class="custom-faq-answer">
+                            <p>Contact our station headquarters directly at (609) 466-3926 or speak with an officer during Wednesday drill nights.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>`;
+        } else {
+            mainContentHtml = `
+        <section class="section custom-section" id="welcome-section">
+            <div class="container text-center">
+                <div class="section-header">
+                    <span class="section-badge badge-red">New Page</span>
+                    <h2 class="section-title">${escapeHtml(title)}</h2>
+                    <p class="section-subtitle">${escapeHtml(subtitle || 'Click Edit Mode in the bottom admin bar to add sections and content.')}</p>
+                </div>
+            </div>
+        </section>`;
+        }
+
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>${escapeHtml(title)} | Montgomery Township Volunteer Fire Company #2</title>
+    <meta name="description" content="${escapeHtml(subtitle || title + ' - MTVFC #2 Station 46, Skillman, NJ.')}">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        (function() {
+            try {
+                var t = localStorage.getItem('station46_theme') || 
+                        (document.cookie.match(/(?:^|;)\\s*station46_theme=([^;]+)/) || [])[1] || 
+                        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+            } catch(e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="styles.css?v=106">
+</head>
+<body>
+    <!-- Civic Top Utility Bar -->
+    <div class="top-bar">
+        <div class="top-bar-container">
+            <div class="top-bar-left">
+                <span class="top-bar-badge">🚨 EMERGENCY: DIAL 911</span>
+                <span class="top-bar-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    Station: (609) 466-3926
+                </span>
+                <span class="top-bar-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    529 Route 518, Skillman, NJ 08558
+                </span>
+            </div>
+            <div class="top-bar-right">
+                <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" class="top-bar-item top-bar-link" title="Montgomery Township Fire District #2 Board of Fire Commissioners">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    <span>Fire District (BOFC)</span>
+                </a>
+                <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Facebook">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                </a>
+                <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Instagram">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="logo.png" alt="MTVFC #2 Logo" class="nav-badge-img">
+                <div class="logo-text">
+                    <span class="mtvfc">Montgomery Township Volunteer Fire Company #2</span>
+                    <span class="subtitle">Montgomery Township, Somerset County, NJ</span>
+                </div>
+            </a>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="membership.html" class="nav-link">Membership</a>
+                <div class="nav-dropdown">
+                    <a href="about.html" class="nav-link nav-dropdown-toggle">About</a>
+                    <div class="nav-dropdown-menu">
+                        <a href="about.html" class="nav-dropdown-item">About Us</a>
+                        <a href="history.html" class="nav-dropdown-item">History</a>
+                    </div>
+                </div>
+                <a href="apparatus.html" class="nav-link">Apparatus</a>
+                <a href="news.html" class="nav-link">News &amp; Calls</a>${extraNavHtml}
+                <a href="index.html#donate" class="nav-link nav-btn-donate">Donate</a>
+            </div>
+            
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Hero Banner -->
+    <header class="hero small-hero" style="background-image: linear-gradient(rgba(10, 11, 13, 0.25), rgba(10, 11, 13, 0.55)), url('engine46-7.jpg'); min-height: 40vh; background-position: center; background-size: cover; text-shadow: 0 3px 14px rgba(0,0,0,0.9);">
+        <div class="container text-center">
+            <h1 class="hero-title fade-in">${escapeHtml(title)}</h1>
+            <p class="hero-subtitle fade-in delay-1" style="color: var(--gold); letter-spacing: 1.5px;">${escapeHtml(subtitle || 'Montgomery Township Volunteer Fire Company #2')}</p>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+${mainContentHtml}
+    </main>
+
+    <!-- Civic Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-brand">
+                <img src="logo.png" alt="MTVFC #2 Logo" class="footer-badge-img">
+                <span>Montgomery Township Volunteer Fire Company #2</span>
+            </div>
+            <div class="footer-info">
+                <p><strong>MTVFC #2</strong> (Station 46) | 529 County Route 518, Skillman, NJ 08558</p>
+                <p>Emergency: <strong>911</strong> | Non-Emergency: (609) 466-3926</p>
+                <p><a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--fire-red); font-weight: 600; text-decoration: underline;">Board of Fire Commissioners (BOFC46.com) &rarr;</a></p>
+            </div>
+            <div class="footer-social">
+                <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="footer-social-link facebook" aria-label="Facebook">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    <span>Facebook</span>
+                </a>
+                <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="footer-social-link instagram" aria-label="Instagram">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                    <span>Instagram</span>
+                </a>
+            </div>
+            <div class="footer-copy">
+                &copy; <span id="year">2026</span> Montgomery Township Volunteer Fire Company #2. All Rights Reserved. | <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer">Fire District Website (BOFC46.com)</a> | <a href="admin.html" class="admin-link">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Light / Dark Mode Toggle Switch -->
+    <div id="theme-switch-wrapper" class="theme-switch-wrapper">
+        <button type="button" 
+                class="theme-switch-btn" 
+                id="theme-switch-btn" 
+                role="switch" 
+                aria-checked="false" 
+                aria-label="Toggle light and dark mode" 
+                title="Toggle theme">
+            <span class="theme-switch-track">
+                <span class="theme-track-icon sun-icon" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2"></path>
+                        <path d="M12 20v2"></path>
+                        <path d="m4.93 4.93 1.41 1.41"></path>
+                        <path d="m17.66 17.66 1.41 1.41"></path>
+                        <path d="M2 12h2"></path>
+                        <path d="M20 12h2"></path>
+                        <path d="m6.34 17.66-1.41 1.41"></path>
+                        <path d="m19.07 4.93-1.41 1.41"></path>
+                    </svg>
+                </span>
+                <span class="theme-track-icon moon-icon" aria-hidden="true">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                </span>
+                <span class="theme-switch-thumb">
+                    <span class="thumb-icon-sun" aria-hidden="true">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <path d="M12 2v2"></path>
+                            <path d="M12 20v2"></path>
+                            <path d="m4.93 4.93 1.41 1.41"></path>
+                            <path d="m17.66 17.66 1.41 1.41"></path>
+                            <path d="M2 12h2"></path>
+                            <path d="M20 12h2"></path>
+                            <path d="m6.34 17.66-1.41 1.41"></path>
+                            <path d="m19.07 4.93-1.41 1.41"></path>
+                        </svg>
+                    </span>
+                    <span class="thumb-icon-moon" aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.5">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                        </svg>
+                    </span>
+                </span>
+            </span>
+        </button>
+        <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
+    </div>
+
+    <script src="script.js?v=106"></script>
+</body>
+</html>`;
+    }
+
+    function renderCustomNavLinks() {
+        const navLinksContainer = document.querySelector('.navbar .nav-links');
+        if (!navLinksContainer) return;
+        const customLinks = JSON.parse(localStorage.getItem('station46_custom_nav_links') || '[]');
+        const currentPage = getPageKey();
+
+        customLinks.forEach(link => {
+            if (!navLinksContainer.querySelector(`a[href="${link.slug}"]`)) {
+                const a = document.createElement('a');
+                a.href = link.slug;
+                a.className = 'nav-link';
+                if (currentPage === link.slug) {
+                    a.classList.add('active');
+                }
+                a.textContent = link.title;
+                const donateBtn = navLinksContainer.querySelector('.nav-btn-donate');
+                if (donateBtn) {
+                    navLinksContainer.insertBefore(a, donateBtn);
+                } else {
+                    navLinksContainer.appendChild(a);
+                }
+            }
+        });
+    }
+
+    function renderAdminPagesManager() {
+        const container = document.getElementById('admin-pages-list-container');
+        if (!container) return;
+
+        const defaultPages = [
+            { slug: 'index.html', title: 'Home / Main Page', type: 'built-in' },
+            { slug: 'about.html', title: 'About Us & Station Roster', type: 'built-in' },
+            { slug: 'apparatus.html', title: 'Active Apparatus Fleet', type: 'built-in' },
+            { slug: 'retired-apparatus.html', title: 'Historic & Retired Fleet', type: 'built-in' },
+            { slug: 'news.html', title: 'News, Calls & Community Updates', type: 'built-in' },
+            { slug: 'membership.html', title: 'Volunteer Membership & Roles', type: 'built-in' },
+            { slug: 'juniors.html', title: 'Junior Firefighter Program', type: 'built-in' },
+            { slug: 'santa.html', title: 'Operation Santa Tour', type: 'built-in' }
+        ];
+
+        const customPages = JSON.parse(localStorage.getItem('station46_custom_pages') || '[]');
+        const allPages = defaultPages.concat(customPages.map(p => ({
+            slug: p.slug,
+            title: p.title,
+            type: 'custom'
+        })));
+
+        container.innerHTML = '';
+        allPages.forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'admin-page-item';
+            item.innerHTML = `
+                <div class="admin-page-info">
+                    <span class="admin-page-type-badge ${p.type === 'custom' ? 'admin-page-type-custom' : 'admin-page-type-built-in'}">${p.type}</span>
+                    <div>
+                        <div class="admin-page-name">${escapeHtml(p.title)}</div>
+                        <div class="admin-page-slug">${escapeHtml(p.slug)}</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <a href="${escapeHtml(p.slug)}" class="btn btn-admin-action" style="padding: 7px 14px; font-size: 0.82rem; text-decoration: none;">
+                        ✏️ Open &amp; Edit Page &rarr;
+                    </a>
+                    ${p.type === 'custom' ? `
+                        <button type="button" class="btn btn-admin-logout admin-delete-page-btn" data-slug="${escapeHtml(p.slug)}" style="padding: 7px 12px; font-size: 0.82rem;" title="Delete this page">
+                            🗑️
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+
+            if (p.type === 'custom') {
+                const delBtn = item.querySelector('.admin-delete-page-btn');
+                delBtn.addEventListener('click', () => {
+                    if (confirm(`Are you sure you want to delete custom page "${p.title}" (${p.slug})?`)) {
+                        const updatedCustom = customPages.filter(cp => cp.slug !== p.slug);
+                        localStorage.setItem('station46_custom_pages', JSON.stringify(updatedCustom));
+
+                        const updatedNav = JSON.parse(localStorage.getItem('station46_custom_nav_links') || '[]').filter(nl => nl.slug !== p.slug);
+                        localStorage.setItem('station46_custom_nav_links', JSON.stringify(updatedNav));
+
+                        localStorage.removeItem('station46_main_html_' + p.slug);
+                        renderAdminPagesManager();
+                        showAdminToast(`Page ${p.slug} removed`);
+                    }
+                });
+            }
+
+            container.appendChild(item);
+        });
+    }
+
     // Initialize in-place editing on all editable elements when logged in
     function initLiveEditor() {
         const pageKey = getPageKey();
@@ -2818,6 +4284,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else if (element.closest('#retired-apparatus-list')) {
                         saveApparatusState('retired');
                     }
+                    if (element.closest('main')) {
+                        saveMainHtmlState();
+                    }
                     if (currentFontTarget === element) {
                         updateFontToolbarPosition(element);
                     }
@@ -2855,6 +4324,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         saveApparatusState('active');
                     } else if (element.closest('#retired-apparatus-list')) {
                         saveApparatusState('retired');
+                    }
+                    if (element.closest('main')) {
+                        saveMainHtmlState();
                     }
                 });
 
@@ -3332,10 +4804,16 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSliderCarouselUI();
     }
 
+    restoreMainHtmlIfPresent();
+    initCustomFaqAccordions();
+    renderCustomNavLinks();
     initRosterAdmin();
     initStationSliders();
     initApparatusAdmin();
     initLiveEditor();
+    if (isAdminLoggedIn) {
+        setupAllSectionControls();
+    }
 
     // Helper: Push actual modified HTML files directly to GitHub
     async function syncHtmlPagesToGitHub(edits) {
@@ -3369,10 +4847,31 @@ document.addEventListener('DOMContentLoaded', () => {
             editedPages.add('retired-apparatus.html');
         }
 
+        // Include any pages that have custom sections or updated main content
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('station46_main_html_')) {
+                const p = k.replace('station46_main_html_', '');
+                if (p.endsWith('.html')) editedPages.add(p);
+            }
+        }
+
         // If global fonts were customized, sync typography across all site pages
         if (edits['global_heading_font'] || edits['global_body_font']) {
             ['index.html', 'about.html', 'apparatus.html', 'retired-apparatus.html', 'news.html', 'membership.html', 'juniors.html', 'santa.html', 'history.html'].forEach(p => editedPages.add(p));
         }
+
+        // If there are custom navigation links, sync all standard pages to ensure navbar consistency
+        const customLinks = JSON.parse(localStorage.getItem('station46_custom_nav_links') || '[]');
+        if (customLinks.length > 0) {
+            ['index.html', 'about.html', 'apparatus.html', 'retired-apparatus.html', 'news.html', 'membership.html', 'juniors.html', 'santa.html'].forEach(p => editedPages.add(p));
+        }
+
+        // Include any custom created pages
+        const customPages = JSON.parse(localStorage.getItem('station46_custom_pages') || '[]');
+        customPages.forEach(cp => {
+            if (cp.slug) editedPages.add(cp.slug);
+        });
 
         // Include admin.html if admin welcome heading was edited
         if (localStorage.getItem('station46_admin_welcome') || (edits && edits['edit_v2_admin.html_#admin-welcome-heading'])) {
@@ -3474,6 +4973,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     const savedAdminWelcome = localStorage.getItem('station46_admin_welcome') || (edits && edits['edit_v2_admin.html_#admin-welcome-heading']);
                     if (docWelcome && savedAdminWelcome && docWelcome.innerHTML.trim() !== savedAdminWelcome.trim()) {
                         docWelcome.innerHTML = savedAdminWelcome.trim();
+                        pageHasChanges = true;
+                    }
+                }
+
+                // Synchronize custom navigation links across all pages
+                if (customLinks.length > 0) {
+                    const docNavLinks = doc.querySelector('.navbar .nav-links');
+                    if (docNavLinks) {
+                        customLinks.forEach(link => {
+                            if (!docNavLinks.querySelector(`a[href="${link.slug}"]`)) {
+                                const newLink = doc.createElement('a');
+                                newLink.href = link.slug;
+                                newLink.className = 'nav-link' + (pageName === link.slug ? ' active' : '');
+                                newLink.textContent = link.title;
+                                const donateBtn = docNavLinks.querySelector('.nav-btn-donate');
+                                if (donateBtn) {
+                                    docNavLinks.insertBefore(newLink, donateBtn);
+                                } else {
+                                    docNavLinks.appendChild(newLink);
+                                }
+                                pageHasChanges = true;
+                            }
+                        });
+                    }
+                }
+
+                // Synchronize main content if modified or custom sections present
+                const liveMainCleanHtml = (pageName === currentPage && document.querySelector('main'))
+                    ? getCleanMainHtml()
+                    : localStorage.getItem('station46_main_html_' + pageName);
+
+                const docMain = doc.querySelector('main');
+                if (docMain && liveMainCleanHtml) {
+                    if (docMain.innerHTML.trim() !== liveMainCleanHtml.trim()) {
+                        docMain.innerHTML = liveMainCleanHtml;
                         pageHasChanges = true;
                     }
                 }
@@ -3596,6 +5130,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('station46_sliders_html');
                 localStorage.removeItem('station46_active_apparatus_html');
                 localStorage.removeItem('station46_retired_apparatus_html');
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('station46_main_html_')) {
+                        localStorage.removeItem(k);
+                    }
+                }
                 await syncToGitHub('data/edits.json', {}, 'Admin: Reset edits buffer after HTML sync');
             } else {
                 await syncToGitHub('data/edits.json', mergedEdits, 'Admin: Update live text edits buffer');
@@ -3673,7 +5213,41 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGitBtn.style.boxShadow = '0 0 15px rgba(33, 150, 243, 0.4)';
         saveGitBtn.innerHTML = '💾 Save & Push to Git';
 
-        // 2. Typography / Fonts Button
+        // 2. Add Section Button
+        const addSectionBtn = document.createElement('button');
+        addSectionBtn.id = 'admin-floating-add-section-btn';
+        addSectionBtn.style.background = 'rgba(255, 255, 255, 0.12)';
+        addSectionBtn.style.color = 'white';
+        addSectionBtn.style.padding = '10px 16px';
+        addSectionBtn.style.borderRadius = '30px';
+        addSectionBtn.style.fontSize = '0.85rem';
+        addSectionBtn.style.fontWeight = '600';
+        addSectionBtn.style.border = 'none';
+        addSectionBtn.style.cursor = 'pointer';
+        addSectionBtn.style.transition = 'all 0.2s ease';
+        addSectionBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
+        addSectionBtn.innerHTML = '➕ Section';
+        addSectionBtn.title = 'Add a new civic section to this page';
+        addSectionBtn.addEventListener('click', () => openAddSectionModal());
+
+        // 3. New Page Button
+        const newPageBtn = document.createElement('button');
+        newPageBtn.id = 'admin-floating-new-page-btn';
+        newPageBtn.style.background = 'rgba(255, 255, 255, 0.12)';
+        newPageBtn.style.color = 'white';
+        newPageBtn.style.padding = '10px 16px';
+        newPageBtn.style.borderRadius = '30px';
+        newPageBtn.style.fontSize = '0.85rem';
+        newPageBtn.style.fontWeight = '600';
+        newPageBtn.style.border = 'none';
+        newPageBtn.style.cursor = 'pointer';
+        newPageBtn.style.transition = 'all 0.2s ease';
+        newPageBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
+        newPageBtn.innerHTML = '📄 New Page';
+        newPageBtn.title = 'Create a brand new page on the website';
+        newPageBtn.addEventListener('click', () => openCreatePageModal());
+
+        // 4. Typography / Fonts Button
         const fontsBtn = document.createElement('button');
         fontsBtn.id = 'admin-typography-btn';
         fontsBtn.style.background = 'rgba(255, 255, 255, 0.12)';
@@ -3689,7 +5263,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fontsBtn.innerHTML = '🔤 Fonts';
         fontsBtn.addEventListener('click', openTypographyModal);
 
-        // 3. Toggle Edit Mode Button
+        // 5. Toggle Edit Mode Button
         const toggleBtn = document.createElement('button');
         toggleBtn.id = 'edit-mode-toggle-btn';
         toggleBtn.style.background = 'rgba(46, 125, 50, 0.9)'; // Green for ON
@@ -3704,7 +5278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
         toggleBtn.innerHTML = '⚡ Edit Mode: ON';
 
-        // 4. Admin Portal link button
+        // 6. Admin Portal link button
         const portalBtn = document.createElement('a');
         portalBtn.href = 'admin.html';
         portalBtn.style.background = 'rgba(255, 255, 255, 0.1)';
@@ -3718,7 +5292,7 @@ document.addEventListener('DOMContentLoaded', () => {
         portalBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
         portalBtn.innerHTML = '⚙️ Dashboard';
 
-        // 5. Quick Logout Button
+        // 7. Quick Logout Button
         const quickLogoutBtn = document.createElement('button');
         quickLogoutBtn.id = 'admin-quick-logout-btn';
         quickLogoutBtn.style.background = 'rgba(255, 255, 255, 0.1)';
@@ -3736,6 +5310,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hover animations
         saveGitBtn.addEventListener('mouseenter', () => saveGitBtn.style.transform = 'translateY(-2px)');
         saveGitBtn.addEventListener('mouseleave', () => saveGitBtn.style.transform = 'none');
+        addSectionBtn.addEventListener('mouseenter', () => { addSectionBtn.style.transform = 'translateY(-2px)'; addSectionBtn.style.background = 'rgba(255, 255, 255, 0.22)'; });
+        addSectionBtn.addEventListener('mouseleave', () => { addSectionBtn.style.transform = 'none'; addSectionBtn.style.background = 'rgba(255, 255, 255, 0.12)'; });
+        newPageBtn.addEventListener('mouseenter', () => { newPageBtn.style.transform = 'translateY(-2px)'; newPageBtn.style.background = 'rgba(255, 255, 255, 0.22)'; });
+        newPageBtn.addEventListener('mouseleave', () => { newPageBtn.style.transform = 'none'; newPageBtn.style.background = 'rgba(255, 255, 255, 0.12)'; });
         fontsBtn.addEventListener('mouseenter', () => { fontsBtn.style.transform = 'translateY(-2px)'; fontsBtn.style.background = 'rgba(255, 255, 255, 0.22)'; });
         fontsBtn.addEventListener('mouseleave', () => { fontsBtn.style.transform = 'none'; fontsBtn.style.background = 'rgba(255, 255, 255, 0.12)'; });
         toggleBtn.addEventListener('mouseenter', () => toggleBtn.style.transform = 'translateY(-2px)');
@@ -3754,6 +5332,8 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGitBtn.addEventListener('click', () => triggerUniversalGitSync(saveGitBtn));
 
         bar.appendChild(saveGitBtn);
+        bar.appendChild(addSectionBtn);
+        bar.appendChild(newPageBtn);
         bar.appendChild(fontsBtn);
         bar.appendChild(toggleBtn);
         bar.appendChild(portalBtn);
@@ -3788,6 +5368,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn, .apparatus-card-admin-header').forEach(el => {
                     el.style.display = 'inline-flex';
                 });
+                document.querySelectorAll('.section-admin-bar, .section-insert-divider, .section-card-add-btn, .card-admin-remove-btn').forEach(el => {
+                    el.style.display = 'flex';
+                });
+                document.querySelectorAll('.section-item-upload-btn').forEach(el => {
+                    el.style.display = 'inline-flex';
+                });
+                setupAllSectionControls();
             } else {
                 hideFontToolbar();
                 document.body.classList.remove('admin-edit-mode');
@@ -3810,6 +5397,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     el.style.display = 'none';
                 });
                 document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn, .apparatus-card-admin-header').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('.section-admin-bar, .section-insert-divider, .section-card-add-btn, .card-admin-remove-btn, .section-item-upload-btn').forEach(el => {
                     el.style.display = 'none';
                 });
             }
@@ -3915,6 +5505,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleAdminLayout(true);
             setupAdminWelcomeHeading();
             renderAdminPosts();
+            renderAdminPagesManager();
         } else {
             toggleAdminLayout(false);
         }
@@ -3958,6 +5549,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (submitBtn) submitBtn.disabled = false;
             }
         });
+    }
+
+    // Connect Page Creator triggers on admin dashboard
+    const adminHeaderNewPageBtn = document.getElementById('admin-header-new-page-btn');
+    if (adminHeaderNewPageBtn) {
+        adminHeaderNewPageBtn.addEventListener('click', () => openCreatePageModal());
+    }
+    const adminAddNewPageBtn = document.getElementById('admin-add-new-page-btn');
+    if (adminAddNewPageBtn) {
+        adminAddNewPageBtn.addEventListener('click', () => openCreatePageModal());
     }
 
     if (logoutBtn && loginView && dashboardView) {
