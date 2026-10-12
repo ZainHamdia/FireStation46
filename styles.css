@@ -3576,6 +3576,7 @@ footer {
 /* Admin Edit Mode Visual Highlights */
 body.admin-edit-mode [contenteditable="true"] {
     transition: outline var(--transition-fast), background-color var(--transition-fast);
+    pointer-events: auto !important;
 }
 
 body.admin-edit-mode [contenteditable="true"]:hover {

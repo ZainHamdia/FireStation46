@@ -676,19 +676,19 @@ document.addEventListener('DOMContentLoaded', () => {
         'li', 'dt', 'dd',
         'a', 'button',
         '.btn', '.btn-primary', '.btn-secondary', '.btn-action',
-        'span', 'strong', 'b', 'em', 'i', 'label', 'small', 'cite',
+        'span', 'strong', 'b', 'em', 'i', 'label', 'small', 'cite', 'summary',
         'td', 'th',
         '.hero-title', '.hero-subtitle', '.hero-desc',
         '.section-title', '.section-subtitle',
-        '.stat-number', '.stat-label',
+        '.stat-number', '.stat-label', '.stat-year-badge', '.stat-row-label', '.stat-row-value', '.stat-unit',
         '.rank-badge', '.roster-name', '.roster-avatar', '.roster-category-title',
         '.card-title', '.card-desc', '.card-text', '.card-img-placeholder',
         '.santa-badge', '.date-card-title', '.date-card-subtitle',
         '.guideline-num', '.guideline-text h4', '.guideline-text p',
         '.printable-form-preview h3', '.printable-form-preview p',
-        '.faq-question', '.faq-question > span:first-child', '.faq-answer p',
-        '.donation-desc', '.form-note',
-        '.footer-info p', '.footer-brand span', '.footer-links a',
+        '.faq-question', '.faq-question > span', '.faq-answer p',
+        '.donation-desc', '.form-note', '.mailing-box',
+        '.footer-info p', '.footer-brand span', '.footer-links a', '.footer-copy',
         '.top-bar-item', '.top-bar-link',
         '.tag-new', '.news-card-tag', '.recent-post-tag', '.membership-badge-tag',
         '.role-badge-tag', '.upcoming-badge-tag', '.blueprint-tag', '.badge', '.top-bar-badge'
@@ -719,7 +719,9 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('#admin-dashboard-view') ||
             element.closest('#admin-login-view') ||
             element.closest('.admin-form-container') ||
-            element.closest('.admin-dashboard')) {
+            element.closest('.admin-dashboard') ||
+            element.closest('#admin-login-form') ||
+            element.closest('#admin-publish-form')) {
             if (element.id !== 'admin-welcome-heading') return false;
         }
 
@@ -754,8 +756,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.classList.contains('btn-apparatus-add') ||
             element.closest('.apparatus-admin-actions') ||
             element.closest('.apparatus-add-modal-overlay') ||
-            element.closest('#apparatus-modal') ||
-            element.closest('form')) {
+            element.closest('#apparatus-modal')) {
             return false;
         }
 
@@ -772,13 +773,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Skip major layout containers that enclose nested block content
-        const layoutContainers = ['HTML', 'BODY', 'MAIN', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'TABLE', 'TBODY', 'THEAD', 'TR', 'UL', 'OL'];
+        const layoutContainers = ['HTML', 'BODY', 'MAIN', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'TABLE', 'TBODY', 'THEAD', 'TR', 'UL', 'OL', 'FORM'];
         if (layoutContainers.includes(tagName)) {
             return false;
         }
 
         // If this element contains nested block containers, skip the outer wrapper so inner text elements are editable
-        if (element.querySelector('h1, h2, h3, h4, h5, h6, p, ul, ol, table, section, article, header, footer, form')) {
+        if (element.querySelector('h1, h2, h3, h4, h5, h6, p, ul, ol, table, section, article, header, footer')) {
             return false;
         }
 
@@ -818,12 +819,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function getEditableElements(root = document) {
         const list = [];
         const seen = new Set();
+
+        // 1. Matched by standard editable selectors
         root.querySelectorAll(editableSelectors).forEach(el => {
             if (isEditableElement(el) && !seen.has(el)) {
                 seen.add(el);
                 list.push(el);
             }
         });
+
+        // 2. Also match any element that directly contains visible text (e.g. unclassed divs, badges, notes)
+        root.querySelectorAll('div').forEach(el => {
+            if (!seen.has(el) && isEditableElement(el)) {
+                const hasDirectText = Array.from(el.childNodes).some(n => n.nodeType === Node.TEXT_NODE && n.nodeValue.trim().length > 0);
+                if (hasDirectText && !el.querySelector('div, p, h1, h2, h3, h4, h5, h6, ul, ol')) {
+                    seen.add(el);
+                    list.push(el);
+                }
+            }
+        });
+
         // De-duplicate: If an element's ancestor is already directly editable, don't double-register child inline elements
         return list.filter(el => {
             let p = el.parentElement;
@@ -2753,6 +2768,9 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.classList.add('active');
     }
 
+    // Runtime tracker for bound elements to prevent duplicate listeners without persisting HTML attributes
+    const boundEditorElements = new WeakSet();
+
     // Initialize in-place editing on all editable elements when logged in
     function initLiveEditor() {
         const pageKey = getPageKey();
@@ -2761,13 +2779,16 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.forEach((element) => {
             const storageKey = `edit_v2_${pageKey}_${getElementSelectorPath(element)}`;
 
+            // Remove any legacy static attribute so it never blocks live editing
+            element.removeAttribute('data-editor-init');
+
             if (isAdminLoggedIn) {
                 element.setAttribute('contenteditable', editModeActive ? 'true' : 'false');
                 
-                if (element.dataset.editorInit === 'true') {
+                if (boundEditorElements.has(element)) {
                     return;
                 }
-                element.dataset.editorInit = 'true';
+                boundEditorElements.add(element);
 
                 // Show font toolbar on focus or click
                 element.addEventListener('focus', () => {
@@ -2788,6 +2809,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveTextEdit(storageKey, currentText);
                     if (element.closest('#roster-container')) {
                         saveRosterState();
+                    }
+                    if (element.closest('#station-sliders-track')) {
+                        saveSlidersState();
                     }
                     if (element.closest('#active-apparatus-list')) {
                         saveApparatusState('active');
@@ -2823,6 +2847,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveTextEdit(storageKey, currentText);
                     if (element.closest('#roster-container')) {
                         saveRosterState();
+                    }
+                    if (element.closest('#station-sliders-track')) {
+                        saveSlidersState();
                     }
                     if (element.closest('#active-apparatus-list')) {
                         saveApparatusState('active');
@@ -2874,6 +2901,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Remove contenteditable attributes and runtime admin controls
         clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+        clone.querySelectorAll('[data-editor-init]').forEach(el => el.removeAttribute('data-editor-init'));
         clone.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
             el.style.display = 'none';
         });
@@ -3343,7 +3371,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // If global fonts were customized, sync typography across all site pages
         if (edits['global_heading_font'] || edits['global_body_font']) {
-            ['index.html', 'about.html', 'apparatus.html', 'retired-apparatus.html', 'news.html', 'membership.html', 'juniors.html', 'santa.html'].forEach(p => editedPages.add(p));
+            ['index.html', 'about.html', 'apparatus.html', 'retired-apparatus.html', 'news.html', 'membership.html', 'juniors.html', 'santa.html', 'history.html'].forEach(p => editedPages.add(p));
         }
 
         // Include admin.html if admin welcome heading was edited
@@ -3497,6 +3525,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (pageHasChanges) {
+                    // Strip any runtime attributes or markers before generating clean static HTML
+                    doc.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+                    doc.querySelectorAll('[data-editor-init]').forEach(el => el.removeAttribute('data-editor-init'));
+                    doc.querySelectorAll('.admin-edit-focus, .apparatus-card-dragging, .roster-card-dragging').forEach(el => {
+                        el.classList.remove('admin-edit-focus', 'apparatus-card-dragging', 'roster-card-dragging');
+                    });
                     const updatedHtml = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
                     const success = await syncToGitHub(pageName, updatedHtml, `Admin: Update content in ${pageName}`);
                     if (!success) allHtmlSuccess = false;
@@ -3525,7 +3559,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (typeof saveApparatusState === 'function') {
-            saveApparatusState();
+            saveApparatusState('active');
+            saveApparatusState('retired');
+        }
+        if (typeof saveSlidersState === 'function') {
+            saveSlidersState();
+        }
+        if (typeof saveRosterState === 'function') {
+            saveRosterState();
         }
 
         try {
@@ -4593,9 +4634,9 @@ document.addEventListener('keydown', (e) => {
                 card.setAttribute('aria-label', `View photo and specs for ${title}`);
                 
                 card.addEventListener('click', (e) => {
-                    if (e.target.closest('.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-card-drag-handle, .apparatus-move-btn')) return;
-                    // Avoid opening when admin inline editing is active on text
-                    if (document.body.classList.contains('admin-edit-mode') && (e.target.isContentEditable || e.target.closest('[contenteditable="true"]'))) {
+                    if (e.target.closest('.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-card-drag-handle, .apparatus-move-btn, .apparatus-img-upload-btn, .apparatus-img-upload-overlay')) return;
+                    // Avoid opening when admin inline editing is active
+                    if (document.body.classList.contains('admin-edit-mode') || e.target.isContentEditable || e.target.closest('[contenteditable="true"]')) {
                         return;
                     }
                     const dynamicIdx = parseInt(card.getAttribute('data-apparatus-index'), 10);
@@ -4604,7 +4645,8 @@ document.addEventListener('keydown', (e) => {
 
                 card.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                        if (e.target.closest('.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-card-drag-handle, .apparatus-move-btn')) return;
+                        if (e.target.closest('.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-card-drag-handle, .apparatus-move-btn, .apparatus-img-upload-btn, .apparatus-img-upload-overlay')) return;
+                        if (document.body.classList.contains('admin-edit-mode') || e.target.isContentEditable || e.target.closest('[contenteditable="true"]')) return;
                         e.preventDefault();
                         const dynamicIdx = parseInt(card.getAttribute('data-apparatus-index'), 10);
                         openApparatusModal(isNaN(dynamicIdx) ? 0 : dynamicIdx);
