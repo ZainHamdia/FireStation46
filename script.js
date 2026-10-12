@@ -7569,13 +7569,21 @@ ${mainContentHtml}
                 iframe.setAttribute('scrolling', 'no');
             }
             iframe.style.overflow = 'hidden';
-            iframe.style.clipPath = 'inset(0 0 55px 0)';
-            iframe.style.webkitClipPath = 'inset(0 0 55px 0)';
+            iframe.style.clipPath = 'inset(0 0 85px 0)';
+            iframe.style.webkitClipPath = 'inset(0 0 85px 0)';
 
-            // Send native hideEdit signal to suppress the 'Edit App / Rate Us' bar inside the iframe
+            // Send native hideEdit and model update signals to suppress the 'Edit App / Rate Us' bar and POWr logo inside the iframe
             try {
                 if (iframe.contentWindow) {
                     iframe.contentWindow.postMessage(JSON.stringify({ message: "hideEdit" }), "*");
+                    iframe.contentWindow.postMessage(JSON.stringify({
+                        message: "update",
+                        data: { content: { removePowrLogo: true, adminShowPowrMark: false } }
+                    }), "*");
+                    iframe.contentWindow.postMessage(JSON.stringify({
+                        message: "wixSettingsUpdated",
+                        data: { removePowrLogo: true, adminShowPowrMark: false }
+                    }), "*");
                 }
             } catch(e) {}
 
