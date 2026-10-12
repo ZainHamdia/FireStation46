@@ -2831,6 +2831,8 @@ document.addEventListener('DOMContentLoaded', () => {
             mainEl.innerHTML = saved;
             // Defensive cleanup: remove any errant toolbars or dividers that may have been saved inside hero
             mainEl.querySelectorAll('.hero .section-admin-bar, .small-hero .section-admin-bar, #home .section-admin-bar, .hero-content .section-admin-bar, .hero .section-insert-divider, #home .section-insert-divider, .small-hero .section-insert-divider').forEach(el => el.remove());
+            // Remove legacy powr feeds if present in cached state
+            mainEl.querySelectorAll('.powr-social-feed, script[src*="powr.io"]').forEach(el => el.remove());
         }
     }
 
@@ -6080,24 +6082,13 @@ ${mainContentHtml}
         }
     }
 
-    // Strip third-party widget branding from DOM
-    function removeWidgetBranding() {
-        const brandingSelectors = [
-            'a[href*="powr.io"]',
-            '[class*="powrBranding"]',
-            '[class*="powr-branding"]',
-            '[id*="powrBranding"]',
-            '.powr-badge'
-        ];
-        brandingSelectors.forEach(sel => {
-            document.querySelectorAll(sel).forEach(el => {
-                el.style.display = 'none';
-                el.style.visibility = 'hidden';
-                try { el.remove(); } catch(e) {}
-            });
-        });
+    // Process Instagram embeds if loaded dynamically
+    function processInstagramEmbeds() {
+        if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === 'function') {
+            try { window.instgrm.Embeds.process(); } catch(e) {}
+        }
     }
-    setInterval(removeWidgetBranding, 800);
+    setTimeout(processInstagramEmbeds, 600);
 
     syncFromRemoteDatabase();
     setupAdminWelcomeHeading();

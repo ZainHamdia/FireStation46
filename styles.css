@@ -3592,33 +3592,17 @@ body.admin-edit-mode [contenteditable="true"]:focus {
     background-color: rgba(179, 33, 43, 0.08);
 }
 
-/* Hide Third-Party POWR Watermark & Branding */
-.powr-social-feed a[href*="powr.io"],
-.powr-social-feed [class*="powrBranding"],
-.powr-social-feed [class*="branding"],
-.powr-social-feed [class*="badge"],
-.powr-social-feed [id*="branding"],
-.powr-branding,
-.powrBranding,
-a[href*="powr.io"],
-a[href*="powr.io/plugins"],
-div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    max-height: 0 !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
+/* Official Instagram Feed Embed Styling */
+.instagram-media {
+    margin: 1.5rem auto !important;
+    display: block !important;
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
 }
 
-.powr-feed-wrapper {
-    position: relative;
-    overflow: hidden;
-    max-width: 100%;
-    margin: 0 auto;
-    border-radius: 16px;
+:root[data-theme="dark"] .instagram-media {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45) !important;
 }
 
 /* ==========================================================================
