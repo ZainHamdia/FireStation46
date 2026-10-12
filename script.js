@@ -2889,6 +2889,9 @@ document.addEventListener('DOMContentLoaded', () => {
             '.section-drag-handle, .section-drop-indicator, .section-drag-ghost-badge'
         ).forEach(el => el.remove());
 
+        // Ensure third-party widget iframes are not persisted in HTML template state
+        clone.querySelectorAll('.powr-social-feed iframe, .powr-feed-wrapper iframe').forEach(el => el.remove());
+
         // Remove hidden file inputs added for image uploads
         clone.querySelectorAll('input[type="file"]').forEach(el => el.remove());
 
@@ -2921,8 +2924,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!pageKey || pageKey === 'admin.html') return;
         const saved = localStorage.getItem('station46_main_html_' + pageKey);
 
-        // If cached main HTML contains stale instagram-media, purge the cache so fresh static HTML with POWr is displayed
-        if (saved && (saved.includes('instagram-media') || saved.includes('instagram.com/embed.js'))) {
+        // If cached main HTML contains stale embeds or lacks powr-feed-wrapper, purge the cache so fresh static HTML with POWr is displayed
+        if (saved && (saved.includes('instagram-media') || saved.includes('instagram.com/embed.js') || (saved.includes('powr-social-feed') && !saved.includes('powr-feed-wrapper')))) {
             localStorage.removeItem('station46_main_html_' + pageKey);
             return;
         }
@@ -7476,24 +7479,85 @@ ${mainContentHtml}
         }
     }
 
-    // Strip third-party widget branding from DOM
+    // Strip third-party widget branding & watermark badges from DOM
     function removeWidgetBranding() {
         const brandingSelectors = [
             'a[href*="powr.io"]',
             '[class*="powrBranding"]',
             '[class*="powr-branding"]',
             '[id*="powrBranding"]',
-            '.powr-badge'
+            '.powr-badge',
+            '.powrMark',
+            '[class*="powrMark"]',
+            '[id*="powrMark"]',
+            '.js-powrMark',
+            '.watermark-create-free'
         ];
         brandingSelectors.forEach(sel => {
             document.querySelectorAll(sel).forEach(el => {
+                const parent = el.closest('.powrMark, [class*="powrMark"], .blog, div:not(.powr-social-feed)');
                 el.style.display = 'none';
                 el.style.visibility = 'hidden';
                 try { el.remove(); } catch(e) {}
+                if (parent && !parent.classList.contains('powr-social-feed') && !parent.classList.contains('powr-feed-wrapper')) {
+                    if (parent.querySelector('a[href*="powr.io"]') || (parent.textContent && parent.textContent.includes('Create your own for free'))) {
+                        try { parent.remove(); } catch(e) {}
+                    }
+                }
             });
         });
+
+        // Scan any standalone watermark cards containing POWR branding text in outer document
+        document.querySelectorAll('div, p, span, a').forEach(el => {
+            if (el.children.length <= 4 && el.textContent && (el.textContent.includes('Create your own for free!') || (el.textContent.includes('POWR') && el.textContent.includes('Social Feed')))) {
+                if (!el.classList.contains('powr-social-feed') && !el.classList.contains('powr-feed-wrapper') && !el.closest('h2, .section-title, .section-subtitle')) {
+                    try { el.remove(); } catch(e) {}
+                }
+            }
+        });
+
+        // Ensure POWR iframe has no scrollbars and clips the bottom watermark badge
+        const powrIframes = document.querySelectorAll('.powr-social-feed iframe, iframe[src*="powr.io"], iframe[title*="social"]');
+        powrIframes.forEach(iframe => {
+            if (iframe.getAttribute('scrolling') !== 'no') {
+                iframe.setAttribute('scrolling', 'no');
+            }
+            iframe.style.overflow = 'hidden';
+            iframe.style.clipPath = 'inset(0 0 115px 0)';
+            iframe.style.webkitClipPath = 'inset(0 0 115px 0)';
+            const feedContainer = iframe.closest('.powr-social-feed');
+            if (feedContainer) {
+                feedContainer.classList.add('powr-loaded');
+                feedContainer.style.overflow = 'hidden';
+                feedContainer.style.marginBottom = '-115px';
+            }
+            const wrapper = iframe.closest('.powr-feed-wrapper');
+            if (wrapper) {
+                wrapper.classList.add('powr-loaded');
+                wrapper.style.overflow = 'hidden';
+            }
+        });
     }
-    setInterval(removeWidgetBranding, 800);
+
+    // Attach message listener for POWR resizing
+    window.addEventListener('message', function(e) {
+        try {
+            const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+            if (data && data.message === 'updateSize') {
+                removeWidgetBranding();
+            }
+        } catch(err) {}
+    }, true);
+
+    // Continuous observation to purge branding immediately
+    try {
+        const brandingObserver = new MutationObserver(() => {
+            removeWidgetBranding();
+        });
+        brandingObserver.observe(document.body, { childList: true, subtree: true });
+    } catch(err) {}
+
+    setInterval(removeWidgetBranding, 500);
 
     syncFromRemoteDatabase();
     setupAdminWelcomeHeading();
