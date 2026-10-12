@@ -1581,6 +1581,9 @@ footer {
     border-top: 4px solid var(--fire-red);
     padding: 4.5rem 2rem 2.5rem;
     color: #cbd5e1;
+    position: relative;
+    z-index: 5;
+    clear: both;
 }
 
 .footer-container {
@@ -3597,29 +3600,36 @@ body.admin-edit-mode [contenteditable="true"]:focus {
    ========================================================================== */
 
 /* Outer feed wrapper: neatly contained, rounded, clips overflow */
+/* Feed section boundary & containment */
+#home-facebook-feed-section,
+#news-facebook-feed-section {
+    position: relative;
+    overflow: hidden !important;
+}
+
 .powr-feed-wrapper {
     position: relative;
     overflow: hidden !important;
     max-width: 100%;
-    margin: 0 auto;
+    margin: 0 auto !important;
     border-radius: 16px;
     background: transparent;
 }
 
-/* Feed container: clips the bottom watermark badge */
+/* Feed container: strictly contained, no negative margin */
 .powr-social-feed {
     position: relative !important;
     overflow: hidden !important;
     width: 100% !important;
     max-width: 100% !important;
+    margin-bottom: 0 !important;
 }
 
-/* When the iframe is loaded, pull up the bottom margin and clip the bottom 115px where the POWR badge sits */
 .powr-social-feed:has(iframe),
 .powr-social-feed.powr-loaded,
 .powr-feed-wrapper:has(iframe) {
     overflow: hidden !important;
-    margin-bottom: -115px !important;
+    margin-bottom: 0 !important;
 }
 
 .powr-social-feed iframe,
@@ -3630,8 +3640,8 @@ iframe[title*="social feed"],
 iframe[title*="powr"] {
     display: block !important;
     overflow: hidden !important;
-    clip-path: inset(0 0 115px 0) !important;
-    -webkit-clip-path: inset(0 0 115px 0) !important;
+    clip-path: inset(0 0 55px 0) !important;
+    -webkit-clip-path: inset(0 0 55px 0) !important;
 }
 
 /* Hide Third-Party POWR Admin Bar, Edit App controls, Watermark, and Branding */

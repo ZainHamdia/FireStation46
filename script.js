@@ -7569,8 +7569,8 @@ ${mainContentHtml}
                 iframe.setAttribute('scrolling', 'no');
             }
             iframe.style.overflow = 'hidden';
-            iframe.style.clipPath = 'inset(0 0 115px 0)';
-            iframe.style.webkitClipPath = 'inset(0 0 115px 0)';
+            iframe.style.clipPath = 'inset(0 0 55px 0)';
+            iframe.style.webkitClipPath = 'inset(0 0 55px 0)';
 
             // Send native hideEdit signal to suppress the 'Edit App / Rate Us' bar inside the iframe
             try {
@@ -7590,12 +7590,13 @@ ${mainContentHtml}
             if (feedContainer) {
                 feedContainer.classList.add('powr-loaded');
                 feedContainer.style.overflow = 'hidden';
-                feedContainer.style.marginBottom = '-115px';
+                feedContainer.style.marginBottom = '0px';
             }
             const wrapper = iframe.closest('.powr-feed-wrapper');
             if (wrapper) {
                 wrapper.classList.add('powr-loaded');
                 wrapper.style.overflow = 'hidden';
+                wrapper.style.marginBottom = '0px';
             }
         });
     }
