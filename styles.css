@@ -3634,7 +3634,18 @@ iframe[title*="powr"] {
     -webkit-clip-path: inset(0 0 115px 0) !important;
 }
 
-/* Hide Third-Party POWR Watermark, Badge, and External Links in DOM */
+/* Hide Third-Party POWR Admin Bar, Edit App controls, Watermark, and Branding */
+#editMe,
+.editMeBtnGroup,
+.editMeBtn,
+#editMeEditApp,
+#editMeRateUs,
+.editMeSpan,
+.editMeMenu,
+.rateUsMenu,
+.adminAppInfo,
+[id*="editMe"],
+[class*="editMe"],
 .powrMark,
 [class*="powrMark"],
 [id*="powrMark"],

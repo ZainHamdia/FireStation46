@@ -1,3 +1,31 @@
+// Pre-emptively suppress third-party POWr admin bar (Edit App / Rate Us controls)
+(function() {
+    try {
+        var iframeProto = HTMLIFrameElement.prototype;
+        var srcDesc = Object.getOwnPropertyDescriptor(iframeProto, 'src') || Object.getOwnPropertyDescriptor(Element.prototype, 'src');
+        if (srcDesc && srcDesc.set) {
+            var origSrcSet = srcDesc.set;
+            Object.defineProperty(iframeProto, 'src', {
+                get: srcDesc.get,
+                set: function(val) {
+                    if (typeof val === 'string' && val.indexOf('powr.io') !== -1 && val.indexOf('hide_editme=') === -1) {
+                        val += (val.indexOf('?') !== -1 ? '&' : '?') + 'hide_editme=true';
+                    }
+                    return origSrcSet.call(this, val);
+                },
+                configurable: true
+            });
+        }
+        var origSetAttr = Element.prototype.setAttribute;
+        Element.prototype.setAttribute = function(name, val) {
+            if (name === 'src' && typeof val === 'string' && val.indexOf('powr.io') !== -1 && val.indexOf('hide_editme=') === -1) {
+                val += (val.indexOf('?') !== -1 ? '&' : '?') + 'hide_editme=true';
+            }
+            return origSetAttr.call(this, name, val);
+        };
+    } catch(e) {}
+})();
+
 // Theme (Light/Dark Mode) Detection, Storage & Multi-Tab Synchronization
 function getStoredTheme() {
     try {
@@ -7479,7 +7507,7 @@ ${mainContentHtml}
         }
     }
 
-    // Strip third-party widget branding & watermark badges from DOM
+    // Strip third-party widget branding, watermark badges & edit controls from DOM
     function removeWidgetBranding() {
         const brandingSelectors = [
             'a[href*="powr.io"]',
@@ -7491,32 +7519,50 @@ ${mainContentHtml}
             '[class*="powrMark"]',
             '[id*="powrMark"]',
             '.js-powrMark',
-            '.watermark-create-free'
+            '.watermark-create-free',
+            '#editMe',
+            '.editMeBtnGroup',
+            '.editMeBtn',
+            '#editMeEditApp',
+            '#editMeRateUs',
+            '.editMeSpan',
+            '.editMeMenu',
+            '.rateUsMenu',
+            '.adminAppInfo',
+            '[id*="editMe"]',
+            '[class*="editMe"]'
         ];
         brandingSelectors.forEach(sel => {
             document.querySelectorAll(sel).forEach(el => {
-                const parent = el.closest('.powrMark, [class*="powrMark"], .blog, div:not(.powr-social-feed)');
+                const parent = el.closest('#editMe, .editMeBtnGroup, .adminAppInfo, .powrMark, [class*="powrMark"], .blog, div:not(.powr-social-feed)');
                 el.style.display = 'none';
                 el.style.visibility = 'hidden';
                 try { el.remove(); } catch(e) {}
                 if (parent && !parent.classList.contains('powr-social-feed') && !parent.classList.contains('powr-feed-wrapper')) {
-                    if (parent.querySelector('a[href*="powr.io"]') || (parent.textContent && parent.textContent.includes('Create your own for free'))) {
+                    if (parent.querySelector('a[href*="powr.io"], #editMe, .editMeBtn') || 
+                        (parent.textContent && (parent.textContent.includes('Create your own for free') || parent.textContent.includes('Edit App') || parent.textContent.includes('Only you can see this')))) {
                         try { parent.remove(); } catch(e) {}
                     }
                 }
             });
         });
 
-        // Scan any standalone watermark cards containing POWR branding text in outer document
-        document.querySelectorAll('div, p, span, a').forEach(el => {
-            if (el.children.length <= 4 && el.textContent && (el.textContent.includes('Create your own for free!') || (el.textContent.includes('POWR') && el.textContent.includes('Social Feed')))) {
-                if (!el.classList.contains('powr-social-feed') && !el.classList.contains('powr-feed-wrapper') && !el.closest('h2, .section-title, .section-subtitle')) {
-                    try { el.remove(); } catch(e) {}
+        // Scan any standalone watermark cards or edit bars in outer document
+        document.querySelectorAll('div, p, span, a, button').forEach(el => {
+            if (el.children.length <= 5 && el.textContent) {
+                const t = el.textContent;
+                if (t.includes('Create your own for free!') || 
+                    (t.includes('POWR') && t.includes('Social Feed')) ||
+                    (t.includes('Edit App') && t.includes('Rate Us')) ||
+                    t.includes('Only you can see this')) {
+                    if (!el.classList.contains('powr-social-feed') && !el.classList.contains('powr-feed-wrapper') && !el.closest('h2, .section-title, .section-subtitle')) {
+                        try { el.remove(); } catch(e) {}
+                    }
                 }
             }
         });
 
-        // Ensure POWR iframe has no scrollbars and clips the bottom watermark badge
+        // Ensure POWR iframe has no scrollbars, clips the bottom watermark badge, and hides admin controls
         const powrIframes = document.querySelectorAll('.powr-social-feed iframe, iframe[src*="powr.io"], iframe[title*="social"]');
         powrIframes.forEach(iframe => {
             if (iframe.getAttribute('scrolling') !== 'no') {
@@ -7525,6 +7571,21 @@ ${mainContentHtml}
             iframe.style.overflow = 'hidden';
             iframe.style.clipPath = 'inset(0 0 115px 0)';
             iframe.style.webkitClipPath = 'inset(0 0 115px 0)';
+
+            // Send native hideEdit signal to suppress the 'Edit App / Rate Us' bar inside the iframe
+            try {
+                if (iframe.contentWindow) {
+                    iframe.contentWindow.postMessage(JSON.stringify({ message: "hideEdit" }), "*");
+                }
+            } catch(e) {}
+
+            // Ensure hide_editme=true is appended to iframe url
+            try {
+                if (iframe.src && iframe.src.indexOf('powr.io') !== -1 && iframe.src.indexOf('hide_editme=') === -1) {
+                    iframe.src = iframe.src + (iframe.src.indexOf('?') !== -1 ? '&' : '?') + 'hide_editme=true';
+                }
+            } catch(e) {}
+
             const feedContainer = iframe.closest('.powr-social-feed');
             if (feedContainer) {
                 feedContainer.classList.add('powr-loaded');
@@ -7539,11 +7600,11 @@ ${mainContentHtml}
         });
     }
 
-    // Attach message listener for POWR resizing
+    // Attach message listener for POWR resizing and events
     window.addEventListener('message', function(e) {
         try {
             const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-            if (data && data.message === 'updateSize') {
+            if (data && (data.message === 'updateSize' || data.message === 'viewLoaded' || data.message === 'loadMe')) {
                 removeWidgetBranding();
             }
         } catch(err) {}
@@ -7557,7 +7618,7 @@ ${mainContentHtml}
         brandingObserver.observe(document.body, { childList: true, subtree: true });
     } catch(err) {}
 
-    setInterval(removeWidgetBranding, 500);
+    setInterval(removeWidgetBranding, 400);
 
     syncFromRemoteDatabase();
     setupAdminWelcomeHeading();

@@ -22,9 +22,35 @@
                         (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
                 document.documentElement.setAttribute('data-theme', t);
             } catch(e) {}
+
+            // Pre-emptively suppress third-party POWr admin bar (Edit App / Rate Us controls)
+            try {
+                var iframeProto = HTMLIFrameElement.prototype;
+                var srcDesc = Object.getOwnPropertyDescriptor(iframeProto, 'src') || Object.getOwnPropertyDescriptor(Element.prototype, 'src');
+                if (srcDesc && srcDesc.set) {
+                    var origSrcSet = srcDesc.set;
+                    Object.defineProperty(iframeProto, 'src', {
+                        get: srcDesc.get,
+                        set: function(val) {
+                            if (typeof val === 'string' && val.indexOf('powr.io') !== -1 && val.indexOf('hide_editme=') === -1) {
+                                val += (val.indexOf('?') !== -1 ? '&' : '?') + 'hide_editme=true';
+                            }
+                            return origSrcSet.call(this, val);
+                        },
+                        configurable: true
+                    });
+                }
+                var origSetAttr = Element.prototype.setAttribute;
+                Element.prototype.setAttribute = function(name, val) {
+                    if (name === 'src' && typeof val === 'string' && val.indexOf('powr.io') !== -1 && val.indexOf('hide_editme=') === -1) {
+                        val += (val.indexOf('?') !== -1 ? '&' : '?') + 'hide_editme=true';
+                    }
+                    return origSetAttr.call(this, name, val);
+                };
+            } catch(e) {}
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=116">
+    <link rel="stylesheet" href="styles.css?v=117">
 </head>
 <body>
     <!-- Civic Top Utility Bar -->
@@ -229,7 +255,7 @@
         <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
     </div>
 
-    <script src="script.js?v=116"></script>
+    <script src="script.js?v=117"></script>
 
 
 </body></html>
