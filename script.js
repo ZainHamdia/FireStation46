@@ -663,6 +663,145 @@ document.addEventListener('DOMContentLoaded', () => {
              .replace(/'/g, "&#039;");
     }
 
+    // Helper: Strip HTML tags to get clean plain text snippet (e.g. for homepage cards)
+    function stripHtmlToText(html) {
+        if (!html) return '';
+        try {
+            let str = String(html);
+            // If the text was previously stored with escaped entities like &lt;p&gt;, unescape it first
+            if (str.includes('&lt;') && (str.includes('&lt;p') || str.includes('&lt;br') || str.includes('&lt;div') || str.includes('&lt;strong') || str.includes('&lt;b') || str.includes('&lt;em') || str.includes('&lt;i') || str.includes('&lt;ul') || str.includes('&lt;ol') || str.includes('&lt;li') || str.includes('&lt;a'))) {
+                const txt = document.createElement('textarea');
+                txt.innerHTML = str;
+                str = txt.value;
+            }
+            // Add spaces before or after block-level tags so text doesn't run together
+            str = str.replace(/<\/(p|div|li|h[1-6]|tr|blockquote)>/gi, ' ')
+                     .replace(/<(br|hr)\s*\/?>/gi, ' ');
+            const div = document.createElement('div');
+            div.innerHTML = str;
+            const text = div.textContent || div.innerText || '';
+            return text.replace(/\s+/g, ' ').trim();
+        } catch(e) {
+            return String(html)
+                .replace(/<\/(p|div|li|h[1-6]|tr|blockquote)>/gi, ' ')
+                .replace(/<(br|hr)\s*\/?>/gi, ' ')
+                .replace(/<[^>]+>/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+    }
+
+    // Helper: Sanitize rich HTML to safely allow Quill formatting tags
+    function sanitizeRichHtml(html) {
+        if (!html) return '';
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(String(html), 'text/html');
+            const allowedTags = new Set([
+                'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike',
+                'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                'blockquote', 'span', 'div', 'hr'
+            ]);
+
+            function cleanNode(node) {
+                if (node.nodeType === Node.COMMENT_NODE) {
+                    node.remove();
+                    return;
+                }
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    const tagName = node.tagName.toLowerCase();
+                    if (!allowedTags.has(tagName)) {
+                        if (['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'svg', 'math', 'link', 'meta'].includes(tagName)) {
+                            node.remove();
+                            return;
+                        }
+                        const parent = node.parentNode;
+                        if (parent) {
+                            while (node.firstChild) {
+                                parent.insertBefore(node.firstChild, node);
+                            }
+                            parent.removeChild(node);
+                        }
+                        return;
+                    }
+
+                    // Strip any on* event handlers or dangerous javascript: urls
+                    const attrs = Array.from(node.attributes);
+                    for (const attr of attrs) {
+                        const name = attr.name.toLowerCase();
+                        const val = attr.value;
+                        if (name.startsWith('on') || val.toLowerCase().includes('javascript:') || val.toLowerCase().includes('data:text/html')) {
+                            node.removeAttribute(name);
+                            continue;
+                        }
+                        if (tagName === 'a') {
+                            if (name === 'href') {
+                                if (!/^https?:\/\/|^\/|^mailto:|^tel:/i.test(val.trim())) {
+                                    node.removeAttribute(name);
+                                } else {
+                                    node.setAttribute('target', '_blank');
+                                    node.setAttribute('rel', 'noopener noreferrer');
+                                }
+                            } else if (!['target', 'rel', 'title', 'class'].includes(name)) {
+                                node.removeAttribute(name);
+                            }
+                        } else if (name === 'style') {
+                            const safeStyles = [];
+                            const parts = val.split(';');
+                            for (const part of parts) {
+                                const [prop, sVal] = part.split(':').map(s => s && s.trim().toLowerCase());
+                                if (prop && sVal && ['color', 'background-color', 'font-weight', 'text-align', 'text-decoration'].includes(prop)) {
+                                    safeStyles.push(`${prop}: ${sVal}`);
+                                }
+                            }
+                            if (safeStyles.length > 0) {
+                                node.setAttribute('style', safeStyles.join('; '));
+                            } else {
+                                node.removeAttribute('style');
+                            }
+                        } else if (!['class', 'id'].includes(name)) {
+                            node.removeAttribute(name);
+                        }
+                    }
+
+                    Array.from(node.childNodes).forEach(cleanNode);
+                }
+            }
+
+            Array.from(doc.body.childNodes).forEach(cleanNode);
+            return doc.body.innerHTML;
+        } catch(err) {
+            console.warn("HTML sanitation error:", err);
+            return escapeHtml(html);
+        }
+    }
+
+    // Helper: Safely format post content for display without raw HTML tags leaking
+    function renderPostText(rawContent) {
+        if (!rawContent) return '';
+        let content = String(rawContent).trim();
+
+        // If content was saved with escaped tags like &lt;p&gt; and has no unescaped <, unescape it
+        if (content.includes('&lt;') && (content.includes('&lt;p') || content.includes('&lt;br') || content.includes('&lt;div') || content.includes('&lt;strong') || content.includes('&lt;b') || content.includes('&lt;em') || content.includes('&lt;i') || content.includes('&lt;ul') || content.includes('&lt;ol') || content.includes('&lt;li') || content.includes('&lt;a'))) {
+            const txt = document.createElement('textarea');
+            txt.innerHTML = content;
+            content = txt.value;
+        }
+
+        // Check if content has HTML formatting tags
+        const hasHtmlTags = /<\/?(p|br|div|strong|b|em|i|u|s|strike|ul|ol|li|h[1-6]|a|blockquote|span)[^>]*>/i.test(content);
+
+        if (!hasHtmlTags) {
+            const escaped = escapeHtml(content);
+            return escaped
+                .split(/\n\s*\n/)
+                .map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`)
+                .join('');
+        }
+
+        return sanitizeRichHtml(content);
+    }
+
     // Supported Font Family Library (Google Fonts & Web-Safe Fonts)
     const SUPPORTED_FONTS = [
         { name: 'Default (Inherit)', value: 'inherit', google: null },
@@ -7142,6 +7281,11 @@ ${mainContentHtml}
             if (postErrorMsg) postErrorMsg.style.display = 'none';
 
             publishForm.reset();
+            if (window.postQuill) {
+                try { window.postQuill.setText(''); } catch(e) {}
+            }
+            const postTextEl = document.getElementById('post-text');
+            if (postTextEl) postTextEl.value = '';
             if (postTagInputContainer) postTagInputContainer.style.display = 'none';
             if (imagePreview) {
                 imagePreview.src = '#';
@@ -7298,7 +7442,7 @@ ${mainContentHtml}
         filteredPosts.forEach(post => {
             try {
                 const title = escapeHtml(post.title || 'Untitled Update');
-                const text = escapeHtml(post.text || '');
+                const text = renderPostText(post.text || '');
                 const date = escapeHtml(post.date || getFormattedDate());
                 const category = post.category === 'news' ? 'news' : 'calls';
                 const tagLabel = category === 'news' ? 'News & Events' : 'Fire Call';
@@ -7318,7 +7462,7 @@ ${mainContentHtml}
                             </div>
                             <div class="news-card-date">${date}</div>
                             <h3 class="news-card-title">${title}</h3>
-                            <p class="news-card-text">${text}</p>
+                            <div class="news-card-text">${text}</div>
                         </div>
                     </div>
                 `;
@@ -7439,7 +7583,7 @@ ${mainContentHtml}
         let html = '';
         topPosts.forEach(post => {
             const title = escapeHtml(post.title || 'Station Update');
-            const text = escapeHtml(post.text || '');
+            const snippet = stripHtmlToText(post.text || '');
             const date = escapeHtml(post.date || getFormattedDate());
             const category = post.category === 'news' ? 'news' : 'calls';
             const tagLabel = category === 'news' ? 'News & Events' : 'Fire Call';
@@ -7453,7 +7597,7 @@ ${mainContentHtml}
                         <span class="recent-post-date">${date}</span>
                     </div>
                     <h4 class="recent-post-title">${title} ${newTagBadge}</h4>
-                    <p class="recent-post-snippet">${text}</p>
+                    <p class="recent-post-snippet">${escapeHtml(snippet)}</p>
                 </a>
             `;
         });

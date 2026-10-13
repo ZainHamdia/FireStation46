@@ -408,6 +408,8 @@
                     }
                 });
                 
+                window.postQuill = quill;
+                
                 // Sync quill content to hidden textarea for the existing script.js to read
                 quill.on('text-change', function() {
                     var html = quill.root.innerHTML;

@@ -1111,6 +1111,10 @@ body.menu-open {
     background: linear-gradient(rgba(15, 25, 43, 0.25), rgba(15, 25, 43, 0.45)),
                 url('santatitle.jpg') center/cover !important;
 }
+.hero-news {
+    background: linear-gradient(rgba(10, 15, 25, 0.28), rgba(10, 15, 25, 0.55)),
+                url('news-bg.jpg') center 30%/cover !important;
+}
 
 :root[data-theme="dark"] .hero-membership {
     background: linear-gradient(rgba(10, 15, 25, 0.28), rgba(10, 15, 25, 0.36)),
@@ -1124,11 +1128,30 @@ body.menu-open {
     background: linear-gradient(rgba(10, 15, 25, 0.52), rgba(10, 15, 25, 0.70)),
                 url('santatitle.jpg') center/cover !important;
 }
+:root[data-theme="dark"] .hero-news {
+    background: linear-gradient(rgba(10, 15, 25, 0.45), rgba(10, 15, 25, 0.70)),
+                url('news-bg.jpg') center 30%/cover !important;
+}
 .small-hero {
     height: 50vh !important;
     min-height: 380px !important;
     background-size: cover !important;
     background-position: center !important;
+}
+.small-hero .hero-title {
+    font-size: clamp(1.5rem, 5.5vw, 3.2rem) !important;
+    line-height: 1.15;
+    margin-bottom: 0.65rem;
+    word-break: normal;
+    overflow-wrap: break-word;
+}
+.small-hero .hero-subtitle {
+    font-size: clamp(0.82rem, 3vw, 1.15rem) !important;
+    line-height: 1.45;
+    letter-spacing: 1.2px !important;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .scroll-indicator {
@@ -2974,7 +2997,48 @@ footer {
     line-height: 1.6;
     margin-bottom: 1.5rem;
     flex-grow: 1;
-    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.news-card-text p {
+    margin: 0 0 0.85rem 0;
+    line-height: 1.6;
+    color: inherit;
+}
+
+.news-card-text p:last-child {
+    margin-bottom: 0;
+}
+
+.news-card-text p:has(> br:only-child) {
+    margin-bottom: 0.35rem;
+}
+
+.news-card-text ul,
+.news-card-text ol {
+    margin: 0.5rem 0 0.85rem 1.25rem;
+    padding: 0;
+}
+
+.news-card-text li {
+    margin-bottom: 0.25rem;
+    line-height: 1.5;
+}
+
+.news-card-text a {
+    color: var(--fire-red);
+    text-decoration: underline;
+    word-break: break-all;
+}
+
+.news-card-text strong,
+.news-card-text b {
+    color: var(--text-heading);
+    font-weight: 600;
+}
+
+:root[data-theme="dark"] .news-card-text a {
+    color: #f87171;
 }
 
 /* Floating Admin Access Badge */
