@@ -3768,8 +3768,25 @@ body.admin-edit-mode [contenteditable="true"]:focus {
 #admin-navbar,
 .navbar,
 .nav-links,
-.nav-dropdown-menu {
+.nav-dropdown-menu,
+button,
+.btn,
+.station-image-change-btn,
+.section-drag-handle,
+.section-admin-bar,
+.card-admin-remove-btn,
+.section-item-upload-btn,
+.section-card-add-btn,
+.mobile-menu-btn,
+.filter-btn,
+.theme-switch-btn,
+.slider-nav-btn,
+.slider-dot,
+.roster-card-remove-btn,
+.apparatus-card-remove-btn,
+.stat-row-remove-btn {
     -webkit-user-modify: read-only !important;
+    user-select: none;
 }
 
 body.admin-edit-mode #admin-floating-bar,
@@ -3781,6 +3798,9 @@ body.admin-edit-mode #admin-navbar,
 body.admin-edit-mode .navbar,
 body.admin-edit-mode .nav-links,
 body.admin-edit-mode .nav-dropdown-menu,
+body.admin-edit-mode button,
+body.admin-edit-mode .btn,
+body.admin-edit-mode .station-image-change-btn,
 body.admin-edit-mode #admin-floating-bar *,
 body.admin-edit-mode .admin-floating-bar *,
 body.admin-edit-mode .admin-header-actions *,
@@ -3789,7 +3809,10 @@ body.admin-edit-mode .admin-link *,
 body.admin-edit-mode #admin-navbar *,
 body.admin-edit-mode .navbar *,
 body.admin-edit-mode .nav-links *,
-body.admin-edit-mode .nav-dropdown-menu * {
+body.admin-edit-mode .nav-dropdown-menu *,
+body.admin-edit-mode button *,
+body.admin-edit-mode .btn *,
+body.admin-edit-mode .station-image-change-btn * {
     outline: none !important;
 }
 
@@ -3798,7 +3821,9 @@ body.admin-edit-mode #admin-floating-bar a,
 body.admin-edit-mode .admin-header-actions button,
 body.admin-edit-mode .admin-header-actions a,
 body.admin-edit-mode .navbar a,
-body.admin-edit-mode .admin-link {
+body.admin-edit-mode .admin-link,
+body.admin-edit-mode button,
+body.admin-edit-mode .btn {
     cursor: pointer !important;
 }
 

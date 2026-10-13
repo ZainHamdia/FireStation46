@@ -841,8 +841,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'p', 'blockquote', 'figcaption', 'address',
         'li', 'dt', 'dd',
-        'a', 'button',
-        '.btn', '.btn-primary', '.btn-secondary', '.btn-action',
         'span', 'strong', 'b', 'em', 'i', 'label', 'small', 'cite', 'summary',
         'td', 'th',
         '.hero-title', '.hero-subtitle', '.hero-desc',
@@ -870,7 +868,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Technical / system / non-content elements
         const tagName = element.tagName.toUpperCase();
-        if (['SCRIPT', 'STYLE', 'LINK', 'META', 'SVG', 'PATH', 'POLYLINE', 'CIRCLE', 'RECT', 'LINE', 'IMG', 'IFRAME', 'VIDEO', 'AUDIO', 'CANVAS', 'INPUT', 'TEXTAREA', 'SELECT', 'OPTION'].includes(tagName)) {
+        if (['SCRIPT', 'STYLE', 'LINK', 'META', 'SVG', 'PATH', 'POLYLINE', 'CIRCLE', 'RECT', 'LINE', 'IMG', 'IFRAME', 'VIDEO', 'AUDIO', 'CANVAS', 'INPUT', 'TEXTAREA', 'SELECT', 'OPTION', 'BUTTON'].includes(tagName)) {
+            return false;
+        }
+
+        // Never allow buttons, action links, badges, or admin overlay controls to be editable
+        if (element.closest('button, .btn, .btn-primary, .btn-secondary, .btn-action, .station-image-change-btn, .section-drag-handle, .section-admin-bar, .card-admin-remove-btn, .section-item-upload-btn, .section-card-add-btn, .mobile-menu-btn, .filter-btn, .theme-switch-btn, .slider-nav-btn, .slider-dot, .roster-card-remove-btn, .apparatus-card-remove-btn, .stat-row-remove-btn')) {
             return false;
         }
 
@@ -5882,8 +5885,8 @@ ${mainContentHtml}
             }
         });
 
-        // Ensure admin menu, floating bar, and navigation elements are strictly never contenteditable
-        document.querySelectorAll('#admin-floating-bar, .admin-floating-bar, .navbar, #admin-navbar, .nav-links, .admin-header-actions, .admin-link, [class*="admin-menu"]').forEach(container => {
+        // Ensure admin menu, floating bar, buttons, and navigation elements are strictly never contenteditable
+        document.querySelectorAll('#admin-floating-bar, .admin-floating-bar, .navbar, #admin-navbar, .nav-links, .admin-header-actions, .admin-link, [class*="admin-menu"], button, .btn, .btn-primary, .btn-secondary, .station-image-change-btn, .section-drag-handle, .section-admin-bar, .card-admin-remove-btn, .section-item-upload-btn, .section-card-add-btn, .mobile-menu-btn, .filter-btn, .theme-switch-btn, .slider-nav-btn, .slider-dot, .roster-card-remove-btn, .apparatus-card-remove-btn, .stat-row-remove-btn').forEach(container => {
             container.removeAttribute('contenteditable');
             container.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
         });
@@ -6989,8 +6992,8 @@ ${mainContentHtml}
                 document.querySelectorAll('.section-item-upload-btn, .station-image-change-btn, .section-drag-handle').forEach(el => {
                     el.style.display = 'inline-flex';
                 });
-                // Ensure admin menu and navigation are strictly never contenteditable
-                document.querySelectorAll('#admin-floating-bar, .admin-floating-bar, .navbar, #admin-navbar, .nav-links, .admin-header-actions, .admin-link, [class*="admin-menu"]').forEach(container => {
+                // Ensure admin menu, buttons, and navigation are strictly never contenteditable
+                document.querySelectorAll('#admin-floating-bar, .admin-floating-bar, .navbar, #admin-navbar, .nav-links, .admin-header-actions, .admin-link, [class*="admin-menu"], button, .btn, .btn-primary, .btn-secondary, .station-image-change-btn, .section-drag-handle, .section-admin-bar, .card-admin-remove-btn, .section-item-upload-btn, .section-card-add-btn, .mobile-menu-btn, .filter-btn, .theme-switch-btn, .slider-nav-btn, .slider-dot, .roster-card-remove-btn, .apparatus-card-remove-btn, .stat-row-remove-btn').forEach(container => {
                     container.removeAttribute('contenteditable');
                     container.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
                 });
