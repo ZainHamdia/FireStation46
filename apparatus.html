@@ -108,19 +108,19 @@
         <!-- Apparatus Grid Section -->
         <section class="section" id="active-fleet">
             <div class="container">
-                <div class="section-header text-center fade-in" style="margin-bottom: 2rem;">
+                <div class="section-header text-center fade-in visible" style="margin-bottom: 2rem;">
                     <h2 class="section-title">Active Fleet</h2>
                     <p class="section-subtitle mw-800 mx-auto">Frontline response apparatus and emergency vehicles serving Montgomery Township.</p>
                     <div class="apparatus-admin-actions" style="margin-top: 1.25rem; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                        <button type="button" class="btn btn-sm btn-apparatus-add" id="btn-add-apparatus-active">
+                        <button type="button" class="btn btn-sm btn-apparatus-add" id="btn-add-apparatus-active" data-bound="true" style="display: inline-flex;">
                             ➕ Add New Apparatus
                         </button>
                     </div>
                 </div>
                 <div class="cards-grid" id="active-apparatus-list" style="margin-top: 0;">
-                    <div class="card glass-card hover-lift fade-in">
+                    <div class="card glass-card hover-lift fade-in visible apparatus-card-draggable" style="position: relative;" data-apparatus-drag-init="true" data-apparatus-index="0" tabindex="0" role="button" aria-label="View photo and specs for Truck 46">
                         <div class="card-img-wrapper">
-                            <div class="card-img-placeholder">Truck 46</div>
+                            <div class="card-img-placeholder" style="position: relative;">Truck 46</div>
                         </div>
                         <div class="card-content">
                             <h3>Truck 46</h3>
@@ -133,9 +133,9 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="card glass-card hover-lift fade-in delay-1">
+                    <div class="card glass-card hover-lift fade-in delay-1 visible apparatus-card-draggable" style="position: relative;" data-apparatus-drag-init="true" data-apparatus-index="1" tabindex="0" role="button" aria-label="View photo and specs for Engine 46-8">
                         <div class="card-img-wrapper">
-                            <div class="card-img-placeholder">Engine 46-8</div>
+                            <div class="card-img-placeholder" style="position: relative;">Engine 46-8</div>
                         </div>
                         <div class="card-content">
                             <h3>Engine 46-8</h3>
@@ -151,9 +151,9 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="card glass-card hover-lift fade-in delay-2">
+                    <div class="card glass-card hover-lift fade-in delay-2 visible apparatus-card-draggable" style="position: relative;" data-apparatus-drag-init="true" data-apparatus-index="2" tabindex="0" role="button" aria-label="View photo and specs for Engine 46-7">
                         <div class="card-img-wrapper">
-                            <div class="card-img-placeholder">Engine 46-7</div>
+                            <div class="card-img-placeholder" style="position: relative;">Engine 46-7</div>
                         </div>
                         <div class="card-content">
                             <h3>Engine 46-7</h3>
@@ -165,9 +165,9 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="card glass-card hover-lift fade-in delay-1">
+                    <div class="card glass-card hover-lift fade-in delay-1 apparatus-card-draggable visible" style="position: relative;" data-apparatus-drag-init="true" data-apparatus-index="3" tabindex="0" role="button" aria-label="View photo and specs for Rescue 46">
                         <div class="card-img-wrapper">
-                            <div class="card-img-placeholder">Rescue 46</div>
+                            <div class="card-img-placeholder" style="position: relative;">Rescue 46</div>
                         </div>
                         <div class="card-content">
                             <h3>Rescue 46</h3>
@@ -179,9 +179,9 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="card glass-card hover-lift fade-in delay-2">
+                    <div class="card glass-card hover-lift fade-in delay-2 apparatus-card-draggable visible" style="position: relative;" data-apparatus-drag-init="true" data-apparatus-index="4" tabindex="0" role="button" aria-label="View photo and specs for Brush 46">
                         <div class="card-img-wrapper">
-                            <div class="card-img-placeholder">Brush 46</div>
+                            <div class="card-img-placeholder" style="position: relative;">Brush 46</div>
                         </div>
                         <div class="card-content">
                             <h3>Brush 46</h3>
@@ -194,9 +194,9 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="card glass-card hover-lift fade-in delay-2">
+                    <div class="card glass-card hover-lift fade-in delay-2 apparatus-card-draggable visible" style="position: relative;" data-apparatus-drag-init="true" data-apparatus-index="5" tabindex="0" role="button" aria-label="View photo and specs for Marine 46">
                         <div class="card-img-wrapper">
-                            <div class="card-img-placeholder">Marine 46</div>
+                            <div class="card-img-placeholder" style="position: relative;">Marine 46</div>
                         </div>
                         <div class="card-content">
                             <h3>Marine 46</h3>
@@ -208,9 +208,9 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="card glass-card hover-lift fade-in delay-1">
+                    <div class="card glass-card hover-lift fade-in delay-1 apparatus-card-draggable visible" style="position: relative;" data-apparatus-drag-init="true" data-apparatus-index="6" tabindex="0" role="button" aria-label="View photo and specs for Car 46">
                         <div class="card-img-wrapper">
-                            <div class="card-img-placeholder">Car 46</div>
+                            <div class="card-img-placeholder" style="position: relative;">Car 46</div>
                         </div>
                         <div class="card-content">
                             <h3>Car 46</h3>
@@ -222,9 +222,9 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="card glass-card hover-lift fade-in delay-2">
+                    <div class="card glass-card hover-lift fade-in delay-2 apparatus-card-draggable visible" style="position: relative;" data-apparatus-drag-init="true" data-apparatus-index="7" tabindex="0" role="button" aria-label="View photo and specs for Car 46-2">
                         <div class="card-img-wrapper">
-                            <div class="card-img-placeholder img-car462">Car 46-2</div>
+                            <div class="card-img-placeholder img-car462" style="position: relative;">Car 46-2</div>
                         </div>
                         <div class="card-content">
                             <h3>Car 46-2</h3>
@@ -237,14 +237,26 @@
                             </ul>
                         </div>
                     </div>
+                <div class="card glass-card hover-lift fade-in apparatus-card-draggable" style="position: relative;" data-apparatus-drag-init="true" data-apparatus-index="8" tabindex="0" role="button" aria-label="View photo and specs for Utility 46">
+                <div class="card-img-wrapper">
+                    <div class="card-img-placeholder" style="background: linear-gradient(rgba(0,0,0,0.0), rgba(0,0,0,0.45)), url('utility46.heic') center/cover; color: white; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.9);">Utility 46</div>
                 </div>
+                <div class="card-content">
+                    <h3>Utility 46</h3>
+                    <ul class="tech-specs">
+                        <li>2007 Ford Super Duty F-350 XL</li>
+                                <li>Seats 6 Firefighters</li>
+                                
+                    </ul>
+                </div>
+            </div></div>
             </div>
         </section>
 
         <!-- Upcoming Apparatus Section -->
         <section class="section upcoming-apparatus-section" id="upcoming">
             <div class="container">
-                <div class="section-header text-center fade-in">
+                <div class="section-header text-center fade-in visible">
                     <div>
                         <span class="upcoming-badge-tag">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -256,7 +268,7 @@
                 </div>
 
                 <!-- Featured Apparatus Overview Card -->
-                <div class="glass-card upcoming-feature-card fade-in delay-1">
+                <div class="glass-card upcoming-feature-card fade-in delay-1 visible">
                     <div class="upcoming-feature-grid">
                         <div class="upcoming-info">
                             <span class="role-badge-tag" style="background: rgba(179, 33, 43, 0.15); border-color: rgba(179, 33, 43, 0.35); color: #e8656e; margin-bottom: 1rem; display: inline-block;">Currently In Production • SVI Fire &amp; Rescue Trucks</span>
