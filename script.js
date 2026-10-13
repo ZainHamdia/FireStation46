@@ -2918,7 +2918,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ).forEach(el => el.remove());
 
         // Ensure third-party widget iframes are not persisted in HTML template state
-        clone.querySelectorAll('.powr-social-feed iframe, .powr-feed-wrapper iframe').forEach(el => el.remove());
+        clone.querySelectorAll('.powr-social-feed iframe, .powr-feed-wrapper iframe, iframe.instagram-media').forEach(el => el.remove());
+        // Remove legacy powr feeds if present
+        clone.querySelectorAll('.powr-social-feed, script[src*="powr.io"], .powr-feed-wrapper').forEach(el => el.remove());
 
         // Remove hidden file inputs added for image uploads
         clone.querySelectorAll('input[type="file"]').forEach(el => el.remove());
@@ -2952,8 +2954,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!pageKey || pageKey === 'admin.html') return;
         const saved = localStorage.getItem('station46_main_html_' + pageKey);
 
-        // If cached main HTML contains stale embeds or lacks powr-feed-wrapper, purge the cache so fresh static HTML with POWr is displayed
-        if (saved && (saved.includes('instagram-media') || saved.includes('instagram.com/embed.js') || (saved.includes('powr-social-feed') && !saved.includes('powr-feed-wrapper')))) {
+        // If cached main HTML contains stale powr feeds, purge the cache so fresh static HTML with Instagram is displayed
+        if (saved && (saved.includes('powr-social-feed') || saved.includes('powr.io') || saved.includes('powr-feed-wrapper'))) {
             localStorage.removeItem('station46_main_html_' + pageKey);
             return;
         }
@@ -2963,15 +2965,19 @@ document.addEventListener('DOMContentLoaded', () => {
             mainEl.innerHTML = saved;
             // Defensive cleanup: remove any errant toolbars or dividers that may have been saved inside hero
             mainEl.querySelectorAll('.hero .section-admin-bar, .small-hero .section-admin-bar, #home .section-admin-bar, .hero-content .section-admin-bar, .hero .section-insert-divider, #home .section-insert-divider, .small-hero .section-insert-divider').forEach(el => el.remove());
+            // Remove legacy powr feeds if present in cached state
+            mainEl.querySelectorAll('.powr-social-feed, script[src*="powr.io"], .powr-feed-wrapper').forEach(el => el.remove());
 
-            // If powr-social-feed is present in restored HTML, ensure powr script initializes
-            if (mainEl.querySelector('.powr-social-feed')) {
-                if (!document.querySelector('script[src*="powr.io/powr.js"]')) {
-                    const ps = document.createElement('script');
-                    ps.src = 'https://www.powr.io/powr.js?platform=html';
-                    document.body.appendChild(ps);
-                } else if (window.loadPowr) {
-                    try { window.loadPowr(); } catch (e) {}
+            // If instagram-media is present in restored HTML, ensure instagram script initializes
+            if (mainEl.querySelector('.instagram-media')) {
+                if (!document.querySelector('script[src*="instagram.com/embed.js"]')) {
+                    const is = document.createElement('script');
+                    is.async = true;
+                    is.src = '//www.instagram.com/embed.js';
+                    document.body.appendChild(is);
+                }
+                if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === 'function') {
+                    try { window.instgrm.Embeds.process(); } catch (e) {}
                 }
             }
         }
@@ -7627,7 +7633,14 @@ ${mainContentHtml}
         brandingObserver.observe(document.body, { childList: true, subtree: true });
     } catch(err) {}
 
-    setInterval(removeWidgetBranding, 400);
+    // Process Instagram embeds if loaded dynamically
+    function processInstagramEmbeds() {
+        if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === 'function') {
+            try { window.instgrm.Embeds.process(); } catch(e) {}
+        }
+    }
+    setTimeout(processInstagramEmbeds, 600);
+    setTimeout(processInstagramEmbeds, 2000);
 
     syncFromRemoteDatabase();
     setupAdminWelcomeHeading();

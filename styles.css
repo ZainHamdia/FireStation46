@@ -3599,61 +3599,24 @@ body.admin-edit-mode [contenteditable="true"]:focus {
    POWR Social Feed Container & Watermark Suppression
    ========================================================================== */
 
-/* Outer feed wrapper: neatly contained, rounded, clips overflow */
+/* Official Instagram Feed Embed Styling */
+.instagram-media {
+    margin: 1.5rem auto !important;
+    display: block !important;
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+:root[data-theme="dark"] .instagram-media {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
 /* Feed section boundary & containment */
 #home-facebook-feed-section,
 #news-facebook-feed-section {
     position: relative;
     overflow: hidden !important;
-}
-
-.powr-feed-wrapper {
-    position: relative;
-    overflow: hidden !important;
-    max-width: 100%;
-    margin: 0 auto !important;
-    border-radius: 16px;
-    background: transparent;
-}
-
-.powr-feed-wrapper::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 85px;
-    background: var(--bg-surface-alt);
-    pointer-events: none;
-    z-index: 10;
-}
-
-/* Feed container: strictly contained, no negative margin */
-.powr-social-feed {
-    position: relative !important;
-    overflow: hidden !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: 0 !important;
-}
-
-.powr-social-feed:has(iframe),
-.powr-social-feed.powr-loaded,
-.powr-feed-wrapper:has(iframe) {
-    overflow: hidden !important;
-    margin-bottom: 0 !important;
-}
-
-.powr-social-feed iframe,
-iframe[src*="powr.io"],
-iframe[id*="powr"],
-iframe[title*="social-feed"],
-iframe[title*="social feed"],
-iframe[title*="powr"] {
-    display: block !important;
-    overflow: hidden !important;
-    clip-path: inset(0 0 85px 0) !important;
-    -webkit-clip-path: inset(0 0 85px 0) !important;
 }
 
 /* Hide Third-Party POWR Admin Bar, Edit App controls, Watermark, and Branding */
