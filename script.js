@@ -874,68 +874,28 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
-        // On admin.html, only the welcome heading is editable; never edit admin management controls
-        const isCurrentAdminPage = window.location.pathname.endsWith('admin.html') || window.location.pathname.includes('admin.html');
-        if (isCurrentAdminPage && element.id !== 'admin-welcome-heading') {
-            return false;
-        }
-
-        // Never edit internal admin controls, floating bar, font toolbar, modals, or toasts
-        if (element.closest('#admin-floating-bar') ||
-            element.closest('#admin-font-toolbar') ||
-            element.closest('.admin-font-modal-overlay') ||
-            element.closest('#admin-toast-notification') ||
-            element.closest('#admin-posts-list-container') ||
-            element.closest('#admin-dashboard-view') ||
-            element.closest('#admin-login-view') ||
-            element.closest('.admin-form-container') ||
-            element.closest('.admin-dashboard') ||
-            element.closest('#admin-login-form') ||
-            element.closest('#admin-publish-form')) {
+        // Do not let edit mode edit the admin menu, floating admin bar, dashboard actions, or site navigation menu
+        if (element.closest('#admin-floating-bar, .admin-floating-bar') ||
+            element.closest('.navbar, #admin-navbar, nav, .nav-container, .nav-links, .nav-dropdown, .nav-dropdown-menu, .nav-dropdown-item, .nav-link, .nav-logo, .mobile-menu-btn') ||
+            element.closest('.admin-header-actions, .admin-dashboard-header, .admin-dashboard') ||
+            element.closest('.admin-link, #floating-admin-badge, a[href*="admin.html"]') ||
+            element.closest('[class*="admin-menu"], [id*="admin-menu"], [class*="admin-action"], .btn-admin-action, .btn-admin-git, .btn-admin-logout') ||
+            element.closest('#admin-font-toolbar, .admin-font-modal-overlay, #admin-toast-notification') ||
+            element.closest('#admin-posts-list-container, #admin-dashboard-view, #admin-login-view, .admin-form-container, #admin-login-form, #admin-publish-form') ||
+            element.closest('#admin-weather-card, #admin-pages-management-card') ||
+            element.closest('.section-admin-bar, .section-insert-divider, .section-drag-handle, .section-card-add-btn, .card-admin-remove-btn, .section-item-upload-btn, .station-image-change-btn') ||
+            element.closest('.roster-modal-overlay, .station-slider-admin-actions, .slider-card-admin-controls, .stat-row-remove-btn, .slider-nav-btn, .slider-dot') ||
+            element.closest('.apparatus-card-remove-btn, .apparatus-card-drag-handle, .apparatus-move-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder, .btn-apparatus-add, .apparatus-admin-actions, .apparatus-add-modal-overlay, #apparatus-modal') ||
+            element.closest('.station-builder-modal-overlay, #station-image-editor-modal, #station-page-creator-modal, #station-section-picker-modal') ||
+            element.closest('#theme-switch-wrapper, .theme-switch-btn, #station46-storm-banner, #station46-storm-floating-pill, #storm-hub-modal, .storm-modal-backdrop, .storm-toggle-btn') ||
+            element.id === 'year' ||
+            element.closest('form')) {
             if (element.id !== 'admin-welcome-heading') return false;
         }
 
-        // Never edit system/automated widgets: storm banner/hub, theme toggle, mobile hamburger toggle, dynamic year
-        if (element.closest('#theme-switch-wrapper') ||
-            element.closest('.theme-switch-btn') ||
-            element.closest('.mobile-menu-btn') ||
-            element.closest('#station46-storm-banner') ||
-            element.closest('#station46-storm-floating-pill') ||
-            element.closest('#storm-hub-modal') ||
-            element.closest('.storm-modal-backdrop') ||
-            element.closest('#admin-weather-card') ||
-            element.closest('.storm-toggle-btn') ||
-            element.id === 'year' ||
-            element.classList.contains('roster-card-remove-btn') ||
-            element.classList.contains('btn-roster-add-member') ||
-            element.classList.contains('roster-card-drag-handle') ||
-            element.classList.contains('roster-drag-placeholder') ||
-            element.classList.contains('roster-card-tag-btn') ||
-            element.classList.contains('roster-tag-delete-btn') ||
-            element.closest('.roster-modal-overlay') ||
-            element.closest('.station-slider-admin-actions') ||
-            element.closest('.slider-card-admin-controls') ||
-            element.classList.contains('stat-row-remove-btn') ||
-            element.classList.contains('slider-nav-btn') ||
-            element.classList.contains('slider-dot') ||
-            element.classList.contains('apparatus-card-remove-btn') ||
-            element.classList.contains('apparatus-card-drag-handle') ||
-            element.classList.contains('apparatus-move-btn') ||
-            element.closest('.apparatus-card-admin-header') ||
-            element.closest('.apparatus-drag-placeholder') ||
-            element.classList.contains('btn-apparatus-add') ||
-            element.closest('.apparatus-admin-actions') ||
-            element.closest('.apparatus-add-modal-overlay') ||
-            element.closest('#apparatus-modal') ||
-            element.closest('.station-builder-modal-overlay') ||
-            element.closest('.section-admin-bar') ||
-            element.closest('.section-insert-divider') ||
-            element.classList.contains('section-card-add-btn') ||
-            element.classList.contains('card-admin-remove-btn') ||
-            element.classList.contains('section-item-upload-btn') ||
-            element.classList.contains('section-admin-btn') ||
-            element.classList.contains('section-insert-divider-btn') ||
-            element.closest('form')) {
+        // On admin.html, only the welcome heading is editable; never edit admin management controls or dashboard
+        const isCurrentAdminPage = window.location.pathname.endsWith('admin.html') || window.location.pathname.includes('admin.html');
+        if (isCurrentAdminPage && element.id !== 'admin-welcome-heading') {
             return false;
         }
 
@@ -1067,9 +1027,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inline CMS / Text Editing Backdoor
     const isAdminLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
-    let editModeActive = true;
+    let editModeActive = localStorage.getItem('station46_edit_mode') !== 'false';
 
-    // Clean up legacy index-based corrupted edits from older versions
+    // Clean up legacy index-based corrupted edits and any errant admin menu / navbar edits
     (function cleanupLegacyEdits() {
         try {
             const stored = localStorage.getItem('station46_text_edits');
@@ -1077,7 +1037,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const raw = JSON.parse(stored);
                 let changed = false;
                 for (const k in raw) {
-                    if (k.match(/^edit_text_[a-zA-Z0-9_\-\.]+\.html_\d+$/)) {
+                    if (k.match(/^edit_text_[a-zA-Z0-9_\-\.]+\.html_\d+$/) ||
+                        k.includes('admin-floating-bar') ||
+                        k.includes('admin-navbar') ||
+                        k.includes('navbar') ||
+                        k.includes('nav-links') ||
+                        k.includes('admin-header') ||
+                        k.includes('admin-link')) {
                         delete raw[k];
                         changed = true;
                     }
@@ -5898,7 +5864,7 @@ ${mainContentHtml}
                 // Prevent link navigation or button action during active edit mode so admin can edit text
                 if (element.tagName === 'A' || element.closest('a') || element.tagName === 'BUTTON' || element.closest('button')) {
                     element.addEventListener('click', (e) => {
-                        if (editModeActive && !element.closest('#admin-floating-bar')) {
+                        if (editModeActive && !element.closest('#admin-floating-bar, .admin-floating-bar, .navbar, #admin-navbar, .nav-link, .admin-link, .admin-header-actions, [class*="admin-menu"]')) {
                             e.preventDefault();
                         }
                     });
@@ -5914,6 +5880,12 @@ ${mainContentHtml}
                     });
                 }
             }
+        });
+
+        // Ensure admin menu, floating bar, and navigation elements are strictly never contenteditable
+        document.querySelectorAll('#admin-floating-bar, .admin-floating-bar, .navbar, #admin-navbar, .nav-links, .admin-header-actions, .admin-link, [class*="admin-menu"]').forEach(container => {
+            container.removeAttribute('contenteditable');
+            container.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
         });
     }
 
@@ -6901,7 +6873,7 @@ ${mainContentHtml}
         // 6. Toggle Edit Mode Button
         const toggleBtn = document.createElement('button');
         toggleBtn.id = 'edit-mode-toggle-btn';
-        toggleBtn.style.background = 'rgba(46, 125, 50, 0.9)'; // Green for ON
+        toggleBtn.style.background = editModeActive ? 'rgba(46, 125, 50, 0.9)' : 'rgba(179, 33, 43, 0.9)';
         toggleBtn.style.color = 'white';
         toggleBtn.style.padding = '10px 18px';
         toggleBtn.style.borderRadius = '30px';
@@ -6911,7 +6883,7 @@ ${mainContentHtml}
         toggleBtn.style.cursor = 'pointer';
         toggleBtn.style.transition = 'all 0.2s ease';
         toggleBtn.style.fontFamily = 'var(--font-heading, sans-serif)';
-        toggleBtn.innerHTML = '⚡ Edit Mode: ON';
+        toggleBtn.innerHTML = editModeActive ? '⚡ Edit Mode: ON' : '⚡ Edit Mode: OFF';
 
         // 7. Admin Portal link button
         const portalBtn = document.createElement('a');
@@ -6977,11 +6949,16 @@ ${mainContentHtml}
         bar.appendChild(portalBtn);
         bar.appendChild(quickLogoutBtn);
         document.body.appendChild(bar);
-        document.body.classList.add('admin-edit-mode');
+        if (editModeActive) {
+            document.body.classList.add('admin-edit-mode');
+        } else {
+            document.body.classList.remove('admin-edit-mode');
+        }
         document.body.classList.add('has-admin-floating-bar');
 
         toggleBtn.addEventListener('click', () => {
             editModeActive = !editModeActive;
+            localStorage.setItem('station46_edit_mode', editModeActive ? 'true' : 'false');
             
             if (editModeActive) {
                 document.body.classList.add('admin-edit-mode');
@@ -7012,8 +6989,14 @@ ${mainContentHtml}
                 document.querySelectorAll('.section-item-upload-btn, .station-image-change-btn, .section-drag-handle').forEach(el => {
                     el.style.display = 'inline-flex';
                 });
+                // Ensure admin menu and navigation are strictly never contenteditable
+                document.querySelectorAll('#admin-floating-bar, .admin-floating-bar, .navbar, #admin-navbar, .nav-links, .admin-header-actions, .admin-link, [class*="admin-menu"]').forEach(container => {
+                    container.removeAttribute('contenteditable');
+                    container.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+                });
                 setupAllSectionControls();
                 setupUniversalImageEditors();
+                showAdminToast('⚡ Edit Mode: ON. Click any text, image or section to edit.');
             } else {
                 hideFontToolbar();
                 document.body.classList.remove('admin-edit-mode');
@@ -7041,11 +7024,14 @@ ${mainContentHtml}
                 document.querySelectorAll('.section-admin-bar, .section-insert-divider, .section-card-add-btn, .card-admin-remove-btn, .section-item-upload-btn, .station-image-change-btn, .section-drag-handle').forEach(el => {
                     el.style.display = 'none';
                 });
+                showAdminToast('⚡ Edit Mode: OFF. Browsing preview active.');
             }
         });
 
         quickLogoutBtn.addEventListener('click', () => {
             sessionStorage.removeItem('admin_logged_in');
+            sessionStorage.removeItem('admin_credentials');
+            localStorage.removeItem('station46_edit_mode');
             window.location.reload();
         });
     }
@@ -7204,6 +7190,7 @@ ${mainContentHtml}
         logoutBtn.addEventListener('click', () => {
             sessionStorage.removeItem('admin_logged_in');
             sessionStorage.removeItem('admin_credentials');
+            localStorage.removeItem('station46_edit_mode');
             window.location.reload(); // Reload once to flush session state and exit visual editor
         });
     }
@@ -7323,23 +7310,24 @@ ${mainContentHtml}
                 const categoryLabel = post.category === 'news' ? 'News & Events' : 'Fire Calls';
                 const date = escapeHtml(post.date || getFormattedDate());
                 const rawTag = post.tagText || (post.isNew ? 'NEW' : '');
-                const tagBadge = rawTag ? `<span class="tag-new" style="position: static; margin-left: 6px; font-size: 0.55rem; padding: 1px 5px; vertical-align: middle;">${escapeHtml(rawTag)}</span>` : '';
+                const tagBadge = rawTag ? `<span class="tag-new" style="position: static; margin-left: 6px; font-size: 0.62rem; padding: 2px 6px; vertical-align: middle;">${escapeHtml(rawTag)}</span>` : '';
                 const editTagBtnText = rawTag ? `🏷️ Tag: "${escapeHtml(rawTag)}"` : '+ Add Tag';
-                const editTagBtnStyle = rawTag
-                    ? 'border: 1px solid rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.15); color: #93c5fd;'
-                    : 'border: 1px dashed rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); color: #34d399;';
+                const tagBtnClass = rawTag ? 'edit-tag-btn has-tag' : 'edit-tag-btn no-tag';
 
                 html += `
                     <div class="admin-post-item">
                         <div class="admin-post-info">
                             <h4>${title}</h4>
                             <div class="admin-post-meta">
-                                <span>Category:</span> ${categoryLabel} | <span>Date:</span> ${date} ${tagBadge}
+                                <span><strong class="meta-label">Category:</strong> ${categoryLabel}</span>
+                                <span class="meta-sep">•</span>
+                                <span><strong class="meta-label">Date:</strong> ${date}</span>
+                                ${tagBadge}
                             </div>
                         </div>
-                        <div class="admin-post-actions" style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
-                            <button type="button" class="btn edit-tag-btn" data-id="${post.id}" style="padding: 6px 10px; font-size: 0.78rem; font-family: var(--font-heading); font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; ${editTagBtnStyle}">${editTagBtnText}</button>
-                            <button type="button" class="btn btn-danger delete-btn" data-id="${post.id}" style="padding: 6px 12px; font-size: 0.85rem; font-family: var(--font-heading); font-weight: 600; border-radius: 6px; border: none; cursor: pointer;">Delete</button>
+                        <div class="admin-post-actions">
+                            <button type="button" class="btn ${tagBtnClass}" data-id="${post.id}">${editTagBtnText}</button>
+                            <button type="button" class="btn delete-btn" data-id="${post.id}">Delete</button>
                         </div>
                     </div>
                 `;
