@@ -2623,21 +2623,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isAdminLoggedIn) {
             createAddApparatusModal();
 
-            const btnAddActive = document.getElementById('btn-add-apparatus-active');
-            if (btnAddActive && !btnAddActive.dataset.bound) {
-                btnAddActive.dataset.bound = 'true';
-                btnAddActive.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    openAddApparatusModal('active');
-                });
-            }
+            const bindApparatusAddBtn = (id, type) => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.removeAttribute('data-bound');
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openAddApparatusModal(type);
+                    };
+                }
+            };
 
-            const btnAddRetired = document.getElementById('btn-add-apparatus-retired');
-            if (btnAddRetired && !btnAddRetired.dataset.bound) {
-                btnAddRetired.dataset.bound = 'true';
-                btnAddRetired.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    openAddApparatusModal('retired');
+            bindApparatusAddBtn('btn-add-apparatus-active', 'active');
+            bindApparatusAddBtn('btn-add-apparatus-retired', 'retired');
+
+            // Global delegated click listener fallback so click always triggers even if dynamically re-rendered
+            if (!document.body.dataset.apparatusAddBound) {
+                document.body.dataset.apparatusAddBound = 'true';
+                document.addEventListener('click', (e) => {
+                    const addActive = e.target.closest('#btn-add-apparatus-active');
+                    if (addActive) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openAddApparatusModal('active');
+                        return;
+                    }
+                    const addRetired = e.target.closest('#btn-add-apparatus-retired');
+                    if (addRetired) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openAddApparatusModal('retired');
+                        return;
+                    }
                 });
             }
 
@@ -6653,6 +6671,7 @@ ${mainContentHtml}
                     // Strip any runtime attributes or markers before generating clean static HTML
                     doc.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
                     doc.querySelectorAll('[data-editor-init]').forEach(el => el.removeAttribute('data-editor-init'));
+                    doc.querySelectorAll('[data-bound]').forEach(el => el.removeAttribute('data-bound'));
                     doc.querySelectorAll('.admin-edit-focus, .apparatus-card-dragging, .roster-card-dragging').forEach(el => {
                         el.classList.remove('admin-edit-focus', 'apparatus-card-dragging', 'roster-card-dragging');
                     });
