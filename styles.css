@@ -10243,6 +10243,70 @@ body.admin-edit-mode .card-img-placeholder:hover {
     color: #64748b;
 }
 
+.image-editor-dropzone.drag-over {
+    border-color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+    transform: scale(1.01);
+}
+
+.image-upload-options-card {
+    margin-top: 1.25rem;
+    padding: 1.25rem;
+    background: var(--bg-surface, #f8fafc);
+    border: 1.5px solid var(--border-subtle, #cbd5e1);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+:root[data-theme="dark"] .image-upload-options-card {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+.image-upload-status-box {
+    margin-top: 1rem;
+    padding: 11px 15px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.image-upload-status-box.loading {
+    background: rgba(37, 99, 235, 0.1);
+    color: #1d4ed8;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+:root[data-theme="dark"] .image-upload-status-box.loading {
+    background: rgba(37, 99, 235, 0.2);
+    color: #93c5fd;
+    border-color: rgba(37, 99, 235, 0.4);
+}
+
+.image-upload-status-box.success {
+    background: rgba(16, 185, 129, 0.12);
+    color: #065f46;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+:root[data-theme="dark"] .image-upload-status-box.success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.5);
+}
+
+.image-upload-status-box.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #991b1b;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+:root[data-theme="dark"] .image-upload-status-box.error {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
 /* Station Media Library Grid in Modal */
 .image-library-search {
     width: 100%;

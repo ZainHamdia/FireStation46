@@ -885,7 +885,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('[class*="admin-menu"], [id*="admin-menu"], [class*="admin-action"], .btn-admin-action, .btn-admin-git, .btn-admin-logout') ||
             element.closest('#admin-font-toolbar, .admin-font-modal-overlay, #admin-toast-notification') ||
             element.closest('#admin-posts-list-container, #admin-dashboard-view, #admin-login-view, .admin-form-container, #admin-login-form, #admin-publish-form') ||
-            element.closest('#admin-weather-card, #admin-pages-management-card') ||
+            element.closest('#admin-weather-card, #admin-pages-management-card, #admin-media-management-card') ||
             element.closest('.section-admin-bar, .section-insert-divider, .section-drag-handle, .section-card-add-btn, .card-admin-remove-btn, .section-item-upload-btn, .station-image-change-btn') ||
             element.closest('.roster-modal-overlay, .station-slider-admin-actions, .slider-card-admin-controls, .stat-row-remove-btn, .slider-nav-btn, .slider-dot') ||
             element.closest('.apparatus-card-remove-btn, .apparatus-card-drag-handle, .apparatus-move-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder, .btn-apparatus-add, .apparatus-admin-actions, .apparatus-add-modal-overlay, #apparatus-modal') ||
@@ -1028,6 +1028,121 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     }
 
+    // Helper: Sanitize image filename for clean repository storage
+    function sanitizeImageFilename(name) {
+        if (!name || typeof name !== 'string') return `image-${Date.now()}.jpg`;
+        const lastDot = name.lastIndexOf('.');
+        let base = lastDot > 0 ? name.substring(0, lastDot) : name;
+        let ext = lastDot > 0 ? name.substring(lastDot + 1).toLowerCase() : 'jpg';
+        if (!['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'ico'].includes(ext)) {
+            ext = 'jpg';
+        }
+        base = base.toLowerCase()
+            .replace(/[^a-z0-9_.-]/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        if (!base) base = `image-${Date.now()}`;
+        return `${base}.${ext}`;
+    }
+
+    // Helper: Read and prepare image data for GitHub upload
+    function prepareImageBase64(file) {
+        return new Promise((resolve, reject) => {
+            const isSvg = file.type === 'image/svg+xml' || (file.name && file.name.toLowerCase().endsWith('.svg'));
+            const isGif = file.type === 'image/gif' || (file.name && file.name.toLowerCase().endsWith('.gif'));
+            const reader = new FileReader();
+
+            if (isSvg || isGif) {
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+                return;
+            }
+
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const maxDim = 2400;
+                    let w = img.width;
+                    let h = img.height;
+                    // If image is reasonably sized (< 2MB) and within maxDim, preserve original
+                    if (file.size < 2 * 1024 * 1024 && w <= maxDim && h <= maxDim) {
+                        return resolve(e.target.result);
+                    }
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+                    resolve(canvas.toDataURL(mime, 0.88));
+                };
+                img.onerror = () => resolve(e.target.result);
+                img.src = e.target.result;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Helper: Upload an image file directly to GitHub repo via Cloudflare Pages proxy
+    async function uploadImageToGitHub(file, customFilename = null, commitMessage = null) {
+        const creds = getAdminCredentials();
+        if (!creds) {
+            throw new Error('Not logged in. Please log in as administrator on admin.html to push images.');
+        }
+
+        const targetFilename = sanitizeImageFilename(customFilename || file.name);
+        const base64Data = await prepareImageBase64(file);
+
+        const res = await fetch(GITHUB_PROXY, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'save',
+                username: creds.username,
+                password: creds.password,
+                path: targetFilename,
+                content: base64Data,
+                encoding: 'base64',
+                message: commitMessage || `Upload image asset: ${targetFilename}`
+            })
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+            if (res.status === 401) {
+                sessionStorage.removeItem('admin_credentials');
+                sessionStorage.removeItem('admin_logged_in');
+            }
+            throw new Error(data.error || `GitHub rejected upload (${res.status})`);
+        }
+
+        const humanName = targetFilename.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+        saveCustomMediaAsset({
+            src: targetFilename,
+            name: humanName,
+            category: 'uploaded'
+        });
+
+        return {
+            success: true,
+            filename: targetFilename,
+            downloadUrl: data.download_url || targetFilename,
+            unchanged: !!data.unchanged
+        };
+    }
+
     // Inline CMS / Text Editing Backdoor
     const isAdminLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
     let editModeActive = localStorage.getItem('station46_edit_mode') !== 'false';
@@ -1128,6 +1243,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     const STATION_MEDIA_ASSETS = [
         { src: 'truck46.jpg', name: 'Truck 46 (Aerialscope)', category: 'apparatus' },
+        { src: 'utility46.jpg', name: 'Utility 46 (Chevy Silverado)', category: 'apparatus' },
+        { src: 'news-bg.jpg', name: 'News & Calls Banner', category: 'station' },
         { src: 'engine46-8.jpg', name: 'Engine 46-8 (Pierce Enforcer)', category: 'apparatus' },
         { src: 'engine46-7.jpg', name: 'Engine 46-7 (Rescue Pumper)', category: 'apparatus' },
         { src: 'rescue46.jpg', name: 'Rescue 46 (SVI)', category: 'apparatus' },
@@ -1154,6 +1271,39 @@ document.addEventListener('DOMContentLoaded', () => {
         { src: 'blueprint-3.jpg', name: 'Rescue Blueprint (Interior)', category: 'blueprints' },
         { src: 'logo.png', name: 'Station 46 Official Seal', category: 'station' }
     ];
+
+    // Custom uploaded media assets management
+    function getCustomMediaAssets() {
+        try {
+            return JSON.parse(localStorage.getItem('station46_custom_media_assets') || '[]');
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveCustomMediaAsset(asset) {
+        try {
+            const list = getCustomMediaAssets();
+            const idx = list.findIndex(a => a.src === asset.src);
+            if (idx >= 0) {
+                list[idx] = asset;
+            } else {
+                list.unshift(asset);
+            }
+            localStorage.setItem('station46_custom_media_assets', JSON.stringify(list));
+        } catch (e) {}
+    }
+
+    function getAllMediaAssets() {
+        const custom = getCustomMediaAssets();
+        const combined = [...custom];
+        STATION_MEDIA_ASSETS.forEach(base => {
+            if (!combined.some(c => c.src === base.src)) {
+                combined.push(base);
+            }
+        });
+        return combined;
+    }
 
     function getStoredImageEdits() {
         try {
@@ -2515,7 +2665,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const title = apparatusAddModalOverlay.querySelector('#apparatus-input-title').value.trim();
             const specsRaw = apparatusAddModalOverlay.querySelector('#apparatus-input-specs').value.trim();
             const manualUrl = urlInput.value.trim();
-            const finalImgSrc = uploadedApparatusBase64 || manualUrl;
+            let finalImgSrc = uploadedApparatusBase64 || manualUrl;
+
+            if (fileInput && fileInput.files && fileInput.files[0] && getAdminCredentials()) {
+                try {
+                    const appFile = fileInput.files[0];
+                    const appCleanName = sanitizeImageFilename(title ? `${title}.jpg` : appFile.name);
+                    const appUpload = await uploadImageToGitHub(appFile, appCleanName, `Add apparatus photo: ${title || appCleanName}`);
+                    finalImgSrc = appUpload.filename;
+                } catch (err) {
+                    console.warn('Apparatus photo GitHub upload fallback to base64:', err);
+                }
+            }
 
             if (!title) {
                 alert('Please enter an apparatus title / call-sign.');
@@ -3162,7 +3323,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="station-builder-modal-header">
                         <div>
                             <h3 class="station-builder-modal-title">📷 Change Picture</h3>
-                            <p class="station-builder-modal-subtitle">Upload a photo from your computer, choose from station media, or enter an image URL.</p>
+                            <p class="station-builder-modal-subtitle">Upload and commit photos directly to the GitHub repo, choose from station media, or enter an image URL.</p>
                         </div>
                         <button type="button" class="station-builder-modal-close" aria-label="Close modal">&times;</button>
                     </div>
@@ -3178,24 +3339,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         <!-- Navigation Tabs -->
                         <div class="image-editor-tabs">
-                            <button type="button" class="image-editor-tab-btn active" data-tab="upload" id="tab-btn-upload">📁 Upload from Device</button>
-                            <button type="button" class="image-editor-tab-btn" data-tab="library" id="tab-btn-library">🚒 Station Media Library (26)</button>
+                            <button type="button" class="image-editor-tab-btn active" data-tab="upload" id="tab-btn-upload">🚀 Upload to GitHub</button>
+                            <button type="button" class="image-editor-tab-btn" data-tab="library" id="tab-btn-library">🚒 Station Media Library</button>
                             <button type="button" class="image-editor-tab-btn" data-tab="url" id="tab-btn-url">🔗 Image URL</button>
                         </div>
 
-                        <!-- Tab 1: Upload from Computer -->
+                        <!-- Tab 1: Upload from Computer & Push to GitHub -->
                         <div id="image-tab-upload" class="image-editor-tab-content">
-                            <label class="image-editor-dropzone">
+                            <label class="image-editor-dropzone" id="image-editor-dropzone-label">
                                 <input type="file" id="image-editor-file-input" accept="image/*" style="display: none;">
                                 <div class="image-editor-dropzone-icon">☁️</div>
-                                <div class="image-editor-dropzone-title">Click or Drop File to Upload</div>
-                                <div class="image-editor-dropzone-sub">Supports JPG, PNG, WEBP, GIF. Auto-compressed for rapid loading.</div>
+                                <div class="image-editor-dropzone-title">Click or Drop Image to Upload</div>
+                                <div class="image-editor-dropzone-sub">Supports JPG, PNG, WEBP, GIF, SVG. Direct commit to GitHub repository via Cloudflare.</div>
                             </label>
+
+                            <div id="image-upload-options-card" class="image-upload-options-card" style="display: none;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle, #e2e8f0); padding-bottom: 0.6rem;">
+                                    <div style="font-weight: 700; font-size: 0.95rem; color: var(--navy-blue); display: flex; align-items: center; gap: 6px;">
+                                        <span>⚙️ Commit Image to GitHub Repository</span>
+                                    </div>
+                                    <button type="button" id="image-upload-reselect-btn" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.78rem;">Choose Different File</button>
+                                </div>
+
+                                <div style="margin-bottom: 1rem;">
+                                    <label for="image-upload-filename-input" style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">
+                                        Target Filename in GitHub Repository:
+                                    </label>
+                                    <input type="text" id="image-upload-filename-input" class="page-creator-input" placeholder="e.g. utility46.jpg or news-photo.jpg" style="width: 100%; box-sizing: border-box; font-family: monospace;">
+                                    <p style="margin: 4px 0 0; font-size: 0.78rem; color: var(--text-secondary);">
+                                        Saved in the repository root so any page can reference it cleanly without bloating browser storage.
+                                    </p>
+                                </div>
+
+                                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                    <button type="button" id="btn-upload-push-github" class="btn btn-primary" style="padding: 10px 22px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28); color: #ffffff;">
+                                        <span id="btn-upload-push-text">🚀 Upload &amp; Push to GitHub</span>
+                                    </button>
+                                    <button type="button" id="btn-use-preview-only" class="btn btn-secondary" style="padding: 10px 16px; font-size: 0.85rem;">
+                                        Use Local Preview Only (Base64)
+                                    </button>
+                                </div>
+
+                                <div id="image-upload-status-box" class="image-upload-status-box" style="display: none;"></div>
+                            </div>
                         </div>
 
                         <!-- Tab 2: Media Library -->
                         <div id="image-tab-library" class="image-editor-tab-content" style="display: none;">
-                            <input type="text" id="image-library-search-input" class="image-library-search" placeholder="🔍 Search station photos (truck, drill, engine, family, blueprint...)...">
+                            <input type="text" id="image-library-search-input" class="image-library-search" placeholder="🔍 Search station photos (truck, utility, drill, engine, family, blueprint...)...">
                             <div class="image-library-grid" id="image-library-grid"></div>
                         </div>
 
@@ -3203,14 +3394,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div id="image-tab-url" class="image-editor-tab-content" style="display: none;">
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">Image URL or Local Filename</label>
-                                <input type="text" id="image-url-input" class="page-creator-input" placeholder="e.g. truck46.jpg, drill-2.jpg or https://images.unsplash.com/...">
+                                <input type="text" id="image-url-input" class="page-creator-input" placeholder="e.g. utility46.jpg, drill-2.jpg or https://images.unsplash.com/...">
                             </div>
                         </div>
 
                         <!-- Alt Text / Caption (for img) -->
                         <div id="image-alt-group" style="margin-top: 1.25rem;">
                             <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">Image Description / Alt Text</label>
-                            <input type="text" id="image-alt-input" class="page-creator-input" placeholder="e.g. Truck 46 Seagrave Aerialscope in service">
+                            <input type="text" id="image-alt-input" class="page-creator-input" placeholder="e.g. Utility 46 Chevrolet Silverado in service">
                         </div>
                     </div>
                     <div class="station-builder-modal-footer">
@@ -3230,10 +3421,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let selectedSrc = '';
+        let currentChosenFile = null;
+
         const previewThumb = overlay.querySelector('#image-editor-preview-thumb');
         const previewName = overlay.querySelector('#image-editor-preview-name');
         const previewMeta = overlay.querySelector('#image-editor-preview-meta');
         const fileInput = overlay.querySelector('#image-editor-file-input');
+        const dropzoneLabel = overlay.querySelector('#image-editor-dropzone-label');
+        const optionsCard = overlay.querySelector('#image-upload-options-card');
+        const filenameInput = overlay.querySelector('#image-upload-filename-input');
+        const reselectBtn = overlay.querySelector('#image-upload-reselect-btn');
+        const btnPush = overlay.querySelector('#btn-upload-push-github');
+        const btnPushText = overlay.querySelector('#btn-upload-push-text');
+        const btnPreviewOnly = overlay.querySelector('#btn-use-preview-only');
+        const statusBox = overlay.querySelector('#image-upload-status-box');
+
         const urlInput = overlay.querySelector('#image-url-input');
         const altInput = overlay.querySelector('#image-alt-input');
         const altGroup = overlay.querySelector('#image-alt-group');
@@ -3244,13 +3446,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const modalSubtitle = overlay.querySelector('.station-builder-modal-subtitle');
 
         if (isBrowsingOnly) {
-            if (modalTitle) modalTitle.textContent = '🖼️ Station Photo Library';
-            if (modalSubtitle) modalSubtitle.textContent = 'Browse 26 official station photos. Click any photo to copy its filename, or use "📷 Change Photo" on any picture on the page.';
+            if (modalTitle) modalTitle.textContent = '🖼️ Station Media Library & Uploader';
+            if (modalSubtitle) modalSubtitle.textContent = 'Upload images straight to the GitHub repo main branch, or browse official station photos.';
             altGroup.style.display = 'none';
             applyBtn.textContent = '📋 Copy Photo Name';
         } else {
             if (modalTitle) modalTitle.textContent = isBackground ? '📷 Change Background Picture' : '📷 Change Picture';
-            if (modalSubtitle) modalSubtitle.textContent = 'Upload a photo from your computer, choose from station media, or enter an image URL.';
+            if (modalSubtitle) modalSubtitle.textContent = 'Upload and commit photos directly to GitHub, choose from station media, or enter an image URL.';
             applyBtn.textContent = 'Apply Picture';
         }
 
@@ -3277,6 +3479,21 @@ document.addEventListener('DOMContentLoaded', () => {
         previewMeta.textContent = isBrowsingOnly ? 'Station Media' : (isBackground ? 'Background Picture' : 'Image Tag');
         urlInput.value = currentSrc && !currentSrc.startsWith('data:') ? currentSrc : '';
 
+        // Reset file picker UI
+        if (fileInput) fileInput.value = '';
+        currentChosenFile = null;
+        if (dropzoneLabel) dropzoneLabel.style.display = '';
+        if (optionsCard) optionsCard.style.display = 'none';
+        if (statusBox) {
+            statusBox.style.display = 'none';
+            statusBox.className = 'image-upload-status-box';
+        }
+        if (btnPushText) btnPushText.textContent = '🚀 Upload & Push to GitHub';
+        if (btnPush) {
+            btnPush.disabled = false;
+            btnPush.style.background = '';
+        }
+
         // Tab switcher
         overlay.querySelectorAll('.image-editor-tab-btn').forEach(btn => {
             btn.onclick = () => {
@@ -3289,7 +3506,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         });
 
-        // Set default tab for browsing mode
+        // Set default tab for browsing mode: show library tab by default, but upload tab is available
         if (isBrowsingOnly) {
             overlay.querySelectorAll('.image-editor-tab-btn').forEach(b => b.classList.remove('active'));
             const libBtn = overlay.querySelector('.image-editor-tab-btn[data-tab="library"]');
@@ -3297,12 +3514,23 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.querySelector('#image-tab-upload').style.display = 'none';
             overlay.querySelector('#image-tab-library').style.display = 'block';
             overlay.querySelector('#image-tab-url').style.display = 'none';
+        } else {
+            overlay.querySelectorAll('.image-editor-tab-btn').forEach(b => b.classList.remove('active'));
+            const uploadBtn = overlay.querySelector('.image-editor-tab-btn[data-tab="upload"]');
+            if (uploadBtn) uploadBtn.classList.add('active');
+            overlay.querySelector('#image-tab-upload').style.display = 'block';
+            overlay.querySelector('#image-tab-library').style.display = 'none';
+            overlay.querySelector('#image-tab-url').style.display = 'none';
         }
 
         // Render station media library
         function renderLibrary(query = '') {
             libraryGrid.innerHTML = '';
-            const filtered = STATION_MEDIA_ASSETS.filter(a => !query || a.name.toLowerCase().includes(query.toLowerCase()) || a.src.toLowerCase().includes(query.toLowerCase()) || a.category.toLowerCase().includes(query.toLowerCase()));
+            const allAssets = getAllMediaAssets();
+            const tabBtnLib = overlay.querySelector('#tab-btn-library');
+            if (tabBtnLib) tabBtnLib.textContent = `🚒 Station Media Library (${allAssets.length})`;
+
+            const filtered = allAssets.filter(a => !query || a.name.toLowerCase().includes(query.toLowerCase()) || a.src.toLowerCase().includes(query.toLowerCase()) || (a.category && a.category.toLowerCase().includes(query.toLowerCase())));
             filtered.forEach(asset => {
                 const card = document.createElement('div');
                 card.className = 'image-library-item' + (selectedSrc === asset.src ? ' selected' : '');
@@ -3331,19 +3559,130 @@ document.addEventListener('DOMContentLoaded', () => {
         renderLibrary();
         librarySearch.oninput = () => renderLibrary(librarySearch.value.trim());
 
-        // File upload with auto-compression
+        // File selection handling
+        const handleFileSelected = (file) => {
+            if (!file) return;
+            currentChosenFile = file;
+            dropzoneLabel.style.display = 'none';
+            optionsCard.style.display = 'block';
+
+            const cleanFilename = sanitizeImageFilename(file.name);
+            filenameInput.value = cleanFilename;
+
+            statusBox.style.display = 'none';
+            statusBox.className = 'image-upload-status-box';
+
+            previewThumb.src = URL.createObjectURL(file);
+            previewName.textContent = file.name;
+            previewMeta.textContent = `${Math.round(file.size / 1024)} KB (Ready to upload)`;
+            btnPushText.textContent = '🚀 Upload & Push to GitHub';
+            btnPush.disabled = false;
+            btnPush.style.background = '';
+        };
+
         fileInput.onchange = () => {
             if (fileInput.files && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                previewName.textContent = 'Optimizing ' + file.name + '...';
-                compressImage(file, (dataUrl) => {
-                    selectedSrc = dataUrl;
-                    previewThumb.src = dataUrl;
-                    previewName.textContent = file.name;
-                    previewMeta.textContent = Math.round(dataUrl.length / 1024) + ' KB (optimized)';
-                });
+                handleFileSelected(fileInput.files[0]);
             }
         };
+
+        // Reselect file
+        if (reselectBtn) {
+            reselectBtn.onclick = () => {
+                fileInput.value = '';
+                currentChosenFile = null;
+                dropzoneLabel.style.display = '';
+                optionsCard.style.display = 'none';
+                statusBox.style.display = 'none';
+            };
+        }
+
+        // Drag & drop on dropzone
+        if (dropzoneLabel) {
+            dropzoneLabel.ondragover = (e) => {
+                e.preventDefault();
+                dropzoneLabel.classList.add('drag-over');
+            };
+            dropzoneLabel.ondragleave = (e) => {
+                e.preventDefault();
+                dropzoneLabel.classList.remove('drag-over');
+            };
+            dropzoneLabel.ondrop = (e) => {
+                e.preventDefault();
+                dropzoneLabel.classList.remove('drag-over');
+                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleFileSelected(e.dataTransfer.files[0]);
+                }
+            };
+        }
+
+        // Push to GitHub button
+        if (btnPush) {
+            btnPush.onclick = async () => {
+                if (!currentChosenFile) {
+                    alert('Please select an image file first.');
+                    return;
+                }
+
+                const targetName = sanitizeImageFilename(filenameInput.value.trim() || currentChosenFile.name);
+                btnPushText.textContent = '⏳ Uploading to GitHub...';
+                btnPush.disabled = true;
+
+                statusBox.style.display = 'block';
+                statusBox.className = 'image-upload-status-box loading';
+                statusBox.innerHTML = `Connecting to Cloudflare proxy and committing <strong>${targetName}</strong> to GitHub repo...`;
+
+                try {
+                    const uploadRes = await uploadImageToGitHub(currentChosenFile, targetName);
+                    selectedSrc = uploadRes.filename;
+                    urlInput.value = uploadRes.filename;
+                    previewThumb.src = uploadRes.filename;
+                    previewName.textContent = uploadRes.filename;
+                    previewMeta.textContent = 'Active GitHub Asset (Committed)';
+
+                    statusBox.className = 'image-upload-status-box success';
+                    statusBox.innerHTML = `✅ <strong>Committed to GitHub!</strong> Saved as <code>${uploadRes.filename}</code>. Image is now live in the repository and available to all website pages.`;
+
+                    btnPushText.textContent = '✅ Pushed to GitHub';
+                    btnPush.disabled = false;
+                    btnPush.style.background = '#059669';
+
+                    renderLibrary();
+
+                    if (isBrowsingOnly) {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(uploadRes.filename).catch(() => {});
+                        }
+                        showAdminToast(`🚀 ${uploadRes.filename} pushed to GitHub & copied to clipboard!`);
+                    } else {
+                        showAdminToast(`🚀 ${uploadRes.filename} pushed to GitHub! Click "Apply Picture" to use it.`);
+                    }
+                } catch (err) {
+                    btnPushText.textContent = '🚀 Upload & Push to GitHub';
+                    btnPush.disabled = false;
+                    statusBox.className = 'image-upload-status-box error';
+                    statusBox.innerHTML = `❌ <strong>Upload Failed:</strong> ${escapeHtml(err.message || String(err))}`;
+                }
+            };
+        }
+
+        // Use local preview button
+        if (btnPreviewOnly) {
+            btnPreviewOnly.onclick = () => {
+                if (!currentChosenFile) return;
+                previewName.textContent = 'Optimizing ' + currentChosenFile.name + '...';
+                compressImage(currentChosenFile, (dataUrl) => {
+                    selectedSrc = dataUrl;
+                    previewThumb.src = dataUrl;
+                    previewName.textContent = currentChosenFile.name + ' (Local Base64)';
+                    previewMeta.textContent = Math.round(dataUrl.length / 1024) + ' KB (compressed)';
+
+                    statusBox.style.display = 'block';
+                    statusBox.className = 'image-upload-status-box loading';
+                    statusBox.innerHTML = `ℹ️ Set to local Base64 preview. To save as an official repository file, click <strong>Upload &amp; Push to GitHub</strong>.`;
+                });
+            };
+        }
 
         // URL manual typing
         urlInput.oninput = () => {
@@ -7208,6 +7547,32 @@ ${mainContentHtml}
         adminAddNewPageBtn.addEventListener('click', () => openCreatePageModal());
     }
 
+    // Connect Photos & Media triggers on admin dashboard
+    const adminHeaderPhotosBtn = document.getElementById('admin-header-photos-btn');
+    if (adminHeaderPhotosBtn) {
+        adminHeaderPhotosBtn.addEventListener('click', () => openImageEditorModal(null, false));
+    }
+    const adminOpenPhotoLibraryBtn = document.getElementById('admin-open-photo-library-btn');
+    if (adminOpenPhotoLibraryBtn) {
+        adminOpenPhotoLibraryBtn.addEventListener('click', () => openImageEditorModal(null, false));
+    }
+    const adminQuickUploadPhotoBtn = document.getElementById('admin-quick-upload-photo-btn');
+    if (adminQuickUploadPhotoBtn) {
+        adminQuickUploadPhotoBtn.addEventListener('click', () => {
+            openImageEditorModal(null, false);
+            const uploadTabBtn = document.getElementById('tab-btn-upload');
+            if (uploadTabBtn) uploadTabBtn.click();
+        });
+    }
+    const adminCardOpenUploaderBtn = document.getElementById('admin-card-open-uploader-btn');
+    if (adminCardOpenUploaderBtn) {
+        adminCardOpenUploaderBtn.addEventListener('click', () => {
+            openImageEditorModal(null, false);
+            const uploadTabBtn = document.getElementById('tab-btn-upload');
+            if (uploadTabBtn) uploadTabBtn.click();
+        });
+    }
+
     if (logoutBtn && loginView && dashboardView) {
         logoutBtn.addEventListener('click', () => {
             sessionStorage.removeItem('admin_logged_in');
@@ -7250,7 +7615,7 @@ ${mainContentHtml}
     }
 
     if (publishForm) {
-        publishForm.addEventListener('submit', (e) => {
+        publishForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const title = document.getElementById('post-title').value.trim();
             const category = document.getElementById('post-category').value;
@@ -7258,7 +7623,19 @@ ${mainContentHtml}
             const tagTextInput = document.getElementById('post-tag-text');
             const tagText = hasTag ? ((tagTextInput && tagTextInput.value.trim()) ? tagTextInput.value.trim().toUpperCase() : 'NEW') : '';
             const text = document.getElementById('post-text').value.trim();
-            const imageSrc = imagePreview && imagePreview.style.display === 'block' ? imagePreview.src : '';
+            let imageSrc = imagePreview && imagePreview.style.display === 'block' ? imagePreview.src : '';
+
+            // Automatically commit cover image to GitHub if user uploaded one
+            if (imageInput && imageInput.files && imageInput.files[0] && getAdminCredentials()) {
+                try {
+                    const postFile = imageInput.files[0];
+                    const cleanName = sanitizeImageFilename(`post-${Date.now()}-${postFile.name}`);
+                    const uploadResult = await uploadImageToGitHub(postFile, cleanName, `Add post cover image: ${cleanName}`);
+                    imageSrc = uploadResult.filename;
+                } catch (err) {
+                    console.warn('Could not push cover image to GitHub, falling back to local base64:', err);
+                }
+            }
 
             if (!title || !category || !text) {
                 if (postErrorMsg) postErrorMsg.style.display = 'block';

@@ -14,8 +14,13 @@
 const DEFAULT_REPO = 'ZainHamdia/FireStation46';
 const DEFAULT_USER = 'blawenburg1946';
 
-// Only allow writing top-level HTML pages and JSON files in /data
-const ALLOWED_PATH = /^(?:[a-z0-9_-]+\.html|data\/[a-z0-9_-]+\.json)$/i;
+// Allow writing top-level HTML pages, JSON files in /data, and image assets (root, /images, or /data)
+function isPathAllowed(path) {
+    if (!path || typeof path !== 'string') return false;
+    if (path.includes('..') || path.startsWith('/') || path.startsWith('\\')) return false;
+    const ALLOWED_PATH = /^(?:[a-z0-9_.-]+\.html|data\/[a-z0-9_.-]+\.json|(?:(?:images|data)\/)?[a-z0-9_.-]+\.(?:jpe?g|png|webp|gif|svg|ico))$/i;
+    return ALLOWED_PATH.test(path);
+}
 
 function json(body, status = 200) {
     return new Response(JSON.stringify(body), {
@@ -108,16 +113,21 @@ export async function onRequestOptions() {
     });
 }
 
-// GET /api/github?path=data/posts.json  → { content: "<raw text>" }
+// GET /api/github?path=data/posts.json  → { content: "<raw text or base64>" }
 export async function onRequestGet({ request, env }) {
     const path = new URL(request.url).searchParams.get('path') || '';
-    if (!ALLOWED_PATH.test(path)) return json({ error: 'Path not allowed' }, 400);
+    if (!isPathAllowed(path)) return json({ error: 'Path not allowed' }, 400);
     if (!env.GITHUB_TOKEN) return missingSecret(env, 'GITHUB_TOKEN');
 
     try {
         const file = await getFile(env, path);
         if (!file) return json({ error: 'Not found' }, 404);
-        return json({ content: base64ToUtf8(file.content) });
+        const isBinary = /\.(jpe?g|png|webp|gif|svg|ico)$/i.test(path);
+        return json({
+            content: isBinary ? file.content : base64ToUtf8(file.content),
+            encoding: isBinary ? 'base64' : 'utf-8',
+            sha: file.sha
+        });
     } catch (err) {
         return json({ error: String(err.message || err) }, 502);
     }
@@ -125,7 +135,7 @@ export async function onRequestGet({ request, env }) {
 
 // POST /api/github
 //   { action: "login", username, password }
-//   { action: "save",  username, password, path, content, message }
+//   { action: "save",  username, password, path, content, encoding, message }
 export async function onRequestPost({ request, env }) {
     let body;
     try {
@@ -144,18 +154,26 @@ export async function onRequestPost({ request, env }) {
     if (body.action !== 'save') return json({ error: 'Unknown action' }, 400);
     if (!env.GITHUB_TOKEN) return missingSecret(env, 'GITHUB_TOKEN');
 
-    const { path, content, message } = body;
-    if (!ALLOWED_PATH.test(path || '')) return json({ error: 'Path not allowed' }, 400);
+    const { path, content, message, encoding } = body;
+    if (!isPathAllowed(path || '')) return json({ error: 'Path not allowed' }, 400);
     if (typeof content !== 'string') return json({ error: 'Content must be a string' }, 400);
 
-    const newB64 = utf8ToBase64(content);
+    const isBinary = encoding === 'base64' || /\.(jpe?g|png|webp|gif|svg|ico)$/i.test(path);
+
+    let newB64;
+    if (isBinary) {
+        // Strip data URI prefix if provided (e.g. data:image/jpeg;base64,...)
+        newB64 = content.replace(/^data:[^;]+;base64,/, '').replace(/\s/g, '');
+    } else {
+        newB64 = utf8ToBase64(content);
+    }
 
     // Retry once on SHA conflict (another save landed in between)
     for (let attempt = 0; attempt < 2; attempt++) {
         try {
             const existing = await getFile(env, path);
             if (existing && String(existing.content || '').replace(/\s/g, '') === newB64) {
-                return json({ ok: true, unchanged: true });
+                return json({ ok: true, unchanged: true, path });
             }
 
             const payload = {
@@ -171,7 +189,10 @@ export async function onRequestPost({ request, env }) {
                 body: JSON.stringify(payload)
             });
 
-            if (putRes.ok) return json({ ok: true });
+            if (putRes.ok) {
+                const putData = await putRes.json().catch(() => ({}));
+                return json({ ok: true, path, download_url: putData.content?.download_url });
+            }
             if ((putRes.status === 409 || putRes.status === 422) && attempt === 0) continue;
 
             return json({ error: `GitHub rejected the update (${putRes.status})`, details: await putRes.text() }, 502);
