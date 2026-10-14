@@ -1111,9 +1111,12 @@ body.menu-open {
     background: linear-gradient(rgba(15, 25, 43, 0.25), rgba(15, 25, 43, 0.45)),
                 url('santatitle.jpg') center/cover !important;
 }
+.small-hero.hero-news,
 .hero-news {
-    background: linear-gradient(rgba(10, 15, 25, 0.28), rgba(10, 15, 25, 0.55)),
-                url('news-bg.jpg') center 30%/cover !important;
+    background: linear-gradient(rgba(10, 15, 25, 0.32), rgba(10, 15, 25, 0.58)),
+                url('news-bg.jpg?v=120') center 32%/cover no-repeat !important;
+    background-position: center 32% !important;
+    text-shadow: 0 3px 14px rgba(0, 0, 0, 0.9);
 }
 
 :root[data-theme="dark"] .hero-membership {
@@ -1128,9 +1131,11 @@ body.menu-open {
     background: linear-gradient(rgba(10, 15, 25, 0.52), rgba(10, 15, 25, 0.70)),
                 url('santatitle.jpg') center/cover !important;
 }
+:root[data-theme="dark"] .small-hero.hero-news,
 :root[data-theme="dark"] .hero-news {
-    background: linear-gradient(rgba(10, 15, 25, 0.45), rgba(10, 15, 25, 0.70)),
-                url('news-bg.jpg') center 30%/cover !important;
+    background: linear-gradient(rgba(10, 15, 25, 0.45), rgba(10, 15, 25, 0.72)),
+                url('news-bg.jpg?v=120') center 32%/cover no-repeat !important;
+    background-position: center 32% !important;
 }
 .small-hero {
     height: 50vh !important;
