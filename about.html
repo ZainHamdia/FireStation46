@@ -94,40 +94,40 @@
         <!-- History Section -->
         <section class="section">
             <div class="container text-center">
-                <h2 class="section-title fade-in">Serving Montgomery Since 1946</h2>
-                <p class="section-subtitle mw-800 mx-auto fade-in delay-1" style="margin-bottom: 3rem;">Montgomery Township Volunteer Fire Company #2 is an all-volunteer organization dedicated to protecting the lives and property of the residents of Montgomery Township and surrounding communities.</p>
+                <h2 class="section-title fade-in visible">Serving Montgomery Since 1946</h2>
+                <p class="section-subtitle mw-800 mx-auto fade-in delay-1 visible" style="margin-bottom: 3rem;">Montgomery Township Volunteer Fire Company #2 is an all-volunteer organization dedicated to protecting the lives and property of the residents of Montgomery Township and surrounding communities.</p>
                 
                 <div class="stats-grid">
-                    <div class="stat-card glass-panel fade-in delay-1">
+                    <div class="stat-card glass-panel fade-in delay-1 visible">
                         <div class="stat-number">100%</div>
                         <div class="stat-label">Volunteer</div>
                     </div>
-                    <div class="stat-card glass-panel fade-in delay-2">
+                    <div class="stat-card glass-panel fade-in delay-2 visible">
                         <div class="stat-number">24/7</div>
                         <div class="stat-label">Response</div>
                     </div>
-                    <div class="stat-card glass-panel fade-in delay-3">
+                    <div class="stat-card glass-panel fade-in delay-3 visible">
                         <div class="stat-number">75+</div>
                         <div class="stat-label">Years of Service</div>
                     </div>
                 </div>
 
                 <!-- Annual Call Volume & Station Statistics Sliders -->
-                <div class="call-volume-section fade-in" id="station-sliders-section" style="margin-top: 3.5rem;">
+                <div class="call-volume-section fade-in visible" id="station-sliders-section" style="margin-top: 3.5rem;">
                     <div class="call-volume-header">
                         <h3 class="call-volume-title">Station 46 Call Volume</h3>
                         <p class="call-volume-subtitle">Emergency response metrics and incident statistics across Montgomery Township over the years.</p>
-                        <div class="station-slider-admin-actions" id="slider-section-admin-bar" style="display: none;">
+                        <div class="station-slider-admin-actions" id="slider-section-admin-bar" style="display: flex;">
                             <button type="button" class="btn btn-sm btn-slider-admin" id="btn-add-slider-deck" title="Add a new statistics slider">+ Add New Slider</button>
                         </div>
                     </div>
 
                     <div class="station-sliders-wrapper" id="station-sliders-container">
                         <!-- Navigation Arrows -->
-                        <button type="button" class="slider-nav-btn prev-btn" id="slider-prev-btn" aria-label="Previous slide" title="Previous">
+                        <button type="button" class="slider-nav-btn prev-btn" id="slider-prev-btn" aria-label="Previous slide" title="Previous" style="display: none;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </button>
-                        <button type="button" class="slider-nav-btn next-btn" id="slider-next-btn" aria-label="Next slide" title="Next">
+                        <button type="button" class="slider-nav-btn next-btn" id="slider-next-btn" aria-label="Next slide" title="Next" style="display: none;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                         </button>
 
@@ -141,10 +141,7 @@
                                         <h4 class="slider-card-title">Annual Call Volume</h4>
                                         <p class="slider-card-desc">Total emergency calls dispatched and responded to by MTVFC #2</p>
                                     </div>
-                                    <div class="slider-card-admin-controls" style="display: none;">
-                                        <button type="button" class="btn-slider-ctrl btn-add-item-ctrl" title="Add another year/item to this slider" data-listener-bound="true">+ Add Item</button>
-                                        <button type="button" class="btn-slider-ctrl btn-del-slider-ctrl" title="Delete this slider" data-listener-bound="true">✕ Delete Slider</button>
-                                    </div>
+                                    
                                 </div>
 
                                 <div class="slider-items-list" id="items-list-call-volume">
@@ -158,7 +155,7 @@
                                             <span class="stat-row-value">384</span>
                                             <span class="stat-unit">calls</span>
                                         </div>
-                                        <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: none;">✕</button>
+                                        
                                     </div>
                                     <div class="slider-stat-row">
                                         <div class="stat-row-left">
@@ -170,7 +167,7 @@
                                             <span class="stat-row-value">420</span>
                                             <span class="stat-unit">calls</span>
                                         </div>
-                                        <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: none;">✕</button>
+                                        
                                     </div>
                                     <div class="slider-stat-row">
                                         <div class="stat-row-left">
@@ -182,7 +179,7 @@
                                             <span class="stat-row-value">357</span>
                                             <span class="stat-unit">calls</span>
                                         </div>
-                                        <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: none;">✕</button>
+                                        
                                     </div>
                                     <div class="slider-stat-row">
                                         <div class="stat-row-left">
@@ -194,7 +191,7 @@
                                             <span class="stat-row-value">354</span>
                                             <span class="stat-unit">calls</span>
                                         </div>
-                                        <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: none;">✕</button>
+                                        
                                     </div>
                                     <div class="slider-stat-row">
                                         <div class="stat-row-left">
@@ -206,7 +203,7 @@
                                             <span class="stat-row-value">344</span>
                                             <span class="stat-unit">calls</span>
                                         </div>
-                                        <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: none;">✕</button>
+                                        
                                     </div>
                                     <div class="slider-stat-row">
                                         <div class="stat-row-left">
@@ -218,7 +215,7 @@
                                             <span class="stat-row-value">284</span>
                                             <span class="stat-unit">calls</span>
                                         </div>
-                                        <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: none;">✕</button>
+                                        
                                     </div>
                                     <div class="slider-stat-row">
                                         <div class="stat-row-left">
@@ -230,7 +227,7 @@
                                             <span class="stat-row-value">344</span>
                                             <span class="stat-unit">calls</span>
                                         </div>
-                                        <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: none;">✕</button>
+                                        
                                     </div>
                                     <div class="slider-stat-row">
                                         <div class="stat-row-left">
@@ -242,7 +239,7 @@
                                             <span class="stat-row-value">340</span>
                                             <span class="stat-unit">calls</span>
                                         </div>
-                                        <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: none;">✕</button>
+                                        
                                     </div>
                                     <div class="slider-stat-row">
                                         <div class="stat-row-left">
@@ -254,7 +251,7 @@
                                             <span class="stat-row-value">328</span>
                                             <span class="stat-unit">calls</span>
                                         </div>
-                                        <button type="button" class="stat-row-remove-btn" title="Remove item" style="display: none;">✕</button>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -265,7 +262,7 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 2.5rem;" class="fade-in delay-3">
+                <div style="margin-top: 2.5rem;" class="fade-in delay-3 visible">
                     <a href="history.html" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         Explore Our Full Company History →
@@ -277,7 +274,7 @@
         <!-- Members Roster Section -->
         <section class="section dark-alt" id="roster">
             <div class="container text-center">
-                <div class="section-header text-center fade-in">
+                <div class="section-header text-center fade-in visible">
                     <h2 class="section-title">Meet the Crew</h2>
                     <p class="section-subtitle mw-800 mx-auto" style="margin-bottom: 2.5rem; margin-top: 0.8rem;">The dedicated men and women who volunteer their time to protect Montgomery Township 24/7/365.</p>
                 </div>
@@ -289,45 +286,45 @@
                         <div class="roster-category-header">
                             <h3 class="roster-category-title">Fire Line Officers</h3>
                             <div class="roster-category-line"></div>
-                        </div>
-                        <div class="roster-grid-modern roster-grid-officers">
-                            <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Kyle Rendall" data-role="Fire Chief">
+                        <button class="btn-roster-add-member" data-section="line-officers">+ Add Member</button></div>
+                        <div class="roster-grid-modern roster-grid-officers" data-drag-grid-init="true">
+                            <div class="roster-card tier-line-officer roster-card-draggable" data-category="line-officers" data-name="Kyle Rendall" data-role="Fire Chief" data-drag-init="true">
                                 <div class="roster-avatar avatar-line">KR</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Kyle Rendall</h4>
                                     <span class="rank-badge badge-chief">Fire Chief</span>
                                 </div>
-                            </div>
-                            
-                            <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Dan Labos" data-role="Captain">
-                                <div class="roster-avatar avatar-line">DL</div>
-                                <div class="roster-info">
-                                    <h4 class="roster-name">Dan Labos</h4>
-                                    <span class="rank-badge badge-line">Captain</span>
-                                </div>
-                            </div>
-                            <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Justin Neves" data-role="Lieutenant">
-                                <div class="roster-avatar avatar-line">JN</div>
-                                <div class="roster-info">
-                                    <h4 class="roster-name">Justin Neves</h4>
-                                    <span class="rank-badge badge-line">Lieutenant</span>
-                                </div>
-                            </div>
-                            <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Mike Ruppert" data-role="Lieutenant">
-                                <div class="roster-avatar avatar-line">MR</div>
-                                <div class="roster-info">
-                                    <h4 class="roster-name">Mike Ruppert</h4>
-                                    <span class="rank-badge badge-line">Lieutenant</span>
-                                </div>
-                            </div>
-                            
-                        <div class="roster-card tier-line-officer" data-category="line-officers" data-name="Adam Verducci" data-role="Deputy Chief">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Kyle Rendall" aria-label="Add custom tag to Kyle Rendall">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div><div class="roster-card tier-line-officer roster-card-draggable" data-category="line-officers" data-name="Adam Verducci" data-role="Deputy Chief" data-drag-init="true">
                                 <div class="roster-avatar avatar-line">AV</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Adam Verducci</h4>
                                     <span class="rank-badge badge-chief">Deputy Chief</span>
                                 </div>
-                            </div></div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Adam Verducci" aria-label="Add custom tag to Adam Verducci">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            
+                            <div class="roster-card tier-line-officer roster-card-draggable" data-category="line-officers" data-name="Dan Labos" data-role="Captain" data-drag-init="true">
+                                <div class="roster-avatar avatar-line">DL</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Dan Labos</h4>
+                                    <span class="rank-badge badge-line">Captain</span>
+                                </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Dan Labos" aria-label="Add custom tag to Dan Labos">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-line-officer roster-card-draggable" data-category="line-officers" data-name="Justin Neves" data-role="Lieutenant" data-drag-init="true">
+                                <div class="roster-avatar avatar-line">JN</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Justin Neves</h4>
+                                    <span class="rank-badge badge-line">Lieutenant</span>
+                                </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Justin Neves" aria-label="Add custom tag to Justin Neves">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-line-officer roster-card-draggable" data-category="line-officers" data-name="Mike Ruppert" data-role="Lieutenant" data-drag-init="true">
+                                <div class="roster-avatar avatar-line">MR</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Mike Ruppert</h4>
+                                    <span class="rank-badge badge-line">Lieutenant</span>
+                                </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Mike Ruppert" aria-label="Add custom tag to Mike Ruppert">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            
+                        </div>
                     </div>
 
                     <!-- Company Officers -->
@@ -335,85 +332,85 @@
                         <div class="roster-category-header">
                             <h3 class="roster-category-title">Company Officers</h3>
                             <div class="roster-category-line"></div>
-                        </div>
-                        <div class="roster-grid-modern roster-grid-officers">
-                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Justin Kabis" data-role="President">
+                        <button class="btn-roster-add-member" data-section="company-officers">+ Add Member</button></div>
+                        <div class="roster-grid-modern roster-grid-officers" data-drag-grid-init="true">
+                            <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="Justin Kabis" data-role="President" data-drag-init="true">
                                 <div class="roster-avatar avatar-company">JK</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Justin Kabis</h4>
                                     <span class="rank-badge badge-president">President</span>
                                 </div>
-                            </div>
-                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="JP Faryniak" data-role="1st Vice President">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Justin Kabis" aria-label="Add custom tag to Justin Kabis">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="JP Faryniak" data-role="1st Vice President" data-drag-init="true">
                                 <div class="roster-avatar avatar-company">JF</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">JP Faryniak</h4>
                                     <span class="rank-badge badge-company">1st Vice President</span>
                                 </div>
-                            </div>
-                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="John Walmark" data-role="2nd Vice President">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to JP Faryniak" aria-label="Add custom tag to JP Faryniak">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="John Walmark" data-role="2nd Vice President" data-drag-init="true">
                                 <div class="roster-avatar avatar-company">JW</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">John Walmark</h4>
                                     <span class="rank-badge badge-company">2nd Vice President</span>
                                 </div>
-                            </div>
-                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Daniel Campo" data-role="3rd Vice President">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to John Walmark" aria-label="Add custom tag to John Walmark">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="Daniel Campo" data-role="3rd Vice President" data-drag-init="true">
                                 <div class="roster-avatar avatar-company">HG</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Hargun Ghai</h4>
                                     <span class="rank-badge badge-company">3rd Vice President</span>
                                 </div>
-                            </div>
-                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Phil Adams" data-role="Treasurer">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Hargun Ghai" aria-label="Add custom tag to Hargun Ghai">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="Phil Adams" data-role="Treasurer" data-drag-init="true">
                                 <div class="roster-avatar avatar-company">PA</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Phil Adams</h4>
                                     <span class="rank-badge badge-company">Treasurer</span>
                                 </div>
-                            </div>
-                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="David J. VanDoren" data-role="Recording Secretary">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Phil Adams" aria-label="Add custom tag to Phil Adams">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="David J. VanDoren" data-role="Recording Secretary" data-drag-init="true">
                                 <div class="roster-avatar avatar-company">DV</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">David J. VanDoren</h4>
                                     <span class="rank-badge badge-company">Recording Secretary</span>
                                 </div>
-                            </div>
-                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Ben Biondi" data-role="Corresponding Secretary">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to David J. VanDoren" aria-label="Add custom tag to David J. VanDoren">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="Ben Biondi" data-role="Corresponding Secretary" data-drag-init="true">
                                 <div class="roster-avatar avatar-company">AI</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Andy Ilott</h4>
                                     <span class="rank-badge badge-company">Corresponding Secretary</span>
                                 </div>
-                            </div>
-                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Inder Ghai" data-role="Trustee">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Andy Ilott" aria-label="Add custom tag to Andy Ilott">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="Inder Ghai" data-role="Trustee" data-drag-init="true">
                                 <div class="roster-avatar avatar-company">JQ</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">John Quirinale</h4>
                                     <span class="rank-badge badge-company">Trustee</span>
                                 </div>
-                            </div>
-                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Connie Kelly" data-role="Trustee">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to John Quirinale" aria-label="Add custom tag to John Quirinale">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="Connie Kelly" data-role="Trustee" data-drag-init="true">
                                 <div class="roster-avatar avatar-company">CK</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Connie Kelly</h4>
                                     <span class="rank-badge badge-company">Trustee</span>
                                 </div>
-                            </div>
-                            <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Sandy Quirinale" data-role="Trustee">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Connie Kelly" aria-label="Add custom tag to Connie Kelly">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="Sandy Quirinale" data-role="Trustee" data-drag-init="true">
                                 <div class="roster-avatar avatar-company">BB</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Brian Bonder</h4>
                                     <span class="rank-badge badge-company">Trustee</span>
                                 </div>
-                            </div>
-                        <div class="roster-card tier-company-officer" data-category="company-officers" data-name="Gene Keller Jr." data-role="Trustee">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Brian Bonder" aria-label="Add custom tag to Brian Bonder">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                        <div class="roster-card tier-company-officer roster-card-draggable" data-category="company-officers" data-name="Gene Keller Jr." data-role="Trustee" data-drag-init="true">
             <div class="roster-avatar avatar-company">GK</div>
             <div class="roster-info">
                 <h4 class="roster-name">Gene Keller Jr.</h4>
                 <span class="rank-badge badge-company">Trustee</span>
             </div>
-        </div></div>
+        <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Gene Keller Jr." aria-label="Add custom tag to Gene Keller Jr.">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div></div>
                     </div>
 
                     <!-- Interior Firefighters -->
@@ -421,237 +418,231 @@
                         <div class="roster-category-header">
                             <h3 class="roster-category-title">Firefighters</h3>
                             <div class="roster-category-line"></div>
-                        </div>
-                        <div class="roster-grid-modern">
-                            <div class="roster-card" data-category="firefighters" data-name="Phil Adams" data-role="Interior Firefighter">
+                        <button class="btn-roster-add-member" data-section="firefighters">+ Add Member</button></div>
+                        <div class="roster-grid-modern" data-drag-grid-init="true">
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Phil Adams" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">PA</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Phil Adams</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Neil Advant" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Phil Adams" aria-label="Add custom tag to Phil Adams">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Neil Advant" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">NA</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Neil Advant</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="John Bolen" data-role="DRIVER">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Neil Advant" aria-label="Add custom tag to Neil Advant">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="John Bolen" data-role="DRIVER" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">JB</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">John Bolen</h4>
                                     <span class="rank-badge badge-firefighter">DRIVER</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Brian Bonder" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to John Bolen" aria-label="Add custom tag to John Bolen">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Brian Bonder" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">BB</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Brian Bonder</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Benjamin Biondi" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Brian Bonder" aria-label="Add custom tag to Brian Bonder">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Benjamin Biondi" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">BB</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Benjamin Biondi</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Dan Campo" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Benjamin Biondi" aria-label="Add custom tag to Benjamin Biondi">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Dan Campo" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">DC</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Dan Campo</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Galen Collier" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Dan Campo" aria-label="Add custom tag to Dan Campo">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Galen Collier" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">GC</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Galen Collier</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Galen Collier" aria-label="Add custom tag to Galen Collier">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
                             
-                            <div class="roster-card" data-category="firefighters" data-name="Hargun Ghai" data-role="INTERIOR FIREFIGHTER">
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Hargun Ghai" data-role="INTERIOR FIREFIGHTER" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">HG</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Hargun Ghai</h4>
                                     <span class="rank-badge badge-firefighter">INTERIOR FIREFIGHTER</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Kyle Hopkins" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Hargun Ghai" aria-label="Add custom tag to Hargun Ghai">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Kyle Hopkins" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">KH</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Kyle Hopkins</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Andy Ilott" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Kyle Hopkins" aria-label="Add custom tag to Kyle Hopkins">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Andy Ilott" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">AI</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Andy Ilott</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Justin Kabis" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Andy Ilott" aria-label="Add custom tag to Andy Ilott">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Justin Kabis" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">JK</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Justin Kabis</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Gene Keller Jr." data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Justin Kabis" aria-label="Add custom tag to Justin Kabis">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Gene Keller Jr." data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">GK</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Gene Keller Jr.</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Gene Keller Jr." aria-label="Add custom tag to Gene Keller Jr.">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
                             
-                            <div class="roster-card" data-category="firefighters" data-name="Jack Larkin" data-role="Interior Firefighter">
-                                <div class="roster-avatar avatar-firefighter">CK</div>
-                                <div class="roster-info">
-                                    <h4 class="roster-name">Jack Larkin</h4>
-                                    <span class="rank-badge badge-firefighter">ASSOCIATE MEMBER</span>
-                                </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Pat Lee" data-role="Interior Firefighter">
+                            
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Pat Lee" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">PL</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Pat Lee</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Robert Maslanka" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Pat Lee" aria-label="Add custom tag to Pat Lee">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Robert Maslanka" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">RM</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Robert Maslanka</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Nick Neves" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Robert Maslanka" aria-label="Add custom tag to Robert Maslanka">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Nick Neves" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">NN</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Nick Neves</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Arjun Pakrashi" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Nick Neves" aria-label="Add custom tag to Nick Neves">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Arjun Pakrashi" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">AP</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Arjun Pakrashi</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Arjun Pakrashi" aria-label="Add custom tag to Arjun Pakrashi">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
                             
-                            <div class="roster-card" data-category="firefighters" data-name="Eric Perkins" data-role="Interior Firefighter">
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Eric Perkins" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">EP</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Eric Perkins</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Branden Quirinale" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Eric Perkins" aria-label="Add custom tag to Eric Perkins">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Branden Quirinale" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">BQ</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Branden Quirinale</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="John Quirinale" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Branden Quirinale" aria-label="Add custom tag to Branden Quirinale">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="John Quirinale" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">JQ</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">John Quirinale</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Sandy Quirinale" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to John Quirinale" aria-label="Add custom tag to John Quirinale">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Sandy Quirinale" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">SQ</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Sandy Quirinale</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Gerald Sebastian" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Sandy Quirinale" aria-label="Add custom tag to Sandy Quirinale">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Gerald Sebastian" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">GS</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Gerald Sebastian</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Steve Santangelo" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Gerald Sebastian" aria-label="Add custom tag to Gerald Sebastian">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Steve Santangelo" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">SS</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Steve Santangelo</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Nikki Sheth" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Steve Santangelo" aria-label="Add custom tag to Steve Santangelo">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Nikki Sheth" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">NS</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Nikki Sheth</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Satnam Singh" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Nikki Sheth" aria-label="Add custom tag to Nikki Sheth">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Satnam Singh" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">SS</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Satnam Singh</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Andre Soumeillant" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Satnam Singh" aria-label="Add custom tag to Satnam Singh">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Andre Soumeillant" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">AS</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Andre Soumeillant</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Daniela Spera" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Andre Soumeillant" aria-label="Add custom tag to Andre Soumeillant">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Daniela Spera" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">DS</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Daniela Spera</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Nipun Tiwari" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Daniela Spera" aria-label="Add custom tag to Daniela Spera">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Nipun Tiwari" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">NT</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Nipun Tiwari</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="David VanDoren" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Nipun Tiwari" aria-label="Add custom tag to Nipun Tiwari">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="David VanDoren" data-role="Interior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-firefighter">DV</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">David VanDoren</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Jake Schwarzman" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to David VanDoren" aria-label="Add custom tag to David VanDoren">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Jake Schwarzman" data-role="Interior Firefighter" data-drag-init="true">
                                 
                                 <div class="roster-avatar avatar-firefighter">JS</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Jake Schwarzman</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="firefighters" data-name="Josh Dismukes" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Jake Schwarzman" aria-label="Add custom tag to Jake Schwarzman">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Josh Dismukes" data-role="Interior Firefighter" data-drag-init="true">
                                 
                                 <div class="roster-avatar avatar-firefighter">JD</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Josh Dismukes</h4>
                                     <span class="rank-badge badge-firefighter">Interior Firefighter</span>
                                 </div>
-                            </div>
-                        <div class="roster-card" data-category="firefighters" data-name="Ed Stelmakh" data-role="Interior Firefighter">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Josh Dismukes" aria-label="Add custom tag to Josh Dismukes">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                        <div class="roster-card roster-card-draggable" data-category="firefighters" data-name="Ed Stelmakh" data-role="Interior Firefighter" data-drag-init="true">
             <div class="roster-avatar avatar-firefighter">ES</div>
             <div class="roster-info">
                 <h4 class="roster-name">Ed Stelmakh</h4>
                 <span class="rank-badge badge-firefighter">Interior Firefighter</span>
             </div>
-        </div></div>
+        <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Ed Stelmakh" aria-label="Add custom tag to Ed Stelmakh">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div></div>
                     </div>
 
                     <!-- Junior & Probationary Firefighters -->
@@ -659,71 +650,71 @@
                         <div class="roster-category-header">
                             <h3 class="roster-category-title">Junior &amp; Probationary Firefighters</h3>
                             <div class="roster-category-line"></div>
-                        </div>
-                        <div class="roster-grid-modern">
-                            <div class="roster-card" data-category="juniors" data-name="Zain Hamdia" data-role="Junior Firefighter">
+                        <button class="btn-roster-add-member" data-section="juniors">+ Add Member</button></div>
+                        <div class="roster-grid-modern" data-drag-grid-init="true">
+                            <div class="roster-card roster-card-draggable" data-category="juniors" data-name="Zain Hamdia" data-role="Junior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-junior">ZH</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Zain Hamdia</h4>
                                     <span class="rank-badge badge-junior">Junior Firefighter</span>
                                 </div>
-                            </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Zain Hamdia" aria-label="Add custom tag to Zain Hamdia">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
                             
-                            <div class="roster-card" data-category="juniors" data-name="Raunald Sebastion" data-role="Junior Firefighter">
+                            <div class="roster-card roster-card-draggable" data-category="juniors" data-name="Raunald Sebastion" data-role="Junior Firefighter" data-drag-init="true">
                                 <div class="roster-avatar avatar-junior">RS</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Raunald Sebastion</h4>
                                     <span class="rank-badge badge-junior">Junior Firefighter</span>
                                 </div>
-                            </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Raunald Sebastion" aria-label="Add custom tag to Raunald Sebastion">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
                             
                             
                             
-                        <div class="roster-card" data-category="juniors" data-name="Vikrant Mital" data-role="Junior Firefighter">
+                        <div class="roster-card roster-card-draggable" data-category="juniors" data-name="Vikrant Mital" data-role="Junior Firefighter" data-drag-init="true">
             <div class="roster-avatar avatar-junior">VM</div>
             <div class="roster-info">
                 <h4 class="roster-name">Vikrant Mital</h4>
                 <span class="rank-badge badge-junior">Junior Firefighter</span>
             </div>
-        </div><div class="roster-card" data-category="juniors" data-name="Dakota Nann" data-role="Junior Firefighter">
+        <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Vikrant Mital" aria-label="Add custom tag to Vikrant Mital">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div><div class="roster-card roster-card-draggable" data-category="juniors" data-name="Dakota Nann" data-role="Junior Firefighter" data-drag-init="true">
             <div class="roster-avatar avatar-junior">DN</div>
             <div class="roster-info">
                 <h4 class="roster-name">Dakota Nann</h4>
                 <span class="rank-badge badge-junior">Junior Firefighter</span>
             </div>
-        </div><div class="roster-card" data-category="juniors" data-name="Calvin Urbanski" data-role="Probationary Firefighter">
+        <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Dakota Nann" aria-label="Add custom tag to Dakota Nann">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div><div class="roster-card roster-card-draggable" data-category="juniors" data-name="Calvin Urbanski" data-role="Probationary Firefighter" data-drag-init="true">
             <div class="roster-avatar avatar-junior">CU</div>
             <div class="roster-info">
                 <h4 class="roster-name">Calvin Urbanski</h4>
                 <span class="rank-badge badge-junior">Probationary Firefighter</span>
             </div>
-        </div><div class="roster-card" data-category="juniors" data-name="Lucas Gelinas" data-role="PROBATIONARY FIREFIGHTER">
+        <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Calvin Urbanski" aria-label="Add custom tag to Calvin Urbanski">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div><div class="roster-card roster-card-draggable" data-category="juniors" data-name="Lucas Gelinas" data-role="PROBATIONARY FIREFIGHTER" data-drag-init="true">
             <div class="roster-avatar avatar-junior">LG</div>
             <div class="roster-info">
                 <h4 class="roster-name">Lucas Gelinas</h4>
                 <span class="rank-badge badge-junior">PROBATIONARY FIREFIGHTER</span>
             </div>
-        </div><div class="roster-card" data-category="juniors" data-name="Jack Sentman" data-role="PROBATIONARY FIREFIGHTER">
+        <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Lucas Gelinas" aria-label="Add custom tag to Lucas Gelinas">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div><div class="roster-card roster-card-draggable" data-category="juniors" data-name="Jack Sentman" data-role="PROBATIONARY FIREFIGHTER" data-drag-init="true">
             <div class="roster-avatar avatar-junior">JS</div>
             <div class="roster-info">
                 <h4 class="roster-name">Jack Sentman</h4>
                 <span class="rank-badge badge-junior">PROBATIONARY FIREFIGHTER</span>
             </div>
-        </div><div class="roster-card" data-category="juniors" data-name="Sohil Patel" data-role="Junior Firefighter">
+        <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Jack Sentman" aria-label="Add custom tag to Jack Sentman">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div><div class="roster-card roster-card-draggable" data-category="juniors" data-name="Sohil Patel" data-role="Junior Firefighter" data-drag-init="true">
             
             <div class="roster-avatar avatar-junior">SP</div>
             <div class="roster-info">
                 <h4 class="roster-name">Sohil Patel</h4>
                 <span class="rank-badge badge-junior">PROBATIONARY FIREFIGHTER</span>
             </div>
-        </div><div class="roster-card" data-category="juniors" data-name="Reinaldo Souza" data-role="Probationary Firefighter">
+        <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Sohil Patel" aria-label="Add custom tag to Sohil Patel">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div><div class="roster-card roster-card-draggable" data-category="juniors" data-name="Reinaldo Souza" data-role="Probationary Firefighter" data-drag-init="true">
             
             <div class="roster-avatar avatar-junior">RS</div>
             <div class="roster-info">
                 <h4 class="roster-name">Reinaldo Souza</h4>
                 <span class="rank-badge badge-junior">Probationary Firefighter</span>
             </div>
-        </div></div>
+        <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Reinaldo Souza" aria-label="Add custom tag to Reinaldo Souza">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div></div>
                     </div>
 
                     <!-- Fire Police -->
@@ -731,71 +722,71 @@
                         <div class="roster-category-header">
                             <h3 class="roster-category-title">Fire Police</h3>
                             <div class="roster-category-line"></div>
-                        </div>
-                        <div class="roster-grid-modern">
-                            <div class="roster-card" data-category="fire-police" data-name="Rich Hopkins" data-role="Fire Police Captain">
+                        <button class="btn-roster-add-member" data-section="fire-police">+ Add Member</button></div>
+                        <div class="roster-grid-modern" data-drag-grid-init="true">
+                            <div class="roster-card roster-card-draggable" data-category="fire-police" data-name="Rich Hopkins" data-role="Fire Police Captain" data-drag-init="true">
                                 <div class="roster-avatar avatar-police">RH</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Rich Hopkins</h4>
                                     <span class="rank-badge badge-police">Captain</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="fire-police" data-name="Debra Danielson" data-role="Fire Police Sergeant">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Rich Hopkins" aria-label="Add custom tag to Rich Hopkins">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="fire-police" data-name="Debra Danielson" data-role="Fire Police Sergeant" data-drag-init="true">
                                 <div class="roster-avatar avatar-police">DD</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Debra Danielson</h4>
                                     <span class="rank-badge badge-police">Sergeant</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="fire-police" data-name="Tammy Garaffa" data-role="Fire Police Corporal">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Debra Danielson" aria-label="Add custom tag to Debra Danielson">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="fire-police" data-name="Tammy Garaffa" data-role="Fire Police Corporal" data-drag-init="true">
                                 <div class="roster-avatar avatar-police">TG</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Tammy Garaffa</h4>
                                     <span class="rank-badge badge-police">Corporal</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="fire-police" data-name="Inder Ghai" data-role="Fire Police">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Tammy Garaffa" aria-label="Add custom tag to Tammy Garaffa">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="fire-police" data-name="Inder Ghai" data-role="Fire Police" data-drag-init="true">
                                 <div class="roster-avatar avatar-police">IG</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Inder Ghai</h4>
                                     <span class="rank-badge badge-police">Fire Police</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="fire-police" data-name="Vish Kolur" data-role="Fire Police">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Inder Ghai" aria-label="Add custom tag to Inder Ghai">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="fire-police" data-name="Vish Kolur" data-role="Fire Police" data-drag-init="true">
                                 <div class="roster-avatar avatar-police">VK</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Vish Kolur</h4>
                                     <span class="rank-badge badge-police">Fire Police</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="fire-police" data-name="Laurin Long" data-role="Fire Police">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Vish Kolur" aria-label="Add custom tag to Vish Kolur">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="fire-police" data-name="Laurin Long" data-role="Fire Police" data-drag-init="true">
                                 <div class="roster-avatar avatar-police">LL</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Laurin Long</h4>
                                     <span class="rank-badge badge-police">Fire Police</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="fire-police" data-name="Andy Mozumdar" data-role="Fire Police">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Laurin Long" aria-label="Add custom tag to Laurin Long">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="fire-police" data-name="Andy Mozumdar" data-role="Fire Police" data-drag-init="true">
                                 <div class="roster-avatar avatar-police">AM</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Andy Mozumdar</h4>
                                     <span class="rank-badge badge-police">Fire Police</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="fire-police" data-name="John Wallmark" data-role="Fire Police">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Andy Mozumdar" aria-label="Add custom tag to Andy Mozumdar">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="fire-police" data-name="John Wallmark" data-role="Fire Police" data-drag-init="true">
                                 <div class="roster-avatar avatar-police">JW</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">John Wallmark</h4>
                                     <span class="rank-badge badge-police">Fire Police</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="fire-police" data-name="Bonnie Wesselmann" data-role="Fire Police">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to John Wallmark" aria-label="Add custom tag to John Wallmark">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="fire-police" data-name="Bonnie Wesselmann" data-role="Fire Police" data-drag-init="true">
                                 <div class="roster-avatar avatar-police">BW</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Bonnie Wesselmann</h4>
                                     <span class="rank-badge badge-police">Fire Police</span>
                                 </div>
-                            </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Bonnie Wesselmann" aria-label="Add custom tag to Bonnie Wesselmann">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
                         </div>
                     </div>
 
@@ -804,52 +795,58 @@
                         <div class="roster-category-header">
                             <h3 class="roster-category-title">Associate Members</h3>
                             <div class="roster-category-line"></div>
-                        </div>
-                        <div class="roster-grid-modern">
-                            <div class="roster-card" data-category="associate-members" data-name="John Faryniak" data-role="Associate Member">
+                        <button class="btn-roster-add-member" data-section="associate-members">+ Add Member</button></div>
+                        <div class="roster-grid-modern" data-drag-grid-init="true">
+                            <div class="roster-card roster-card-draggable" data-category="associate-members" data-name="John Faryniak" data-role="Associate Member" data-drag-init="true">
                                 <div class="roster-avatar avatar-associate">JF</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">John Faryniak</h4>
                                     <span class="rank-badge badge-associate">Associate Member</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="associate-members" data-name="Ben Shipman" data-role="Associate Member">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to John Faryniak" aria-label="Add custom tag to John Faryniak">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="associate-members" data-name="Ben Shipman" data-role="Associate Member" data-drag-init="true">
                                 <div class="roster-avatar avatar-associate">BS</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Ben Shipman</h4>
                                     <span class="rank-badge badge-associate">Associate Member</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="associate-members" data-name="JP Faryniak" data-role="Associate Member">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Ben Shipman" aria-label="Add custom tag to Ben Shipman">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="associate-members" data-name="JP Faryniak" data-role="Associate Member" data-drag-init="true">
                                 <div class="roster-avatar avatar-associate">JP</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">JP Faryniak</h4>
                                     <span class="rank-badge badge-associate">Associate Member</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="associate-members" data-name="Connie Kelly" data-role="Associate Member">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to JP Faryniak" aria-label="Add custom tag to JP Faryniak">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="associate-members" data-name="Connie Kelly" data-role="Associate Member" data-drag-init="true">
                                 <div class="roster-avatar avatar-associate">CK</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Connie Kelly</h4>
                                     <span class="rank-badge badge-associate">Associate Member</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="associate-members" data-name="Tim Fallon &amp; Jupiter" data-role="Associate Member">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Connie Kelly" aria-label="Add custom tag to Connie Kelly">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="associate-members" data-name="Tim Fallon &amp; Jupiter" data-role="Associate Member" data-drag-init="true">
                                 <div class="roster-avatar avatar-associate">TF</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Tim Fallon &amp; Jupiter</h4>
                                     <span class="rank-badge badge-associate">Associate Member</span>
                                 </div>
-                            </div>
-                            <div class="roster-card" data-category="associate-members" data-name="Art Parsell" data-role="Associate Member">
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Tim Fallon &amp; Jupiter" aria-label="Add custom tag to Tim Fallon &amp; Jupiter">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
+                            <div class="roster-card roster-card-draggable" data-category="associate-members" data-name="Art Parsell" data-role="Associate Member" data-drag-init="true">
                                 <div class="roster-avatar avatar-associate">AP</div>
                                 <div class="roster-info">
                                     <h4 class="roster-name">Art Parsell</h4>
                                     <span class="rank-badge badge-associate">Associate Member</span>
                                 </div>
-                            </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Art Parsell" aria-label="Add custom tag to Art Parsell">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div>
                             
-                        </div>
+                        <div class="roster-card roster-card-draggable" data-category="associate-members" data-name="Jack Larkin" data-role="Interior Firefighter" data-drag-init="true">
+                                <div class="roster-avatar avatar-associate">CK</div>
+                                <div class="roster-info">
+                                    <h4 class="roster-name">Jack Larkin</h4>
+                                    <span class="rank-badge badge-associate">ASSOCIATE MEMBER</span>
+                                </div>
+                            <button class="roster-card-remove-btn" title="Remove this member" aria-label="Remove member">✕</button><button type="button" class="roster-card-tag-btn" title="Add custom tag to Jack Larkin" aria-label="Add custom tag to Jack Larkin">+ Tag</button><div class="roster-card-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div></div></div>
                     </div>
                 </div>
             </div>
