@@ -1146,6 +1146,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inline CMS / Text Editing Backdoor
     const isAdminLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
     let editModeActive = localStorage.getItem('station46_edit_mode') !== 'false';
+    if (isAdminLoggedIn) {
+        document.documentElement.classList.add('admin-logged-in');
+        document.body.classList.add('admin-logged-in');
+    } else {
+        document.querySelectorAll('.station-slider-admin-actions, #slider-section-admin-bar, .apparatus-admin-actions').forEach(el => {
+            el.style.display = 'none';
+        });
+    }
 
     // Clean up legacy index-based corrupted edits and any errant admin menu / navbar edits
     (function cleanupLegacyEdits() {
@@ -2812,6 +2820,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (isAdminLoggedIn) {
+            document.querySelectorAll('.apparatus-admin-actions').forEach(el => {
+                el.style.display = editModeActive ? 'flex' : 'none';
+            });
             createAddApparatusModal();
 
             const bindApparatusAddBtn = (id, type) => {
@@ -2863,6 +2874,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     setupApparatusCardDrag(card, 'retired');
                 });
             }
+        } else {
+            document.querySelectorAll('.apparatus-admin-actions').forEach(el => {
+                el.style.display = 'none';
+            });
         }
     }
 
@@ -3273,6 +3288,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Remove hidden file inputs added for image uploads
         clone.querySelectorAll('input[type="file"]').forEach(el => el.remove());
 
+        // Ensure admin action bars are hidden in serialized clean HTML state
+        clone.querySelectorAll('.station-slider-admin-actions, #slider-section-admin-bar, .apparatus-admin-actions').forEach(el => {
+            el.style.display = 'none';
+        });
+
         // Clean runtime editable and draggable attributes
         clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
         clone.querySelectorAll('[draggable]').forEach(el => el.removeAttribute('draggable'));
@@ -3334,6 +3354,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === 'function') {
                     try { window.instgrm.Embeds.process(); } catch (e) {}
                 }
+            }
+
+            // Defensive cleanup: Ensure admin action bars remain hidden if not logged in
+            if (!isAdminLoggedIn) {
+                mainEl.querySelectorAll('.station-slider-admin-actions, #slider-section-admin-bar, .apparatus-admin-actions').forEach(el => {
+                    el.style.display = 'none';
+                });
             }
         }
     }
@@ -6747,7 +6774,7 @@ ${mainContentHtml}
         const addDeckBtn = document.getElementById('btn-add-slider-deck');
 
         if (isAdminLoggedIn) {
-            if (adminBar) adminBar.style.display = 'flex';
+            if (adminBar) adminBar.style.display = editModeActive ? 'flex' : 'none';
             if (addDeckBtn && !addDeckBtn.dataset.bound) {
                 addDeckBtn.dataset.bound = 'true';
                 addDeckBtn.addEventListener('click', (e) => {
@@ -6755,6 +6782,8 @@ ${mainContentHtml}
                     openCreateSliderModal();
                 });
             }
+        } else {
+            if (adminBar) adminBar.style.display = 'none';
         }
 
         // Wire controls for each card in the track
@@ -7083,6 +7112,9 @@ ${mainContentHtml}
                         el.classList.remove('admin-edit-focus', 'apparatus-card-dragging', 'roster-card-dragging');
                     });
                     doc.querySelectorAll('.station-image-change-btn, .section-drag-handle, .section-drop-indicator, .section-drag-ghost-badge, .section-admin-bar, .section-insert-divider, .section-card-add-btn, .card-admin-remove-btn, .section-item-upload-btn').forEach(el => el.remove());
+                    doc.querySelectorAll('.station-slider-admin-actions, #slider-section-admin-bar, .apparatus-admin-actions').forEach(el => {
+                        el.style.display = 'none';
+                    });
                     const updatedHtml = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
                     const success = await syncToGitHub(pageName, updatedHtml, `Admin: Update content in ${pageName}`);
                     if (!success) allHtmlSuccess = false;
@@ -7409,6 +7441,9 @@ ${mainContentHtml}
                 document.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
                     el.style.display = 'flex';
                 });
+                document.querySelectorAll('.station-slider-admin-actions, #slider-section-admin-bar, .apparatus-admin-actions').forEach(el => {
+                    el.style.display = 'flex';
+                });
                 document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn, .apparatus-card-admin-header').forEach(el => {
                     el.style.display = 'inline-flex';
                 });
@@ -7445,6 +7480,9 @@ ${mainContentHtml}
                     card.removeAttribute('draggable');
                 });
                 document.querySelectorAll('.slider-card-admin-controls, .stat-row-remove-btn').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('.station-slider-admin-actions, #slider-section-admin-bar, .apparatus-admin-actions').forEach(el => {
                     el.style.display = 'none';
                 });
                 document.querySelectorAll('.btn-apparatus-add, .apparatus-card-remove-btn, .apparatus-card-admin-header').forEach(el => {

@@ -4652,6 +4652,19 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 /* ==========================================================================
    Apparatus Admin Management Styles (Active & Retired)
    ========================================================================== */
+.apparatus-admin-actions {
+    margin-top: 1.25rem;
+    display: none;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+body.admin-edit-mode .apparatus-admin-actions,
+body.admin-logged-in.admin-edit-mode .apparatus-admin-actions {
+    display: flex !important;
+}
+
 .btn-apparatus-add {
     background: linear-gradient(135deg, #b3212b 0%, #9b1b24 100%);
     color: #ffffff;
@@ -4676,7 +4689,8 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
     color: #ffffff;
 }
 
-.admin-edit-mode .btn-apparatus-add {
+body.admin-edit-mode .btn-apparatus-add,
+body.admin-logged-in.admin-edit-mode .btn-apparatus-add {
     display: inline-flex !important;
 }
 
@@ -8158,7 +8172,7 @@ body.storm-mode-active.storm-level-warning .top-bar {
 
 .station-slider-admin-actions {
     margin-top: 1.2rem;
-    display: flex;
+    display: none;
     justify-content: center;
     gap: 0.75rem;
 }
@@ -8492,7 +8506,8 @@ body.storm-mode-active.storm-level-warning .top-bar {
 }
 
 /* Admin Active State Styles */
-.admin-edit-mode .station-slider-admin-actions,
+body.admin-edit-mode .station-slider-admin-actions,
+body.admin-logged-in.admin-edit-mode .station-slider-admin-actions,
 .admin-edit-mode .slider-card-admin-controls,
 .admin-edit-mode .stat-row-remove-btn {
     display: flex !important;
