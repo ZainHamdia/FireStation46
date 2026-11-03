@@ -97,6 +97,15 @@
                 filter: drop-shadow(0 0 6px rgba(220, 58, 69, 0.6));
             }
         }
+        /* Schedule & Dates Section text contrast on fixed dark background */
+        #dates .section-title {
+            color: #ffffff !important;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+        }
+        #dates .section-subtitle {
+            color: rgba(255, 255, 255, 0.92) !important;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.75);
+        }
         .dates-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -426,8 +435,8 @@
         <section id="dates" class="section" style="position: relative; background: linear-gradient(rgba(10, 11, 13, 0.82), rgba(10, 11, 13, 0.88)), url('christmas.jpg') center 25%/cover; background-attachment: fixed;">
             <div class="container">
                 <div class="section-header text-center fade-in visible">
-                    <h2 class="section-title">2025 Schedule &amp; Dates</h2>
-                    <p class="section-subtitle">Mark your calendar for gift drop-off days and Santa's fire engine delivery tour!</p>
+                    <h2 class="section-title" style="color: #ffffff !important; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);">2025 Schedule &amp; Dates</h2>
+                    <p class="section-subtitle" style="color: rgba(255, 255, 255, 0.92) !important; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.75);">Mark your calendar for gift drop-off days and Santa's fire engine delivery tour!</p>
                 </div>
 
                 <div class="dates-container">
