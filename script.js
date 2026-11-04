@@ -351,76 +351,172 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Real form submission via FormSubmit.co (handles membership & recruitment/inquiry forms)
-    const formsToHandle = document.querySelectorAll('.membership-application-form, #membership-application-form, #home-recruit-form, .contact-form');
-    formsToHandle.forEach(form => {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const btn = form.querySelector('button[type="submit"]') || form.querySelector('button');
-            const originalText = btn.textContent;
-            
+    // Contact & Membership Application Handler (event delegation so it survives DOM updates)
+    document.addEventListener('submit', async (e) => {
+        const form = e.target && e.target.closest
+            ? e.target.closest('.membership-application-form, #membership-application-form, #home-recruit-form, .contact-form')
+            : null;
+        if (!form) return;
+
+        e.preventDefault();
+
+        const btn = form.querySelector('button[type="submit"]') || form.querySelector('button');
+        const originalText = btn ? (btn.dataset.originalText || btn.textContent) : 'Submit';
+        if (btn) {
+            btn.dataset.originalText = originalText;
+            btn.disabled = true;
             btn.textContent = 'Sending...';
             btn.style.opacity = '0.8';
-            
-            // Gather data from within this specific form
-            const nameEl = form.querySelector('[name="name"]') || form.querySelector('#name') || form.querySelector('.form-name');
-            const emailEl = form.querySelector('[name="email"]') || form.querySelector('#email') || form.querySelector('.form-email');
-            const phoneEl = form.querySelector('[name="phone"]') || form.querySelector('#phone') || form.querySelector('.form-phone');
-            const typeEl = form.querySelector('[name="membership_type"]') || form.querySelector('[name="topic"]') || form.querySelector('#membership-type') || form.querySelector('.form-type');
-            const msgEl = form.querySelector('[name="message"]') || form.querySelector('textarea');
+        }
 
-            const name = nameEl ? nameEl.value : '';
-            const email = emailEl ? emailEl.value : '';
-            const phone = phoneEl ? phoneEl.value : '';
-            const topic = typeEl ? typeEl.value : 'General Inquiry';
-            const message = msgEl ? msgEl.value : '';
+        // Remove any previous inline status notice inside this form
+        const prevNotice = form.querySelector('.form-submission-feedback');
+        if (prevNotice) prevNotice.remove();
 
-            const isRecruit = form.id === 'membership-application-form' || form.classList.contains('membership-application-form');
-            const subject = isRecruit 
-                ? "New Membership Application for MTVFC #2 (Station 46)" 
-                : `MTVFC #2 Inquiry: ${topic || 'General Contact'}`;
+        // Gather data from within this specific form
+        const nameEl = form.querySelector('[name="name"]') || form.querySelector('#name') || form.querySelector('.form-name');
+        const emailEl = form.querySelector('[name="email"]') || form.querySelector('#email') || form.querySelector('.form-email');
+        const phoneEl = form.querySelector('[name="phone"]') || form.querySelector('#phone') || form.querySelector('.form-phone');
+        const typeEl = form.querySelector('[name="membership_type"]') || form.querySelector('[name="topic"]') || form.querySelector('#membership-type') || form.querySelector('.form-type');
+        const msgEl = form.querySelector('[name="message"]') || form.querySelector('textarea');
 
-            const payload = {
-                name: name,
-                email: email,
-                phone: phone,
-                topic: topic,
-                _subject: subject
-            };
-            if (message) payload.message = message;
+        const name = nameEl ? nameEl.value.trim() : '';
+        const email = emailEl ? emailEl.value.trim() : '';
+        const phone = phoneEl ? phoneEl.value.trim() : '';
+        const topic = typeEl ? typeEl.value.trim() : 'General Inquiry';
+        const message = msgEl ? msgEl.value.trim() : '';
 
-            fetch("https://formsubmit.co/ajax/membership@mtvfc2.com", {
-                method: "POST",
-                headers: { 
+        const isRecruit = form.id === 'membership-application-form' || form.classList.contains('membership-application-form');
+        const subject = isRecruit
+            ? "New Membership Application for MTVFC #2 (Station 46)"
+            : `MTVFC #2 Inquiry: ${topic || 'General Contact'}`;
+
+        const payload = {
+            name,
+            email,
+            phone,
+            topic,
+            _subject: subject,
+            page: window.location.pathname || 'index.html'
+        };
+        if (message) payload.message = message;
+
+        const fetchWithTimeout = (url, options, timeoutMs = 6000) => {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            return fetch(url, { ...options, signal: controller.signal })
+                .finally(() => clearTimeout(timer));
+        };
+
+        const showFormFeedback = (html, isSuccess = true) => {
+            const notice = document.createElement('div');
+            notice.className = 'form-submission-feedback';
+            notice.style.cssText = isSuccess
+                ? 'margin-top: 1rem; padding: 14px 18px; border-radius: 6px; background: rgba(42, 157, 143, 0.14); border: 1px solid #2a9d8f; color: var(--text-primary, #1e293b); font-size: 0.94rem; line-height: 1.5; text-align: center;'
+                : 'margin-top: 1rem; padding: 14px 18px; border-radius: 6px; background: rgba(231, 111, 81, 0.14); border: 1px solid #e76f51; color: var(--text-primary, #1e293b); font-size: 0.94rem; line-height: 1.5; text-align: center;';
+            notice.innerHTML = html;
+            form.appendChild(notice);
+        };
+
+        let sent = false;
+
+        // 1. Primary: Cloudflare Pages Function (/api/contact)
+        try {
+            const apiRes = await fetchWithTimeout('/api/contact', {
+                method: 'POST',
+                headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(data => {
+            }, 7000);
+
+            if (apiRes.ok) {
+                const apiData = await apiRes.json().catch(() => ({}));
+                if (apiData && apiData.ok) {
+                    sent = true;
+                }
+            }
+        } catch (err) {
+            console.warn('[Station 46] /api/contact attempt did not succeed, trying direct relay:', err);
+        }
+
+        // 2. Secondary: Direct client-side FormSubmit.co fallback (with 5-second timeout)
+        if (!sent) {
+            try {
+                const fsRes = await fetchWithTimeout('https://formsubmit.co/ajax/membership@mtvfc2.com', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                }, 5000);
+
+                if (fsRes.ok) {
+                    const fsData = await fsRes.json().catch(() => ({}));
+                    if (fsData && (fsData.success === 'true' || fsData.success === true)) {
+                        sent = true;
+                    }
+                }
+            } catch (err) {
+                console.warn('[Station 46] FormSubmit fallback unreachable:', err);
+            }
+        }
+
+        if (sent) {
+            if (btn) {
                 btn.textContent = 'Message Sent!';
-                btn.style.background = '#2a9d8f'; // Success green color
-                form.reset();
-                
-                setTimeout(() => {
+                btn.style.background = '#2a9d8f';
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
+            form.reset();
+            showFormFeedback(
+                `<strong>✅ Thank you, ${name || 'neighbor'}!</strong> Your inquiry has been sent to Station 46 (<code>membership@mtvfc2.com</code>). Our team will get back to you soon.`,
+                true
+            );
+
+            setTimeout(() => {
+                if (btn) {
                     btn.textContent = originalText;
                     btn.style.background = '';
                     btn.style.opacity = '1';
-                }, 4000);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                btn.textContent = 'Error. Try again.';
-                btn.style.background = '#e76f51';
-                
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = '';
-                    btn.style.opacity = '1';
-                }, 3000);
-            });
-        });
+                }
+            }, 4000);
+        } else {
+            // 3. Graceful Fallback: Pre-filled mailto link + direct contact info so inquiry is never lost
+            const bodyLines = [
+                `Name: ${name}`,
+                `Email: ${email}`,
+                phone ? `Phone: ${phone}` : '',
+                `Topic: ${topic}`,
+                message ? `\nMessage:\n${message}` : ''
+            ].filter(Boolean).join('\n');
+
+            const mailtoHref = `mailto:membership@mtvfc2.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines)}`;
+
+            if (btn) {
+                btn.textContent = originalText;
+                btn.style.background = '';
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
+
+            showFormFeedback(
+                `<strong>⚠️ Automated email relay is temporarily offline.</strong><br>` +
+                `We opened your email app with your message pre-filled so nothing is lost — or click below to send directly:<br>` +
+                `<div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">` +
+                `<a href="${mailtoHref}" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; text-decoration: none; display: inline-block;">✉️ Send via Email App (membership@mtvfc2.com)</a>` +
+                `</div>`,
+                false
+            );
+
+            // Automatically open the pre-filled mailto link so the user can send with 1 click
+            try {
+                window.location.href = mailtoHref;
+            } catch (e) {}
+        }
     });
 
     // History Accordion Dropdown on About Page
@@ -457,16 +553,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Membership cards: Quick select membership type on button click
-    document.querySelectorAll('.select-membership-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const type = btn.getAttribute('data-type');
-            const select = document.getElementById('membership-type');
-            if (select && type) {
-                select.value = type;
-                select.dispatchEvent(new Event('change'));
-            }
-        });
+    // Membership cards: Quick select membership type on button click (event delegation)
+    document.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest('.select-membership-btn') : null;
+        if (!btn) return;
+        const type = btn.getAttribute('data-type');
+        const select = document.getElementById('membership-type');
+        if (select && type) {
+            select.value = type;
+            select.dispatchEvent(new Event('change'));
+        }
     });
 
 
@@ -885,7 +981,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('[class*="admin-menu"], [id*="admin-menu"], [class*="admin-action"], .btn-admin-action, .btn-admin-git, .btn-admin-logout') ||
             element.closest('#admin-font-toolbar, .admin-font-modal-overlay, #admin-toast-notification') ||
             element.closest('#admin-posts-list-container, #admin-dashboard-view, #admin-login-view, .admin-form-container, #admin-login-form, #admin-publish-form') ||
-            element.closest('#admin-weather-card, #admin-pages-management-card, #admin-media-management-card') ||
+            element.closest('#admin-weather-card, #admin-pages-management-card, #admin-media-management-card, #admin-inquiries-card') ||
             element.closest('.section-admin-bar, .section-insert-divider, .section-drag-handle, .section-card-add-btn, .card-admin-remove-btn, .section-item-upload-btn, .station-image-change-btn') ||
             element.closest('.roster-modal-overlay, .station-slider-admin-actions, .slider-card-admin-controls, .stat-row-remove-btn, .slider-nav-btn, .slider-dot') ||
             element.closest('.apparatus-card-remove-btn, .apparatus-card-drag-handle, .apparatus-move-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder, .btn-apparatus-add, .apparatus-admin-actions, .apparatus-add-modal-overlay, #apparatus-modal') ||
@@ -3285,8 +3381,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clean out browser extension injected markup (Grammarly, Superhuman, etc.)
         clone.querySelectorAll('grammarly-extension, grammarly-extension-vbars, superhuman-go-underlines, [class*="dnXmp"]').forEach(el => el.remove());
 
-        // Remove hidden file inputs added for image uploads
-        clone.querySelectorAll('input[type="file"]').forEach(el => el.remove());
+        // Remove hidden file inputs added for image uploads and transient form feedback notices
+        clone.querySelectorAll('input[type="file"], .form-submission-feedback').forEach(el => el.remove());
 
         // Ensure admin action bars are hidden in serialized clean HTML state
         clone.querySelectorAll('.station-slider-admin-actions, #slider-section-admin-bar, .apparatus-admin-actions').forEach(el => {
@@ -3322,14 +3418,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!pageKey || pageKey === 'admin.html') return;
         const saved = localStorage.getItem('station46_main_html_' + pageKey);
 
-        // If cached main HTML contains stale powr feeds, extension junk, or is missing instagram embed on news/home, purge the cache so fresh static HTML is displayed
+        // If cached main HTML contains stale powr feeds, extension junk, or is missing instagram embed or donate section on news/home, purge the cache so fresh static HTML is displayed
         if (saved && (
             saved.includes('powr-social-feed') || 
             saved.includes('powr.io') || 
             saved.includes('powr-feed-wrapper') ||
             saved.includes('grammarly-extension') ||
             saved.includes('superhuman-go-underlines') ||
-            ((pageKey === 'news.html' || pageKey === 'index.html') && !saved.includes('instagram-media'))
+            ((pageKey === 'news.html' || pageKey === 'index.html') && !saved.includes('instagram-media')) ||
+            (pageKey === 'index.html' && !saved.includes('id="donate"'))
         )) {
             localStorage.removeItem('station46_main_html_' + pageKey);
             return;
@@ -7598,6 +7695,7 @@ ${mainContentHtml}
             setupAdminWelcomeHeading();
             renderAdminPosts();
             renderAdminPagesManager();
+            renderAdminInquiries();
         } else {
             toggleAdminLayout(false);
         }
@@ -7885,6 +7983,115 @@ ${mainContentHtml}
                 }
             });
         });
+    }
+
+    // 4b. Render Admin Website Inquiries & Applications Inbox
+    async function renderAdminInquiries() {
+        const container = document.getElementById('admin-inquiries-list-container');
+        if (!container) return;
+
+        const creds = getAdminCredentials();
+        if (!creds) {
+            container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 1.5rem 0;">Log in to view inquiries.</p>`;
+            return;
+        }
+
+        container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 1.5rem 0;">⏳ Loading inquiries...</p>`;
+
+        try {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'list',
+                    username: creds.username,
+                    password: creds.password
+                })
+            });
+
+            const data = await res.json().catch(() => ({}));
+            const inquiries = Array.isArray(data.inquiries) ? data.inquiries : [];
+
+            if (inquiries.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 1.5rem 0;">No website inquiries or applications received yet.</p>`;
+                return;
+            }
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 1rem;">';
+            inquiries.forEach(item => {
+                const id = escapeHtml(item.id || '');
+                const name = escapeHtml(item.name || 'Anonymous');
+                const email = escapeHtml(item.email || '');
+                const phone = escapeHtml(item.phone || 'Not provided');
+                const topic = escapeHtml(item.topic || 'General Inquiry');
+                const message = escapeHtml(item.message || '');
+                const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleString('en-US', {
+                    month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+                }) : '';
+                const replySubject = encodeURIComponent(`Re: ${item.subject || ('MTVFC #2 Inquiry - ' + (item.topic || ''))}`);
+                const mailtoReply = `mailto:${encodeURIComponent(item.email || '')}?subject=${replySubject}`;
+
+                html += `
+                    <div class="admin-post-item" style="flex-direction: column; align-items: stretch; gap: 0.75rem; padding: 1.15rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem;">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <h4 style="margin: 0; font-size: 1.05rem;">${name}</h4>
+                                    <span class="news-card-tag tag-news" style="margin: 0; font-size: 0.7rem; padding: 2px 8px;">${topic}</span>
+                                </div>
+                                <div class="admin-post-meta" style="margin-top: 4px;">
+                                    <span><strong>Email:</strong> <a href="${mailtoReply}" style="color: var(--fire-red); text-decoration: underline;">${email}</a></span>
+                                    <span class="meta-sep">•</span>
+                                    <span><strong>Phone:</strong> ${phone}</span>
+                                    ${dateStr ? `<span class="meta-sep">•</span><span>${escapeHtml(dateStr)}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="admin-post-actions" style="display: flex; gap: 8px;">
+                                <a href="${mailtoReply}" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem; text-decoration: none;">✉️ Reply</a>
+                                <button type="button" class="btn delete-btn delete-inquiry-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.8rem;">Delete</button>
+                            </div>
+                        </div>
+                        ${message ? `<div style="background: rgba(148, 163, 184, 0.1); padding: 10px 14px; border-radius: 6px; font-size: 0.9rem; white-space: pre-wrap; color: var(--text-primary);">${message}</div>` : ''}
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+
+            container.querySelectorAll('.delete-inquiry-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    if (!id) return;
+                    btn.disabled = true;
+                    btn.textContent = 'Deleting...';
+                    try {
+                        await fetch('/api/contact', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                action: 'delete',
+                                id,
+                                username: creds.username,
+                                password: creds.password
+                            })
+                        });
+                        renderAdminInquiries();
+                        showAdminToast('✅ Inquiry deleted');
+                    } catch (e) {
+                        showAdminToast('❌ Could not delete inquiry', true);
+                        btn.disabled = false;
+                        btn.textContent = 'Delete';
+                    }
+                });
+            });
+        } catch (err) {
+            container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 1.5rem 0;">Could not load inquiries right now.</p>`;
+        }
+    }
+
+    const refreshInquiriesBtn = document.getElementById('admin-refresh-inquiries-btn');
+    if (refreshInquiriesBtn) {
+        refreshInquiriesBtn.addEventListener('click', () => renderAdminInquiries());
     }
 
     // 5. News Page Dynamic Renderer & Filter Integrations
