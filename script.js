@@ -3425,6 +3425,8 @@ document.addEventListener('DOMContentLoaded', () => {
             saved.includes('powr-feed-wrapper') ||
             saved.includes('grammarly-extension') ||
             saved.includes('superhuman-go-underlines') ||
+            saved.includes('Your contributions directly fund:') ||
+            saved.includes('purchase lifesaving rescue gear') ||
             ((pageKey === 'news.html' || pageKey === 'index.html') && !saved.includes('instagram-media')) ||
             (pageKey === 'index.html' && !saved.includes('id="donate"'))
         )) {
@@ -5263,7 +5265,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <span class="custom-faq-chevron">▾</span>
                             </button>
                             <div class="custom-faq-answer">
-                                <p>Station 46 is funded through Montgomery Township Fire District #2 taxes, supplemented by community donations and fundraising events.</p>
+                                <p>Your donations and contributions work to support the mission of the Fire Company, and the Fire Department.</p>
                             </div>
                         </div>
                     </div>
@@ -5614,8 +5616,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="container">
                     <div class="section-header text-center">
                         <span class="section-badge badge-gold">Support Your Firefighters</span>
-                        <h2 class="section-title">Help Fund Life-Saving Gear &amp; Equipment</h2>
-                        <p class="section-subtitle">Your tax-deductible contribution directly protects Montgomery Township volunteer firefighters.</p>
+                        <h2 class="section-title">Support Station 46</h2>
+                        <p class="section-subtitle">Your donations and contributions work to support the mission of the Fire Company, and the Fire Department.</p>
                     </div>
                     <div class="custom-donate-tiers-grid">
                         <div class="custom-donate-tier-card glass-card">
