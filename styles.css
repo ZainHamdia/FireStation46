@@ -2497,9 +2497,9 @@ footer {
 /* Donations Section (Wix Civic Style) */
 .donation-grid {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 2.5rem;
-    margin-top: 2rem;
+    grid-template-columns: 1fr;
+    max-width: 520px;
+    margin: 2rem auto 0;
 }
 
 .donation-info {

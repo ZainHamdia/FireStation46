@@ -3427,6 +3427,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saved.includes('superhuman-go-underlines') ||
             saved.includes('Your contributions directly fund:') ||
             saved.includes('purchase lifesaving rescue gear') ||
+            saved.includes('donation-info') ||
             ((pageKey === 'news.html' || pageKey === 'index.html') && !saved.includes('instagram-media')) ||
             (pageKey === 'index.html' && !saved.includes('id="donate"'))
         )) {
