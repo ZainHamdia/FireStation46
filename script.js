@@ -351,6 +351,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
+    // Helper to load email relay key (FormSubmit token or Web3Forms key) from data/email_config.json or localStorage
+    const DEFAULT_EMAIL_RELAY_KEY = '37b00baefbf5e196fca875307c200558';
+    let cachedWeb3FormsKey = localStorage.getItem('station46_web3forms_key') || DEFAULT_EMAIL_RELAY_KEY;
+    async function getStationWeb3FormsKey() {
+        try {
+            const res = await fetch(`data/email_config.json?t=${Date.now()}`, { cache: 'no-store' });
+            if (res.ok) {
+                const cfg = await res.json();
+                const cfgKey = (cfg && (cfg.web3formsKey || cfg.formsubmitToken)) || '';
+                if (typeof cfgKey === 'string' && cfgKey.trim()) {
+                    cachedWeb3FormsKey = cfgKey.trim();
+                    localStorage.setItem('station46_web3forms_key', cachedWeb3FormsKey);
+                }
+            }
+        } catch (e) {}
+        return cachedWeb3FormsKey || DEFAULT_EMAIL_RELAY_KEY;
+    }
+    // Pre-fetch email config on load
+    getStationWeb3FormsKey();
+
     // Contact & Membership Application Handler (event delegation so it survives DOM updates)
     document.addEventListener('submit', async (e) => {
         const form = e.target && e.target.closest
@@ -412,15 +432,81 @@ document.addEventListener('DOMContentLoaded', () => {
             const notice = document.createElement('div');
             notice.className = 'form-submission-feedback';
             notice.style.cssText = isSuccess
-                ? 'margin-top: 1rem; padding: 14px 18px; border-radius: 6px; background: rgba(42, 157, 143, 0.14); border: 1px solid #2a9d8f; color: var(--text-primary, #1e293b); font-size: 0.94rem; line-height: 1.5; text-align: center;'
-                : 'margin-top: 1rem; padding: 14px 18px; border-radius: 6px; background: rgba(231, 111, 81, 0.14); border: 1px solid #e76f51; color: var(--text-primary, #1e293b); font-size: 0.94rem; line-height: 1.5; text-align: center;';
+                ? 'margin-top: 1rem; padding: 14px 18px; border-radius: 6px; background: rgba(42, 157, 143, 0.14); border: 1px solid #2a9d8f; color: var(--text-primary, #1e293b); font-family: var(--font-body, inherit); font-size: 0.94rem; line-height: 1.5; text-align: center;'
+                : 'margin-top: 1rem; padding: 14px 18px; border-radius: 6px; background: rgba(231, 111, 81, 0.14); border: 1px solid #e76f51; color: var(--text-primary, #1e293b); font-family: var(--font-body, inherit); font-size: 0.94rem; line-height: 1.5; text-align: center;';
             notice.innerHTML = html;
             form.appendChild(notice);
         };
 
-        let sent = false;
+        let emailDelivered = false;
+        let savedToStore = false;
 
-        // 1. Primary: Cloudflare Pages Function (/api/contact)
+        // 1. Primary Client-Side Email Delivery (FormSubmit activated token 37b00baefbf5e196fca875307c200558 or Web3Forms UUID)
+        const web3formsKey = await getStationWeb3FormsKey();
+        const isFormSubmitHexToken = /^[a-f0-9]{32}$/i.test(web3formsKey);
+
+        if (web3formsKey && !isFormSubmitHexToken) {
+            try {
+                const w3Res = await fetchWithTimeout('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        access_key: web3formsKey,
+                        subject,
+                        from_name: 'Station 46 Website',
+                        name,
+                        email,
+                        replyto: email,
+                        phone: phone || 'Not provided',
+                        topic,
+                        message: message || '(No additional message provided)'
+                    })
+                }, 6000);
+
+                if (w3Res.ok) {
+                    const w3Data = await w3Res.json().catch(() => ({}));
+                    if (w3Data && w3Data.success) {
+                        emailDelivered = true;
+                    }
+                }
+            } catch (err) {
+                console.warn('[Station 46] Web3Forms client send failed:', err);
+            }
+        }
+
+        // Direct client-side FormSubmit.co using activated token (37b00baefbf5e196fca875307c200558)
+        if (!emailDelivered) {
+            const fsToken = isFormSubmitHexToken ? web3formsKey : DEFAULT_EMAIL_RELAY_KEY;
+            try {
+                const fsRes = await fetchWithTimeout(`https://formsubmit.co/ajax/${encodeURIComponent(fsToken)}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...payload,
+                        _replyto: email,
+                        _template: 'table',
+                        _captcha: 'false'
+                    })
+                }, 8000);
+
+                if (fsRes.ok) {
+                    const fsData = await fsRes.json().catch(() => ({}));
+                    if (fsData && (fsData.success === 'true' || fsData.success === true)) {
+                        emailDelivered = true;
+                    }
+                }
+            } catch (err) {
+                console.warn('[Station 46] FormSubmit token relay failed:', err);
+            }
+        }
+
+        // 2. Cloudflare Pages Function (/api/contact): Saves backup to Admin Inbox & tries server-side email if not yet delivered
         try {
             const apiRes = await fetchWithTimeout('/api/contact', {
                 method: 'POST',
@@ -428,43 +514,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    ...payload,
+                    clientEmailDelivered: emailDelivered,
+                    clientProvider: emailDelivered ? (isFormSubmitHexToken ? 'formsubmit-client' : 'web3forms-client') : null,
+                    web3formsKey
+                })
             }, 7000);
 
             if (apiRes.ok) {
                 const apiData = await apiRes.json().catch(() => ({}));
-                if (apiData && apiData.ok) {
-                    sent = true;
+                if (apiData) {
+                    if (apiData.emailDelivered) emailDelivered = true;
+                    if (apiData.savedToStore) savedToStore = true;
                 }
             }
         } catch (err) {
-            console.warn('[Station 46] /api/contact attempt did not succeed, trying direct relay:', err);
+            console.warn('[Station 46] /api/contact attempt did not succeed:', err);
         }
 
-        // 2. Secondary: Direct client-side FormSubmit.co fallback (with 5-second timeout)
-        if (!sent) {
-            try {
-                const fsRes = await fetchWithTimeout('https://formsubmit.co/ajax/membership@mtvfc2.com', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                }, 5000);
-
-                if (fsRes.ok) {
-                    const fsData = await fsRes.json().catch(() => ({}));
-                    if (fsData && (fsData.success === 'true' || fsData.success === true)) {
-                        sent = true;
-                    }
-                }
-            } catch (err) {
-                console.warn('[Station 46] FormSubmit fallback unreachable:', err);
-            }
-        }
-
-        if (sent) {
+        if (emailDelivered) {
             if (btn) {
                 btn.textContent = 'Message Sent!';
                 btn.style.background = '#2a9d8f';
@@ -473,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             form.reset();
             showFormFeedback(
-                `<strong>✅ Thank you, ${name || 'neighbor'}!</strong> Your inquiry has been sent to Station 46 (<code>membership@mtvfc2.com</code>). Our team will get back to you soon.`,
+                `<strong>✅ Thank you, ${name || 'neighbor'}!</strong> Your inquiry has been sent to Station 46.`,
                 true
             );
 
@@ -485,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 4000);
         } else {
-            // 3. Graceful Fallback: Pre-filled mailto link + direct contact info so inquiry is never lost
+            // 4. Direct Email Fallback: Open pre-filled email to membership@mtvfc2.com so the email is still delivered
             const bodyLines = [
                 `Name: ${name}`,
                 `Email: ${email}`,
@@ -497,19 +566,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const mailtoHref = `mailto:membership@mtvfc2.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines)}`;
 
             if (btn) {
-                btn.textContent = originalText;
-                btn.style.background = '';
+                btn.textContent = savedToStore ? 'Saved — Click to Email' : originalText;
+                btn.style.background = savedToStore ? '#2a9d8f' : '';
                 btn.style.opacity = '1';
                 btn.disabled = false;
             }
+            if (savedToStore) {
+                form.reset();
+            }
 
             showFormFeedback(
-                `<strong>⚠️ Automated email relay is temporarily offline.</strong><br>` +
-                `We opened your email app with your message pre-filled so nothing is lost — or click below to send directly:<br>` +
+                (savedToStore
+                    ? `<strong>✅ Thank you, ${name || 'neighbor'}! Your application has been saved to the Station 46 Admin Inbox.</strong><br>To also send an instant copy directly to Station 46, click below:`
+                    : `<strong>⚠️ Automated email relay is temporarily offline.</strong><br>Click below to send your message directly to Station 46:`) +
                 `<div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">` +
-                `<a href="${mailtoHref}" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; text-decoration: none; display: inline-block;">✉️ Send via Email App (membership@mtvfc2.com)</a>` +
+                `<a href="${mailtoHref}" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; text-decoration: none; display: inline-block;">✉️ Send Email to Station 46</a>` +
                 `</div>`,
-                false
+                savedToStore
             );
 
             // Automatically open the pre-filled mailto link so the user can send with 1 click
@@ -7989,6 +8062,144 @@ ${mainContentHtml}
     }
 
     // 4b. Render Admin Website Inquiries & Applications Inbox
+    function updateAdminEmailRelayBadge(key) {
+        const badge = document.getElementById('admin-email-relay-status');
+        const input = document.getElementById('admin-web3forms-key-input');
+        if (input && key && !input.value) {
+            input.value = key;
+        }
+        if (!badge) return;
+        if (key && key.trim()) {
+            badge.textContent = '✅ Active (membership@mtvfc2.com)';
+            badge.style.background = 'rgba(42, 157, 143, 0.16)';
+            badge.style.color = '#2a9d8f';
+        } else {
+            badge.textContent = '⚠️ Paste Web3Forms Key Below';
+            badge.style.background = 'rgba(245, 158, 11, 0.16)';
+            badge.style.color = '#d97706';
+        }
+    }
+
+    const saveW3KeyBtn = document.getElementById('admin-save-web3forms-key-btn');
+    if (saveW3KeyBtn) {
+        saveW3KeyBtn.addEventListener('click', async () => {
+            const input = document.getElementById('admin-web3forms-key-input');
+            const key = input ? input.value.trim() : '';
+            const creds = getAdminCredentials();
+            if (!creds) {
+                showAdminToast('❌ Please log in first', true);
+                return;
+            }
+            saveW3KeyBtn.disabled = true;
+            saveW3KeyBtn.textContent = 'Saving...';
+            try {
+                cachedWeb3FormsKey = key;
+                localStorage.setItem('station46_web3forms_key', key);
+                const res = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'save_email_config',
+                        web3formsKey: key,
+                        username: creds.username,
+                        password: creds.password
+                    })
+                });
+                const data = await res.json().catch(() => ({}));
+                updateAdminEmailRelayBadge(key);
+                if (res.ok && data.ok) {
+                    showAdminToast('✅ Email delivery key saved to GitHub!');
+                } else {
+                    showAdminToast('✅ Key saved locally (GitHub sync pending)');
+                }
+            } catch (e) {
+                showAdminToast('❌ Could not save key', true);
+            } finally {
+                saveW3KeyBtn.disabled = false;
+                saveW3KeyBtn.textContent = '💾 Save Key';
+            }
+        });
+    }
+
+    const testW3KeyBtn = document.getElementById('admin-test-web3forms-key-btn');
+    if (testW3KeyBtn) {
+        testW3KeyBtn.addEventListener('click', async () => {
+            const input = document.getElementById('admin-web3forms-key-input');
+            const key = (input && input.value.trim()) || await getStationWeb3FormsKey();
+            if (!key) {
+                showAdminToast('⚠️ Paste your Email Relay Key first', true);
+                if (input) input.focus();
+                return;
+            }
+            testW3KeyBtn.disabled = true;
+            testW3KeyBtn.textContent = 'Sending...';
+            try {
+                const isHexToken = /^[a-f0-9]{32}$/i.test(key);
+                let ok = false;
+                let errMsg = 'Check Relay Key';
+
+                if (isHexToken) {
+                    const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(key)}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: 'Station 46 Admin Test',
+                            email: 'membership@mtvfc2.com',
+                            topic: 'Email Relay Verification',
+                            message: 'This is a test message confirming that form submissions on mtvfc2.com are delivering directly to membership@mtvfc2.com.',
+                            _subject: 'Station 46 Website — Test Email Delivery',
+                            _template: 'table',
+                            _captcha: 'false'
+                        })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok && (data.success === 'true' || data.success === true)) {
+                        ok = true;
+                    } else {
+                        errMsg = data.message || `HTTP ${res.status}`;
+                    }
+                } else {
+                    const res = await fetch('https://api.web3forms.com/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            access_key: key,
+                            subject: 'Station 46 Website — Test Email Delivery',
+                            from_name: 'Station 46 Admin Portal',
+                            name: 'Station 46 Admin Test',
+                            email: 'membership@mtvfc2.com',
+                            topic: 'Email Relay Verification',
+                            message: 'This is a test message confirming that form submissions on mtvfc2.com are delivering directly to membership@mtvfc2.com.'
+                        })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok && data && data.success) {
+                        ok = true;
+                    } else {
+                        errMsg = (data && data.message) || `HTTP ${res.status}`;
+                    }
+                }
+
+                if (ok) {
+                    showAdminToast('✅ Test email sent to membership@mtvfc2.com!');
+                } else {
+                    showAdminToast(`❌ Relay error: ${errMsg}`, true);
+                }
+            } catch (e) {
+                showAdminToast('❌ Network error testing email relay', true);
+            } finally {
+                testW3KeyBtn.disabled = false;
+                testW3KeyBtn.textContent = '📨 Send Test Email';
+            }
+        });
+    }
+
     async function renderAdminInquiries() {
         const container = document.getElementById('admin-inquiries-list-container');
         if (!container) return;
@@ -8014,6 +8225,12 @@ ${mainContentHtml}
 
             const data = await res.json().catch(() => ({}));
             const inquiries = Array.isArray(data.inquiries) ? data.inquiries : [];
+            const serverKey = (data.emailConfig && data.emailConfig.web3formsKey) || '';
+            if (serverKey) {
+                cachedWeb3FormsKey = serverKey;
+                localStorage.setItem('station46_web3forms_key', serverKey);
+            }
+            updateAdminEmailRelayBadge(serverKey || cachedWeb3FormsKey);
 
             if (inquiries.length === 0) {
                 container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 1.5rem 0;">No website inquiries or applications received yet.</p>`;
@@ -8034,6 +8251,21 @@ ${mainContentHtml}
                 const replySubject = encodeURIComponent(`Re: ${item.subject || ('MTVFC #2 Inquiry - ' + (item.topic || ''))}`);
                 const mailtoReply = `mailto:${encodeURIComponent(item.email || '')}?subject=${replySubject}`;
 
+                const forwardSubject = encodeURIComponent(item.subject || `MTVFC #2 Inquiry: ${item.topic || 'General'}`);
+                const forwardBody = encodeURIComponent([
+                    `Name: ${item.name || ''}`,
+                    `Email: ${item.email || ''}`,
+                    `Phone: ${item.phone || 'Not provided'}`,
+                    `Topic / Role: ${item.topic || ''}`,
+                    item.message ? `\nMessage:\n${item.message}` : '',
+                    item.createdAt ? `\nSubmitted: ${item.createdAt}` : ''
+                ].filter(Boolean).join('\n'));
+                const mailtoForward = `mailto:membership@mtvfc2.com?subject=${forwardSubject}&body=${forwardBody}`;
+
+                const deliveryBadge = item.emailDelivered
+                    ? `<span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(42, 157, 143, 0.14); color: #2a9d8f;">📧 Emailed to membership@mtvfc2.com</span>`
+                    : `<span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(245, 158, 11, 0.16); color: #d97706;">📥 Saved in Inbox</span>`;
+
                 html += `
                     <div class="admin-post-item" style="flex-direction: column; align-items: stretch; gap: 0.75rem; padding: 1.15rem;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem;">
@@ -8041,6 +8273,7 @@ ${mainContentHtml}
                                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                     <h4 style="margin: 0; font-size: 1.05rem;">${name}</h4>
                                     <span class="news-card-tag tag-news" style="margin: 0; font-size: 0.7rem; padding: 2px 8px;">${topic}</span>
+                                    ${deliveryBadge}
                                 </div>
                                 <div class="admin-post-meta" style="margin-top: 4px;">
                                     <span><strong>Email:</strong> <a href="${mailtoReply}" style="color: var(--fire-red); text-decoration: underline;">${email}</a></span>
@@ -8049,8 +8282,9 @@ ${mainContentHtml}
                                     ${dateStr ? `<span class="meta-sep">•</span><span>${escapeHtml(dateStr)}</span>` : ''}
                                 </div>
                             </div>
-                            <div class="admin-post-actions" style="display: flex; gap: 8px;">
-                                <a href="${mailtoReply}" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem; text-decoration: none;">✉️ Reply</a>
+                            <div class="admin-post-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <a href="${mailtoReply}" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem; text-decoration: none;">✉️ Reply to Applicant</a>
+                                <a href="${mailtoForward}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; text-decoration: none;">📤 Forward to membership@mtvfc2.com</a>
                                 <button type="button" class="btn delete-btn delete-inquiry-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.8rem;">Delete</button>
                             </div>
                         </div>

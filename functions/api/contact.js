@@ -1,18 +1,21 @@
 // Cloudflare Pages Function: Contact & Membership Application Handler
 // Route: /api/contact
 //
-// 1. Attempts email delivery via configured providers (Cloudflare native EMAIL binding,
-//    Resend via RESEND_API_KEY, Web3Forms via WEB3FORMS_KEY, or FormSubmit.co).
+// 1. Attempts email delivery via configured providers (Client Web3Forms, Cloudflare native EMAIL binding,
+//    Resend via RESEND_API_KEY, Web3Forms via WEB3FORMS_KEY / data/email_config.json, or FormSubmit.co).
 // 2. Saves a backup copy of the inquiry to `data/inquiries.json` on GitHub (via GITHUB_TOKEN)
 //    so that even when third-party email relays are down, no inquiry is ever lost and admins
 //    can view/manage inquiries directly from the Admin Portal.
-// 3. Supports authenticated admin actions (`list`, `delete`, `mark_read`) to view and manage
-//    inquiries inside `admin.html`.
+// 3. Supports authenticated admin actions (`list`, `delete`, `save_email_config`) to view and manage
+//    inquiries and email relay settings inside `admin.html`.
 
 const DEFAULT_RECIPIENT = 'membership@mtvfc2.com';
+const DEFAULT_FORMSUBMIT_TOKEN = '37b00baefbf5e196fca875307c200558';
 const DEFAULT_REPO = 'ZainHamdia/FireStation46';
 const DEFAULT_USER = 'blawenburg1946';
 const INQUIRIES_PATH = 'data/inquiries.json';
+const EMAIL_CONFIG_PATH = 'data/email_config.json';
+const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36';
 
 function json(body, status = 200) {
     return new Response(JSON.stringify(body), {
@@ -81,40 +84,49 @@ function base64ToUtf8(b64) {
     return new TextDecoder('utf-8').decode(bytes);
 }
 
-async function getInquiriesFile(env) {
-    if (!env || !env.GITHUB_TOKEN) return null;
+async function getJsonFileFromGitHub(env, path, defaultVal) {
+    if (!env || !env.GITHUB_TOKEN) return { data: defaultVal, sha: null };
     const branch = env.GITHUB_BRANCH || 'main';
-    const res = await fetch(`${contentsUrl(env, INQUIRIES_PATH)}?ref=${encodeURIComponent(branch)}`, {
+    const res = await fetch(`${contentsUrl(env, path)}?ref=${encodeURIComponent(branch)}`, {
         headers: ghHeaders(env)
     });
-    if (res.status === 404) return { list: [], sha: null };
-    if (!res.ok) throw new Error(`GitHub GET failed: ${res.status}`);
+    if (res.status === 404) return { data: defaultVal, sha: null };
+    if (!res.ok) throw new Error(`GitHub GET ${path} failed: ${res.status}`);
     const file = await res.json();
-    let list = [];
+    let data = defaultVal;
     try {
         const parsed = JSON.parse(base64ToUtf8(file.content));
-        if (Array.isArray(parsed)) list = parsed;
+        if (parsed !== null && typeof parsed === 'object') data = parsed;
     } catch (e) {}
-    return { list, sha: file.sha };
+    return { data, sha: file.sha };
 }
 
-async function saveInquiriesFile(env, list, sha, commitMessage) {
+async function saveJsonFileToGitHub(env, path, data, sha, commitMessage) {
     if (!env || !env.GITHUB_TOKEN) return false;
     const branch = env.GITHUB_BRANCH || 'main';
-    const contentB64 = utf8ToBase64(JSON.stringify(list, null, 2));
+    const contentB64 = utf8ToBase64(JSON.stringify(data, null, 2) + '\n');
     const payload = {
-        message: commitMessage || 'Update inquiries log',
+        message: commitMessage || `Update ${path}`,
         content: contentB64,
         branch
     };
     if (sha) payload.sha = sha;
 
-    const putRes = await fetch(contentsUrl(env, INQUIRIES_PATH), {
+    const putRes = await fetch(contentsUrl(env, path), {
         method: 'PUT',
         headers: { ...ghHeaders(env), 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     });
     return putRes.ok;
+}
+
+async function getInquiriesFile(env) {
+    const res = await getJsonFileFromGitHub(env, INQUIRIES_PATH, []);
+    return { list: Array.isArray(res.data) ? res.data : [], sha: res.sha };
+}
+
+async function saveInquiriesFile(env, list, sha, commitMessage) {
+    return saveJsonFileToGitHub(env, INQUIRIES_PATH, list, sha, commitMessage || 'Update inquiries log');
 }
 
 async function appendInquiryToGitHub(env, entry) {
@@ -165,22 +177,38 @@ export async function onRequestPost({ request, env }) {
         return json({ ok: false, error: 'Invalid JSON payload' }, 400);
     }
 
-    // Admin actions: list, delete, or clear inquiries
-    if (body && (body.action === 'list' || body.action === 'delete')) {
+    // Admin actions: list, delete, or save_email_config
+    if (body && (body.action === 'list' || body.action === 'delete' || body.action === 'save_email_config')) {
         if (!isAuthorized(env, body.username, body.password)) {
             return json({ ok: false, error: 'Unauthorized' }, 401);
         }
         try {
+            if (body.action === 'save_email_config') {
+                const web3formsKey = String(body.web3formsKey || DEFAULT_FORMSUBMIT_TOKEN).trim();
+                const cfgFile = await getJsonFileFromGitHub(env, EMAIL_CONFIG_PATH, { recipientEmail: DEFAULT_RECIPIENT, formsubmitToken: DEFAULT_FORMSUBMIT_TOKEN, web3formsKey: DEFAULT_FORMSUBMIT_TOKEN });
+                const newCfg = {
+                    recipientEmail: DEFAULT_RECIPIENT,
+                    formsubmitToken: web3formsKey,
+                    web3formsKey
+                };
+                const saved = await saveJsonFileToGitHub(env, EMAIL_CONFIG_PATH, newCfg, cfgFile.sha, 'Admin: Update email delivery configuration');
+                return json({ ok: saved, emailConfig: newCfg });
+            }
+
             const current = await getInquiriesFile(env);
-            if (!current) return json({ ok: true, inquiries: [] });
+            const cfgFile = await getJsonFileFromGitHub(env, EMAIL_CONFIG_PATH, { recipientEmail: DEFAULT_RECIPIENT, formsubmitToken: DEFAULT_FORMSUBMIT_TOKEN, web3formsKey: DEFAULT_FORMSUBMIT_TOKEN }).catch(() => ({ data: { recipientEmail: DEFAULT_RECIPIENT, formsubmitToken: DEFAULT_FORMSUBMIT_TOKEN, web3formsKey: DEFAULT_FORMSUBMIT_TOKEN } }));
 
             if (body.action === 'list') {
-                return json({ ok: true, inquiries: current.list });
+                return json({
+                    ok: true,
+                    inquiries: current ? current.list : [],
+                    emailConfig: cfgFile.data
+                });
             }
 
             if (body.action === 'delete' && body.id) {
-                const filtered = current.list.filter(item => String(item.id) !== String(body.id));
-                await saveInquiriesFile(env, filtered, current.sha, `Admin: Delete inquiry ${body.id}`);
+                const filtered = (current ? current.list : []).filter(item => String(item.id) !== String(body.id));
+                await saveInquiriesFile(env, filtered, current ? current.sha : null, `Admin: Delete inquiry ${body.id}`);
                 return json({ ok: true, inquiries: filtered });
             }
         } catch (err) {
@@ -254,11 +282,11 @@ export async function onRequestPost({ request, env }) {
     `;
 
     const errors = [];
-    let emailDelivered = false;
-    let emailProvider = null;
+    let emailDelivered = Boolean(body.clientEmailDelivered);
+    let emailProvider = emailDelivered ? (body.clientProvider || 'web3forms-client') : null;
 
     // 1. Try Cloudflare Native Email Binding (if configured on the Worker/Pages project)
-    if (env && env.EMAIL && typeof env.EMAIL.send === 'function') {
+    if (!emailDelivered && env && env.EMAIL && typeof env.EMAIL.send === 'function') {
         try {
             await env.EMAIL.send({
                 to: { email: recipient, name: 'MTVFC #2 Membership' },
@@ -306,8 +334,58 @@ export async function onRequestPost({ request, env }) {
         }
     }
 
-    // 3. Try FormSubmit.co (with 3.5-second timeout so it never hangs if FormSubmit is down)
+    // 3. Try Web3Forms API (if WEB3FORMS_KEY is in env or data/email_config.json)
+    let web3formsKey = String((env && env.WEB3FORMS_KEY) || body.web3formsKey || '').trim();
+    if (!emailDelivered && !web3formsKey) {
+        try {
+            const cfgFile = await getJsonFileFromGitHub(env, EMAIL_CONFIG_PATH, {});
+            if (cfgFile && cfgFile.data && cfgFile.data.web3formsKey) {
+                web3formsKey = String(cfgFile.data.web3formsKey).trim();
+            }
+        } catch (e) {}
+    }
+
+    if (!emailDelivered && web3formsKey) {
+        try {
+            const res = await fetchWithTimeout('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'User-Agent': BROWSER_UA,
+                    'Origin': 'https://mtvfc2.com',
+                    'Referer': 'https://mtvfc2.com/'
+                },
+                body: JSON.stringify({
+                    access_key: web3formsKey,
+                    subject,
+                    from_name: 'Station 46 Website',
+                    name,
+                    email,
+                    replyto: email,
+                    phone: phone || 'Not provided',
+                    topic,
+                    message: message || '(No additional message provided)'
+                })
+            }, 4500);
+
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data && data.success) {
+                emailDelivered = true;
+                emailProvider = 'web3forms';
+            } else {
+                errors.push(`web3forms: HTTP ${res.status} ${data.message || ''}`.trim());
+            }
+        } catch (err) {
+            errors.push(`web3forms: ${err.message || err}`);
+        }
+    }
+
+    // 4. Try FormSubmit.co using activated token (37b00baefbf5e196fca875307c200558) first, then raw email
     if (!emailDelivered) {
+        const fsTarget = (web3formsKey && /^[a-f0-9]{32}$/i.test(web3formsKey))
+            ? web3formsKey
+            : DEFAULT_FORMSUBMIT_TOKEN;
         try {
             const formSubmitPayload = {
                 name,
@@ -316,20 +394,22 @@ export async function onRequestPost({ request, env }) {
                 topic,
                 _subject: subject,
                 _replyto: email,
-                _template: 'table'
+                _template: 'table',
+                _captcha: 'false'
             };
             if (message) formSubmitPayload.message = message;
 
-            const res = await fetchWithTimeout(`https://formsubmit.co/ajax/${encodeURIComponent(recipient)}`, {
+            const res = await fetchWithTimeout(`https://formsubmit.co/ajax/${encodeURIComponent(fsTarget)}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                    'User-Agent': BROWSER_UA,
                     'Origin': 'https://mtvfc2.com',
                     'Referer': 'https://mtvfc2.com/'
                 },
                 body: JSON.stringify(formSubmitPayload)
-            }, 3500);
+            }, 5000);
 
             const data = await res.json().catch(() => ({}));
             if (res.ok && (data.success === 'true' || data.success === true)) {
@@ -343,7 +423,7 @@ export async function onRequestPost({ request, env }) {
         }
     }
 
-    // 4. Always record the inquiry to data/inquiries.json via GitHub API so it is never lost
+    // 5. Always record the inquiry to data/inquiries.json via GitHub API so it is never lost
     const inquiryEntry = {
         id: Date.now() + '-' + Math.random().toString(36).slice(2, 7),
         name,
@@ -359,18 +439,12 @@ export async function onRequestPost({ request, env }) {
 
     const savedToStore = await appendInquiryToGitHub(env, inquiryEntry);
 
-    if (emailDelivered || savedToStore) {
-        return json({
-            ok: true,
-            emailDelivered,
-            savedToStore,
-            provider: emailProvider || (savedToStore ? 'github-store' : null)
-        });
-    }
-
     return json({
-        ok: false,
-        error: 'Email relay services are temporarily unreachable.',
-        details: errors
-    }, 502);
+        ok: emailDelivered || savedToStore,
+        emailDelivered,
+        savedToStore,
+        web3formsKeyConfigured: Boolean(web3formsKey),
+        provider: emailProvider || (savedToStore ? 'github-store' : null),
+        errors
+    }, (emailDelivered || savedToStore) ? 200 : 502);
 }
