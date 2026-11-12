@@ -9041,10 +9041,11 @@ document.addEventListener('keydown', (e) => {
 
 (function initStation46WeatherMode() {
     const NWS_CONFIG = {
-        zone: 'NJZ010', // Somerset County, NJ
+        countyCode: 'NJC035', // Somerset County, NJ (convective watches/warnings)
+        zone: 'NJZ010', // Somerset County forecast zone (winter/wind/flood)
         point: '40.418,-74.708', // Station 46, Skillman, NJ
         forecastGrid: 'PHI/62,102',
-        cacheKey: 'station46_nws_weather_cache',
+        cacheKey: 'station46_nws_weather_cache_v2',
         cacheTtlMs: 10 * 60 * 1000, // 10 minutes cache
         overrideKey: 'station46_storm_override',
         noticeKey: 'station46_storm_custom_notice',
@@ -9333,8 +9334,8 @@ document.addEventListener('keydown', (e) => {
         try {
             const headers = { 'Accept': 'application/geo+json' };
             
-            // 1. Fetch active alerts for Somerset County (NJZ010)
-            const alertsUrl = `https://api.weather.gov/alerts/active?zone=${NWS_CONFIG.zone}`;
+            // 1. Fetch active alerts for Somerset County (county code NJC035 + forecast zone NJZ010)
+            const alertsUrl = `https://api.weather.gov/alerts/active?zone=${NWS_CONFIG.countyCode},${NWS_CONFIG.zone}`;
             const alertsPromise = fetch(alertsUrl, { headers }).then(r => r.ok ? r.json() : null).catch(() => null);
 
             // 2. Fetch forecast for PHI/62,102
