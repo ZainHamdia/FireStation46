@@ -6229,6 +6229,7 @@ ${mainContentHtml}
                 <p><strong>MTVFC #2</strong> (Station 46) | 529 County Route 518, Skillman, NJ 08558</p>
                 <p>Emergency: <strong>911</strong> | Non-Emergency: (609) 466-3926</p>
                 <p><a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--fire-red); font-weight: 600; text-decoration: underline;">Board of Fire Commissioners (BOFC46.com) &rarr;</a></p>
+                <p style="font-size: 0.85rem; opacity: 0.75;">By Zain Hamdia</p>
             </div>
             <div class="footer-social">
                 <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="footer-social-link facebook" aria-label="Facebook">
