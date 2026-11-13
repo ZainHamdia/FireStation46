@@ -218,6 +218,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const openMenu = () => {
+            const navbar = document.querySelector('.navbar');
+            if (navbar) {
+                const navBottom = navbar.getBoundingClientRect().bottom;
+                const available = Math.max(200, Math.floor(window.innerHeight - navBottom - 8));
+                navLinks.style.maxHeight = `${available}px`;
+            }
             mobileBtn.classList.add('active');
             navLinks.classList.add('active');
             backdrop.classList.add('active');
@@ -616,10 +622,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Navigation Dropdown Mobile Toggle
     document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
         toggle.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= 1280) {
                 const dropdown = toggle.closest('.nav-dropdown');
                 if (dropdown) {
                     const isOpen = dropdown.classList.contains('is-open');
+                    if (!isOpen) {
+                        e.preventDefault();
+                    }
                     dropdown.classList.toggle('is-open', !isOpen);
                 }
             }
@@ -9671,7 +9680,7 @@ document.addEventListener('keydown', (e) => {
             });
         }
 
-        renderFloatingPill();
+        if (pill) pill.remove();
     }
 
     // Floating Emergency Weather Pill (Bottom-Left)
