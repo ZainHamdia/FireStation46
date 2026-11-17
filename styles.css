@@ -1128,7 +1128,7 @@ body.menu-open {
                 url('drill-2.jpeg?v=2') center/cover !important;
 }
 .hero-santa {
-    background: linear-gradient(rgba(15, 25, 43, 0.25), rgba(15, 25, 43, 0.45)),
+    background: linear-gradient(rgba(10, 15, 25, 0.58), rgba(10, 15, 25, 0.74)),
                 url('santatitle.jpg') center/cover !important;
 }
 .small-hero.hero-news,
