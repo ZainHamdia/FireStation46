@@ -6202,7 +6202,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
-                <a href="news.html" class="nav-link">News &amp; Calls</a>${extraNavHtml}
+                <a href="news.html" class="nav-link">News &amp; Calls</a>
+                <a href="santa.html" class="nav-link">Operation Santa</a>${extraNavHtml}
                 <a href="index.html#donate" class="nav-link nav-btn-donate">Donate</a>
             </div>
             

@@ -11038,3 +11038,208 @@ body.admin-edit-mode .card-img-placeholder:hover {
     margin: 0;
 }
 
+/* ==========================================================================
+   Operation Santa 2026 Homepage Announcement Bar & Promo Spotlight
+   ========================================================================== */
+.santa-announcement-bar {
+    background: linear-gradient(90deg, #7a151d 0%, #9b1b24 50%, #7a151d 100%);
+    color: #ffffff;
+    border-bottom: 2px solid rgba(252, 211, 77, 0.55);
+    padding: 0.65rem 1.25rem;
+}
+
+.santa-announcement-inner {
+    max-width: var(--nav-container-width, 1400px);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.santa-announcement-text {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    color: #ffffff;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.santa-announcement-text strong {
+    color: #fcd34d;
+}
+
+.santa-announcement-cta {
+    background: #fcd34d;
+    color: #16253d;
+    font-weight: 800;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.santa-announcement-cta:hover {
+    background: #fde68a;
+    transform: translateY(-1px);
+}
+
+.santa-promo-section {
+    padding: 3.5rem 0 2.5rem;
+    background: var(--bg-surface-alt);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.santa-promo-card {
+    display: grid;
+    grid-template-columns: minmax(280px, 1.05fr) 1.25fr;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-top: 4px solid var(--fire-red);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow-hover);
+}
+
+.santa-promo-media {
+    position: relative;
+    min-height: 300px;
+    background: #0f192b;
+}
+
+.santa-promo-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.santa-promo-photo-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(15, 25, 43, 0.88);
+    color: #fcd34d;
+    border: 1px solid rgba(252, 211, 77, 0.45);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.santa-promo-body {
+    padding: 2.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.santa-promo-eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--fire-red);
+    margin-bottom: 0.5rem;
+}
+
+.santa-promo-title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    font-weight: 800;
+    color: var(--text-heading);
+    margin: 0 0 0.75rem;
+    line-height: 1.15;
+}
+
+.santa-promo-desc {
+    color: var(--text-secondary);
+    font-size: 1.02rem;
+    line-height: 1.65;
+    margin: 0 0 1.35rem;
+}
+
+.santa-promo-dates {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+}
+
+.santa-promo-date-item {
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border-light);
+    border-left: 3px solid var(--fire-red);
+    border-radius: 8px;
+    padding: 0.75rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.santa-promo-date-label {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--text-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.santa-promo-date-value {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.santa-promo-actions {
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+}
+
+:root[data-theme="dark"] .santa-promo-eyebrow {
+    color: #f87171;
+}
+
+:root[data-theme="dark"] .santa-promo-card {
+    border-color: rgba(255, 255, 255, 0.12);
+    border-top-color: var(--fire-red-light, #b3212b);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .santa-promo-eyebrow {
+        color: #f87171;
+    }
+    :root:not([data-theme="light"]) .santa-promo-card {
+        border-color: rgba(255, 255, 255, 0.12);
+        border-top-color: var(--fire-red-light, #b3212b);
+    }
+}
+
+@media (max-width: 900px) {
+    .santa-promo-card {
+        grid-template-columns: 1fr;
+    }
+    .santa-promo-media {
+        min-height: 220px;
+        max-height: 280px;
+    }
+    .santa-promo-body {
+        padding: 1.5rem;
+    }
+    .santa-promo-dates {
+        grid-template-columns: 1fr;
+    }
+}
+
