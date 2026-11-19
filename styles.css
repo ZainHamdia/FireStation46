@@ -11039,13 +11039,70 @@ body.admin-edit-mode .card-img-placeholder:hover {
 }
 
 /* ==========================================================================
-   Operation Santa 2026 Homepage Announcement Bar & Promo Spotlight
+   Site-Wide Announcement & Pop-Up Bar + Admin Command Center
    ========================================================================== */
-.santa-announcement-bar {
-    background: linear-gradient(90deg, #7a151d 0%, #9b1b24 50%, #7a151d 100%);
+.santa-announcement-bar,
+.santa-announcement-bar.announcement-theme-green {
+    background: linear-gradient(90deg, #14532d 0%, #15803d 50%, #14532d 100%);
     color: #ffffff;
-    border-bottom: 2px solid rgba(252, 211, 77, 0.55);
-    padding: 0.65rem 1.25rem;
+    border-bottom: 2px solid rgba(252, 211, 77, 0.65);
+    padding: 0.68rem 1.25rem;
+    position: relative;
+    z-index: 950;
+}
+
+.santa-announcement-bar.announcement-theme-red {
+    background: linear-gradient(90deg, #7a151d 0%, #9b1b24 50%, #7a151d 100%);
+    border-bottom-color: rgba(252, 211, 77, 0.55);
+}
+
+.santa-announcement-bar.announcement-theme-navy {
+    background: linear-gradient(90deg, #0f192b 0%, #1e3a5f 50%, #0f192b 100%);
+    border-bottom-color: rgba(147, 197, 253, 0.55);
+}
+
+.santa-announcement-bar.announcement-theme-gold {
+    background: linear-gradient(90deg, #78350f 0%, #b45309 50%, #78350f 100%);
+    border-bottom-color: rgba(254, 243, 199, 0.6);
+}
+
+.santa-announcement-bar.announcement-theme-teal {
+    background: linear-gradient(90deg, #115e59 0%, #0f766e 50%, #115e59 100%);
+    border-bottom-color: rgba(153, 246, 228, 0.55);
+}
+
+.santa-announcement-bar.announcement-theme-custom {
+    background: linear-gradient(90deg, var(--ann-bg-start, #14532d) 0%, var(--ann-bg-end, #15803d) 100%);
+    color: var(--ann-text, #ffffff);
+    border-bottom-color: var(--ann-accent, #fcd34d);
+}
+
+.santa-announcement-bar.announcement-pos-top-sticky {
+    position: sticky;
+    top: var(--nav-height, 64px);
+    z-index: 990;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.santa-announcement-bar.announcement-pos-bottom-popup {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    max-width: 1120px;
+    margin: 0 auto;
+    z-index: 995;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
+    border-bottom-width: 3px;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
+    padding: 0.85rem 1.25rem;
+    animation: announcementSlideUp 0.28s ease-out;
+}
+
+@keyframes announcementSlideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .santa-announcement-inner {
@@ -11054,7 +11111,7 @@ body.admin-edit-mode .card-img-placeholder:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 0.85rem 1rem;
     flex-wrap: wrap;
 }
 
@@ -11070,13 +11127,29 @@ body.admin-edit-mode .card-img-placeholder:hover {
     text-align: center;
 }
 
+.announcement-theme-custom .santa-announcement-text {
+    color: var(--ann-text, #ffffff);
+}
+
 .santa-announcement-text strong {
     color: #fcd34d;
 }
 
+.announcement-theme-custom .santa-announcement-text strong {
+    color: var(--ann-accent, #fcd34d);
+}
+
+.santa-announcement-links {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
 .santa-announcement-cta {
     background: #fcd34d;
-    color: #16253d;
+    color: #0f192b;
     font-weight: 800;
     font-size: 0.82rem;
     text-transform: uppercase;
@@ -11087,9 +11160,282 @@ body.admin-edit-mode .card-img-placeholder:hover {
     transition: transform 0.15s ease, background 0.15s ease;
 }
 
+.announcement-theme-custom .santa-announcement-cta {
+    background: var(--ann-accent, #fcd34d);
+    color: #0f172a;
+}
+
 .santa-announcement-cta:hover {
     background: #fde68a;
     transform: translateY(-1px);
+}
+
+.santa-announcement-cta-secondary {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 5px 13px;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.santa-announcement-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.24);
+    transform: translateY(-1px);
+}
+
+.announcement-bar-dismiss {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+}
+
+.announcement-bar-dismiss:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.announcement-pulse-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.75);
+    animation: announcementPulse 1.8s infinite;
+    flex-shrink: 0;
+}
+
+@keyframes announcementPulse {
+    0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.75); }
+    70% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+/* Admin Announcement Command Center */
+.admin-ann-preview-shell {
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    background: var(--bg-card-alt);
+}
+
+.admin-ann-preview-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-secondary);
+    padding: 0.45rem 0.9rem;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.admin-ann-preview-shell .santa-announcement-bar {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    animation: none !important;
+}
+
+.admin-ann-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.1rem;
+    align-items: center;
+}
+
+.admin-ann-preset-btn {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-card-alt);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.admin-ann-preset-btn:hover {
+    border-color: #15803d;
+    background: rgba(21, 128, 61, 0.1);
+}
+
+.admin-ann-theme-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.admin-ann-theme-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border-light);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-ann-theme-btn.active {
+    border-color: #15803d;
+    box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.25);
+}
+
+.admin-ann-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.admin-ann-emoji-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.admin-ann-emoji-btn {
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-card-alt);
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.admin-ann-emoji-btn:hover {
+    border-color: #15803d;
+}
+
+.admin-ann-link-row {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) minmax(180px, 1.3fr) 135px auto auto;
+    gap: 0.55rem;
+    align-items: center;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.55rem;
+}
+
+.admin-ann-link-row input[type="text"],
+.admin-ann-link-row select {
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 0.84rem;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.admin-ann-link-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.admin-ann-icon-btn {
+    padding: 5px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-ann-icon-btn.danger {
+    color: #b91c1c;
+    border-color: rgba(185, 28, 28, 0.35);
+}
+
+.admin-ann-custom-colors {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+    gap: 0.65rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+}
+
+.admin-ann-color-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.admin-ann-pages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.65rem;
+    padding: 0.75rem;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+}
+
+.admin-ann-pages-grid label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .admin-ann-link-row {
+        grid-template-columns: 1fr;
+    }
+    .santa-announcement-bar.announcement-pos-bottom-popup {
+        left: 0.65rem;
+        right: 0.65rem;
+        bottom: 0.65rem;
+        padding: 0.75rem 0.9rem;
+    }
 }
 
 .santa-promo-section {

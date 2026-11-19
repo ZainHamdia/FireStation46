@@ -60,7 +60,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=124">
+    <link rel="stylesheet" href="styles.css?v=125">
 </head>
 <body>
     <!-- Civic Top Utility Bar -->
@@ -171,6 +171,7 @@
                             <a href="about.html#station-sliders-section" class="btn btn-admin-action">📊 Call Volume</a>
                             <a href="about.html#roster" class="btn btn-admin-action">👥 Manage Roster</a>
                             <a href="santa.html" class="btn btn-admin-action">🎅 Santa Page</a>
+                            <button type="button" class="btn btn-admin-action" id="admin-header-announcement-btn" onclick="var el=document.getElementById('admin-announcement-card');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});">📢 Banner Bar</button>
                             <button type="button" class="btn btn-admin-action" id="admin-header-storm-hub-btn" onclick="if(window.Station46Weather)window.Station46Weather.openHub();">⚡ Storm Hub</button>
                             <button type="button" class="btn btn-admin-git" id="admin-force-git-push-btn">💾 Push to Git</button>
                             <a href="news.html" class="btn btn-admin-action">View Feed</a>
@@ -273,6 +274,200 @@
                             </div>
                             <div id="admin-weather-sync-indicator" style="font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
                                 <span>Changes sync immediately across all pages and visitors.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Site Announcement & Pop-Up Bar Command Center -->
+                    <div class="glass-card" id="admin-announcement-card" style="margin-bottom: 2rem; border-left: 5px solid #15803d; padding: 1.75rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.15rem;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(21, 128, 61, 0.14); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">📢</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.2rem; color: var(--navy-blue); font-weight: 800;">Site Announcement &amp; Pop-Up Bar Command Center</h3>
+                                    <p style="margin: 0; font-size: 0.84rem; color: var(--text-secondary);">Create, customize, schedule, and publish highlighted announcement bars or floating pop-ups with custom text &amp; action links across the website</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <span id="admin-ann-status-pill" style="font-size: 0.78rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: rgba(21, 128, 61, 0.14); color: #15803d;">🟢 LIVE</span>
+                                <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-admin-action" style="padding: 7px 14px; font-size: 0.82rem; height: auto;">👁️ View on Homepage</a>
+                            </div>
+                        </div>
+
+                        <!-- Quick-Load Presets -->
+                        <div class="admin-ann-presets" id="admin-ann-presets">
+                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">Quick Templates:</span>
+                            <button type="button" class="admin-ann-preset-btn" data-preset="santa">🎅 Operation Santa (Green)</button>
+                            <button type="button" class="admin-ann-preset-btn" data-preset="recruiting">🚒 Volunteer Recruitment (Red)</button>
+                            <button type="button" class="admin-ann-preset-btn" data-preset="openhouse">🔥 Community Open House (Navy)</button>
+                            <button type="button" class="admin-ann-preset-btn" data-preset="donate">💛 Annual Fund Drive (Gold)</button>
+                        </div>
+
+                        <!-- Live Preview -->
+                        <div class="admin-ann-preview-shell">
+                            <div class="admin-ann-preview-label">
+                                <span>Live Visitor Preview</span>
+                                <span id="admin-ann-preview-meta" style="font-weight: 600; text-transform: none; letter-spacing: 0;">Theme: Green • Placement: Top Banner • Scope: Homepage</span>
+                            </div>
+                            <div id="admin-ann-live-preview-wrap"></div>
+                        </div>
+
+                        <!-- Enable / Disable Toggle -->
+                        <div style="margin-bottom: 1.25rem;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: var(--navy-blue);">
+                                Pop-Up / Banner Visibility:
+                            </label>
+                            <div class="storm-toggle-group" id="admin-ann-enabled-group" style="max-width: 440px;">
+                                <button type="button" class="storm-toggle-btn active" data-enabled="true" id="admin-ann-enable-btn">
+                                    <span>🟢 Active (Live on Site)</span>
+                                </button>
+                                <button type="button" class="storm-toggle-btn" data-enabled="false" id="admin-ann-disable-toggle-btn">
+                                    <span>⚪ Hidden (Turned Off)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Message Content -->
+                        <div style="display: grid; grid-template-columns: minmax(140px, 0.55fr) minmax(200px, 1fr) minmax(240px, 1.5fr); gap: 1rem; margin-bottom: 1.25rem;">
+                            <div>
+                                <label for="admin-ann-icon-input" style="display: block; font-size: 0.84rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">Icon / Emoji:</label>
+                                <input type="text" id="admin-ann-icon-input" placeholder="e.g. 🎅" style="width: 100%; padding: 9px 11px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-main); font-size: 0.9rem; box-sizing: border-box;">
+                                <div class="admin-ann-emoji-bar" id="admin-ann-emoji-bar">
+                                    <button type="button" class="admin-ann-emoji-btn" data-emoji="🎅">🎅</button>
+                                    <button type="button" class="admin-ann-emoji-btn" data-emoji="🎄">🎄</button>
+                                    <button type="button" class="admin-ann-emoji-btn" data-emoji="🚒">🚒</button>
+                                    <button type="button" class="admin-ann-emoji-btn" data-emoji="📢">📢</button>
+                                    <button type="button" class="admin-ann-emoji-btn" data-emoji="📅">📅</button>
+                                    <button type="button" class="admin-ann-emoji-btn" data-emoji="⚠️">⚠️</button>
+                                    <button type="button" class="admin-ann-emoji-btn" data-emoji="💛">💛</button>
+                                    <button type="button" class="admin-ann-emoji-btn" data-emoji="">Clear</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="admin-ann-headline-input" style="display: block; font-size: 0.84rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">Bold Headline:</label>
+                                <input type="text" id="admin-ann-headline-input" placeholder="e.g. Operation Santa 2026 is Here!" style="width: 100%; padding: 9px 11px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-main); font-size: 0.9rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label for="admin-ann-message-input" style="display: block; font-size: 0.84rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">Announcement Message:</label>
+                                <input type="text" id="admin-ann-message-input" placeholder="e.g. Gift Drop-Off: Dec 14–16 (5–9 PM) • Delivery Day: Sun, Dec 20" style="width: 100%; padding: 9px 11px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-main); font-size: 0.9rem; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Action Links & Buttons Builder -->
+                        <div style="margin-bottom: 1.35rem;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem;">
+                                <label style="font-size: 0.85rem; font-weight: 700; color: var(--navy-blue);">Action Links / Buttons (Optional — Add One or Multiple):</label>
+                                <button type="button" id="admin-ann-add-link-btn" class="btn btn-admin-action" style="padding: 6px 14px; font-size: 0.82rem; height: auto;">➕ Add Link Button</button>
+                            </div>
+                            <datalist id="admin-ann-url-suggestions">
+                                <option value="santa.html"></option>
+                                <option value="santa.html#form"></option>
+                                <option value="santa.html#dates"></option>
+                                <option value="santa.html#districts"></option>
+                                <option value="membership.html"></option>
+                                <option value="membership.html#membership-form-section"></option>
+                                <option value="juniors.html"></option>
+                                <option value="news.html"></option>
+                                <option value="apparatus.html"></option>
+                                <option value="about.html"></option>
+                                <option value="history.html"></option>
+                                <option value="index.html#donate"></option>
+                                <option value="index.html#join"></option>
+                                <option value="https://www.paypal.com/donate/?hosted_button_id=UE3Z2VCQBT8YJ"></option>
+                            </datalist>
+                            <div id="admin-ann-links-list"></div>
+                        </div>
+
+                        <!-- Appearance, Placement, Page Targeting & Schedule -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 1.35rem;">
+                            <!-- Theme & Custom Colors -->
+                            <div>
+                                <label style="display: block; font-size: 0.84rem; font-weight: 700; margin-bottom: 8px; color: var(--navy-blue);">Color Theme:</label>
+                                <div class="admin-ann-theme-grid" id="admin-ann-theme-group">
+                                    <button type="button" class="admin-ann-theme-btn active" data-theme="green"><span class="admin-ann-swatch" style="background: #15803d;"></span>Green</button>
+                                    <button type="button" class="admin-ann-theme-btn" data-theme="red"><span class="admin-ann-swatch" style="background: #9b1b24;"></span>Fire Red</button>
+                                    <button type="button" class="admin-ann-theme-btn" data-theme="navy"><span class="admin-ann-swatch" style="background: #1e3a5f;"></span>Navy</button>
+                                    <button type="button" class="admin-ann-theme-btn" data-theme="gold"><span class="admin-ann-swatch" style="background: #b45309;"></span>Gold</button>
+                                    <button type="button" class="admin-ann-theme-btn" data-theme="teal"><span class="admin-ann-swatch" style="background: #0f766e;"></span>Teal</button>
+                                    <button type="button" class="admin-ann-theme-btn" data-theme="custom"><span class="admin-ann-swatch" style="background: conic-gradient(#15803d, #fcd34d, #9b1b24, #1e3a5f);"></span>Custom</button>
+                                </div>
+                                <div id="admin-ann-custom-colors-wrap" class="admin-ann-custom-colors" style="display: none;">
+                                    <label class="admin-ann-color-item"><span>Bg Start</span><input type="color" id="admin-ann-color-bg1" value="#14532d"></label>
+                                    <label class="admin-ann-color-item"><span>Bg End</span><input type="color" id="admin-ann-color-bg2" value="#15803d"></label>
+                                    <label class="admin-ann-color-item"><span>Text</span><input type="color" id="admin-ann-color-text" value="#ffffff"></label>
+                                    <label class="admin-ann-color-item"><span>Accent</span><input type="color" id="admin-ann-color-accent" value="#fcd34d"></label>
+                                </div>
+                            </div>
+
+                            <!-- Placement & Behavior -->
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div>
+                                    <label for="admin-ann-position-select" style="display: block; font-size: 0.84rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">Display Mode / Position:</label>
+                                    <select id="admin-ann-position-select" style="width: 100%; padding: 9px 11px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-main); font-size: 0.88rem;">
+                                        <option value="below-nav">Top Banner (Below Navbar)</option>
+                                        <option value="top-sticky">Sticky Top Banner (Follows Scroll)</option>
+                                        <option value="bottom-popup">Floating Pop-Up Bar (Bottom of Screen)</option>
+                                    </select>
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-primary); cursor: pointer;">
+                                    <input type="checkbox" id="admin-ann-dismissible-check" checked style="width: 16px; height: 16px; accent-color: #15803d;">
+                                    <span>Allow visitors to close / dismiss (×)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-primary); cursor: pointer;">
+                                    <input type="checkbox" id="admin-ann-pulse-check" style="width: 16px; height: 16px; accent-color: #15803d;">
+                                    <span>Show pulsing live indicator dot</span>
+                                </label>
+                            </div>
+
+                            <!-- Page Visibility & Schedule -->
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div>
+                                    <label for="admin-ann-scope-select" style="display: block; font-size: 0.84rem; font-weight: 700; margin-bottom: 6px; color: var(--navy-blue);">Show On Pages:</label>
+                                    <select id="admin-ann-scope-select" style="width: 100%; padding: 9px 11px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-main); font-size: 0.88rem;">
+                                        <option value="home">Homepage Only (index.html)</option>
+                                        <option value="all">All Website Pages</option>
+                                        <option value="custom">Specific Pages...</option>
+                                    </select>
+                                    <div id="admin-ann-pages-wrap" class="admin-ann-pages-grid" style="display: none;">
+                                        <label><input type="checkbox" value="index.html"> Homepage</label>
+                                        <label><input type="checkbox" value="santa.html"> Operation Santa</label>
+                                        <label><input type="checkbox" value="news.html"> News &amp; Calls</label>
+                                        <label><input type="checkbox" value="membership.html"> Membership</label>
+                                        <label><input type="checkbox" value="juniors.html"> Junior Program</label>
+                                        <label><input type="checkbox" value="about.html"> About Us</label>
+                                        <label><input type="checkbox" value="history.html"> History</label>
+                                        <label><input type="checkbox" value="apparatus.html"> Apparatus</label>
+                                        <label><input type="checkbox" value="retired-apparatus.html"> Retired Fleet</label>
+                                    </div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                    <div>
+                                        <label for="admin-ann-start-input" style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; color: var(--text-secondary);">Start Date (Optional):</label>
+                                        <input type="datetime-local" id="admin-ann-start-input" style="width: 100%; padding: 7px 8px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-main); font-size: 0.8rem; box-sizing: border-box;">
+                                    </div>
+                                    <div>
+                                        <label for="admin-ann-end-input" style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; color: var(--text-secondary);">End Date (Optional):</label>
+                                        <input type="datetime-local" id="admin-ann-end-input" style="width: 100%; padding: 7px 8px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-main); font-size: 0.8rem; box-sizing: border-box;">
+                                    </div>
+                                </div>
+                                <div>
+                                    <button type="button" id="admin-ann-clear-schedule-btn" class="admin-ann-icon-btn">Clear Schedule</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save & Publish Action Bar -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid var(--border-light);">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <button type="button" id="admin-ann-save-btn" class="btn" style="background: linear-gradient(135deg, #15803d 0%, #166534 100%); color: #ffffff; font-weight: 800; font-size: 0.9rem; padding: 11px 22px; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(21, 128, 61, 0.28);">
+                                    <span>💾 Save &amp; Publish Live to Website</span>
+                                </button>
+                                <button type="button" id="admin-ann-disable-btn" class="btn btn-admin-action btn-admin-standby" style="padding: 10px 18px; font-size: 0.88rem; height: auto;">
+                                    <span>⏹️ Turn Off / Hide Bar</span>
+                                </button>
+                            </div>
+                            <div id="admin-ann-sync-indicator" style="font-size: 0.8rem; color: var(--text-secondary);">
+                                Syncs directly to <code>data/announcement_bar.json</code> via GitHub so all visitors see updates right away.
                             </div>
                         </div>
                     </div>
@@ -540,6 +735,6 @@
         <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
     </div>
 
-    <script src="script.js?v=128"></script>
+    <script src="script.js?v=131"></script>
 </body>
 </html>

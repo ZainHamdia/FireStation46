@@ -1063,12 +1063,12 @@ document.addEventListener('DOMContentLoaded', () => {
             element.closest('[class*="admin-menu"], [id*="admin-menu"], [class*="admin-action"], .btn-admin-action, .btn-admin-git, .btn-admin-logout') ||
             element.closest('#admin-font-toolbar, .admin-font-modal-overlay, #admin-toast-notification') ||
             element.closest('#admin-posts-list-container, #admin-dashboard-view, #admin-login-view, .admin-form-container, #admin-login-form, #admin-publish-form') ||
-            element.closest('#admin-weather-card, #admin-pages-management-card, #admin-media-management-card, #admin-inquiries-card') ||
+            element.closest('#admin-weather-card, #admin-announcement-card, #admin-pages-management-card, #admin-media-management-card, #admin-inquiries-card') ||
             element.closest('.section-admin-bar, .section-insert-divider, .section-drag-handle, .section-card-add-btn, .card-admin-remove-btn, .section-item-upload-btn, .station-image-change-btn') ||
             element.closest('.roster-modal-overlay, .station-slider-admin-actions, .slider-card-admin-controls, .stat-row-remove-btn, .slider-nav-btn, .slider-dot') ||
             element.closest('.apparatus-card-remove-btn, .apparatus-card-drag-handle, .apparatus-move-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder, .btn-apparatus-add, .apparatus-admin-actions, .apparatus-add-modal-overlay, #apparatus-modal') ||
             element.closest('.station-builder-modal-overlay, #station-image-editor-modal, #station-page-creator-modal, #station-section-picker-modal') ||
-            element.closest('#theme-switch-wrapper, .theme-switch-btn, #station46-storm-banner, #station46-storm-floating-pill, #storm-hub-modal, .storm-modal-backdrop, .storm-toggle-btn') ||
+            element.closest('#theme-switch-wrapper, .theme-switch-btn, #station46-storm-banner, #station46-storm-floating-pill, #storm-hub-modal, .storm-modal-backdrop, .storm-toggle-btn, #station46-announcement-bar, .santa-announcement-bar') ||
             element.id === 'year' ||
             element.closest('form')) {
             if (element.id !== 'admin-welcome-heading') return false;
@@ -10463,6 +10463,678 @@ document.addEventListener('keydown', (e) => {
         }
     }
 })();
+
+// ==========================================================================
+// Station 46 Site-Wide Announcement & Pop-Up Bar Command Center
+// ==========================================================================
+(function() {
+    const STORAGE_KEY = 'station46_announcement_bar_v1';
+    const REMOTE_PATH = 'data/announcement_bar.json';
+    const DISMISS_PREFIX = 'station46_announcement_dismissed_';
+
+    const DEFAULT_CONFIG = {
+        enabled: true,
+        theme: 'green',
+        customBgStart: '#14532d',
+        customBgEnd: '#15803d',
+        customTextColor: '#ffffff',
+        customAccentColor: '#fcd34d',
+        position: 'below-nav',
+        scope: 'home',
+        pages: ['index.html'],
+        icon: '🎅',
+        headline: 'Operation Santa 2026 is Here!',
+        message: 'Gift Drop-Off: Dec 14–16 (5–9 PM) • Delivery Day: Sun, Dec 20',
+        links: [
+            { label: 'Learn More & Register →', url: 'santa.html', style: 'primary', newTab: false }
+        ],
+        dismissible: true,
+        showPulseDot: false,
+        startAt: '',
+        endAt: '',
+        updatedAt: ''
+    };
+
+    const PRESETS = {
+        santa: {
+            enabled: true,
+            theme: 'green',
+            position: 'below-nav',
+            scope: 'home',
+            pages: ['index.html'],
+            icon: '🎅',
+            headline: 'Operation Santa 2026 is Here!',
+            message: 'Gift Drop-Off: Dec 14–16 (5–9 PM) • Delivery Day: Sun, Dec 20',
+            links: [
+                { label: 'Learn More & Register →', url: 'santa.html', style: 'primary', newTab: false }
+            ],
+            dismissible: true,
+            showPulseDot: false
+        },
+        recruiting: {
+            enabled: true,
+            theme: 'red',
+            position: 'below-nav',
+            scope: 'all',
+            pages: ['index.html', 'membership.html'],
+            icon: '🚒',
+            headline: 'Volunteer Firefighters & Support Members Needed!',
+            message: 'All training & gear provided. Stop by any Wednesday at 7 PM.',
+            links: [
+                { label: 'Apply Today →', url: 'membership.html#membership-form-section', style: 'primary', newTab: false },
+                { label: 'Junior Program', url: 'juniors.html', style: 'secondary', newTab: false }
+            ],
+            dismissible: true,
+            showPulseDot: true
+        },
+        openhouse: {
+            enabled: true,
+            theme: 'navy',
+            position: 'below-nav',
+            scope: 'all',
+            pages: ['index.html'],
+            icon: '🔥',
+            headline: 'Station 46 Community Open House',
+            message: 'Tour the firehouse, meet the crew, and see our apparatus up close!',
+            links: [
+                { label: 'News & Events →', url: 'news.html', style: 'primary', newTab: false }
+            ],
+            dismissible: true,
+            showPulseDot: false
+        },
+        donate: {
+            enabled: true,
+            theme: 'gold',
+            position: 'bottom-popup',
+            scope: 'home',
+            pages: ['index.html'],
+            icon: '💛',
+            headline: 'Support MTVFC #2 Annual Fund Drive',
+            message: '100% volunteer-run 501(c)(3). Your tax-deductible support saves lives.',
+            links: [
+                { label: 'Donate Online →', url: 'index.html#donate', style: 'primary', newTab: false }
+            ],
+            dismissible: true,
+            showPulseDot: false
+        }
+    };
+
+    function esc(str) {
+        return String(str == null ? '' : str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function sanitizeUrl(raw) {
+        const val = String(raw || '').trim();
+        if (!val) return '';
+        if (/^(javascript|data|vbscript):/i.test(val)) return '';
+        if (/^(https?:\/\/|mailto:|tel:|#|\/|[a-z0-9_.\-\/])/i.test(val)) return val;
+        return '';
+    }
+
+    function normalizeConfig(raw) {
+        const merged = { ...DEFAULT_CONFIG, ...(raw && typeof raw === 'object' ? raw : {}) };
+        merged.enabled = Boolean(merged.enabled);
+        merged.theme = ['green', 'red', 'navy', 'gold', 'teal', 'custom'].includes(merged.theme) ? merged.theme : 'green';
+        merged.position = ['below-nav', 'top-sticky', 'bottom-popup'].includes(merged.position) ? merged.position : 'below-nav';
+        merged.scope = ['home', 'all', 'custom'].includes(merged.scope) ? merged.scope : 'home';
+        merged.pages = Array.isArray(merged.pages) ? merged.pages.map(p => String(p).toLowerCase()) : ['index.html'];
+        merged.links = Array.isArray(merged.links)
+            ? merged.links.map(l => ({
+                label: String(l?.label || '').trim(),
+                url: String(l?.url || '').trim(),
+                style: l?.style === 'secondary' ? 'secondary' : 'primary',
+                newTab: Boolean(l?.newTab)
+            }))
+            : [];
+        merged.dismissible = merged.dismissible !== false;
+        merged.showPulseDot = Boolean(merged.showPulseDot);
+        return merged;
+    }
+
+    function normalizePageName() {
+        let seg = (window.location.pathname || '').split('/').pop() || '';
+        seg = seg.split('?')[0].split('#')[0].toLowerCase();
+        return seg || 'index.html';
+    }
+
+    function isWithinSchedule(cfg) {
+        const now = Date.now();
+        if (cfg.startAt) {
+            const startMs = new Date(cfg.startAt).getTime();
+            if (!Number.isNaN(startMs) && now < startMs) return false;
+        }
+        if (cfg.endAt) {
+            const endMs = new Date(cfg.endAt).getTime();
+            if (!Number.isNaN(endMs) && now > endMs) return false;
+        }
+        return true;
+    }
+
+    function getScheduleStatus(cfg) {
+        if (!cfg.enabled) return 'off';
+        const now = Date.now();
+        if (cfg.startAt) {
+            const startMs = new Date(cfg.startAt).getTime();
+            if (!Number.isNaN(startMs) && now < startMs) return 'scheduled';
+        }
+        if (cfg.endAt) {
+            const endMs = new Date(cfg.endAt).getTime();
+            if (!Number.isNaN(endMs) && now > endMs) return 'expired';
+        }
+        return 'live';
+    }
+
+    function shouldShowOnCurrentPage(cfg) {
+        const page = normalizePageName();
+        if (page === 'admin.html') return false;
+        if (!cfg.enabled) return false;
+        if (!isWithinSchedule(cfg)) return false;
+
+        try {
+            const dismissKey = DISMISS_PREFIX + (cfg.updatedAt || 'default');
+            if (cfg.dismissible && sessionStorage.getItem(dismissKey) === '1') return false;
+        } catch (e) {}
+
+        if (cfg.scope === 'all') return true;
+        if (cfg.scope === 'home') return page === 'index.html';
+        if (cfg.scope === 'custom') return cfg.pages.includes(page);
+        return page === 'index.html';
+    }
+
+    function buildBarInnerHtml(cfg, isPreview) {
+        const validLinks = (cfg.links || []).filter(l => l.label && sanitizeUrl(l.url));
+        const linksHtml = validLinks.length > 0
+            ? `<div class="santa-announcement-links">${validLinks.map(l => {
+                const safeHref = esc(sanitizeUrl(l.url));
+                const cls = l.style === 'secondary' ? 'santa-announcement-cta-secondary' : 'santa-announcement-cta';
+                const targetAttr = (!isPreview && l.newTab) ? ' target="_blank" rel="noopener noreferrer"' : '';
+                const previewClick = isPreview ? ' onclick="return false;"' : '';
+                return `<a href="${safeHref}" class="${cls}"${targetAttr}${previewClick}>${esc(l.label)}</a>`;
+            }).join('')}</div>`
+            : '';
+
+        const pulseHtml = cfg.showPulseDot ? '<span class="announcement-pulse-dot" aria-hidden="true"></span>' : '';
+        const iconHtml = cfg.icon ? `<span class="announcement-icon" aria-hidden="true">${esc(cfg.icon)}</span>` : '';
+        const headlineHtml = cfg.headline ? `<strong>${esc(cfg.headline)}</strong>` : '';
+        const messageHtml = cfg.message ? `<span class="announcement-message">${esc(cfg.message)}</span>` : '';
+        const dismissHtml = cfg.dismissible
+            ? `<button type="button" class="announcement-bar-dismiss" aria-label="Dismiss announcement" title="Dismiss">&times;</button>`
+            : '';
+
+        return `
+            <div class="santa-announcement-inner">
+                <span class="santa-announcement-text">
+                    ${pulseHtml}${iconHtml}${headlineHtml}${messageHtml}
+                </span>
+                ${linksHtml}
+                ${dismissHtml}
+            </div>
+        `;
+    }
+
+    function applyBarClassesAndVars(el, cfg, isPreview) {
+        const themeCls = `announcement-theme-${cfg.theme || 'green'}`;
+        const posCls = isPreview ? '' : ` announcement-pos-${cfg.position || 'below-nav'}`;
+        el.className = `santa-announcement-bar ${themeCls}${posCls}`;
+        if (cfg.theme === 'custom') {
+            el.style.setProperty('--ann-bg-start', cfg.customBgStart || '#14532d');
+            el.style.setProperty('--ann-bg-end', cfg.customBgEnd || '#15803d');
+            el.style.setProperty('--ann-text', cfg.customTextColor || '#ffffff');
+            el.style.setProperty('--ann-accent', cfg.customAccentColor || '#fcd34d');
+        } else {
+            el.style.removeProperty('--ann-bg-start');
+            el.style.removeProperty('--ann-bg-end');
+            el.style.removeProperty('--ann-text');
+            el.style.removeProperty('--ann-accent');
+        }
+    }
+
+    function readLocalConfig() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) return normalizeConfig(JSON.parse(raw));
+        } catch (e) {}
+        return null;
+    }
+
+    async function getAnnouncementConfig() {
+        let localCfg = readLocalConfig();
+        try {
+            let remoteCfg = null;
+            if (window.fetchRemoteData) {
+                remoteCfg = await window.fetchRemoteData(REMOTE_PATH);
+            } else {
+                const res = await fetch(`${REMOTE_PATH}?t=${Date.now()}`, { cache: 'no-store' });
+                if (res.ok) remoteCfg = await res.json();
+            }
+            if (remoteCfg && typeof remoteCfg === 'object') {
+                const remoteTime = remoteCfg.updatedAt ? new Date(remoteCfg.updatedAt).getTime() : 0;
+                const localTime = (localCfg && localCfg.updatedAt) ? new Date(localCfg.updatedAt).getTime() : 0;
+                if (!localCfg || remoteTime > localTime + 2000) {
+                    localCfg = normalizeConfig(remoteCfg);
+                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(localCfg)); } catch (e) {}
+                }
+            }
+        } catch (e) {}
+        return localCfg || normalizeConfig(DEFAULT_CONFIG);
+    }
+
+    function renderAnnouncementBar(rawCfg) {
+        const cfg = normalizeConfig(rawCfg);
+        let bar = document.getElementById('station46-announcement-bar');
+
+        if (!shouldShowOnCurrentPage(cfg)) {
+            if (bar) bar.remove();
+            return;
+        }
+
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'station46-announcement-bar';
+            bar.setAttribute('role', 'region');
+            bar.setAttribute('aria-label', 'Site Announcement');
+        }
+
+        applyBarClassesAndVars(bar, cfg, false);
+        bar.innerHTML = buildBarInnerHtml(cfg, false);
+
+        if (cfg.position === 'bottom-popup') {
+            if (bar.parentElement !== document.body) {
+                document.body.appendChild(bar);
+            }
+        } else {
+            const navbar = document.querySelector('nav.navbar');
+            if (navbar && navbar.parentElement) {
+                if (bar.previousElementSibling !== navbar) {
+                    navbar.insertAdjacentElement('afterend', bar);
+                }
+            } else if (!bar.parentElement) {
+                document.body.prepend(bar);
+            }
+        }
+
+        const dismissBtn = bar.querySelector('.announcement-bar-dismiss');
+        if (dismissBtn) {
+            dismissBtn.addEventListener('click', () => {
+                try {
+                    sessionStorage.setItem(DISMISS_PREFIX + (cfg.updatedAt || 'default'), '1');
+                } catch (e) {}
+                bar.remove();
+            });
+        }
+    }
+
+    async function saveAnnouncementConfig(rawCfg, commitMessage) {
+        const cfg = normalizeConfig(rawCfg);
+        cfg.updatedAt = new Date().toISOString();
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+        } catch (e) {}
+
+        let syncedGitHub = false;
+        if (window.syncToGitHub) {
+            try {
+                syncedGitHub = await window.syncToGitHub(
+                    REMOTE_PATH,
+                    cfg,
+                    commitMessage || 'Admin: Update announcement & pop-up bar'
+                );
+            } catch (e) {
+                console.warn('[Station 46] Announcement bar GitHub sync error:', e);
+            }
+        }
+        return { savedLocal: true, syncedGitHub: Boolean(syncedGitHub), config: cfg };
+    }
+
+    function toLocalDatetimeValue(isoStr) {
+        if (!isoStr) return '';
+        const d = new Date(isoStr);
+        if (Number.isNaN(d.getTime())) return '';
+        const pad = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function setupAdminAnnouncementManager() {
+        const card = document.getElementById('admin-announcement-card');
+        if (!card || card.dataset.bound === 'true') return;
+        card.dataset.bound = 'true';
+
+        let draft = normalizeConfig(readLocalConfig() || DEFAULT_CONFIG);
+
+        const previewWrap = document.getElementById('admin-ann-live-preview-wrap');
+        const previewMeta = document.getElementById('admin-ann-preview-meta');
+        const statusPill = document.getElementById('admin-ann-status-pill');
+        const syncIndicator = document.getElementById('admin-ann-sync-indicator');
+
+        const enableBtn = document.getElementById('admin-ann-enable-btn');
+        const disableToggleBtn = document.getElementById('admin-ann-disable-toggle-btn');
+        const iconInput = document.getElementById('admin-ann-icon-input');
+        const headlineInput = document.getElementById('admin-ann-headline-input');
+        const messageInput = document.getElementById('admin-ann-message-input');
+        const linksListEl = document.getElementById('admin-ann-links-list');
+        const addLinkBtn = document.getElementById('admin-ann-add-link-btn');
+
+        const themeBtns = card.querySelectorAll('#admin-ann-theme-group .admin-ann-theme-btn');
+        const customColorsWrap = document.getElementById('admin-ann-custom-colors-wrap');
+        const colorBg1 = document.getElementById('admin-ann-color-bg1');
+        const colorBg2 = document.getElementById('admin-ann-color-bg2');
+        const colorText = document.getElementById('admin-ann-color-text');
+        const colorAccent = document.getElementById('admin-ann-color-accent');
+
+        const posSelect = document.getElementById('admin-ann-position-select');
+        const scopeSelect = document.getElementById('admin-ann-scope-select');
+        const pagesWrap = document.getElementById('admin-ann-pages-wrap');
+        const dismissibleCheck = document.getElementById('admin-ann-dismissible-check');
+        const pulseCheck = document.getElementById('admin-ann-pulse-check');
+        const startInput = document.getElementById('admin-ann-start-input');
+        const endInput = document.getElementById('admin-ann-end-input');
+        const clearScheduleBtn = document.getElementById('admin-ann-clear-schedule-btn');
+        const saveBtn = document.getElementById('admin-ann-save-btn');
+        const disableBtn = document.getElementById('admin-ann-disable-btn');
+
+        function updatePreviewAndStatus() {
+            const st = getScheduleStatus(draft);
+            if (statusPill) {
+                if (st === 'live') {
+                    statusPill.textContent = '🟢 LIVE';
+                    statusPill.style.background = 'rgba(21, 128, 61, 0.14)';
+                    statusPill.style.color = '#15803d';
+                } else if (st === 'scheduled') {
+                    statusPill.textContent = '🕒 SCHEDULED';
+                    statusPill.style.background = 'rgba(37, 99, 235, 0.14)';
+                    statusPill.style.color = '#2563eb';
+                } else if (st === 'expired') {
+                    statusPill.textContent = '⌛ SCHEDULE ENDED';
+                    statusPill.style.background = 'rgba(245, 158, 11, 0.16)';
+                    statusPill.style.color = '#d97706';
+                } else {
+                    statusPill.textContent = '⚪ HIDDEN';
+                    statusPill.style.background = 'rgba(100, 116, 139, 0.16)';
+                    statusPill.style.color = '#64748b';
+                }
+            }
+
+            const posLabel = draft.position === 'bottom-popup'
+                ? 'Floating Pop-Up'
+                : (draft.position === 'top-sticky' ? 'Sticky Top Banner' : 'Top Banner');
+            const scopeLabel = draft.scope === 'all'
+                ? 'All Pages'
+                : (draft.scope === 'custom' ? `${draft.pages.length} Page(s)` : 'Homepage');
+            if (previewMeta) {
+                previewMeta.textContent = `Theme: ${draft.theme.charAt(0).toUpperCase() + draft.theme.slice(1)} • Placement: ${posLabel} • Scope: ${scopeLabel}`;
+            }
+
+            if (previewWrap) {
+                previewWrap.innerHTML = '';
+                if (!draft.enabled) {
+                    const empty = document.createElement('div');
+                    empty.style.cssText = 'padding: 0.9rem 1.25rem; text-align: center; font-size: 0.85rem; color: var(--text-secondary); font-style: italic;';
+                    empty.textContent = 'Announcement bar is currently turned off (hidden from visitors).';
+                    previewWrap.appendChild(empty);
+                } else {
+                    const bar = document.createElement('div');
+                    applyBarClassesAndVars(bar, draft, true);
+                    bar.innerHTML = buildBarInnerHtml(draft, true);
+                    previewWrap.appendChild(bar);
+                }
+            }
+        }
+
+        function renderLinksEditor() {
+            if (!linksListEl) return;
+            if (!draft.links.length) {
+                linksListEl.innerHTML = '<div style="font-size: 0.84rem; color: var(--text-secondary); padding: 0.65rem 0.85rem; background: var(--bg-card-alt); border: 1px dashed var(--border-light); border-radius: 8px;">No action buttons added yet. Click <strong>➕ Add Link Button</strong> to add one.</div>';
+                return;
+            }
+            linksListEl.innerHTML = draft.links.map((link, idx) => `
+                <div class="admin-ann-link-row" data-link-idx="${idx}">
+                    <input type="text" class="ann-link-label" placeholder="Button Label (e.g. Register →)" value="${esc(link.label)}">
+                    <input type="text" class="ann-link-url" list="admin-ann-url-suggestions" placeholder="URL or Page (e.g. santa.html)" value="${esc(link.url)}">
+                    <select class="ann-link-style">
+                        <option value="primary"${link.style !== 'secondary' ? ' selected' : ''}>Highlighted Pill</option>
+                        <option value="secondary"${link.style === 'secondary' ? ' selected' : ''}>Outline Pill</option>
+                    </select>
+                    <label style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; color: var(--text-secondary); white-space: nowrap; cursor: pointer;">
+                        <input type="checkbox" class="ann-link-newtab"${link.newTab ? ' checked' : ''} style="accent-color: #15803d;"> New Tab
+                    </label>
+                    <div class="admin-ann-link-controls">
+                        <button type="button" class="admin-ann-icon-btn ann-link-up" title="Move Up"${idx === 0 ? ' disabled' : ''}>↑</button>
+                        <button type="button" class="admin-ann-icon-btn ann-link-down" title="Move Down"${idx === draft.links.length - 1 ? ' disabled' : ''}>↓</button>
+                        <button type="button" class="admin-ann-icon-btn danger ann-link-del" title="Remove Link">✕</button>
+                    </div>
+                </div>
+            `).join('');
+
+            linksListEl.querySelectorAll('.admin-ann-link-row').forEach(row => {
+                const idx = Number(row.getAttribute('data-link-idx'));
+                row.querySelector('.ann-link-label').addEventListener('input', (e) => {
+                    draft.links[idx].label = e.target.value;
+                    updatePreviewAndStatus();
+                });
+                row.querySelector('.ann-link-url').addEventListener('input', (e) => {
+                    draft.links[idx].url = e.target.value;
+                    updatePreviewAndStatus();
+                });
+                row.querySelector('.ann-link-style').addEventListener('change', (e) => {
+                    draft.links[idx].style = e.target.value;
+                    updatePreviewAndStatus();
+                });
+                row.querySelector('.ann-link-newtab').addEventListener('change', (e) => {
+                    draft.links[idx].newTab = e.target.checked;
+                    updatePreviewAndStatus();
+                });
+                row.querySelector('.ann-link-up').addEventListener('click', () => {
+                    if (idx > 0) {
+                        [draft.links[idx - 1], draft.links[idx]] = [draft.links[idx], draft.links[idx - 1]];
+                        renderLinksEditor();
+                        updatePreviewAndStatus();
+                    }
+                });
+                row.querySelector('.ann-link-down').addEventListener('click', () => {
+                    if (idx < draft.links.length - 1) {
+                        [draft.links[idx + 1], draft.links[idx]] = [draft.links[idx], draft.links[idx + 1]];
+                        renderLinksEditor();
+                        updatePreviewAndStatus();
+                    }
+                });
+                row.querySelector('.ann-link-del').addEventListener('click', () => {
+                    draft.links.splice(idx, 1);
+                    renderLinksEditor();
+                    updatePreviewAndStatus();
+                });
+            });
+        }
+
+        function syncFormFromDraft() {
+            if (enableBtn) enableBtn.classList.toggle('active', Boolean(draft.enabled));
+            if (disableToggleBtn) disableToggleBtn.classList.toggle('active', !draft.enabled);
+            if (iconInput) iconInput.value = draft.icon || '';
+            if (headlineInput) headlineInput.value = draft.headline || '';
+            if (messageInput) messageInput.value = draft.message || '';
+
+            themeBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-theme') === draft.theme);
+            });
+            if (customColorsWrap) {
+                customColorsWrap.style.display = draft.theme === 'custom' ? 'grid' : 'none';
+            }
+            if (colorBg1) colorBg1.value = draft.customBgStart || '#14532d';
+            if (colorBg2) colorBg2.value = draft.customBgEnd || '#15803d';
+            if (colorText) colorText.value = draft.customTextColor || '#ffffff';
+            if (colorAccent) colorAccent.value = draft.customAccentColor || '#fcd34d';
+
+            if (posSelect) posSelect.value = draft.position || 'below-nav';
+            if (scopeSelect) scopeSelect.value = draft.scope || 'home';
+            if (pagesWrap) {
+                pagesWrap.style.display = draft.scope === 'custom' ? 'grid' : 'none';
+                pagesWrap.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = draft.pages.includes(cb.value.toLowerCase());
+                });
+            }
+            if (dismissibleCheck) dismissibleCheck.checked = draft.dismissible !== false;
+            if (pulseCheck) pulseCheck.checked = Boolean(draft.showPulseDot);
+            if (startInput) startInput.value = toLocalDatetimeValue(draft.startAt);
+            if (endInput) endInput.value = toLocalDatetimeValue(draft.endAt);
+
+            renderLinksEditor();
+            updatePreviewAndStatus();
+        }
+
+        // Bind controls
+        if (enableBtn) {
+            enableBtn.addEventListener('click', () => {
+                draft.enabled = true;
+                syncFormFromDraft();
+            });
+        }
+        if (disableToggleBtn) {
+            disableToggleBtn.addEventListener('click', () => {
+                draft.enabled = false;
+                syncFormFromDraft();
+            });
+        }
+        if (iconInput) iconInput.addEventListener('input', (e) => { draft.icon = e.target.value; updatePreviewAndStatus(); });
+        if (headlineInput) headlineInput.addEventListener('input', (e) => { draft.headline = e.target.value; updatePreviewAndStatus(); });
+        if (messageInput) messageInput.addEventListener('input', (e) => { draft.message = e.target.value; updatePreviewAndStatus(); });
+
+        card.querySelectorAll('#admin-ann-emoji-bar .admin-ann-emoji-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const emoji = btn.getAttribute('data-emoji') || '';
+                draft.icon = emoji;
+                if (iconInput) iconInput.value = emoji;
+                updatePreviewAndStatus();
+            });
+        });
+
+        card.querySelectorAll('#admin-ann-presets .admin-ann-preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const key = btn.getAttribute('data-preset');
+                if (PRESETS[key]) {
+                    draft = normalizeConfig({ ...draft, ...PRESETS[key], links: PRESETS[key].links.map(l => ({ ...l })) });
+                    syncFormFromDraft();
+                }
+            });
+        });
+
+        if (addLinkBtn) {
+            addLinkBtn.addEventListener('click', () => {
+                draft.links.push({ label: 'Learn More →', url: 'santa.html', style: draft.links.length === 0 ? 'primary' : 'secondary', newTab: false });
+                renderLinksEditor();
+                updatePreviewAndStatus();
+            });
+        }
+
+        themeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                draft.theme = btn.getAttribute('data-theme') || 'green';
+                themeBtns.forEach(b => b.classList.toggle('active', b === btn));
+                if (customColorsWrap) customColorsWrap.style.display = draft.theme === 'custom' ? 'grid' : 'none';
+                updatePreviewAndStatus();
+            });
+        });
+
+        if (colorBg1) colorBg1.addEventListener('input', (e) => { draft.customBgStart = e.target.value; updatePreviewAndStatus(); });
+        if (colorBg2) colorBg2.addEventListener('input', (e) => { draft.customBgEnd = e.target.value; updatePreviewAndStatus(); });
+        if (colorText) colorText.addEventListener('input', (e) => { draft.customTextColor = e.target.value; updatePreviewAndStatus(); });
+        if (colorAccent) colorAccent.addEventListener('input', (e) => { draft.customAccentColor = e.target.value; updatePreviewAndStatus(); });
+
+        if (posSelect) posSelect.addEventListener('change', (e) => { draft.position = e.target.value; updatePreviewAndStatus(); });
+        if (scopeSelect) {
+            scopeSelect.addEventListener('change', (e) => {
+                draft.scope = e.target.value;
+                if (pagesWrap) pagesWrap.style.display = draft.scope === 'custom' ? 'grid' : 'none';
+                updatePreviewAndStatus();
+            });
+        }
+        if (pagesWrap) {
+            pagesWrap.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    draft.pages = Array.from(pagesWrap.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value.toLowerCase());
+                    updatePreviewAndStatus();
+                });
+            });
+        }
+        if (dismissibleCheck) dismissibleCheck.addEventListener('change', (e) => { draft.dismissible = e.target.checked; updatePreviewAndStatus(); });
+        if (pulseCheck) pulseCheck.addEventListener('change', (e) => { draft.showPulseDot = e.target.checked; updatePreviewAndStatus(); });
+        if (startInput) startInput.addEventListener('change', (e) => { draft.startAt = e.target.value ? new Date(e.target.value).toISOString() : ''; updatePreviewAndStatus(); });
+        if (endInput) endInput.addEventListener('change', (e) => { draft.endAt = e.target.value ? new Date(e.target.value).toISOString() : ''; updatePreviewAndStatus(); });
+        if (clearScheduleBtn) {
+            clearScheduleBtn.addEventListener('click', () => {
+                draft.startAt = '';
+                draft.endAt = '';
+                if (startInput) startInput.value = '';
+                if (endInput) endInput.value = '';
+                updatePreviewAndStatus();
+            });
+        }
+
+        async function publishDraft(commitMsg) {
+            if (saveBtn) saveBtn.disabled = true;
+            if (syncIndicator) syncIndicator.textContent = 'Saving and syncing to GitHub...';
+            const res = await saveAnnouncementConfig(draft, commitMsg);
+            draft = res.config;
+            if (saveBtn) saveBtn.disabled = false;
+            if (syncIndicator) {
+                syncIndicator.textContent = res.syncedGitHub
+                    ? '✅ Saved locally and published live to GitHub (data/announcement_bar.json).'
+                    : '💾 Saved in this browser. Log into Admin with GitHub configured to publish globally.';
+            }
+            if (window.showAdminToast) {
+                window.showAdminToast(
+                    res.syncedGitHub
+                        ? (draft.enabled ? '📢 Announcement bar published live!' : '⚪ Announcement bar turned off globally.')
+                        : '💾 Announcement settings saved locally.'
+                );
+            }
+            syncFormFromDraft();
+        }
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                publishDraft(draft.enabled ? 'Admin: Update & publish announcement bar' : 'Admin: Hide announcement bar');
+            });
+        }
+        if (disableBtn) {
+            disableBtn.addEventListener('click', () => {
+                draft.enabled = false;
+                syncFormFromDraft();
+                publishDraft('Admin: Turn off announcement bar');
+            });
+        }
+
+        syncFormFromDraft();
+        getAnnouncementConfig().then(remote => {
+            draft = remote;
+            syncFormFromDraft();
+        }).catch(() => {});
+    }
+
+    window.Station46AnnouncementBar = {
+        getConfig: getAnnouncementConfig,
+        saveConfig: saveAnnouncementConfig,
+        render: renderAnnouncementBar,
+        presets: PRESETS
+    };
+
+    function initAnnouncementBar() {
+        const cached = readLocalConfig();
+        if (cached) renderAnnouncementBar(cached);
+        getAnnouncementConfig().then(renderAnnouncementBar).catch(() => {});
+        setupAdminAnnouncementManager();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAnnouncementBar);
+    } else {
+        initAnnouncementBar();
+    }
+})();
+
 
 
 

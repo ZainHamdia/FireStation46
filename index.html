@@ -50,7 +50,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=124">
+    <link rel="stylesheet" href="styles.css?v=125">
 </head>
 <body>
     <!-- Civic Top Utility Bar -->
@@ -114,19 +114,21 @@
         </div>
     </nav>
 
-    <main>
-        <!-- Operation Santa 2026 Announcement Bar -->
-        <div class="santa-announcement-bar" role="region" aria-label="Operation Santa 2026 Announcement">
-            <div class="santa-announcement-inner">
-                <span class="santa-announcement-text">
-                    <span aria-hidden="true">🎅</span>
-                    <strong>Operation Santa 2026 is Here!</strong>
-                    <span>Gift Drop-Off: Dec 14–16 (5–9 PM) &bull; Delivery Day: Sun, Dec 20</span>
-                </span>
+    <!-- Dynamic Site Announcement / Pop-Up Bar (Hydrated by Station46AnnouncementBar from data/announcement_bar.json) -->
+    <div id="station46-announcement-bar" class="santa-announcement-bar announcement-theme-green announcement-pos-below-nav" role="region" aria-label="Site Announcement">
+        <div class="santa-announcement-inner">
+            <span class="santa-announcement-text">
+                <span class="announcement-icon" aria-hidden="true">🎅</span>
+                <strong>Operation Santa 2026 is Here!</strong>
+                <span class="announcement-message">Gift Drop-Off: Dec 14–16 (5–9 PM) &bull; Delivery Day: Sun, Dec 20</span>
+            </span>
+            <div class="santa-announcement-links">
                 <a href="santa.html" class="santa-announcement-cta">Learn More &amp; Register &rarr;</a>
             </div>
         </div>
+    </div>
 
+    <main>
         <!-- Hero Section -->
         <section id="home" class="hero">
             <div class="hero-bg"></div>
@@ -517,7 +519,7 @@
         <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
     </div>
 
-    <script src="script.js?v=129"></script>
+    <script src="script.js?v=131"></script>
 
 
 </body></html>

@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "theme": "green",
+  "customBgStart": "#14532d",
+  "customBgEnd": "#15803d",
+  "customTextColor": "#ffffff",
+  "customAccentColor": "#fcd34d",
+  "position": "below-nav",
+  "scope": "home",
+  "pages": [
+    "index.html"
+  ],
+  "icon": "🎅",
+  "headline": "Operation Santa 2026 is Here!",
+  "message": "Gift Drop-Off: Dec 14–16 (5–9 PM) • Delivery Day: Sun, Dec 20",
+  "links": [
+    {
+      "label": "Learn More & Register →",
+      "url": "santa.html",
+      "style": "primary",
+      "newTab": false
+    }
+  ],
+  "dismissible": true,
+  "showPulseDot": false,
+  "startAt": "",
+  "endAt": "",
+  "updatedAt": "2026-11-19T05:00:00.000Z"
+}
