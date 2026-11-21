@@ -1639,12 +1639,14 @@ select:-webkit-autofill:focus {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 0.75rem 0 1.25rem;
-    min-height: 0;
+    margin: 1rem 0 1.25rem;
+    min-height: 65px;
+    width: 100%;
 }
 
-.turnstile-captcha-wrap:empty {
+.turnstile-captcha-wrap.turnstile-hidden {
     display: none;
+    min-height: 0;
     margin: 0;
 }
 
@@ -1658,6 +1660,19 @@ select:-webkit-autofill:focus {
     border: 1.5px solid #e76f51;
     background: rgba(231, 111, 81, 0.08);
     transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.turnstile-status-hint {
+    text-align: center;
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    margin: -0.5rem 0 0.85rem;
+}
+
+form button[type="submit"][data-captcha-locked="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: auto;
 }
 
 /* Footer (Wix Civic Navy Footer) */

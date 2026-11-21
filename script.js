@@ -590,6 +590,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return turnstileApiPromise;
     }
 
+    function getInitialTurnstileSiteKey() {
+        if (stationEmailConfig.turnstileSiteKey) return stationEmailConfig.turnstileSiteKey;
+        const globalKey = typeof window.STATION46_TURNSTILE_SITE_KEY === 'string'
+            ? window.STATION46_TURNSTILE_SITE_KEY.trim()
+            : '';
+        if (globalKey) return globalKey;
+        const attrEl = document.querySelector('[data-turnstile-sitekey]');
+        const attrKey = attrEl ? String(attrEl.getAttribute('data-turnstile-sitekey') || '').trim() : '';
+        return attrKey || '';
+    }
+
     function ensureTurnstileContainer(form) {
         let wrap = form.querySelector('[data-turnstile-container], .turnstile-captcha-wrap');
         if (!wrap) {
@@ -605,7 +616,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 form.appendChild(wrap);
             }
         }
+        wrap.classList.remove('turnstile-hidden');
         return wrap;
+    }
+
+    function setFormCaptchaReady(form, isReady) {
+        if (!form) return;
+        const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('input[type="submit"]');
+        const wrap = form.querySelector('[data-turnstile-container], .turnstile-captcha-wrap');
+        let hint = form.querySelector('.turnstile-status-hint');
+
+        if (isReady) {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                delete submitBtn.dataset.captchaLocked;
+            }
+            if (hint) hint.remove();
+            if (wrap) wrap.classList.remove('turnstile-highlight');
+        } else {
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.dataset.captchaLocked = 'true';
+            }
+            if (!hint && wrap && wrap.parentNode) {
+                hint = document.createElement('p');
+                hint.className = 'turnstile-status-hint';
+                hint.textContent = 'Please complete the security check above before submitting.';
+                wrap.insertAdjacentElement('afterend', hint);
+            }
+        }
     }
 
     function renderTurnstileForForm(form, siteKey) {
@@ -613,21 +652,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (form.dataset.turnstileWidgetId !== undefined && form.dataset.turnstileWidgetId !== '') return;
 
         const wrap = ensureTurnstileContainer(form);
+        setFormCaptchaReady(form, false);
+
         if (!window.turnstile || typeof window.turnstile.render !== 'function') return;
 
         try {
             const widgetId = window.turnstile.render(wrap, {
                 sitekey: siteKey,
                 theme: getTurnstileTheme(),
+                appearance: 'always',
                 callback: (token) => {
                     form.dataset.turnstileToken = token || '';
-                    wrap.classList.remove('turnstile-highlight');
+                    setFormCaptchaReady(form, Boolean(token));
                 },
                 'expired-callback': () => {
                     form.dataset.turnstileToken = '';
+                    setFormCaptchaReady(form, false);
                 },
                 'error-callback': () => {
                     form.dataset.turnstileToken = '';
+                    setFormCaptchaReady(form, false);
                 }
             });
             form.dataset.turnstileWidgetId = String(widgetId);
@@ -637,10 +681,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initTurnstileWidgets(siteKey) {
-        const key = String(siteKey || stationEmailConfig.turnstileSiteKey || '').trim();
+        const key = String(siteKey || getInitialTurnstileSiteKey() || '').trim();
         if (!key) return;
+        stationEmailConfig.turnstileSiteKey = key;
+        stationEmailConfig.turnstileEnabled = true;
+
         const forms = document.querySelectorAll(PUBLIC_FORM_SELECTOR);
         if (!forms.length) return;
+
+        // Immediately lock submit buttons & show container while Turnstile script finishes loading
+        forms.forEach(form => {
+            ensureTurnstileContainer(form);
+            if (!getFormTurnstileToken(form)) {
+                setFormCaptchaReady(form, false);
+            }
+        });
 
         loadTurnstileApi()
             .then(() => {
@@ -676,28 +731,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.turnstile.reset(widgetId);
             } catch (e) {}
         }
+        if (stationEmailConfig.turnstileEnabled || stationEmailConfig.turnstileSiteKey || widgetId) {
+            setFormCaptchaReady(form, false);
+        }
     }
 
     // Automatically attach Turnstile to any public form added dynamically later
     if (typeof MutationObserver !== 'undefined' && document.body) {
         const turnstileFormObserver = new MutationObserver((mutations) => {
-            if (!stationEmailConfig.turnstileSiteKey) return;
+            const key = getInitialTurnstileSiteKey();
+            if (!key) return;
             for (const m of mutations) {
                 if (!m.addedNodes || !m.addedNodes.length) continue;
                 for (const node of m.addedNodes) {
                     if (node.nodeType !== 1) continue;
                     if (node.matches && node.matches(PUBLIC_FORM_SELECTOR)) {
-                        initTurnstileWidgets(stationEmailConfig.turnstileSiteKey);
+                        initTurnstileWidgets(key);
                         return;
                     }
                     if (node.querySelector && node.querySelector(PUBLIC_FORM_SELECTOR)) {
-                        initTurnstileWidgets(stationEmailConfig.turnstileSiteKey);
+                        initTurnstileWidgets(key);
                         return;
                     }
                 }
             }
         });
         turnstileFormObserver.observe(document.body, { childList: true, subtree: true });
+    }
+
+    // Render Turnstile immediately if sitekey is already in the page DOM
+    const immediateTurnstileKey = getInitialTurnstileSiteKey();
+    if (immediateTurnstileKey) {
+        initTurnstileWidgets(immediateTurnstileKey);
     }
 
     // Pre-fetch email config & server relay status on load
@@ -719,8 +784,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btn) {
                 btn.textContent = originalText;
                 btn.style.background = '';
-                btn.style.opacity = '1';
-                btn.disabled = false;
+                btn.style.opacity = '';
+                const needsCaptcha = Boolean(
+                    stationEmailConfig.turnstileEnabled ||
+                    stationEmailConfig.turnstileSiteKey ||
+                    (form.dataset.turnstileWidgetId !== undefined && form.dataset.turnstileWidgetId !== '')
+                );
+                if (needsCaptcha && !getFormTurnstileToken(form)) {
+                    setFormCaptchaReady(form, false);
+                } else {
+                    btn.disabled = false;
+                    delete btn.dataset.captchaLocked;
+                }
             }
         };
 
