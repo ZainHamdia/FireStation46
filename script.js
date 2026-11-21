@@ -357,30 +357,356 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Helper to load email relay key (FormSubmit token or Web3Forms key) from data/email_config.json or localStorage
-    const DEFAULT_EMAIL_RELAY_KEY = '37b00baefbf5e196fca875307c200558';
-    let cachedWeb3FormsKey = localStorage.getItem('station46_web3forms_key') || DEFAULT_EMAIL_RELAY_KEY;
-    async function getStationWeb3FormsKey() {
+    // Helpers to load & classify email relay settings (Web3Forms UUID, FormSubmit token, Webhook URL, or Cloudflare server relay)
+    const DEFAULT_FORMSUBMIT_TOKEN = '37b00baefbf5e196fca875307c200558';
+    const RELAY_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const RELAY_HEX32_RE = /^[a-f0-9]{32}$/i;
+    const RELAY_HTTPS_RE = /^https:\/\/[^\s]+$/i;
+
+    function classifyRelayKey(raw) {
+        const val = String(raw || '').trim();
+        if (!val) return null;
+        if (RELAY_UUID_RE.test(val)) return 'web3forms';
+        if (RELAY_HEX32_RE.test(val)) return 'formsubmit';
+        if (RELAY_HTTPS_RE.test(val)) return 'webhook';
+        return null;
+    }
+
+    function fetchWithTimeoutGlobal(url, options = {}, timeoutMs = 10000) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        return fetch(url, { ...options, signal: controller.signal })
+            .finally(() => clearTimeout(timer));
+    }
+
+    let stationEmailConfig = {
+        recipientEmail: 'membership@mtvfc2.com',
+        formsubmitToken: DEFAULT_FORMSUBMIT_TOKEN,
+        web3formsKey: '',
+        webhookUrl: '',
+        serverEmailConfigured: false,
+        serverProviders: [],
+        turnstileSiteKey: '',
+        turnstileEnabled: false
+    };
+
+    // Hydrate any locally saved key on startup
+    (function hydrateLocalRelayKey() {
         try {
-            const res = await fetch(`data/email_config.json?t=${Date.now()}`, { cache: 'no-store' });
-            if (res.ok) {
-                const cfg = await res.json();
-                const cfgKey = (cfg && (cfg.web3formsKey || cfg.formsubmitToken)) || '';
-                if (typeof cfgKey === 'string' && cfgKey.trim()) {
-                    cachedWeb3FormsKey = cfgKey.trim();
-                    localStorage.setItem('station46_web3forms_key', cachedWeb3FormsKey);
+            const saved = localStorage.getItem('station46_web3forms_key') || '';
+            const kind = classifyRelayKey(saved);
+            if (kind === 'web3forms') stationEmailConfig.web3formsKey = saved.trim();
+            else if (kind === 'formsubmit') stationEmailConfig.formsubmitToken = saved.trim();
+            else if (kind === 'webhook') stationEmailConfig.webhookUrl = saved.trim();
+        } catch (e) {}
+    })();
+
+    async function loadStationEmailConfig() {
+        const cfgReq = fetchWithTimeoutGlobal(`/data/email_config.json?t=${Date.now()}`, { cache: 'no-store' }, 4000)
+            .then(r => (r.ok ? r.json() : null))
+            .catch(() => null);
+        const statusReq = fetchWithTimeoutGlobal('/api/contact', { method: 'GET', cache: 'no-store' }, 4000)
+            .then(r => (r.ok ? r.json() : null))
+            .catch(() => null);
+
+        const [cfg, status] = await Promise.all([cfgReq, statusReq]);
+
+        if (cfg && typeof cfg === 'object') {
+            if (cfg.recipientEmail) stationEmailConfig.recipientEmail = String(cfg.recipientEmail).trim();
+            let foundUuid = '';
+            let foundHex = '';
+            let foundWebhook = '';
+            [cfg.web3formsKey, cfg.formsubmitToken, cfg.webhookUrl].forEach(val => {
+                const kind = classifyRelayKey(val);
+                if (kind === 'web3forms' && !foundUuid) foundUuid = String(val).trim();
+                else if (kind === 'formsubmit' && !foundHex) foundHex = String(val).trim();
+                else if (kind === 'webhook' && !foundWebhook) foundWebhook = String(val).trim();
+            });
+            stationEmailConfig.web3formsKey = foundUuid;
+            stationEmailConfig.formsubmitToken = foundHex || DEFAULT_FORMSUBMIT_TOKEN;
+            stationEmailConfig.webhookUrl = foundWebhook;
+            try {
+                const primaryKey = foundUuid || foundWebhook || foundHex || '';
+                if (primaryKey) localStorage.setItem('station46_web3forms_key', primaryKey);
+            } catch (e) {}
+        }
+
+        if (status && typeof status === 'object' && status.ok) {
+            stationEmailConfig.serverEmailConfigured = Boolean(status.serverEmailConfigured);
+            stationEmailConfig.serverProviders = Array.isArray(status.providers) ? status.providers : [];
+            if (status.recipient) stationEmailConfig.recipientEmail = String(status.recipient).trim();
+            if (typeof status.turnstileSiteKey === 'string') {
+                stationEmailConfig.turnstileSiteKey = status.turnstileSiteKey.trim();
+            }
+            stationEmailConfig.turnstileEnabled = Boolean(status.turnstileEnabled);
+        }
+
+        if (!stationEmailConfig.turnstileSiteKey) {
+            const globalKey = typeof window.STATION46_TURNSTILE_SITE_KEY === 'string'
+                ? window.STATION46_TURNSTILE_SITE_KEY.trim()
+                : '';
+            const attrEl = document.querySelector('[data-turnstile-sitekey]');
+            const attrKey = attrEl ? String(attrEl.getAttribute('data-turnstile-sitekey') || '').trim() : '';
+            stationEmailConfig.turnstileSiteKey = globalKey || attrKey || '';
+        }
+
+        if (stationEmailConfig.turnstileSiteKey) {
+            initTurnstileWidgets(stationEmailConfig.turnstileSiteKey);
+        }
+
+        return { ...stationEmailConfig };
+    }
+
+    async function sendViaWeb3FormsClient(uuidKey, fields) {
+        if (!RELAY_UUID_RE.test(String(uuidKey || '').trim())) {
+            return { ok: false, error: 'Web3Forms UUID key not configured' };
+        }
+        try {
+            const res = await fetchWithTimeoutGlobal('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    access_key: uuidKey.trim(),
+                    subject: fields.subject,
+                    from_name: 'Station 46 Website',
+                    name: fields.name,
+                    email: fields.email,
+                    replyto: fields.email,
+                    phone: fields.phone || 'Not provided',
+                    topic: fields.topic,
+                    message: fields.message || '(No additional message provided)'
+                })
+            }, 10000);
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data && data.success) {
+                return { ok: true, provider: 'web3forms-client' };
+            }
+            return { ok: false, error: `web3forms-client: HTTP ${res.status} ${data.message || ''}`.trim() };
+        } catch (err) {
+            return { ok: false, error: `web3forms-client: ${err.name === 'AbortError' ? 'timeout' : (err.message || err)}` };
+        }
+    }
+
+    async function sendViaFormSubmitClient(fsToken, fields) {
+        const token = RELAY_HEX32_RE.test(String(fsToken || '').trim())
+            ? String(fsToken).trim()
+            : DEFAULT_FORMSUBMIT_TOKEN;
+        try {
+            const params = new URLSearchParams();
+            params.set('name', fields.name);
+            params.set('email', fields.email);
+            params.set('phone', fields.phone || 'Not provided');
+            params.set('topic', fields.topic);
+            params.set('_subject', fields.subject);
+            params.set('_replyto', fields.email);
+            params.set('_template', 'table');
+            params.set('_captcha', 'false');
+            params.set('_url', window.location.href || 'https://mtvfc2.com/membership');
+            if (fields.page) params.set('page', fields.page);
+            if (fields.message) params.set('message', fields.message);
+
+            const res = await fetchWithTimeoutGlobal(`https://formsubmit.co/ajax/${encodeURIComponent(token)}`, {
+                method: 'POST',
+                referrerPolicy: 'origin',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                body: params
+            }, 15000);
+
+            const text = await res.text().catch(() => '');
+            let data = {};
+            try { data = JSON.parse(text); } catch (e) {}
+
+            if (res.ok && (data.success === 'true' || data.success === true)) {
+                return { ok: true, provider: 'formsubmit-client' };
+            }
+            const detail = data.message || (text.includes('<!DOCTYPE') ? 'HTML/blocked response' : text.slice(0, 80));
+            return { ok: false, error: `formsubmit-client: HTTP ${res.status} ${detail}`.trim() };
+        } catch (err) {
+            return { ok: false, error: `formsubmit-client: ${err.name === 'AbortError' ? 'timeout (15s)' : (err.message || err)}` };
+        }
+    }
+
+    // Cloudflare Turnstile CAPTCHA manager for all public contact & membership forms
+    const PUBLIC_FORM_SELECTOR = '.membership-application-form, #membership-application-form, #home-recruit-form, .contact-form';
+    let turnstileApiPromise = null;
+
+    function getTurnstileTheme() {
+        const attr = document.documentElement.getAttribute('data-theme');
+        if (attr === 'dark' || attr === 'light') return attr;
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+        return 'light';
+    }
+
+    function loadTurnstileApi() {
+        if (window.turnstile && typeof window.turnstile.render === 'function') {
+            return Promise.resolve(window.turnstile);
+        }
+        if (turnstileApiPromise) return turnstileApiPromise;
+
+        turnstileApiPromise = new Promise((resolve, reject) => {
+            const existing = document.querySelector('script[data-turnstile-api]');
+            const onReady = () => {
+                if (window.turnstile && typeof window.turnstile.render === 'function') {
+                    resolve(window.turnstile);
+                } else {
+                    const started = Date.now();
+                    const poll = setInterval(() => {
+                        if (window.turnstile && typeof window.turnstile.render === 'function') {
+                            clearInterval(poll);
+                            resolve(window.turnstile);
+                        } else if (Date.now() - started > 10000) {
+                            clearInterval(poll);
+                            reject(new Error('Turnstile API failed to initialize'));
+                        }
+                    }, 100);
+                }
+            };
+
+            if (existing) {
+                existing.addEventListener('load', onReady, { once: true });
+                existing.addEventListener('error', () => reject(new Error('Failed to load Turnstile script')), { once: true });
+                onReady();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+            script.async = true;
+            script.defer = true;
+            script.setAttribute('data-turnstile-api', 'true');
+            script.addEventListener('load', onReady, { once: true });
+            script.addEventListener('error', () => {
+                turnstileApiPromise = null;
+                reject(new Error('Failed to load Turnstile script'));
+            }, { once: true });
+            document.head.appendChild(script);
+        });
+
+        return turnstileApiPromise;
+    }
+
+    function ensureTurnstileContainer(form) {
+        let wrap = form.querySelector('[data-turnstile-container], .turnstile-captcha-wrap');
+        if (!wrap) {
+            wrap = document.createElement('div');
+            wrap.className = 'turnstile-captcha-wrap';
+            wrap.setAttribute('data-turnstile-container', '');
+            const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('input[type="submit"]');
+            if (submitBtn && submitBtn.parentNode === form) {
+                form.insertBefore(wrap, submitBtn);
+            } else if (submitBtn && submitBtn.parentNode) {
+                submitBtn.parentNode.insertBefore(wrap, submitBtn);
+            } else {
+                form.appendChild(wrap);
+            }
+        }
+        return wrap;
+    }
+
+    function renderTurnstileForForm(form, siteKey) {
+        if (!form || !siteKey) return;
+        if (form.dataset.turnstileWidgetId !== undefined && form.dataset.turnstileWidgetId !== '') return;
+
+        const wrap = ensureTurnstileContainer(form);
+        if (!window.turnstile || typeof window.turnstile.render !== 'function') return;
+
+        try {
+            const widgetId = window.turnstile.render(wrap, {
+                sitekey: siteKey,
+                theme: getTurnstileTheme(),
+                callback: (token) => {
+                    form.dataset.turnstileToken = token || '';
+                    wrap.classList.remove('turnstile-highlight');
+                },
+                'expired-callback': () => {
+                    form.dataset.turnstileToken = '';
+                },
+                'error-callback': () => {
+                    form.dataset.turnstileToken = '';
+                }
+            });
+            form.dataset.turnstileWidgetId = String(widgetId);
+        } catch (err) {
+            console.warn('[Station 46] Turnstile render error:', err);
+        }
+    }
+
+    function initTurnstileWidgets(siteKey) {
+        const key = String(siteKey || stationEmailConfig.turnstileSiteKey || '').trim();
+        if (!key) return;
+        const forms = document.querySelectorAll(PUBLIC_FORM_SELECTOR);
+        if (!forms.length) return;
+
+        loadTurnstileApi()
+            .then(() => {
+                document.querySelectorAll(PUBLIC_FORM_SELECTOR).forEach(form => {
+                    renderTurnstileForForm(form, key);
+                });
+            })
+            .catch(err => {
+                console.warn('[Station 46] Turnstile API unavailable:', err);
+            });
+    }
+
+    function getFormTurnstileToken(form) {
+        if (!form) return '';
+        const widgetId = form.dataset.turnstileWidgetId;
+        if (widgetId && window.turnstile && typeof window.turnstile.getResponse === 'function') {
+            try {
+                const resp = window.turnstile.getResponse(widgetId);
+                if (resp) return String(resp).trim();
+            } catch (e) {}
+        }
+        if (form.dataset.turnstileToken) return String(form.dataset.turnstileToken).trim();
+        const hiddenInput = form.querySelector('input[name="cf-turnstile-response"]');
+        return hiddenInput ? String(hiddenInput.value || '').trim() : '';
+    }
+
+    function resetFormTurnstile(form) {
+        if (!form) return;
+        form.dataset.turnstileToken = '';
+        const widgetId = form.dataset.turnstileWidgetId;
+        if (widgetId && window.turnstile && typeof window.turnstile.reset === 'function') {
+            try {
+                window.turnstile.reset(widgetId);
+            } catch (e) {}
+        }
+    }
+
+    // Automatically attach Turnstile to any public form added dynamically later
+    if (typeof MutationObserver !== 'undefined' && document.body) {
+        const turnstileFormObserver = new MutationObserver((mutations) => {
+            if (!stationEmailConfig.turnstileSiteKey) return;
+            for (const m of mutations) {
+                if (!m.addedNodes || !m.addedNodes.length) continue;
+                for (const node of m.addedNodes) {
+                    if (node.nodeType !== 1) continue;
+                    if (node.matches && node.matches(PUBLIC_FORM_SELECTOR)) {
+                        initTurnstileWidgets(stationEmailConfig.turnstileSiteKey);
+                        return;
+                    }
+                    if (node.querySelector && node.querySelector(PUBLIC_FORM_SELECTOR)) {
+                        initTurnstileWidgets(stationEmailConfig.turnstileSiteKey);
+                        return;
+                    }
                 }
             }
-        } catch (e) {}
-        return cachedWeb3FormsKey || DEFAULT_EMAIL_RELAY_KEY;
+        });
+        turnstileFormObserver.observe(document.body, { childList: true, subtree: true });
     }
-    // Pre-fetch email config on load
-    getStationWeb3FormsKey();
+
+    // Pre-fetch email config & server relay status on load
+    loadStationEmailConfig();
 
     // Contact & Membership Application Handler (event delegation so it survives DOM updates)
     document.addEventListener('submit', async (e) => {
         const form = e.target && e.target.closest
-            ? e.target.closest('.membership-application-form, #membership-application-form, #home-recruit-form, .contact-form')
+            ? e.target.closest(PUBLIC_FORM_SELECTOR)
             : null;
         if (!form) return;
 
@@ -388,6 +714,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const btn = form.querySelector('button[type="submit"]') || form.querySelector('button');
         const originalText = btn ? (btn.dataset.originalText || btn.textContent) : 'Submit';
+
+        const restoreSubmitBtn = () => {
+            if (btn) {
+                btn.textContent = originalText;
+                btn.style.background = '';
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
+        };
+
+        // Remove any previous inline status notice inside this form
+        const prevNotice = form.querySelector('.form-submission-feedback');
+        if (prevNotice) prevNotice.remove();
+
+        const escapeInline = (str) => String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+
+        const showFormFeedback = (html, isSuccess = true) => {
+            const notice = document.createElement('div');
+            notice.className = 'form-submission-feedback';
+            notice.style.cssText = isSuccess
+                ? 'margin-top: 1rem; padding: 14px 18px; border-radius: 6px; background: rgba(42, 157, 143, 0.14); border: 1px solid #2a9d8f; color: var(--text-primary, #1e293b); font-family: var(--font-body, inherit); font-size: 0.94rem; line-height: 1.5; text-align: center;'
+                : 'margin-top: 1rem; padding: 14px 18px; border-radius: 6px; background: rgba(231, 111, 81, 0.14); border: 1px solid #e76f51; color: var(--text-primary, #1e293b); font-family: var(--font-body, inherit); font-size: 0.94rem; line-height: 1.5; text-align: center;';
+            notice.innerHTML = html;
+            form.appendChild(notice);
+        };
+
         if (btn) {
             btn.dataset.originalText = originalText;
             btn.disabled = true;
@@ -395,9 +751,27 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.style.opacity = '0.8';
         }
 
-        // Remove any previous inline status notice inside this form
-        const prevNotice = form.querySelector('.form-submission-feedback');
-        if (prevNotice) prevNotice.remove();
+        const cfg = await loadStationEmailConfig();
+        const turnstileActive = Boolean(
+            cfg.turnstileEnabled ||
+            cfg.turnstileSiteKey ||
+            (form.dataset.turnstileWidgetId !== undefined && form.dataset.turnstileWidgetId !== '')
+        );
+
+        let turnstileToken = '';
+        if (turnstileActive) {
+            turnstileToken = getFormTurnstileToken(form);
+            if (!turnstileToken) {
+                restoreSubmitBtn();
+                const wrap = form.querySelector('[data-turnstile-container], .turnstile-captcha-wrap');
+                if (wrap) {
+                    wrap.classList.add('turnstile-highlight');
+                    try { wrap.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (err) {}
+                }
+                showFormFeedback('<strong>⚠️ Verification required:</strong> Please complete the CAPTCHA check above before submitting.', false);
+                return;
+            }
+        }
 
         // Gather data from within this specific form
         const nameEl = form.querySelector('[name="name"]') || form.querySelector('#name') || form.querySelector('.form-name');
@@ -426,68 +800,21 @@ document.addEventListener('DOMContentLoaded', () => {
             page: window.location.pathname || 'index.html'
         };
         if (message) payload.message = message;
+        if (turnstileToken) payload.turnstileToken = turnstileToken;
 
-        const fetchWithTimeout = (url, options, timeoutMs = 6000) => {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), timeoutMs);
-            return fetch(url, { ...options, signal: controller.signal })
-                .finally(() => clearTimeout(timer));
-        };
-
-        const showFormFeedback = (html, isSuccess = true) => {
-            const notice = document.createElement('div');
-            notice.className = 'form-submission-feedback';
-            notice.style.cssText = isSuccess
-                ? 'margin-top: 1rem; padding: 14px 18px; border-radius: 6px; background: rgba(42, 157, 143, 0.14); border: 1px solid #2a9d8f; color: var(--text-primary, #1e293b); font-family: var(--font-body, inherit); font-size: 0.94rem; line-height: 1.5; text-align: center;'
-                : 'margin-top: 1rem; padding: 14px 18px; border-radius: 6px; background: rgba(231, 111, 81, 0.14); border: 1px solid #e76f51; color: var(--text-primary, #1e293b); font-family: var(--font-body, inherit); font-size: 0.94rem; line-height: 1.5; text-align: center;';
-            notice.innerHTML = html;
-            form.appendChild(notice);
-        };
+        const fields = { name, email, phone, topic, message, subject, page: payload.page };
 
         let emailDelivered = false;
+        let emailProvider = null;
         let savedToStore = false;
+        let captchaVerified = false;
+        let captchaFailed = false;
+        let captchaErrorMsg = '';
+        const clientErrors = [];
 
-        // 1. Primary Client-Side Email Delivery (FormSubmit activated token 37b00baefbf5e196fca875307c200558 or Web3Forms UUID)
-        const web3formsKey = await getStationWeb3FormsKey();
-        const isFormSubmitHexToken = /^[a-f0-9]{32}$/i.test(web3formsKey);
-
-        if (web3formsKey && !isFormSubmitHexToken) {
+        const callServerContact = async (extraOptions = {}) => {
             try {
-                const w3Res = await fetchWithTimeout('https://api.web3forms.com/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        access_key: web3formsKey,
-                        subject,
-                        from_name: 'Station 46 Website',
-                        name,
-                        email,
-                        replyto: email,
-                        phone: phone || 'Not provided',
-                        topic,
-                        message: message || '(No additional message provided)'
-                    })
-                }, 6000);
-
-                if (w3Res.ok) {
-                    const w3Data = await w3Res.json().catch(() => ({}));
-                    if (w3Data && w3Data.success) {
-                        emailDelivered = true;
-                    }
-                }
-            } catch (err) {
-                console.warn('[Station 46] Web3Forms client send failed:', err);
-            }
-        }
-
-        // Direct client-side FormSubmit.co using activated token (37b00baefbf5e196fca875307c200558)
-        if (!emailDelivered) {
-            const fsToken = isFormSubmitHexToken ? web3formsKey : DEFAULT_EMAIL_RELAY_KEY;
-            try {
-                const fsRes = await fetchWithTimeout(`https://formsubmit.co/ajax/${encodeURIComponent(fsToken)}`, {
+                const apiRes = await fetchWithTimeoutGlobal('/api/contact', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -495,49 +822,100 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify({
                         ...payload,
-                        _replyto: email,
-                        _template: 'table',
-                        _captcha: 'false'
+                        clientEmailDelivered: emailDelivered,
+                        clientProvider: emailProvider,
+                        clientErrors,
+                        web3formsKey: cfg.web3formsKey || '',
+                        ...extraOptions
                     })
-                }, 8000);
+                }, 18000);
 
-                if (fsRes.ok) {
-                    const fsData = await fsRes.json().catch(() => ({}));
-                    if (fsData && (fsData.success === 'true' || fsData.success === true)) {
-                        emailDelivered = true;
-                    }
-                }
-            } catch (err) {
-                console.warn('[Station 46] FormSubmit token relay failed:', err);
-            }
-        }
-
-        // 2. Cloudflare Pages Function (/api/contact): Saves backup to Admin Inbox & tries server-side email if not yet delivered
-        try {
-            const apiRes = await fetchWithTimeout('/api/contact', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    ...payload,
-                    clientEmailDelivered: emailDelivered,
-                    clientProvider: emailDelivered ? (isFormSubmitHexToken ? 'formsubmit-client' : 'web3forms-client') : null,
-                    web3formsKey
-                })
-            }, 7000);
-
-            if (apiRes.ok) {
                 const apiData = await apiRes.json().catch(() => ({}));
+                if (apiData && apiData.captchaFailed) {
+                    captchaFailed = true;
+                    captchaErrorMsg = apiData.error || 'CAPTCHA verification failed. Please try again.';
+                    return;
+                }
                 if (apiData) {
-                    if (apiData.emailDelivered) emailDelivered = true;
+                    if (apiData.captchaVerified) captchaVerified = true;
+                    if (apiData.emailDelivered) {
+                        emailDelivered = true;
+                        emailProvider = apiData.provider || emailProvider || 'server';
+                    }
                     if (apiData.savedToStore) savedToStore = true;
                 }
+            } catch (err) {
+                console.warn('[Station 46] /api/contact attempt did not succeed:', err);
             }
-        } catch (err) {
-            console.warn('[Station 46] /api/contact attempt did not succeed:', err);
+        };
+
+        if (cfg.serverEmailConfigured || turnstileActive) {
+            // 1A. When server email or Turnstile CAPTCHA is active, verify & deliver via /api/contact FIRST
+            //     so the single-use Turnstile token is verified server-side before any relay sends email.
+            await callServerContact({ skipFormSubmit: !cfg.serverEmailConfigured });
+
+            if (captchaFailed || (turnstileActive && !captchaVerified)) {
+                resetFormTurnstile(form);
+                restoreSubmitBtn();
+                showFormFeedback(
+                    `<strong>⚠️ ${escapeInline(captchaErrorMsg || 'Could not verify CAPTCHA with the server. Please try again.')}</strong>`,
+                    false
+                );
+                return;
+            }
+
+            // If server-side delivery did not send email, fall back to client-side relays
+            if (!emailDelivered && cfg.web3formsKey) {
+                const w3 = await sendViaWeb3FormsClient(cfg.web3formsKey, fields);
+                if (w3.ok) {
+                    emailDelivered = true;
+                    emailProvider = w3.provider;
+                } else if (w3.error) {
+                    clientErrors.push(w3.error);
+                }
+            }
+            if (!emailDelivered) {
+                const fs = await sendViaFormSubmitClient(cfg.formsubmitToken, fields);
+                if (fs.ok) {
+                    emailDelivered = true;
+                    emailProvider = fs.provider;
+                } else if (fs.error) {
+                    clientErrors.push(fs.error);
+                }
+            }
+        } else {
+            // 1B. No server-side provider or Turnstile active: try fast client-side Web3Forms UUID first, then FormSubmit
+            if (cfg.web3formsKey) {
+                const w3 = await sendViaWeb3FormsClient(cfg.web3formsKey, fields);
+                if (w3.ok) {
+                    emailDelivered = true;
+                    emailProvider = w3.provider;
+                } else if (w3.error) {
+                    clientErrors.push(w3.error);
+                    console.warn('[Station 46] Web3Forms client send failed:', w3.error);
+                }
+            }
+
+            if (!emailDelivered) {
+                const fs = await sendViaFormSubmitClient(cfg.formsubmitToken, fields);
+                if (fs.ok) {
+                    emailDelivered = true;
+                    emailProvider = fs.provider;
+                } else if (fs.error) {
+                    clientErrors.push(fs.error);
+                    console.warn('[Station 46] FormSubmit client send failed:', fs.error);
+                }
+            }
+
+            // 2. Always call /api/contact to save backup to Admin Inbox (and try server fallback if not yet delivered)
+            await callServerContact();
         }
+
+        if (turnstileActive) {
+            resetFormTurnstile(form);
+        }
+
+        const safeName = escapeInline(name || 'neighbor');
 
         if (emailDelivered) {
             if (btn) {
@@ -548,7 +926,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             form.reset();
             showFormFeedback(
-                `<strong>✅ Thank you, ${name || 'neighbor'}!</strong> Your inquiry has been sent to Station 46.`,
+                `<strong>✅ Thank you, ${safeName}!</strong> Your inquiry has been sent to Station 46.`,
                 true
             );
 
@@ -560,7 +938,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 4000);
         } else {
-            // 4. Direct Email Fallback: Open pre-filled email to membership@mtvfc2.com so the email is still delivered
+            // Direct Email Fallback: offer a pre-filled email to membership@mtvfc2.com
+            const recipient = cfg.recipientEmail || 'membership@mtvfc2.com';
             const bodyLines = [
                 `Name: ${name}`,
                 `Email: ${email}`,
@@ -569,10 +948,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 message ? `\nMessage:\n${message}` : ''
             ].filter(Boolean).join('\n');
 
-            const mailtoHref = `mailto:membership@mtvfc2.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines)}`;
+            const mailtoHref = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines)}`;
 
             if (btn) {
-                btn.textContent = savedToStore ? 'Saved — Click to Email' : originalText;
+                btn.textContent = savedToStore ? 'Saved to Station Inbox' : originalText;
                 btn.style.background = savedToStore ? '#2a9d8f' : '';
                 btn.style.opacity = '1';
                 btn.disabled = false;
@@ -583,18 +962,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showFormFeedback(
                 (savedToStore
-                    ? `<strong>✅ Thank you, ${name || 'neighbor'}! Your application has been saved to the Station 46 Admin Inbox.</strong><br>To also send an instant copy directly to Station 46, click below:`
-                    : `<strong>⚠️ Automated email relay is temporarily offline.</strong><br>Click below to send your message directly to Station 46:`) +
+                    ? `<strong>✅ Thank you, ${safeName}! Your application has been saved to the Station 46 Admin Inbox.</strong><br>Automated email delivery is currently delayed — you can also send an instant copy directly to <strong>${escapeInline(recipient)}</strong> below:`
+                    : `<strong>⚠️ Automated email relay is temporarily offline.</strong><br>Click below to send your message directly to <strong>${escapeInline(recipient)}</strong>:`) +
                 `<div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">` +
                 `<a href="${mailtoHref}" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; text-decoration: none; display: inline-block;">✉️ Send Email to Station 46</a>` +
                 `</div>`,
                 savedToStore
             );
 
-            // Automatically open the pre-filled mailto link so the user can send with 1 click
-            try {
-                window.location.href = mailtoHref;
-            } catch (e) {}
+            if (!savedToStore) {
+                try {
+                    window.location.href = mailtoHref;
+                } catch (e) {}
+            }
         }
     });
 
@@ -8072,17 +8452,36 @@ ${mainContentHtml}
     }
 
     // 4b. Render Admin Website Inquiries & Applications Inbox
-    function updateAdminEmailRelayBadge(key) {
+    function updateAdminEmailRelayBadge(cfg, serverProviders = []) {
         const badge = document.getElementById('admin-email-relay-status');
         const input = document.getElementById('admin-web3forms-key-input');
-        if (input && key && !input.value) {
-            input.value = key;
+        const resolvedCfg = cfg || stationEmailConfig || {};
+        const providers = Array.isArray(serverProviders) && serverProviders.length
+            ? serverProviders
+            : (stationEmailConfig.serverProviders || []);
+
+        const displayKey = resolvedCfg.web3formsKey || resolvedCfg.webhookUrl || resolvedCfg.formsubmitToken || '';
+        if (input && displayKey && !input.value) {
+            input.value = displayKey;
         }
         if (!badge) return;
-        if (key && key.trim()) {
-            badge.textContent = '✅ Active (membership@mtvfc2.com)';
+
+        if (providers.length > 0) {
+            badge.textContent = `✅ Server Relay Active (${providers.join(', ')})`;
             badge.style.background = 'rgba(42, 157, 143, 0.16)';
             badge.style.color = '#2a9d8f';
+        } else if (resolvedCfg.web3formsKey && RELAY_UUID_RE.test(resolvedCfg.web3formsKey)) {
+            badge.textContent = '✅ Web3Forms Active (membership@mtvfc2.com)';
+            badge.style.background = 'rgba(42, 157, 143, 0.16)';
+            badge.style.color = '#2a9d8f';
+        } else if (resolvedCfg.webhookUrl && RELAY_HTTPS_RE.test(resolvedCfg.webhookUrl)) {
+            badge.textContent = '✅ Webhook Relay Active (membership@mtvfc2.com)';
+            badge.style.background = 'rgba(42, 157, 143, 0.16)';
+            badge.style.color = '#2a9d8f';
+        } else if (resolvedCfg.formsubmitToken) {
+            badge.textContent = '⚠️ FormSubmit Fallback Only (add Web3Forms / Resend)';
+            badge.style.background = 'rgba(245, 158, 11, 0.16)';
+            badge.style.color = '#d97706';
         } else {
             badge.textContent = '⚠️ Paste Web3Forms Key Below';
             badge.style.background = 'rgba(245, 158, 11, 0.16)';
@@ -8100,27 +8499,40 @@ ${mainContentHtml}
                 showAdminToast('❌ Please log in first', true);
                 return;
             }
+            if (key && !classifyRelayKey(key)) {
+                showAdminToast('❌ Unrecognized key format. Paste a Web3Forms UUID, FormSubmit 32-char token, or https:// webhook URL.', true);
+                return;
+            }
             saveW3KeyBtn.disabled = true;
             saveW3KeyBtn.textContent = 'Saving...';
             try {
-                cachedWeb3FormsKey = key;
-                localStorage.setItem('station46_web3forms_key', key);
                 const res = await fetch('/api/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         action: 'save_email_config',
+                        relayKey: key,
                         web3formsKey: key,
                         username: creds.username,
                         password: creds.password
                     })
                 });
                 const data = await res.json().catch(() => ({}));
-                updateAdminEmailRelayBadge(key);
-                if (res.ok && data.ok) {
-                    showAdminToast('✅ Email delivery key saved to GitHub!');
+                if (res.ok && data.ok && data.emailConfig) {
+                    stationEmailConfig = {
+                        ...stationEmailConfig,
+                        ...data.emailConfig,
+                        serverProviders: data.serverProviders || stationEmailConfig.serverProviders,
+                        serverEmailConfigured: Boolean(data.serverEmailConfigured)
+                    };
+                    try {
+                        if (key) localStorage.setItem('station46_web3forms_key', key);
+                        else localStorage.removeItem('station46_web3forms_key');
+                    } catch (e) {}
+                    updateAdminEmailRelayBadge(stationEmailConfig, stationEmailConfig.serverProviders);
+                    showAdminToast(`✅ Saved ${data.keyType || 'email'} relay config to GitHub!`);
                 } else {
-                    showAdminToast('✅ Key saved locally (GitHub sync pending)');
+                    showAdminToast(`❌ ${data.error || 'Could not save key to GitHub'}`, true);
                 }
             } catch (e) {
                 showAdminToast('❌ Could not save key', true);
@@ -8135,71 +8547,79 @@ ${mainContentHtml}
     if (testW3KeyBtn) {
         testW3KeyBtn.addEventListener('click', async () => {
             const input = document.getElementById('admin-web3forms-key-input');
-            const key = (input && input.value.trim()) || await getStationWeb3FormsKey();
-            if (!key) {
-                showAdminToast('⚠️ Paste your Email Relay Key first', true);
-                if (input) input.focus();
-                return;
-            }
+            const pastedKey = input ? input.value.trim() : '';
+            const creds = getAdminCredentials();
+            const cfg = await loadStationEmailConfig();
+
             testW3KeyBtn.disabled = true;
             testW3KeyBtn.textContent = 'Sending...';
             try {
-                const isHexToken = /^[a-f0-9]{32}$/i.test(key);
-                let ok = false;
-                let errMsg = 'Check Relay Key';
+                const keyKind = classifyRelayKey(pastedKey);
+                const testFields = {
+                    name: 'Station 46 Admin Test',
+                    email: 'membership@mtvfc2.com',
+                    phone: '(609) 466-3926',
+                    topic: 'Email Relay Verification',
+                    message: 'This is a test message confirming that form submissions on mtvfc2.com are delivering directly to membership@mtvfc2.com.',
+                    subject: 'Station 46 Website — Test Email Delivery',
+                    page: '/admin.html'
+                };
 
-                if (isHexToken) {
-                    const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(key)}`, {
+                let ok = false;
+                let provider = '';
+                let errMsg = 'No email relay succeeded';
+
+                // 1. If a server-side relay is configured (Resend / Brevo / Cloudflare Email / Webhook), test server-side first
+                if (creds && (cfg.serverEmailConfigured || keyKind === 'webhook')) {
+                    const res = await fetchWithTimeoutGlobal('/api/contact', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            name: 'Station 46 Admin Test',
-                            email: 'membership@mtvfc2.com',
-                            topic: 'Email Relay Verification',
-                            message: 'This is a test message confirming that form submissions on mtvfc2.com are delivering directly to membership@mtvfc2.com.',
-                            _subject: 'Station 46 Website — Test Email Delivery',
-                            _template: 'table',
-                            _captcha: 'false'
+                            action: 'test',
+                            web3formsKey: keyKind === 'web3forms' ? pastedKey : cfg.web3formsKey,
+                            username: creds.username,
+                            password: creds.password
                         })
-                    });
+                    }, 18000);
                     const data = await res.json().catch(() => ({}));
-                    if (res.ok && (data.success === 'true' || data.success === true)) {
+                    if (res.ok && data.emailDelivered) {
                         ok = true;
-                    } else {
-                        errMsg = data.message || `HTTP ${res.status}`;
+                        provider = data.provider || 'server';
+                    } else if (data.errors && data.errors.length) {
+                        errMsg = data.errors.join(' | ');
+                    } else if (data.error) {
+                        errMsg = data.error;
                     }
-                } else {
-                    const res = await fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            access_key: key,
-                            subject: 'Station 46 Website — Test Email Delivery',
-                            from_name: 'Station 46 Admin Portal',
-                            name: 'Station 46 Admin Test',
-                            email: 'membership@mtvfc2.com',
-                            topic: 'Email Relay Verification',
-                            message: 'This is a test message confirming that form submissions on mtvfc2.com are delivering directly to membership@mtvfc2.com.'
-                        })
-                    });
-                    const data = await res.json().catch(() => ({}));
-                    if (res.ok && data && data.success) {
+                }
+
+                // 2. Otherwise test Web3Forms UUID client-side
+                if (!ok && (keyKind === 'web3forms' || cfg.web3formsKey)) {
+                    const w3Key = keyKind === 'web3forms' ? pastedKey : cfg.web3formsKey;
+                    const w3 = await sendViaWeb3FormsClient(w3Key, testFields);
+                    if (w3.ok) {
                         ok = true;
+                        provider = w3.provider;
                     } else {
-                        errMsg = (data && data.message) || `HTTP ${res.status}`;
+                        errMsg = w3.error || errMsg;
+                    }
+                }
+
+                // 3. Fallback: test FormSubmit client-side
+                if (!ok) {
+                    const fsToken = keyKind === 'formsubmit' ? pastedKey : cfg.formsubmitToken;
+                    const fs = await sendViaFormSubmitClient(fsToken, testFields);
+                    if (fs.ok) {
+                        ok = true;
+                        provider = fs.provider;
+                    } else {
+                        errMsg = fs.error || errMsg;
                     }
                 }
 
                 if (ok) {
-                    showAdminToast('✅ Test email sent to membership@mtvfc2.com!');
+                    showAdminToast(`✅ Test email sent to membership@mtvfc2.com via ${provider}!`);
                 } else {
-                    showAdminToast(`❌ Relay error: ${errMsg}`, true);
+                    showAdminToast(`❌ Relay failed: ${errMsg}`, true);
                 }
             } catch (e) {
                 showAdminToast('❌ Network error testing email relay', true);
@@ -8235,12 +8655,15 @@ ${mainContentHtml}
 
             const data = await res.json().catch(() => ({}));
             const inquiries = Array.isArray(data.inquiries) ? data.inquiries : [];
-            const serverKey = (data.emailConfig && data.emailConfig.web3formsKey) || '';
-            if (serverKey) {
-                cachedWeb3FormsKey = serverKey;
-                localStorage.setItem('station46_web3forms_key', serverKey);
+            if (data.emailConfig) {
+                stationEmailConfig = {
+                    ...stationEmailConfig,
+                    ...data.emailConfig,
+                    serverProviders: Array.isArray(data.serverProviders) ? data.serverProviders : [],
+                    serverEmailConfigured: Boolean(data.serverEmailConfigured)
+                };
             }
-            updateAdminEmailRelayBadge(serverKey || cachedWeb3FormsKey);
+            updateAdminEmailRelayBadge(stationEmailConfig, stationEmailConfig.serverProviders);
 
             if (inquiries.length === 0) {
                 container.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 1.5rem 0;">No website inquiries or applications received yet.</p>`;
@@ -8261,20 +8684,31 @@ ${mainContentHtml}
                 const replySubject = encodeURIComponent(`Re: ${item.subject || ('MTVFC #2 Inquiry - ' + (item.topic || ''))}`);
                 const mailtoReply = `mailto:${encodeURIComponent(item.email || '')}?subject=${replySubject}`;
 
-                const forwardSubject = encodeURIComponent(item.subject || `MTVFC #2 Inquiry: ${item.topic || 'General'}`);
-                const forwardBody = encodeURIComponent([
+                const forwardText = [
                     `Name: ${item.name || ''}`,
                     `Email: ${item.email || ''}`,
                     `Phone: ${item.phone || 'Not provided'}`,
                     `Topic / Role: ${item.topic || ''}`,
                     item.message ? `\nMessage:\n${item.message}` : '',
                     item.createdAt ? `\nSubmitted: ${item.createdAt}` : ''
-                ].filter(Boolean).join('\n'));
+                ].filter(Boolean).join('\n');
+                const forwardSubject = encodeURIComponent(item.subject || `MTVFC #2 Inquiry: ${item.topic || 'General'}`);
+                const forwardBody = encodeURIComponent(forwardText);
                 const mailtoForward = `mailto:membership@mtvfc2.com?subject=${forwardSubject}&body=${forwardBody}`;
+                const gmailForward = `https://mail.google.com/mail/?view=cm&fs=1&to=membership%40mtvfc2.com&su=${forwardSubject}&body=${forwardBody}`;
 
+                const providerNote = item.emailProvider ? ` (${escapeHtml(item.emailProvider)})` : '';
                 const deliveryBadge = item.emailDelivered
-                    ? `<span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(42, 157, 143, 0.14); color: #2a9d8f;">📧 Emailed to membership@mtvfc2.com</span>`
-                    : `<span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(245, 158, 11, 0.16); color: #d97706;">📥 Saved in Inbox</span>`;
+                    ? `<span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(42, 157, 143, 0.14); color: #2a9d8f;">📧 Emailed to membership@mtvfc2.com${providerNote}</span>`
+                    : `<span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(245, 158, 11, 0.16); color: #d97706;">📥 Saved in Inbox (Not Emailed)</span>`;
+
+                const errHint = (!item.emailDelivered && Array.isArray(item.deliveryErrors) && item.deliveryErrors.length)
+                    ? `<div style="font-size: 0.76rem; color: #b45309; background: rgba(245, 158, 11, 0.1); padding: 6px 10px; border-radius: 6px;">Relay log: ${escapeHtml(item.deliveryErrors.join(' • '))}</div>`
+                    : '';
+
+                const resendBtnHtml = !item.emailDelivered
+                    ? `<button type="button" class="btn btn-secondary resend-inquiry-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.8rem;">🔄 Retry Email</button>`
+                    : '';
 
                 html += `
                     <div class="admin-post-item" style="flex-direction: column; align-items: stretch; gap: 0.75rem; padding: 1.15rem;">
@@ -8294,16 +8728,175 @@ ${mainContentHtml}
                             </div>
                             <div class="admin-post-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <a href="${mailtoReply}" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem; text-decoration: none;">✉️ Reply to Applicant</a>
-                                <a href="${mailtoForward}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; text-decoration: none;">📤 Forward to membership@mtvfc2.com</a>
+                                ${resendBtnHtml}
+                                <button type="button" class="btn btn-secondary forward-inquiry-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.8rem;">📤 Forward to membership@mtvfc2.com</button>
                                 <button type="button" class="btn delete-btn delete-inquiry-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.8rem;">Delete</button>
                             </div>
                         </div>
                         ${message ? `<div style="background: rgba(148, 163, 184, 0.1); padding: 10px 14px; border-radius: 6px; font-size: 0.9rem; white-space: pre-wrap; color: var(--text-primary);">${message}</div>` : ''}
+                        ${errHint}
+                        <div class="inquiry-forward-fallback" data-id="${id}" style="display: none; font-size: 0.8rem; background: rgba(148, 163, 184, 0.12); padding: 10px 12px; border-radius: 6px; gap: 8px; flex-wrap: wrap; align-items: center;">
+                            <span style="color: var(--text-secondary);">Manual forward options:</span>
+                            <a href="${gmailForward}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.76rem; text-decoration: none;">📧 Open in Gmail</a>
+                            <a href="${mailtoForward}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.76rem; text-decoration: none;">✉️ Open Mail App</a>
+                            <button type="button" class="btn btn-secondary copy-inquiry-btn" data-id="${id}" style="padding: 4px 10px; font-size: 0.76rem;">📋 Copy Details</button>
+                        </div>
                     </div>
                 `;
             });
             html += '</div>';
             container.innerHTML = html;
+
+            const handleDeliverInquiry = async (btn, originalLabel) => {
+                const id = btn.getAttribute('data-id');
+                const item = inquiries.find(x => String(x.id) === String(id));
+                if (!id || !item) return;
+
+                btn.disabled = true;
+                btn.textContent = 'Sending...';
+
+                const fields = {
+                    name: item.name || 'Applicant',
+                    email: item.email || 'membership@mtvfc2.com',
+                    phone: item.phone || '',
+                    topic: item.topic || 'General Inquiry',
+                    message: item.message || '',
+                    subject: item.subject || `MTVFC #2 Inquiry: ${item.topic || 'General'}`,
+                    page: item.page || '/membership'
+                };
+
+                try {
+                    let delivered = false;
+                    let provider = '';
+                    let serverTried = false;
+                    const errors = [];
+
+                    // 1. If a server-side relay is configured, try server-side first
+                    if (stationEmailConfig.serverEmailConfigured) {
+                        serverTried = true;
+                        const r = await fetchWithTimeoutGlobal('/api/contact', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                action: 'resend',
+                                id,
+                                clientEmailDelivered: false,
+                                clientProvider: null,
+                                username: creds.username,
+                                password: creds.password
+                            })
+                        }, 18000);
+                        const rData = await r.json().catch(() => ({}));
+                        if (r.ok && rData.emailDelivered) {
+                            delivered = true;
+                            provider = rData.provider || 'server';
+                        } else if (rData.errors && rData.errors.length) {
+                            errors.push(...rData.errors);
+                        } else if (rData.error) {
+                            errors.push(rData.error);
+                        }
+                    }
+
+                    // 2. Try client-side Web3Forms if configured
+                    let clientOk = false;
+                    let clientProvider = null;
+                    if (!delivered && stationEmailConfig.web3formsKey) {
+                        const w3 = await sendViaWeb3FormsClient(stationEmailConfig.web3formsKey, fields);
+                        if (w3.ok) {
+                            clientOk = true;
+                            clientProvider = w3.provider;
+                        } else if (w3.error) {
+                            errors.push(w3.error);
+                        }
+                    }
+
+                    // 3. Try client-side FormSubmit
+                    if (!delivered && !clientOk) {
+                        const fs = await sendViaFormSubmitClient(stationEmailConfig.formsubmitToken, fields);
+                        if (fs.ok) {
+                            clientOk = true;
+                            clientProvider = fs.provider;
+                        } else if (fs.error) {
+                            errors.push(fs.error);
+                        }
+                    }
+
+                    // 4. Sync delivery state with /api/contact (or try server-side fallback if not tried yet)
+                    if (!delivered && (clientOk || !serverTried)) {
+                        const r = await fetchWithTimeoutGlobal('/api/contact', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                action: 'resend',
+                                id,
+                                clientEmailDelivered: clientOk,
+                                clientProvider,
+                                username: creds.username,
+                                password: creds.password
+                            })
+                        }, 18000);
+                        const rData = await r.json().catch(() => ({}));
+                        if ((r.ok && rData.emailDelivered) || clientOk) {
+                            delivered = true;
+                            provider = rData.provider || clientProvider || 'relay';
+                        } else if (rData.errors && rData.errors.length) {
+                            errors.push(...rData.errors);
+                        } else if (rData.error) {
+                            errors.push(rData.error);
+                        }
+                    }
+
+                    if (delivered) {
+                        showAdminToast(`✅ Forwarded to membership@mtvfc2.com (${provider})!`);
+                        renderAdminInquiries();
+                    } else {
+                        const fallbackBox = container.querySelector(`.inquiry-forward-fallback[data-id="${CSS.escape(String(id))}"]`);
+                        if (fallbackBox) fallbackBox.style.display = 'flex';
+                        const reason = errors.filter(Boolean).join(' | ') || 'Relay failed';
+                        showAdminToast(`❌ Auto-forward failed (${reason}). Use Gmail, Mail App, or Copy Details below.`, true);
+                        btn.disabled = false;
+                        btn.textContent = originalLabel;
+                    }
+                } catch (e) {
+                    const fallbackBox = container.querySelector(`.inquiry-forward-fallback[data-id="${CSS.escape(String(id))}"]`);
+                    if (fallbackBox) fallbackBox.style.display = 'flex';
+                    showAdminToast('❌ Network error forwarding email. Use Gmail, Mail App, or Copy Details below.', true);
+                    btn.disabled = false;
+                    btn.textContent = originalLabel;
+                }
+            };
+
+            container.querySelectorAll('.resend-inquiry-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleDeliverInquiry(btn, '🔄 Retry Email'));
+            });
+
+            container.querySelectorAll('.forward-inquiry-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleDeliverInquiry(btn, '📤 Forward to membership@mtvfc2.com'));
+            });
+
+            container.querySelectorAll('.copy-inquiry-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    const item = inquiries.find(x => String(x.id) === String(id));
+                    if (!item) return;
+                    const text = [
+                        `To: membership@mtvfc2.com`,
+                        `Subject: ${item.subject || `MTVFC #2 Inquiry: ${item.topic || 'General'}`}`,
+                        `Name: ${item.name || ''}`,
+                        `Email: ${item.email || ''}`,
+                        `Phone: ${item.phone || 'Not provided'}`,
+                        `Topic / Role: ${item.topic || ''}`,
+                        item.message ? `\nMessage:\n${item.message}` : '',
+                        item.createdAt ? `\nSubmitted: ${item.createdAt}` : ''
+                    ].filter(Boolean).join('\n');
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        showAdminToast('📋 Inquiry details copied to clipboard');
+                    } catch (e) {
+                        showAdminToast('❌ Could not copy to clipboard', true);
+                    }
+                });
+            });
 
             container.querySelectorAll('.delete-inquiry-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {

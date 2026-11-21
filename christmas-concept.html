@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="description" content="Christmas Decorated Concept Preview — Montgomery Township Volunteer Fire Company #2 (MTVFC #2 / Station 46).">
+    <title>Christmas Concept | MTVFC #2 | Station 46</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+
+    <script>
+        (function() {
+            try {
+                var t = localStorage.getItem('station46_theme') ||
+                        (document.cookie.match(/(?:^|;)\s*station46_theme=([^;]+)/) || [])[1] ||
+                        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+            } catch(e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="styles.css?v=125">
+
+    <style id="xmas-concept-styles">
+        /* ==========================================================================
+           Station 46 Christmas Concept Layer (Local Preview Only)
+           ========================================================================== */
+
+        /* 1. Holiday Top Bar Accent */
+        body.xmas-active.xmas-garland .top-bar {
+            background: linear-gradient(90deg, #0f241c 0%, #16253d 55%, #0f241c 100%) !important;
+            border-bottom: 1.5px solid rgba(252, 211, 77, 0.45);
+        }
+        .xmas-top-greeting {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            background: rgba(21, 128, 61, 0.35);
+            border: 1px solid rgba(252, 211, 77, 0.5);
+            color: #fcd34d;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 2px 9px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        body.xmas-active.xmas-garland .xmas-top-greeting {
+            display: inline-flex;
+        }
+
+        /* 2. Navbar Holiday Wreath Accent */
+        .nav-logo {
+            position: relative;
+        }
+        .xmas-logo-holly {
+            display: none;
+            position: absolute;
+            top: -4px;
+            left: 30px;
+            font-size: 0.95rem;
+            line-height: 1;
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
+            pointer-events: none;
+            z-index: 3;
+        }
+        body.xmas-active.xmas-garland .xmas-logo-holly {
+            display: inline-block;
+        }
+        body.xmas-active.xmas-garland .nav-badge-img {
+            filter: drop-shadow(0 0 6px rgba(21, 128, 61, 0.35)) drop-shadow(0 0 3px rgba(252, 211, 77, 0.45));
+        }
+
+        /* 3. Navbar Vintage C9 String Lights */
+        #xmas-lights-strand {
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -18px;
+            height: 22px;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1002;
+        }
+        body.xmas-active.xmas-lights #xmas-lights-strand {
+            display: block;
+        }
+        @keyframes xmasBulbTwinkle {
+            0%, 100% { opacity: 1; filter: drop-shadow(0 0 5px currentColor); }
+            50% { opacity: 0.62; filter: drop-shadow(0 0 2px currentColor); }
+        }
+        .xmas-bulb-glow {
+            animation: xmasBulbTwinkle 2.4s ease-in-out infinite;
+        }
+        .xmas-bulb-glow.d1 { animation-delay: 0s; }
+        .xmas-bulb-glow.d2 { animation-delay: 0.6s; }
+        .xmas-bulb-glow.d3 { animation-delay: 1.2s; }
+        .xmas-bulb-glow.d4 { animation-delay: 1.8s; }
+
+        /* 4. Green Announcement Bar Festive Shimmer */
+        body.xmas-active #concept-announcement-bar {
+            box-shadow: 0 4px 18px rgba(21, 128, 61, 0.32);
+            border-bottom: 2px solid #fcd34d;
+        }
+
+        /* 5. Hero Festive Transformation */
+        body.xmas-active[data-xmas-hero="holiday"] .hero .hero-bg {
+            background-image: linear-gradient(rgba(10, 18, 30, 0.54), rgba(10, 26, 20, 0.72)), url('christmas.jpg') !important;
+            background-position: center 28% !important;
+            background-size: cover !important;
+        }
+        body.xmas-active[data-xmas-hero="classic"] .hero .hero-bg {
+            background-image: linear-gradient(rgba(10, 22, 38, 0.34), rgba(14, 34, 28, 0.56)), url('hero-bg.jpg?v=2') !important;
+        }
+        .xmas-hero-pill {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 36, 26, 0.84);
+            color: #fcd34d;
+            border: 1.5px solid rgba(252, 211, 77, 0.55);
+            padding: 6px 18px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            text-shadow: none;
+        }
+        body.xmas-active .xmas-hero-pill {
+            display: inline-flex;
+        }
+        body.xmas-active .hero-trust-bar {
+            border-color: rgba(252, 211, 77, 0.35);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(21, 128, 61, 0.35);
+        }
+
+        /* Delicate Pine & Holly Hero Corner Drapes */
+        .xmas-hero-corner {
+            display: none;
+            position: absolute;
+            top: 0;
+            width: 210px;
+            height: 130px;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.9;
+        }
+        .xmas-hero-corner-left { left: 0; }
+        .xmas-hero-corner-right { right: 0; transform: scaleX(-1); }
+        body.xmas-active.xmas-garland .xmas-hero-corner {
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .xmas-hero-corner {
+                width: 130px;
+                height: 82px;
+                opacity: 0.78;
+            }
+        }
+
+        /* 6. Operation Santa Promo & Homepage Card Trim */
+        body.xmas-active.xmas-garland .santa-promo-card {
+            border-top: 4px solid transparent;
+            background-image: linear-gradient(var(--bg-card), var(--bg-card)), linear-gradient(90deg, #15803d, #fcd34d, #9b1b24);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            box-shadow: 0 12px 32px rgba(21, 128, 61, 0.14);
+        }
+        body.xmas-active.xmas-garland .role-card,
+        body.xmas-active.xmas-garland .recruit-form-card,
+        body.xmas-active.xmas-garland .donation-cta {
+            border-top: 3px solid #15803d;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        body.xmas-active.xmas-garland .role-card:hover,
+        body.xmas-active.xmas-garland .donation-cta:hover {
+            box-shadow: 0 10px 28px rgba(21, 128, 61, 0.16), 0 0 0 1px rgba(252, 211, 77, 0.35);
+        }
+
+        /* Section Holiday Hairline Ornaments */
+        .xmas-section-divider {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto 0.65rem;
+            max-width: 240px;
+        }
+        body.xmas-active.xmas-garland .xmas-section-divider {
+            display: flex;
+        }
+        .xmas-section-divider::before,
+        .xmas-section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.55), transparent);
+        }
+        .xmas-section-divider span {
+            font-size: 0.95rem;
+            line-height: 1;
+        }
+
+        /* 7. Footer Winter Greeting & Trim */
+        body.xmas-active.xmas-garland footer {
+            border-top: 3px solid #15803d;
+        }
+        .xmas-footer-greeting {
+            display: none;
+            width: 100%;
+            text-align: center;
+            padding: 0.65rem 1rem;
+            margin-bottom: 1.25rem;
+            border-radius: 8px;
+            background: linear-gradient(90deg, rgba(21, 128, 61, 0.14), rgba(155, 27, 36, 0.12));
+            border: 1px solid rgba(252, 211, 77, 0.35);
+            color: var(--text-heading);
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        body.xmas-active .xmas-footer-greeting {
+            display: block;
+        }
+
+        /* 8. Full-Viewport Snowfall Canvas */
+        #xmas-snow-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9980;
+            display: none;
+        }
+        body.xmas-active.xmas-snow #xmas-snow-canvas {
+            display: block;
+        }
+
+        /* 9. Floating Local Concept Control Studio (Bottom-Left) */
+        #xmas-concept-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 99990;
+            width: 310px;
+            max-width: calc(100vw - 96px);
+            background: rgba(15, 23, 42, 0.94);
+            color: #f8fafc;
+            border: 1.5px solid rgba(252, 211, 77, 0.45);
+            border-radius: 12px;
+            box-shadow: 0 14px 38px rgba(0, 0, 0, 0.48);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+        .xmas-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 10px 13px;
+            background: linear-gradient(90deg, #14532d, #15803d);
+            border-bottom: 1px solid rgba(252, 211, 77, 0.4);
+        }
+        .xmas-panel-title {
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #fef3c7;
+        }
+        .xmas-panel-min-btn {
+            background: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            width: 24px;
+            height: 24px;
+            font-weight: 800;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .xmas-panel-body {
+            padding: 12px 13px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #xmas-concept-panel.collapsed .xmas-panel-body {
+            display: none;
+        }
+        .xmas-seg-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .xmas-seg-group.three {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .xmas-ctrl-btn {
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: rgba(30, 41, 59, 0.85);
+            color: #cbd5e1;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+        .xmas-ctrl-btn.active {
+            background: #15803d;
+            border-color: #fcd34d;
+            color: #ffffff;
+        }
+        .xmas-ctrl-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .xmas-check-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            cursor: pointer;
+        }
+        .xmas-check-row input {
+            accent-color: #22c55e;
+            width: 15px;
+            height: 15px;
+        }
+        .xmas-panel-note {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+            padding-top: 7px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+        .xmas-panel-note a {
+            color: #fcd34d;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .xmas-bulb-glow { animation: none; }
+        }
+    </style>
+</head>
+<body class="xmas-active xmas-lights xmas-garland xmas-snow" data-xmas-hero="holiday" data-xmas-snow="light">
+    <canvas id="xmas-snow-canvas" aria-hidden="true"></canvas>
+
+    <!-- Civic Top Utility Bar -->
+    <div class="top-bar">
+        <div class="top-bar-container">
+            <div class="top-bar-left">
+                <span class="top-bar-badge">🚨 EMERGENCY: DIAL 911</span>
+                <span class="xmas-top-greeting">🎄 Season's Greetings</span>
+                <span class="top-bar-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    Station: (609) 466-3926
+                </span>
+                <span class="top-bar-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    529 Route 518, Skillman, NJ 08558
+                </span>
+            </div>
+            <div class="top-bar-right">
+                <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" class="top-bar-item top-bar-link" title="Montgomery Township Fire District #2 Board of Fire Commissioners">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    <span>Fire District (BOFC)</span>
+                </a>
+                <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Facebook">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                </a>
+                <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Instagram">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="xmas-logo-holly" aria-hidden="true">🎄</span>
+                <img src="logo.png" alt="MTVFC #2 Logo" class="nav-badge-img">
+                <div class="logo-text">
+                    <span class="mtvfc">Montgomery Township Volunteer Fire Company #2</span>
+                    <span class="subtitle">Montgomery Township, Somerset County, NJ</span>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="membership.html" class="nav-link">Membership</a>
+                <div class="nav-dropdown">
+                    <a href="about.html" class="nav-link nav-dropdown-toggle">About <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                    <div class="nav-dropdown-menu">
+                        <a href="about.html" class="nav-dropdown-item">About Us</a>
+                        <a href="history.html" class="nav-dropdown-item">History</a>
+                    </div>
+                </div>
+                <a href="apparatus.html" class="nav-link">Apparatus</a>
+                <a href="news.html" class="nav-link">News &amp; Calls</a>
+                <a href="santa.html" class="nav-link">Operation Santa</a>
+                <a href="#donate" class="nav-link nav-btn-donate">Donate</a>
+            </div>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        <!-- Decorative C9 String Lights Strand -->
+        <div id="xmas-lights-strand" aria-hidden="true"></div>
+    </nav>
+
+    <!-- Highlighted Green Announcement Bar (Concept ID so script.js doesn't auto-remove on non-index filename) -->
+    <div id="concept-announcement-bar" class="santa-announcement-bar announcement-theme-green announcement-pos-below-nav" role="region" aria-label="Site Announcement">
+        <div class="santa-announcement-inner">
+            <span class="santa-announcement-text">
+                <span class="announcement-icon" aria-hidden="true">🎅</span>
+                <strong>Operation Santa 2026 is Here!</strong>
+                <span class="announcement-message">Gift Drop-Off: Dec 14–16 (5–9 PM) &bull; Delivery Day: Sun, Dec 20</span>
+            </span>
+            <div class="santa-announcement-links">
+                <a href="santa.html" class="santa-announcement-cta">Learn More &amp; Register &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="hero-bg"></div>
+            <!-- SVG Pine & Holly Corner Drapes -->
+            <svg class="xmas-hero-corner xmas-hero-corner-left" viewBox="0 0 220 140" fill="none" aria-hidden="true">
+                <path d="M-8 6 Q48 16 112 8 Q155 4 205 18" stroke="#14532d" stroke-width="10" stroke-linecap="round"/>
+                <path d="M-6 20 Q42 54 115 38 Q165 26 196 34" stroke="#166534" stroke-width="8" stroke-linecap="round"/>
+                <path d="M4 0 Q20 68 88 92" stroke="#14532d" stroke-width="7" stroke-linecap="round"/>
+                <path d="M26 14 L14 34 M48 18 L38 42 M74 16 L68 38 M102 14 L98 34 M134 12 L134 32 M166 15 L170 30" stroke="#22c55e" stroke-width="3" stroke-linecap="round" opacity="0.65"/>
+                <circle cx="52" cy="24" r="5.5" fill="#dc2626"/>
+                <circle cx="62" cy="28" r="5" fill="#b91c1c"/>
+                <circle cx="56" cy="18" r="4.5" fill="#ef4444"/>
+                <circle cx="118" cy="22" r="6" fill="#fbbf24"/>
+                <circle cx="164" cy="24" r="5.5" fill="#dc2626"/>
+                <circle cx="32" cy="56" r="5" fill="#fbbf24"/>
+            </svg>
+            <svg class="xmas-hero-corner xmas-hero-corner-right" viewBox="0 0 220 140" fill="none" aria-hidden="true">
+                <path d="M-8 6 Q48 16 112 8 Q155 4 205 18" stroke="#14532d" stroke-width="10" stroke-linecap="round"/>
+                <path d="M-6 20 Q42 54 115 38 Q165 26 196 34" stroke="#166534" stroke-width="8" stroke-linecap="round"/>
+                <path d="M4 0 Q20 68 88 92" stroke="#14532d" stroke-width="7" stroke-linecap="round"/>
+                <path d="M26 14 L14 34 M48 18 L38 42 M74 16 L68 38 M102 14 L98 34 M134 12 L134 32 M166 15 L170 30" stroke="#22c55e" stroke-width="3" stroke-linecap="round" opacity="0.65"/>
+                <circle cx="52" cy="24" r="5.5" fill="#dc2626"/>
+                <circle cx="62" cy="28" r="5" fill="#b91c1c"/>
+                <circle cx="56" cy="18" r="4.5" fill="#ef4444"/>
+                <circle cx="118" cy="22" r="6" fill="#fbbf24"/>
+                <circle cx="164" cy="24" r="5.5" fill="#dc2626"/>
+                <circle cx="32" cy="56" r="5" fill="#fbbf24"/>
+            </svg>
+
+            <div class="hero-content">
+                <div class="xmas-hero-pill">✨ Happy Holidays from Montgomery Township's Bravest</div>
+                <h2 class="hero-subtitle" id="hero-subtitle-text">Montgomery Township Volunteer Fire Company #2</h2>
+                <h1 class="hero-title" id="hero-title-text">STATION <span>46</span></h1>
+                <p class="hero-desc">Protect your neighbors, learn lifesaving skills, and become part of a dedicated team.</p>
+                <div class="hero-actions">
+                    <a href="#join" class="btn-primary">Join the Crew</a>
+                    <a href="#roles" class="btn-secondary">Explore Roles</a>
+                </div>
+
+                <!-- Quick Trust Highlights Bar -->
+                <div class="hero-trust-bar fade-in delay-2">
+                    <div class="trust-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Gear &amp; Training Provided</span>
+                    </div>
+                    <div class="trust-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>No Prior Experience Needed</span>
+                    </div>
+                    <div class="trust-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Flexible Response Around Work</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Operation Santa 2026 Promo Section -->
+        <section id="operation-santa-promo" class="section santa-promo-section">
+            <div class="container">
+                <div class="santa-promo-card fade-in">
+                    <div class="santa-promo-media">
+                        <img src="santatitle.jpg" alt="Operation Santa 2026 — Santa arriving on a Station 46 fire engine">
+                        <span class="santa-promo-photo-badge">🎅 Sun, Dec 20, 2026</span>
+                    </div>
+                    <div class="santa-promo-body">
+                        <span class="santa-promo-eyebrow">Annual Holiday Event &bull; Skillman / District #2</span>
+                        <h2 class="santa-promo-title">Operation Santa 2026</h2>
+                        <p class="santa-promo-desc">
+                            Santa Claus is coming to town in a fire engine! Montgomery Township Volunteer Fire Company #2 is bringing holiday magic straight to your home for residents in the <strong>Skillman / Fire District #2</strong> coverage area.
+                        </p>
+                        <div class="santa-promo-dates">
+                            <div class="santa-promo-date-item">
+                                <span class="santa-promo-date-label">🎁 Gift Drop-Off</span>
+                                <span class="santa-promo-date-value">Mon–Wed, Dec 14–16 &bull; 5:00 – 9:00 PM</span>
+                            </div>
+                            <div class="santa-promo-date-item">
+                                <span class="santa-promo-date-label">🚒 Santa Delivery Day</span>
+                                <span class="santa-promo-date-value">Sunday, Dec 20 &bull; 10:00 AM – 6:00 PM</span>
+                            </div>
+                        </div>
+                        <div class="santa-promo-actions">
+                            <a href="santa.html#form" class="btn btn-primary">Registration Form</a>
+                            <a href="santa.html" class="btn btn-secondary">Dates &amp; Eligibility</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Volunteer Roles Section -->
+        <section id="roles" class="section">
+            <div class="container">
+                <div class="section-header text-center fade-in">
+                    <div class="xmas-section-divider" aria-hidden="true"><span>❄️</span></div>
+                    <h2 class="section-title">Station 46 Needs You</h2>
+                    <p class="section-subtitle mw-800 mx-auto">We’re a 100% volunteer department, and there’s a place for everyone. Respond to emergencies, assist on scene, help with training, or support the department behind the scenes.</p>
+                </div>
+
+                <div class="roles-grid fade-in delay-1">
+                    <!-- Role 1: Firefighter (Interior) -->
+                    <div class="role-card glass-card role-firefighter">
+                        <div class="role-header">
+                            <span class="role-badge-tag">Ages 18+ • Active Firefighter</span>
+                            <h3>Firefighter</h3>
+                            <p class="role-desc">Respond to structural fires, motor vehicle accidents, alarms, and emergency rescues across Montgomery Township.</p>
+                        </div>
+                        <ul class="role-features">
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>NJ State Firefighter 1 certification fully paid by Station 46</span>
+                            </li>
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Train on engines, ladder trucks, rescue pumpers, and marine craft</span>
+                            </li>
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Weekly company training drills every Wednesday at 7:00 PM</span>
+                            </li>
+                        </ul>
+                        <a href="membership.html" class="btn btn-primary w-100" style="text-align: center;">Apply as Firefighter</a>
+                    </div>
+
+                    <!-- Role 2: Junior Firefighter (Trainee) -->
+                    <div class="role-card glass-card role-junior">
+                        <div class="role-header">
+                            <span class="role-badge-tag">Ages 16–18 • Trainee</span>
+                            <h3>Junior Firefighter</h3>
+                            <p class="role-desc">For trainees ages 16–18. Learn firefighting fundamentals, earn community service hours, and prepare to become full members.</p>
+                        </div>
+                        <ul class="role-features">
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Hands-on training with fire tools, hoses, ground ladders, and gear</span>
+                            </li>
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Strict academic-first priority (no late night curfew conflicts)</span>
+                            </li>
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Fast-track pathway to full adult firefighter status at age 18</span>
+                            </li>
+                        </ul>
+                        <a href="juniors.html" class="btn btn-secondary w-100" style="text-align: center;">Apply as Trainee</a>
+                    </div>
+
+                    <!-- Role 3: Fire Police -->
+                    <div class="role-card glass-card role-police">
+                        <div class="role-header">
+                            <span class="role-badge-tag">Ages 18+ • Non-Firefighting</span>
+                            <h3>Fire Police</h3>
+                            <p class="role-desc">Protect operating firefighters, EMS, and the public by managing roadway closures, detours, and incident scene safety.</p>
+                        </div>
+                        <ul class="role-features">
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Roadway safety closures, scene perimeters, and traffic direction</span>
+                            </li>
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>NJ Fire Police Academy certification, gear, and radios provided</span>
+                            </li>
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Crucial scene protection role without interior structure firefighting</span>
+                            </li>
+                        </ul>
+                        <a href="membership.html#membership-form-section" class="btn btn-secondary w-100" style="text-align: center;">Apply for Fire Police</a>
+                    </div>
+
+                    <!-- Role 4: Support / Associate -->
+                    <div class="role-card glass-card role-associate">
+                        <div class="role-header">
+                            <span class="role-badge-tag">Ages 18+ • Support, Non-Interior</span>
+                            <h3>Associate Member</h3>
+                            <p class="role-desc">Support Station 46 behind the scenes through logistics, administration, facility maintenance, and community event coordination.</p>
+                        </div>
+                        <ul class="role-features">
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Station maintenance, logistics, and incident hydration/rehab</span>
+                            </li>
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Coordinate Operation Santa deliveries, open houses, and fund drives</span>
+                            </li>
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Executive board, bookkeeping, technology, and communications</span>
+                            </li>
+                        </ul>
+                        <a href="membership.html#membership-form-section" class="btn btn-secondary w-100" style="text-align: center;">Join as Associate</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- General Information Form Section -->
+        <section id="join" class="section dark-alt">
+            <div class="container">
+                <div class="section-header text-center fade-in">
+                    <div class="xmas-section-divider" aria-hidden="true"><span>🎄</span></div>
+                    <h2 class="section-title">General Information &amp; Inquiries</h2>
+                    <p class="section-subtitle mw-800 mx-auto">Have questions about Station 46, volunteering, community programs, or how you can support? Send us a message below and our team will get back to you.</p>
+                </div>
+
+                <div class="recruit-form-card glass-card fade-in delay-1">
+                    <div class="open-drill-banner">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <div>
+                            <h4>Walk-Ins Welcome Every Wednesday at 7:00 PM</h4>
+                            <p>Station 46 Firehouse • 529 Route 518, Skillman, NJ 08558 • Come meet the crew in person!</p>
+                        </div>
+                    </div>
+
+                    <form class="contact-form" id="home-recruit-form">
+                        <div class="recruit-form-grid">
+                            <div class="form-group">
+                                <input type="text" name="name" class="form-name" placeholder="Full Name" required="">
+                            </div>
+                            <div class="form-group">
+                                <input type="email" name="email" class="form-email" placeholder="Email Address" required="">
+                            </div>
+                        </div>
+
+                        <div class="recruit-form-grid">
+                            <div class="form-group">
+                                <input type="tel" name="phone" class="form-phone" placeholder="Phone Number">
+                            </div>
+                            <div class="form-group">
+                                <select name="topic" class="form-type" required="">
+                                    <option value="" disabled="" selected="">Topic / Inquiry Type</option>
+                                    <option value="Volunteering - Firefighter">Volunteering - Firefighter</option>
+                                    <option value="Volunteering - Trainee / Junior">Volunteering - Trainee (Ages 16–18)</option>
+                                    <option value="Volunteering - Fire Police">Volunteering - Fire Police</option>
+                                    <option value="Volunteering - Support / Associate">Volunteering - Support / Associate</option>
+                                    <option value="Donations &amp; Support (Cars, Houses, Financial)">Donations &amp; Support (Cars, Houses, Financial)</option>
+                                    <option value="Book &amp; Clothing Bins">Book &amp; Clothing Donation Bins</option>
+                                    <option value="Community Visit / Event">Community Visit / Event</option>
+                                    <option value="General Question">General Question</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <textarea name="message" class="form-textarea" placeholder="Your Message or Inquiry..." rows="4"></textarea>
+                        </div>
+
+                        <div class="turnstile-captcha-wrap" data-turnstile-container></div>
+
+                        <button type="submit" class="btn-primary w-100" style="font-size: 1.1rem; padding: 16px;">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Support & Donations Section -->
+        <section id="donate" class="section">
+            <div class="container">
+                <div class="section-header text-center fade-in">
+                    <div class="xmas-section-divider" aria-hidden="true"><span>✨</span></div>
+                    <h2 class="section-title">Support Station 46</h2>
+                    <p class="section-subtitle mw-800 mx-auto">Montgomery Township Volunteer Fire Company #2 is an all-volunteer, 501(c)(3) non-profit organization. Your donations and contributions work to support the mission of the Fire Company, and the Fire Department.</p>
+                </div>
+
+                <div class="donation-grid fade-in delay-1">
+                    <!-- Call to Action Card -->
+                    <div class="donation-cta glass-card text-center">
+                        <div class="paypal-logo-wrapper">
+                            <div class="paypal-badge">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"></rect><circle cx="12" cy="12" r="2"></circle></svg>
+                            </div>
+                        </div>
+                        <h3>Make a Donation</h3>
+                        <p class="donation-desc">Donate safely and securely online using PayPal, Debit, or Credit Card.</p>
+
+                        <a href="https://www.paypal.com/donate/?hosted_button_id=UE3Z2VCQBT8YJ" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-donate">
+                            Donate via PayPal
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Other Ways to Support Section -->
+                <div class="support-ways-wrapper fade-in delay-2">
+                    <div class="support-ways-header">
+                        <h3 class="support-ways-title">Other Ways to Support</h3>
+                        <p class="support-ways-subtitle">There are meaningful ways to help Station 46 beyond financial contributions. We welcome vehicle donations, structural drill properties, and clothing/book donations.</p>
+                    </div>
+
+                    <div class="support-ways-grid">
+                        <!-- Totaled Cars for Drills -->
+                        <div class="support-way-card">
+                            <div class="support-way-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+                            </div>
+                            <h4 class="support-way-title">Totaled / Junk Cars for Drills</h4>
+                            <p class="support-way-desc">Have an old, junk, or totaled vehicle? Donate it to Station 46 so our firefighters can practice life-saving vehicle extrication drills and hydraulic rescue tool techniques.</p>
+                            <a href="#join" class="support-way-action">Inquire About Donating a Car →</a>
+                        </div>
+
+                        <!-- Pre-Demolition Houses -->
+                        <div class="support-way-card">
+                            <div class="support-way-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            </div>
+                            <h4 class="support-way-title">Houses Slated for Demolition</h4>
+                            <p class="support-way-desc">If you have a residential or commercial building scheduled to be demolished, allow our crew to conduct search-and-rescue, ventilation, and hose advancement drills before tear-down.</p>
+                            <a href="#join" class="support-way-action">Offer a Structure for Training →</a>
+                        </div>
+
+                        <!-- Book and Clothing Bins -->
+                        <div class="support-way-card">
+                            <div class="support-way-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10"></path><path d="M6 10h10"></path></svg>
+                            </div>
+                            <h4 class="support-way-title">Book &amp; Clothing Donation Bins</h4>
+                            <p class="support-way-desc">We host community book and clothing collection bins right on-site at the firehouse (529 Route 518). Drop off your gently used books, clothes, and shoes anytime 24/7 to help those less fortunate.</p>
+                            <span class="support-way-action" style="cursor: default;">Located at 529 Route 518</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Media Feed Section -->
+        <section class="section dark-alt" id="home-facebook-feed-section">
+            <div class="container text-center fade-in">
+                <div class="xmas-section-divider" aria-hidden="true"><span>❄️</span></div>
+                <h2 class="section-title">Follow Us on Social Media</h2>
+                <p class="section-subtitle mw-800 mx-auto" style="margin-bottom: 2rem;">Stay up to date with incident updates, community drills, fire safety notices, and station events.</p>
+                <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/mtvfc2/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px auto; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> <a href="https://www.instagram.com/mtvfc2/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">View this profile on Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/mtvfc2/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px;" target="_blank">Montgomery Twp. Vol. Fire Co. #2</a> (@<a href="https://www.instagram.com/mtvfc2/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px;" target="_blank">mtvfc2</a>) • Instagram photos and videos</p></div></blockquote>
+                <script async src="//www.instagram.com/embed.js"></script>
+                <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                    <a href="https://www.instagram.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                        Follow on Instagram
+                    </a>
+                    <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                        View Station 46 on Facebook
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="xmas-footer-greeting">
+                🎄 Wishing Montgomery Township a Safe &amp; Joyful Holiday Season — MTVFC #2 (Station 46) 🚒
+            </div>
+            <div class="footer-brand">
+                <img src="logo.png" alt="MTVFC #2 Logo" class="footer-badge-img">
+                <span>Montgomery Township Volunteer Fire Company #2</span>
+            </div>
+            <div class="footer-info">
+                <p><strong>MTVFC #2</strong> (Station 46) | 529 Route 518, Skillman, NJ 08558</p>
+                <p>Emergency: <strong>911</strong> | Non-Emergency: (609) 466-3926</p>
+                <p><a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" style="color: var(--fire-red); font-weight: 600; text-decoration: underline;">Board of Fire Commissioners (BOFC46.com) →</a></p>
+            </div>
+            <div class="footer-social">
+                <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="footer-social-link facebook" aria-label="Facebook">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    <span>Facebook</span>
+                </a>
+                <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="footer-social-link instagram" aria-label="Instagram">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                    <span>Instagram</span>
+                </a>
+            </div>
+            <div class="footer-copy">
+                © <span id="year"></span> Montgomery Township Volunteer Fire Company #2. All rights reserved. By Zain Hamdia | <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer">Fire District Website (BOFC46.com)</a> | <a href="admin.html" class="admin-link">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Local Christmas Concept Studio Panel -->
+    <aside id="xmas-concept-panel" aria-label="Christmas Concept Controls">
+        <div class="xmas-panel-header">
+            <span class="xmas-panel-title">🎄 Christmas Concept (Local)</span>
+            <button type="button" class="xmas-panel-min-btn" id="xmas-panel-min-btn" aria-label="Minimize preview panel">–</button>
+        </div>
+        <div class="xmas-panel-body">
+            <div>
+                <span class="xmas-ctrl-label">Preview Mode</span>
+                <div class="xmas-seg-group">
+                    <button type="button" class="xmas-ctrl-btn active" data-master="on">🎄 Decorated</button>
+                    <button type="button" class="xmas-ctrl-btn" data-master="off">⚪ Standard Site</button>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span class="xmas-ctrl-label">Decoration Layers</span>
+                <label class="xmas-check-row">
+                    <input type="checkbox" id="xmas-toggle-lights" checked>
+                    <span>💡 Navbar String Lights</span>
+                </label>
+                <label class="xmas-check-row">
+                    <input type="checkbox" id="xmas-toggle-garland" checked>
+                    <span>🌲 Pine, Wreath &amp; Card Trim</span>
+                </label>
+            </div>
+
+            <div>
+                <span class="xmas-ctrl-label">❄️ Snowfall</span>
+                <div class="xmas-seg-group three">
+                    <button type="button" class="xmas-ctrl-btn active" data-snow="light">Light</button>
+                    <button type="button" class="xmas-ctrl-btn" data-snow="globe">Snow Globe</button>
+                    <button type="button" class="xmas-ctrl-btn" data-snow="off">Off</button>
+                </div>
+            </div>
+
+            <div>
+                <span class="xmas-ctrl-label">🖼️ Hero Photo</span>
+                <div class="xmas-seg-group">
+                    <button type="button" class="xmas-ctrl-btn active" data-hero="holiday">Holiday Crew</button>
+                    <button type="button" class="xmas-ctrl-btn" data-hero="classic">Classic Station</button>
+                </div>
+            </div>
+
+            <div class="xmas-panel-note">
+                <span>Local preview only — live site untouched.</span>
+                <a href="index.html">Live Home</a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Light / Dark Mode Toggle Switch -->
+    <div id="theme-switch-wrapper" class="theme-switch-wrapper">
+        <button type="button" class="theme-switch-btn" id="theme-switch-btn" role="switch" aria-checked="false" aria-label="Toggle light and dark mode" title="Toggle theme">
+            <span class="theme-switch-track">
+                <span class="theme-track-icon sun-icon" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2"></path>
+                        <path d="M12 20v2"></path>
+                        <path d="m4.93 4.93 1.41 1.41"></path>
+                        <path d="m17.66 17.66 1.41 1.41"></path>
+                        <path d="M2 12h2"></path>
+                        <path d="M20 12h2"></path>
+                        <path d="m6.34 17.66-1.41 1.41"></path>
+                        <path d="m19.07 4.93-1.41 1.41"></path>
+                    </svg>
+                </span>
+                <span class="theme-track-icon moon-icon" aria-hidden="true">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                </span>
+                <span class="theme-switch-thumb">
+                    <span class="thumb-icon-sun" aria-hidden="true">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <path d="M12 2v2"></path>
+                            <path d="M12 20v2"></path>
+                            <path d="m4.93 4.93 1.41 1.41"></path>
+                            <path d="m17.66 17.66 1.41 1.41"></path>
+                            <path d="M2 12h2"></path>
+                            <path d="M20 12h2"></path>
+                            <path d="m6.34 17.66-1.41 1.41"></path>
+                            <path d="m19.07 4.93-1.41 1.41"></path>
+                        </svg>
+                    </span>
+                    <span class="thumb-icon-moon" aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.5">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                        </svg>
+                    </span>
+                </span>
+            </span>
+        </button>
+        <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
+    </div>
+
+    <script src="script.js?v=131"></script>
+    <script id="xmas-concept-script">
+        (function() {
+            // 1. Build responsive C9 string lights SVG across navbar bottom
+            function renderStringLights() {
+                var strand = document.getElementById('xmas-lights-strand');
+                if (!strand) return;
+                var w = Math.max(window.innerWidth || 1200, 360);
+                var step = 34;
+                var count = Math.ceil(w / step) + 1;
+                var palette = ['#ef4444', '#fbbf24', '#22c55e', '#fef3c7'];
+                var delays = ['d1', 'd2', 'd3', 'd4'];
+                var wirePaths = '';
+                var bulbs = '';
+
+                for (var i = 0; i < count; i++) {
+                    var x1 = i * step;
+                    var x2 = x1 + step;
+                    var xm = x1 + step / 2;
+                    wirePaths += '<path d="M' + x1 + ' 1 Q' + xm + ' 9 ' + x2 + ' 1" stroke="#14532d" stroke-width="1.8" fill="none"/>';
+                    var col = palette[i % palette.length];
+                    var dCls = delays[i % delays.length];
+                    bulbs += '<rect x="' + (xm - 2) + '" y="4" width="4" height="3.5" rx="1" fill="#1e293b"/>';
+                    bulbs += '<ellipse class="xmas-bulb-glow ' + dCls + '" cx="' + xm + '" cy="12" rx="3.4" ry="5.2" fill="' + col + '" style="color:' + col + '"/>';
+                }
+
+                strand.innerHTML = '<svg width="100%" height="22" viewBox="0 0 ' + w + ' 22" preserveAspectRatio="none">' + wirePaths + bulbs + '</svg>';
+            }
+
+            renderStringLights();
+            window.addEventListener('resize', renderStringLights);
+
+            // 2. Lightweight Snowfall Canvas
+            var canvas = document.getElementById('xmas-snow-canvas');
+            var ctx = canvas ? canvas.getContext('2d') : null;
+            var flakes = [];
+            var animId = null;
+            var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            function resizeCanvas() {
+                if (!canvas) return;
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            function populateFlakes(targetCount) {
+                flakes = [];
+                if (!canvas) return;
+                for (var i = 0; i < targetCount; i++) {
+                    flakes.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        r: 1.4 + Math.random() * 2.8,
+                        vy: 0.45 + Math.random() * 1.15,
+                        vx: (Math.random() - 0.5) * 0.45,
+                        drift: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function stepSnow() {
+                if (!canvas || !ctx) return;
+                var active = document.body.classList.contains('xmas-active') && document.body.classList.contains('xmas-snow');
+                if (!active || reduceMotion) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    animId = null;
+                    return;
+                }
+
+                var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.84)' : 'rgba(186, 218, 255, 0.72)';
+                ctx.shadowColor = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(15, 23, 42, 0.18)';
+                ctx.shadowBlur = isDark ? 4 : 3;
+
+                for (var i = 0; i < flakes.length; i++) {
+                    var f = flakes[i];
+                    f.drift += 0.012;
+                    f.x += f.vx + Math.sin(f.drift) * 0.25;
+                    f.y += f.vy;
+
+                    if (f.y > canvas.height + 6) {
+                        f.y = -6;
+                        f.x = Math.random() * canvas.width;
+                    }
+                    if (f.x > canvas.width + 6) f.x = -6;
+                    if (f.x < -6) f.x = canvas.width + 6;
+
+                    ctx.beginPath();
+                    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                animId = window.requestAnimationFrame(stepSnow);
+            }
+
+            function updateSnowState(mode) {
+                document.body.setAttribute('data-xmas-snow', mode);
+                if (mode === 'off') {
+                    document.body.classList.remove('xmas-snow');
+                    if (animId) { window.cancelAnimationFrame(animId); animId = null; }
+                    if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    return;
+                }
+                document.body.classList.add('xmas-snow');
+                resizeCanvas();
+                populateFlakes(mode === 'globe' ? 110 : 45);
+                if (!animId && !reduceMotion) {
+                    animId = window.requestAnimationFrame(stepSnow);
+                }
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            updateSnowState('light');
+
+            // 3. Wire Concept Control Panel
+            var panel = document.getElementById('xmas-concept-panel');
+            var minBtn = document.getElementById('xmas-panel-min-btn');
+            if (minBtn && panel) {
+                minBtn.addEventListener('click', function() {
+                    var collapsed = panel.classList.toggle('collapsed');
+                    minBtn.textContent = collapsed ? '+' : '–';
+                });
+            }
+
+            var masterBtns = document.querySelectorAll('[data-master]');
+            masterBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var on = btn.getAttribute('data-master') === 'on';
+                    document.body.classList.toggle('xmas-active', on);
+                    masterBtns.forEach(function(b) { b.classList.toggle('active', b === btn); });
+                    if (on && document.body.getAttribute('data-xmas-snow') !== 'off' && !animId && !reduceMotion) {
+                        animId = window.requestAnimationFrame(stepSnow);
+                    }
+                });
+            });
+
+            var lightsToggle = document.getElementById('xmas-toggle-lights');
+            if (lightsToggle) {
+                lightsToggle.addEventListener('change', function() {
+                    document.body.classList.toggle('xmas-lights', lightsToggle.checked);
+                });
+            }
+
+            var garlandToggle = document.getElementById('xmas-toggle-garland');
+            if (garlandToggle) {
+                garlandToggle.addEventListener('change', function() {
+                    document.body.classList.toggle('xmas-garland', garlandToggle.checked);
+                });
+            }
+
+            var snowBtns = document.querySelectorAll('[data-snow]');
+            snowBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var mode = btn.getAttribute('data-snow');
+                    snowBtns.forEach(function(b) { b.classList.toggle('active', b === btn); });
+                    updateSnowState(mode);
+                });
+            });
+
+            var heroBtns = document.querySelectorAll('[data-hero]');
+            heroBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var hero = btn.getAttribute('data-hero');
+                    document.body.setAttribute('data-xmas-hero', hero);
+                    heroBtns.forEach(function(b) { b.classList.toggle('active', b === btn); });
+                });
+            });
+        })();
+    </script>
+</body></html>

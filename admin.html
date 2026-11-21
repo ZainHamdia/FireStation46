@@ -604,13 +604,13 @@
                         <div style="background: rgba(148, 163, 184, 0.08); border: 1px solid var(--border-light); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
                             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
                                 <strong style="font-size: 0.92rem; color: var(--text-heading);">📧 Direct Email Relay to <code>membership@mtvfc2.com</code></strong>
-                                <span id="admin-email-relay-status" style="font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(42, 157, 143, 0.16); color: #2a9d8f;">✅ Active (membership@mtvfc2.com)</span>
+                                <span id="admin-email-relay-status" style="font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(245, 158, 11, 0.16); color: #d97706;">⏳ Checking relay status...</span>
                             </div>
-                            <p style="margin: 0 0 0.75rem; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
-                                Active relay key for <code>membership@mtvfc2.com</code> (FormSubmit token or Web3Forms Access Key):
+                            <p id="admin-email-relay-hint" style="margin: 0 0 0.75rem; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
+                                Paste a <strong>Web3Forms Access Key</strong> (recommended — free instant key at <a href="https://web3forms.com/#start" target="_blank" rel="noopener noreferrer" style="color: var(--fire-red); text-decoration: underline;">web3forms.com</a> for <code>membership@mtvfc2.com</code>), a FormSubmit token, or a Google Apps Script / Webhook URL. Server-side <code>RESEND_API_KEY</code> / <code>BREVO_API_KEY</code> / Cloudflare <code>EMAIL</code> bindings in Cloudflare Pages are also detected automatically.
                             </p>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <input type="text" id="admin-web3forms-key-input" value="37b00baefbf5e196fca875307c200558" placeholder="Paste Relay Key (e.g. 37b00baefbf5e196fca875307c200558)" style="flex: 1; min-width: 240px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light); font-size: 0.88rem; font-family: monospace; background: var(--bg-card); color: var(--text-primary);">
+                                <input type="text" id="admin-web3forms-key-input" value="" placeholder="Paste Web3Forms UUID Key, FormSubmit Token, or https:// Webhook URL" style="flex: 1; min-width: 240px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light); font-size: 0.88rem; font-family: monospace; background: var(--bg-card); color: var(--text-primary);">
                                 <button type="button" id="admin-save-web3forms-key-btn" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem; white-space: nowrap;">💾 Save Key</button>
                                 <button type="button" id="admin-test-web3forms-key-btn" class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.85rem; white-space: nowrap;">📨 Send Test Email</button>
                             </div>
