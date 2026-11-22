@@ -4141,9 +4141,15 @@ body.admin-edit-mode .btn {
    ========================================================================== */
 
 /* Official Instagram Feed Embed Styling */
-.instagram-media {
+.instagram-media,
+iframe.instagram-media,
+blockquote.instagram-media,
+.instagram-media-rendered {
     margin: 1.5rem auto !important;
     display: block !important;
+    width: 100% !important;
+    max-width: 1100px !important;
+    min-width: 300px !important;
     background: #ffffff !important;
     border-radius: 8px !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
