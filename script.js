@@ -796,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="s46-gate-tag">Station 46 • Skillman, NJ</span>
                     <h1 id="station46-turnstile-gate-title" class="s46-gate-title">Security Verification Required</h1>
                     <p class="s46-gate-subtitle">
-                        Please complete the Cloudflare Turnstile verification below to confirm you are not an automated bot before entering the website.
+                        Please complete the verification below to confirm you are human.
                     </p>
                     <div class="s46-gate-widget-box">
                         <div id="station46-turnstile-gate-widget"></div>

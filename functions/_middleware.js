@@ -249,7 +249,7 @@ function buildEdgeTurnstileGateHtml(siteKey) {
             <span class="gate-station-tag">Station 46 • Skillman, NJ</span>
             <h1 id="gate-heading" class="gate-title">Security Verification Required</h1>
             <p class="gate-subtitle">
-                Please complete the Cloudflare Turnstile verification below to confirm you are not an automated bot before entering the website.
+                Please complete the verification below to confirm you are human.
             </p>
             <div class="gate-widget-box">
                 <div id="turnstile-gate-widget" data-sitekey="${safeSiteKey}"></div>
