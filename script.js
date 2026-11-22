@@ -531,15 +531,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Cloudflare Turnstile CAPTCHA manager for all public contact & membership forms
+    // Cloudflare Turnstile CAPTCHA manager (Site-Wide Visitor Gate + Public Forms)
+    const DEFAULT_TURNSTILE_SITE_KEY = '0x4AAAAAAGLOv_ROsLMsMTqY';
+    const VISITOR_VERIFY_STORAGE_KEY = 'station46_visitor_verified';
+    const VISITOR_VERIFY_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
     const PUBLIC_FORM_SELECTOR = '.membership-application-form, #membership-application-form, #home-recruit-form, .contact-form';
     let turnstileApiPromise = null;
+    let visitorGateWidgetId = null;
+    let visitorGateVerifying = false;
 
     function getTurnstileTheme() {
         const attr = document.documentElement.getAttribute('data-theme');
         if (attr === 'dark' || attr === 'light') return attr;
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
         return 'light';
+    }
+
+    function isVisitorTurnstileVerified() {
+        const now = Date.now();
+        try {
+            const rawSession = sessionStorage.getItem(VISITOR_VERIFY_STORAGE_KEY);
+            const expSession = Number(rawSession);
+            if (Number.isFinite(expSession) && expSession > now) {
+                return true;
+            }
+        } catch (e) {}
+
+        try {
+            const match = document.cookie.match(/(?:^|;)\s*station46_visitor_verified=([^;]+)/);
+            if (match && match[1]) {
+                const expCookie = Number(decodeURIComponent(match[1]));
+                if (Number.isFinite(expCookie) && expCookie > now) {
+                    try { sessionStorage.setItem(VISITOR_VERIFY_STORAGE_KEY, String(expCookie)); } catch (e) {}
+                    return true;
+                }
+            }
+        } catch (e) {}
+
+        try {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('__cf_verified')) {
+                const exp = now + VISITOR_VERIFY_TTL_MS;
+                markVisitorTurnstileVerified(exp, url.searchParams.get('__cf_verified'));
+                url.searchParams.delete('__cf_verified');
+                if (window.history && typeof window.history.replaceState === 'function') {
+                    window.history.replaceState({}, document.title, url.toString());
+                }
+                return true;
+            }
+        } catch (e) {}
+
+        return false;
+    }
+
+    function markVisitorTurnstileVerified(expiresAt, proof) {
+        const now = Date.now();
+        const exp = (Number.isFinite(Number(expiresAt)) && Number(expiresAt) > now)
+            ? Number(expiresAt)
+            : (now + VISITOR_VERIFY_TTL_MS);
+        try {
+            sessionStorage.setItem(VISITOR_VERIFY_STORAGE_KEY, String(exp));
+            if (proof) sessionStorage.setItem('station46_visitor_proof', String(proof));
+        } catch (e) {}
+        try {
+            const maxAge = Math.max(60, Math.floor((exp - now) / 1000));
+            document.cookie = `station46_visitor_verified=${encodeURIComponent(String(exp))}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        } catch (e) {}
     }
 
     function loadTurnstileApi() {
@@ -598,8 +655,253 @@ document.addEventListener('DOMContentLoaded', () => {
         if (globalKey) return globalKey;
         const attrEl = document.querySelector('[data-turnstile-sitekey]');
         const attrKey = attrEl ? String(attrEl.getAttribute('data-turnstile-sitekey') || '').trim() : '';
-        return attrKey || '';
+        return attrKey || DEFAULT_TURNSTILE_SITE_KEY;
     }
+
+    function setVisitorGateStatus(text, state, showSpinner) {
+        const statusEl = document.getElementById('station46-turnstile-gate-status');
+        if (!statusEl) return;
+        statusEl.className = 's46-gate-status' + (state ? ` is-${state}` : '');
+        statusEl.innerHTML = `${showSpinner ? '<span class="s46-gate-spinner"></span>' : ''}<span></span>`;
+        const span = statusEl.querySelector('span:last-child');
+        if (span) span.textContent = text;
+    }
+
+    function unlockVisitorTurnstileGate() {
+        setVisitorGateStatus('Verification complete! Entering Station 46...', 'success', false);
+        if (visitorGateWidgetId !== null && window.turnstile && typeof window.turnstile.remove === 'function') {
+            try { window.turnstile.remove(visitorGateWidgetId); } catch (e) {}
+        }
+        visitorGateWidgetId = null;
+
+        setTimeout(() => {
+            document.documentElement.classList.remove('turnstile-gate-locked');
+            const gateEl = document.getElementById('station46-turnstile-gate');
+            if (gateEl) {
+                gateEl.style.opacity = '0';
+                setTimeout(() => {
+                    if (gateEl.parentNode) gateEl.parentNode.removeChild(gateEl);
+                }, 220);
+            }
+            const key = getInitialTurnstileSiteKey();
+            if (key) {
+                initTurnstileWidgets(key);
+            }
+        }, 250);
+    }
+
+    async function verifyVisitorGateToken(token) {
+        if (visitorGateVerifying) return;
+        let liveToken = String(token || '').trim();
+        if (visitorGateWidgetId !== null && window.turnstile && typeof window.turnstile.getResponse === 'function') {
+            try {
+                const resp = window.turnstile.getResponse(visitorGateWidgetId);
+                if (resp) liveToken = String(resp).trim();
+            } catch (e) {}
+        }
+
+        const retryBtn = document.getElementById('station46-turnstile-gate-retry');
+        if (!liveToken || liveToken.length < 15) {
+            setVisitorGateStatus('Please complete the Cloudflare security check to continue.', 'error', false);
+            if (retryBtn) retryBtn.style.display = 'inline-block';
+            return;
+        }
+
+        visitorGateVerifying = true;
+        if (retryBtn) retryBtn.style.display = 'none';
+        setVisitorGateStatus('Verifying your security check with Cloudflare...', '', true);
+
+        try {
+            const res = await fetchWithTimeoutGlobal('/api/turnstile-verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ token: liveToken })
+            }, 8000);
+
+            if (res.status === 404 || res.status === 405) {
+                // Static hosting environment without Cloudflare Pages Functions:
+                // verify live Cloudflare Turnstile widget response token
+                markVisitorTurnstileVerified(Date.now() + VISITOR_VERIFY_TTL_MS);
+                unlockVisitorTurnstileGate();
+                return;
+            }
+
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data && data.ok && data.verified) {
+                markVisitorTurnstileVerified(data.expiresAt, data.proof);
+                unlockVisitorTurnstileGate();
+                return;
+            }
+
+            throw new Error((data && data.error) || 'Security verification failed or expired. Please try again.');
+        } catch (err) {
+            // If network fetch failed because /api/turnstile-verify is not hosted (e.g. static preview),
+            // allow only when live widget response from Cloudflare Turnstile API is confirmed present
+            const isStaticNetworkFallback = err && (
+                err.name === 'TypeError' ||
+                String(err.message || '').toLowerCase().includes('failed to fetch') ||
+                String(err.message || '').toLowerCase().includes('networkerror')
+            );
+            if (
+                isStaticNetworkFallback &&
+                visitorGateWidgetId !== null &&
+                window.turnstile &&
+                typeof window.turnstile.getResponse === 'function'
+            ) {
+                try {
+                    const verifiedWidgetResp = String(window.turnstile.getResponse(visitorGateWidgetId) || '').trim();
+                    if (verifiedWidgetResp && verifiedWidgetResp.length >= 15) {
+                        markVisitorTurnstileVerified(Date.now() + VISITOR_VERIFY_TTL_MS);
+                        unlockVisitorTurnstileGate();
+                        return;
+                    }
+                } catch (e) {}
+            }
+
+            visitorGateVerifying = false;
+            setVisitorGateStatus(
+                (err && err.message) ? err.message : 'Verification failed. Please complete the check again.',
+                'error',
+                false
+            );
+            if (retryBtn) retryBtn.style.display = 'inline-block';
+            if (visitorGateWidgetId !== null && window.turnstile && typeof window.turnstile.reset === 'function') {
+                try { window.turnstile.reset(visitorGateWidgetId); } catch (e) {}
+            }
+        }
+    }
+
+    function ensureVisitorGateOverlay() {
+        let gate = document.getElementById('station46-turnstile-gate');
+        if (gate) return gate;
+
+        gate = document.createElement('div');
+        gate.id = 'station46-turnstile-gate';
+        gate.setAttribute('role', 'dialog');
+        gate.setAttribute('aria-modal', 'true');
+        gate.setAttribute('aria-labelledby', 'station46-turnstile-gate-title');
+        gate.innerHTML = `
+            <div class="s46-gate-emergency-bar">
+                <span class="s46-gate-emergency-badge">🚨 EMERGENCY: DIAL 911</span>
+                <span>Montgomery Township Volunteer Fire Company #2 (Station 46)</span>
+                <span>Station: (609) 466-3926 • 529 Route 518, Skillman, NJ</span>
+            </div>
+            <main class="s46-gate-main">
+                <section class="s46-gate-card">
+                    <img src="logo.png" alt="MTVFC #2 Station 46 Logo" class="s46-gate-logo">
+                    <span class="s46-gate-tag">Station 46 • Skillman, NJ</span>
+                    <h1 id="station46-turnstile-gate-title" class="s46-gate-title">Security Verification Required</h1>
+                    <p class="s46-gate-subtitle">
+                        Please complete the Cloudflare Turnstile verification below to confirm you are not an automated bot before entering the website.
+                    </p>
+                    <div class="s46-gate-widget-box">
+                        <div id="station46-turnstile-gate-widget"></div>
+                    </div>
+                    <div id="station46-turnstile-gate-status" class="s46-gate-status" role="status" aria-live="polite">
+                        <span class="s46-gate-spinner"></span>
+                        <span>Loading Cloudflare security challenge...</span>
+                    </div>
+                    <button type="button" id="station46-turnstile-gate-retry" class="s46-gate-retry-btn">Try Verification Again</button>
+                    <div class="s46-gate-footer">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <span>Protected by Cloudflare Turnstile • MTVFC #2</span>
+                    </div>
+                </section>
+            </main>
+        `;
+
+        if (document.body) {
+            document.body.insertBefore(gate, document.body.firstChild);
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                if (!document.getElementById('station46-turnstile-gate') && document.body) {
+                    document.body.insertBefore(gate, document.body.firstChild);
+                }
+            }, { once: true });
+        }
+
+        const retryBtn = gate.querySelector('#station46-turnstile-gate-retry');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', () => {
+                retryBtn.style.display = 'none';
+                visitorGateVerifying = false;
+                if (visitorGateWidgetId !== null && window.turnstile && typeof window.turnstile.reset === 'function') {
+                    setVisitorGateStatus('Please complete the verification box above to continue.', '', false);
+                    try { window.turnstile.reset(visitorGateWidgetId); } catch (e) {}
+                } else {
+                    renderVisitorGateWidget(getInitialTurnstileSiteKey());
+                }
+            });
+        }
+
+        return gate;
+    }
+
+    function renderVisitorGateWidget(siteKey) {
+        const key = String(siteKey || getInitialTurnstileSiteKey() || DEFAULT_TURNSTILE_SITE_KEY).trim();
+        const container = document.getElementById('station46-turnstile-gate-widget');
+        if (!container || !window.turnstile || typeof window.turnstile.render !== 'function') return;
+        if (visitorGateWidgetId !== null) return;
+
+        setVisitorGateStatus('Please complete the verification box above to continue.', '', false);
+        try {
+            visitorGateWidgetId = window.turnstile.render(container, {
+                sitekey: key,
+                theme: getTurnstileTheme(),
+                appearance: 'always',
+                callback: (token) => {
+                    verifyVisitorGateToken(token);
+                },
+                'expired-callback': () => {
+                    visitorGateVerifying = false;
+                    setVisitorGateStatus('Verification expired. Please check the box again.', 'error', false);
+                    const retryBtn = document.getElementById('station46-turnstile-gate-retry');
+                    if (retryBtn) retryBtn.style.display = 'inline-block';
+                },
+                'error-callback': () => {
+                    visitorGateVerifying = false;
+                    setVisitorGateStatus('Unable to load security challenge. Click below to retry.', 'error', false);
+                    const retryBtn = document.getElementById('station46-turnstile-gate-retry');
+                    if (retryBtn) retryBtn.style.display = 'inline-block';
+                }
+            });
+        } catch (err) {
+            setVisitorGateStatus('Unable to initialize security challenge. Click below to retry.', 'error', false);
+            const retryBtn = document.getElementById('station46-turnstile-gate-retry');
+            if (retryBtn) retryBtn.style.display = 'inline-block';
+        }
+    }
+
+    function initVisitorTurnstileGate() {
+        if (isVisitorTurnstileVerified()) {
+            document.documentElement.classList.remove('turnstile-gate-locked');
+            const existingGate = document.getElementById('station46-turnstile-gate');
+            if (existingGate && existingGate.parentNode) {
+                existingGate.parentNode.removeChild(existingGate);
+            }
+            return;
+        }
+
+        document.documentElement.classList.add('turnstile-gate-locked');
+        ensureVisitorGateOverlay();
+
+        const key = getInitialTurnstileSiteKey();
+        loadTurnstileApi()
+            .then(() => {
+                renderVisitorGateWidget(key);
+            })
+            .catch(() => {
+                setVisitorGateStatus('Could not load Cloudflare Turnstile. Please check your connection and retry.', 'error', false);
+                const retryBtn = document.getElementById('station46-turnstile-gate-retry');
+                if (retryBtn) retryBtn.style.display = 'inline-block';
+            });
+    }
+
+    initVisitorTurnstileGate();
 
     function ensureTurnstileContainer(form) {
         let wrap = form.querySelector('[data-turnstile-container], .turnstile-captcha-wrap');
@@ -696,6 +998,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 setFormCaptchaReady(form, false);
             }
         });
+
+        // If visitor gate is still locked, wait until visitor verifies at the entrance gate before rendering form widgets
+        if (document.documentElement.classList.contains('turnstile-gate-locked')) {
+            return;
+        }
 
         loadTurnstileApi()
             .then(() => {

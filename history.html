@@ -25,7 +25,35 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=125">
+    <style id="turnstile-gate-critical-css">
+        html.turnstile-gate-locked, html.turnstile-gate-locked body { overflow: hidden !important; height: 100% !important; }
+        html.turnstile-gate-locked body > *:not(#station46-turnstile-gate) { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+    </style>
+    <script>
+        (function() {
+            var now = Date.now();
+            var verified = false;
+            try {
+                var s = Number(sessionStorage.getItem('station46_visitor_verified'));
+                if (s && s > now) verified = true;
+            } catch (e) {}
+            if (!verified) {
+                try {
+                    var m = document.cookie.match(/(?:^|;)\s*station46_visitor_verified=([^;]+)/);
+                    var c = m && m[1] ? Number(decodeURIComponent(m[1])) : 0;
+                    if (c && c > now) verified = true;
+                } catch (e) {}
+            }
+            if (!verified && window.location.search.indexOf('__cf_verified=') !== -1) {
+                verified = true;
+            }
+            if (!verified) {
+                document.documentElement.classList.add('turnstile-gate-locked');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="styles.css?v=127">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer data-turnstile-api="true"></script>
 </head>
 <body>
     <!-- Civic Top Utility Bar -->
@@ -269,6 +297,6 @@
         <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
     </div>
 
-    <script src="script.js?v=131"></script>
+    <script src="script.js?v=133"></script>
 </body>
 </html>

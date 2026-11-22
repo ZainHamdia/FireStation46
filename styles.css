@@ -1675,6 +1675,234 @@ form button[type="submit"][data-captcha-locked="true"] {
     pointer-events: auto;
 }
 
+/* Site-Wide Cloudflare Turnstile Visitor Verification Gate */
+html.turnstile-gate-locked,
+html.turnstile-gate-locked body {
+    overflow: hidden !important;
+    height: 100% !important;
+}
+
+html.turnstile-gate-locked body > *:not(#station46-turnstile-gate) {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+#station46-turnstile-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    background: #f8fafc;
+    color: #0f172a;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: opacity 0.25s ease;
+}
+
+html[data-theme="dark"] #station46-turnstile-gate {
+    background: #080f1d;
+    color: #f8fafc;
+}
+
+#station46-turnstile-gate .s46-gate-emergency-bar {
+    background: #0f1e36;
+    color: #ffffff;
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+    border-bottom: 3px solid #9b1b24;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+
+#station46-turnstile-gate .s46-gate-emergency-badge {
+    background: #9b1b24;
+    color: #ffffff;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.4px;
+}
+
+#station46-turnstile-gate .s46-gate-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    overflow-y: auto;
+}
+
+#station46-turnstile-gate .s46-gate-card {
+    width: 100%;
+    max-width: 460px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-top: 4px solid #9b1b24;
+    border-radius: 16px;
+    padding: 32px 28px 26px;
+    box-shadow: 0 22px 50px -12px rgba(15, 23, 42, 0.16);
+    text-align: center;
+}
+
+html[data-theme="dark"] #station46-turnstile-gate .s46-gate-card {
+    background: #111c30;
+    border-color: #1e293b;
+    border-top-color: #9b1b24;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65);
+}
+
+#station46-turnstile-gate .s46-gate-logo {
+    width: 78px;
+    height: 78px;
+    object-fit: contain;
+    margin: 0 auto 14px;
+    display: block;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.14));
+}
+
+#station46-turnstile-gate .s46-gate-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #9b1b24;
+    background: rgba(155, 27, 36, 0.1);
+    padding: 4px 11px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+}
+
+html[data-theme="dark"] #station46-turnstile-gate .s46-gate-tag {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.14);
+}
+
+#station46-turnstile-gate .s46-gate-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0 0 8px;
+    color: inherit;
+}
+
+#station46-turnstile-gate .s46-gate-subtitle {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #475569;
+    margin: 0 0 22px;
+}
+
+html[data-theme="dark"] #station46-turnstile-gate .s46-gate-subtitle {
+    color: #94a3b8;
+}
+
+#station46-turnstile-gate .s46-gate-widget-box {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px 12px;
+    min-height: 104px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+html[data-theme="dark"] #station46-turnstile-gate .s46-gate-widget-box {
+    background: #0b1424;
+    border-color: #1e293b;
+}
+
+#station46-turnstile-gate .s46-gate-status {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #475569;
+    min-height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+html[data-theme="dark"] #station46-turnstile-gate .s46-gate-status {
+    color: #94a3b8;
+}
+
+#station46-turnstile-gate .s46-gate-status.is-error {
+    color: #dc2626;
+}
+
+html[data-theme="dark"] #station46-turnstile-gate .s46-gate-status.is-error {
+    color: #f87171;
+}
+
+#station46-turnstile-gate .s46-gate-status.is-success {
+    color: #16a34a;
+    font-weight: 700;
+}
+
+html[data-theme="dark"] #station46-turnstile-gate .s46-gate-status.is-success {
+    color: #4ade80;
+}
+
+#station46-turnstile-gate .s46-gate-retry-btn {
+    display: none;
+    margin: 10px auto 0;
+    padding: 8px 16px;
+    background: #9b1b24;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#station46-turnstile-gate .s46-gate-retry-btn:hover {
+    background: #7c131a;
+}
+
+#station46-turnstile-gate .s46-gate-footer {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 0.76rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+html[data-theme="dark"] #station46-turnstile-gate .s46-gate-footer {
+    border-top-color: #1e293b;
+    color: #94a3b8;
+}
+
+#station46-turnstile-gate .s46-gate-spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: s46GateSpin 0.75s linear infinite;
+}
+
+@keyframes s46GateSpin {
+    to { transform: rotate(360deg); }
+}
+
 /* Footer (Wix Civic Navy Footer) */
 footer {
     background: var(--navy-dark);
