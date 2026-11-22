@@ -141,15 +141,15 @@ function buildEdgeTurnstileGateHtml(siteKey) {
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--gate-red);
-            background: rgba(155, 27, 36, 0.1);
+            color: #ffffff;
+            background: var(--gate-red);
             padding: 3px 9px;
             border-radius: 3px;
             margin-bottom: 10px;
         }
         html[data-theme="dark"] .gate-station-tag {
-            color: #f87171;
-            background: rgba(248, 113, 113, 0.14);
+            color: #ffffff;
+            background: var(--gate-red);
         }
         .gate-title {
             font-size: 1.32rem;

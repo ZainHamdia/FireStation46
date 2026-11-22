@@ -1776,16 +1776,16 @@ html[data-theme="dark"] #station46-turnstile-gate .s46-gate-card {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #9b1b24;
-    background: rgba(155, 27, 36, 0.1);
+    color: #ffffff;
+    background: #9b1b24;
     padding: 3px 9px;
     border-radius: 3px;
     margin-bottom: 10px;
 }
 
 html[data-theme="dark"] #station46-turnstile-gate .s46-gate-tag {
-    color: #f87171;
-    background: rgba(248, 113, 113, 0.14);
+    color: #ffffff;
+    background: #9b1b24;
 }
 
 #station46-turnstile-gate .s46-gate-title {
@@ -4292,21 +4292,21 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 .role-card.role-firefighter .role-badge-tag {
-    background: #fae5e7;
-    color: #7a151d;
-    border: 1px solid #f5cdd0;
+    background: #9b1b24;
+    color: #ffffff;
+    border: 1px solid #9b1b24;
 }
 
 .role-card.role-junior .role-badge-tag {
-    background: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #bfdbfe;
+    background: #1d4ed8;
+    color: #ffffff;
+    border: 1px solid #1d4ed8;
 }
 
 .role-card.role-associate .role-badge-tag {
-    background: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fde68a;
+    background: #b45309;
+    color: #ffffff;
+    border: 1px solid #b45309;
 }
 
 .role-card h3 {
@@ -4506,27 +4506,27 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 .membership-badge-tag.tag-firefighter {
-    background: #fae5e7;
-    color: #7a151d;
-    border: 1px solid #f5cdd0;
+    background: #9b1b24;
+    color: #ffffff;
+    border: 1px solid #9b1b24;
 }
 
 .membership-badge-tag.tag-police {
-    background: #e0f2fe;
-    color: #0369a1;
-    border: 1px solid #bae6fd;
+    background: #0284c7;
+    color: #ffffff;
+    border: 1px solid #0284c7;
 }
 
 .membership-badge-tag.tag-associate {
-    background: #f3e8ff;
-    color: #6b21a8;
-    border: 1px solid #e9d5ff;
+    background: #b45309;
+    color: #ffffff;
+    border: 1px solid #b45309;
 }
 
 .membership-badge-tag.tag-junior {
-    background: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fde68a;
+    background: #1d4ed8;
+    color: #ffffff;
+    border: 1px solid #1d4ed8;
 }
 
 .membership-card-title {
@@ -6481,16 +6481,7 @@ body.admin-logged-in.admin-edit-mode .btn-apparatus-add {
     }
     
     /* Badges, Tags & Avatars in Dark Mode */
-    :root[data-theme="dark"] .role-card.role-firefighter .role-badge-tag,
     :root[data-theme="dark"] .upcoming-badge-tag,
-    :root[data-theme="dark"] .membership-badge-tag.tag-firefighter,
-    :root[data-theme="dark"] .recent-post-tag.tag-calls,
-    :root[data-theme="dark"] .badge-chief,
-    :root[data-theme="dark"] .badge-line,
-    :root[data-theme="dark"] .avatar-line,
-    :root[data-theme="dark"] .role-card.role-firefighter .role-badge-tag,
-    :root[data-theme="dark"] .upcoming-badge-tag,
-    :root[data-theme="dark"] .membership-badge-tag.tag-firefighter,
     :root[data-theme="dark"] .recent-post-tag.tag-calls,
     :root[data-theme="dark"] .badge-chief,
     :root[data-theme="dark"] .badge-line,
@@ -6500,12 +6491,13 @@ body.admin-logged-in.admin-edit-mode .btn-apparatus-add {
         border: 1px solid rgba(220, 58, 69, 0.35) !important;
     }
 
-    :root[data-theme="dark"] .role-card.role-police .role-badge-tag,
-    :root[data-theme="dark"] .membership-badge-tag.tag-police,
-    :root[data-theme="dark"] .badge-police,
-    :root[data-theme="dark"] .avatar-police,
-    :root[data-theme="dark"] .role-card.role-police .role-badge-tag,
-    :root[data-theme="dark"] .membership-badge-tag.tag-police,
+    :root[data-theme="dark"] .role-card.role-firefighter .role-badge-tag,
+    :root[data-theme="dark"] .membership-badge-tag.tag-firefighter {
+        background: #9b1b24 !important;
+        color: #ffffff !important;
+        border: 1px solid #9b1b24 !important;
+    }
+
     :root[data-theme="dark"] .badge-police,
     :root[data-theme="dark"] .avatar-police {
         background: rgba(14, 165, 233, 0.16) !important;
@@ -6513,16 +6505,13 @@ body.admin-logged-in.admin-edit-mode .btn-apparatus-add {
         border: 1px solid rgba(14, 165, 233, 0.35) !important;
     }
 
-    :root[data-theme="dark"] .role-card.role-junior .role-badge-tag,
-    :root[data-theme="dark"] .membership-badge-tag.tag-junior,
-    :root[data-theme="dark"] .recent-post-tag.tag-news,
-    :root[data-theme="dark"] .badge-president,
-    :root[data-theme="dark"] .badge-company,
-    :root[data-theme="dark"] .avatar-company,
-    :root[data-theme="dark"] .avatar-junior,
-    :root[data-theme="dark"] .badge-probationary,
-    :root[data-theme="dark"] .role-card.role-junior .role-badge-tag,
-    :root[data-theme="dark"] .membership-badge-tag.tag-junior,
+    :root[data-theme="dark"] .role-card.role-police .role-badge-tag,
+    :root[data-theme="dark"] .membership-badge-tag.tag-police {
+        background: #0284c7 !important;
+        color: #ffffff !important;
+        border: 1px solid #0284c7 !important;
+    }
+
     :root[data-theme="dark"] .recent-post-tag.tag-news,
     :root[data-theme="dark"] .badge-president,
     :root[data-theme="dark"] .badge-company,
@@ -6534,17 +6523,25 @@ body.admin-logged-in.admin-edit-mode .btn-apparatus-add {
         border: 1px solid rgba(245, 158, 11, 0.35) !important;
     }
 
-    :root[data-theme="dark"] .role-card.role-associate .role-badge-tag,
-    :root[data-theme="dark"] .membership-badge-tag.tag-associate,
-    :root[data-theme="dark"] .badge-associate,
-    :root[data-theme="dark"] .avatar-associate,
-    :root[data-theme="dark"] .role-card.role-associate .role-badge-tag,
-    :root[data-theme="dark"] .membership-badge-tag.tag-associate,
+    :root[data-theme="dark"] .role-card.role-junior .role-badge-tag,
+    :root[data-theme="dark"] .membership-badge-tag.tag-junior {
+        background: #1d4ed8 !important;
+        color: #ffffff !important;
+        border: 1px solid #1d4ed8 !important;
+    }
+
     :root[data-theme="dark"] .badge-associate,
     :root[data-theme="dark"] .avatar-associate {
         background: rgba(168, 85, 247, 0.16) !important;
         color: #e9d5ff !important;
         border: 1px solid rgba(168, 85, 247, 0.35) !important;
+    }
+
+    :root[data-theme="dark"] .role-card.role-associate .role-badge-tag,
+    :root[data-theme="dark"] .membership-badge-tag.tag-associate {
+        background: #b45309 !important;
+        color: #ffffff !important;
+        border: 1px solid #b45309 !important;
     }
 
     :root[data-theme="dark"] .badge-firefighter,
@@ -6916,39 +6913,39 @@ html.theme-transition *::after {
 }
 
 .role-card.role-police .role-badge-tag {
-    background: #e0f2fe;
-    color: #0369a1;
-    border: 1px solid #bae6fd;
+    background: #0284c7;
+    color: #ffffff;
+    border: 1px solid #0284c7;
 }
 
 :root[data-theme="dark"] .role-card.role-police .role-badge-tag {
-    background: rgba(2, 132, 199, 0.25);
-    color: #38bdf8;
-    border-color: rgba(2, 132, 199, 0.4);
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0284c7;
 }
 
 .role-card.role-associate .role-badge-tag {
-    background: #fef3c7;
-    color: #b45309;
-    border: 1px solid #fde68a;
+    background: #b45309;
+    color: #ffffff;
+    border: 1px solid #b45309;
 }
 
 :root[data-theme="dark"] .role-card.role-associate .role-badge-tag {
-    background: rgba(217, 119, 6, 0.25);
-    color: #fbbf24;
-    border-color: rgba(217, 119, 6, 0.4);
+    background: #b45309;
+    color: #ffffff;
+    border-color: #b45309;
 }
 
 .role-card.role-junior .role-badge-tag {
-    background: #dbeafe;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
+    background: #1d4ed8;
+    color: #ffffff;
+    border: 1px solid #1d4ed8;
 }
 
 :root[data-theme="dark"] .role-card.role-junior .role-badge-tag {
-    background: rgba(37, 99, 235, 0.25);
-    color: #60a5fa;
-    border-color: rgba(37, 99, 235, 0.4);
+    background: #1d4ed8;
+    color: #ffffff;
+    border-color: #1d4ed8;
 }
 
 /* ==========================================================================
