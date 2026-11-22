@@ -242,7 +242,7 @@ function buildEdgeTurnstileGateHtml(siteKey) {
 </head>
 <body>
     <div class="gate-emergency-bar">
-        <span class="gate-emergency-badge">🚨 EMERGENCY: DIAL 911</span>
+        <span class="gate-emergency-badge">EMERGENCY: DIAL 911</span>
         <span>Montgomery Township Volunteer Fire Company #2 (Station 46)</span>
         <span>Station: (609) 466-3926 • 529 Route 518, Skillman, NJ</span>
     </div>

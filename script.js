@@ -786,7 +786,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gate.setAttribute('aria-labelledby', 'station46-turnstile-gate-title');
         gate.innerHTML = `
             <div class="s46-gate-emergency-bar">
-                <span class="s46-gate-emergency-badge">🚨 EMERGENCY: DIAL 911</span>
+                <span class="s46-gate-emergency-badge">EMERGENCY: DIAL 911</span>
                 <span>Montgomery Township Volunteer Fire Company #2 (Station 46)</span>
                 <span>Station: (609) 466-3926 • 529 Route 518, Skillman, NJ</span>
             </div>
@@ -5760,7 +5760,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <button type="button" class="template-filter-pill active" data-category="all">All Templates (16)</button>
                                 <button type="button" class="template-filter-pill" data-category="featured">🌟 Featured</button>
                                 <button type="button" class="template-filter-pill" data-category="grids">🗂️ Grids &amp; Content</button>
-                                <button type="button" class="template-filter-pill" data-category="advisory">🚨 Alerts &amp; Notice</button>
+                                <button type="button" class="template-filter-pill" data-category="advisory">Alerts &amp; Notice</button>
                                 <button type="button" class="template-filter-pill" data-category="community">👥 Community &amp; Team</button>
                             </div>
                         </div>
@@ -5863,7 +5863,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: 'Emergency Callout Banner',
                 tag: 'High Visibility',
                 category: 'advisory',
-                icon: '🚨',
+                icon: '',
                 desc: 'Full-width civic alert or urgent announcement with icon and action button.'
             },
             {
@@ -6144,7 +6144,6 @@ document.addEventListener('DOMContentLoaded', () => {
             section.innerHTML = `
                 <div class="container">
                     <div class="custom-callout-banner">
-                        <div class="custom-callout-icon">🚨</div>
                         <div class="custom-callout-content">
                             <span class="custom-callout-badge">Important Community Announcement</span>
                             <h3 class="custom-callout-title">Severe Weather &amp; Emergency Preparedness</h3>
@@ -6329,7 +6328,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                         <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; align-items: center;">
-                            <a href="tel:911" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">🚨 Call 911 (Emergency)</a>
+                            <a href="tel:911" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">Call 911 (Emergency)</a>
                             <a href="tel:6094663926" class="btn btn-secondary">Non-Emergency: (609) 466-3926</a>
                         </div>
                     </div>
@@ -6433,7 +6432,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="custom-contact-grid">
                         <div class="custom-contact-card glass-card">
-                            <div class="custom-contact-icon">🚨</div>
                             <h3>Emergency Dispatch</h3>
                             <div class="custom-contact-highlight">Dial 911</div>
                             <p>For active fire, smoke, medical emergency, or vehicle crash, dial 911 immediately for Somerset County dispatch.</p>
@@ -6917,7 +6915,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="top-bar">
         <div class="top-bar-container">
             <div class="top-bar-left">
-                <span class="top-bar-badge">🚨 EMERGENCY: DIAL 911</span>
+                <span class="top-bar-badge">EMERGENCY: DIAL 911</span>
                 <span class="top-bar-item">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                     Station: (609) 466-3926
@@ -11248,7 +11246,7 @@ document.addEventListener('keydown', (e) => {
                     updatedAt: new Date().toISOString()
                 });
                 if (window.showAdminToast) {
-                    window.showAdminToast('🚨 Storm Mode ACTIVATED on Website!');
+                    window.showAdminToast('Storm Mode ACTIVATED on Website!');
                 }
             } else if (targetMode === 'auto') {
                 await window.Station46Weather.resetGlobalToAuto();
@@ -11319,7 +11317,7 @@ document.addEventListener('keydown', (e) => {
             // 3. Update login card status text
             if (loginStatusText) {
                 if (status === 'force_active') {
-                    loginStatusText.innerHTML = '<span style="color: #b3212b;">🚨 Live Active on Website</span>';
+                    loginStatusText.innerHTML = '<span style="color: #b3212b;">Live Active on Website</span>';
                 } else if (status === 'force_inactive') {
                     loginStatusText.innerHTML = '<span style="color: #64748b;">⚪ Standby / Deactivated</span>';
                 } else {
@@ -11335,7 +11333,6 @@ document.addEventListener('keydown', (e) => {
                     bannerWrap.innerHTML = `
                         <div style="background: linear-gradient(90deg, #7a151d 0%, #b3212b 100%); color: #ffffff; padding: 12px 18px; border-radius: 6px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-shadow: 0 4px 12px rgba(179, 33, 43, 0.25);">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 1.4rem;">🚨</span>
                                 <div>
                                     <div style="font-weight: 800; font-size: 0.95rem; letter-spacing: 0.3px;">STORM MODE IS ACTIVATED ON THE WEBSITE (LIVE FOR ALL VISITORS)</div>
                                     <div style="font-size: 0.82rem; opacity: 0.92;">Active Scenario: <strong>${escapeHtml(scName)}</strong> • Issued by MTVFC #2</div>
