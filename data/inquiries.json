@@ -21,7 +21,9 @@
     "subject": "New Membership Application for MTVFC #2 (Station 46)",
     "page": "/membership",
     "createdAt": "2026-11-21T15:52:56.453Z",
-    "emailDelivered": false
+    "emailDelivered": true,
+    "emailProvider": "formsubmit-client",
+    "resentAt": "2026-11-22T14:21:13.268Z"
   },
   {
     "id": "1794797031882-5ybg4",
