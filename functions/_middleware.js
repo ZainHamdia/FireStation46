@@ -100,11 +100,14 @@ function buildEdgeTurnstileGateHtml(siteKey) {
         .gate-emergency-badge {
             background: var(--gate-red);
             color: #ffffff;
-            padding: 3px 10px;
-            border-radius: 999px;
+            padding: 2px 7px;
+            border-radius: 3px;
             font-weight: 700;
-            font-size: 0.76rem;
+            font-size: 0.68rem;
             letter-spacing: 0.4px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
         }
         .gate-main {
             flex: 1;
@@ -119,7 +122,7 @@ function buildEdgeTurnstileGateHtml(siteKey) {
             background: var(--gate-card-bg);
             border: 1px solid var(--gate-border);
             border-top: 4px solid var(--gate-red);
-            border-radius: 16px;
+            border-radius: 6px;
             padding: 32px 28px 26px;
             box-shadow: var(--gate-shadow);
             text-align: center;
@@ -140,8 +143,8 @@ function buildEdgeTurnstileGateHtml(siteKey) {
             letter-spacing: 1px;
             color: var(--gate-red);
             background: rgba(155, 27, 36, 0.1);
-            padding: 4px 11px;
-            border-radius: 999px;
+            padding: 3px 9px;
+            border-radius: 3px;
             margin-bottom: 10px;
         }
         html[data-theme="dark"] .gate-station-tag {
@@ -164,7 +167,7 @@ function buildEdgeTurnstileGateHtml(siteKey) {
         .gate-widget-box {
             background: var(--gate-box-bg);
             border: 1px solid var(--gate-border);
-            border-radius: 12px;
+            border-radius: 4px;
             padding: 18px 12px;
             min-height: 104px;
             display: flex;
@@ -204,7 +207,7 @@ function buildEdgeTurnstileGateHtml(siteKey) {
             background: var(--gate-red);
             color: #ffffff;
             border: none;
-            border-radius: 8px;
+            border-radius: 4px;
             font-size: 0.84rem;
             font-weight: 600;
             cursor: pointer;
