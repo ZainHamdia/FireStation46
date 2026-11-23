@@ -4524,15 +4524,15 @@ div[class*="powr-social-feed"] > div:last-child a[href*="powr.io"] {
 }
 
 .membership-badge-tag.tag-associate {
-    background: #b45309;
+    background: #9333ea;
     color: #ffffff;
-    border: 1px solid #b45309;
+    border: 1px solid #9333ea;
 }
 
 .membership-badge-tag.tag-junior {
-    background: #1d4ed8;
+    background: #b45309;
     color: #ffffff;
-    border: 1px solid #1d4ed8;
+    border: 1px solid #b45309;
 }
 
 .membership-card-title {
@@ -6529,11 +6529,16 @@ body.admin-logged-in.admin-edit-mode .btn-apparatus-add {
         border: 1px solid rgba(245, 158, 11, 0.35) !important;
     }
 
-    :root[data-theme="dark"] .role-card.role-junior .role-badge-tag,
-    :root[data-theme="dark"] .membership-badge-tag.tag-junior {
+    :root[data-theme="dark"] .role-card.role-junior .role-badge-tag {
         background: #1d4ed8 !important;
         color: #ffffff !important;
         border: 1px solid #1d4ed8 !important;
+    }
+
+    :root[data-theme="dark"] .membership-badge-tag.tag-junior {
+        background: #b45309 !important;
+        color: #ffffff !important;
+        border: 1px solid #b45309 !important;
     }
 
     :root[data-theme="dark"] .badge-associate,
@@ -6543,11 +6548,16 @@ body.admin-logged-in.admin-edit-mode .btn-apparatus-add {
         border: 1px solid rgba(168, 85, 247, 0.35) !important;
     }
 
-    :root[data-theme="dark"] .role-card.role-associate .role-badge-tag,
-    :root[data-theme="dark"] .membership-badge-tag.tag-associate {
+    :root[data-theme="dark"] .role-card.role-associate .role-badge-tag {
         background: #b45309 !important;
         color: #ffffff !important;
         border: 1px solid #b45309 !important;
+    }
+
+    :root[data-theme="dark"] .membership-badge-tag.tag-associate {
+        background: #9333ea !important;
+        color: #ffffff !important;
+        border: 1px solid #9333ea !important;
     }
 
     :root[data-theme="dark"] .badge-firefighter,
