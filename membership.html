@@ -51,7 +51,7 @@
         })();
     </script>
     <link rel="stylesheet" href="styles.css?v=130">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer data-turnstile-api="true"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async="" defer="" data-turnstile-api="true"></script>
 </head>
 <body>
     <!-- Civic Top Utility Bar -->
@@ -128,12 +128,12 @@
         <!-- Interested / Application Section -->
         <section class="section dark-alt" id="apply">
             <div class="container">
-                <div class="section-header text-center fade-in">
+                <div class="section-header text-center fade-in visible">
                     <h2 class="section-title">Interested?</h2>
                     <p class="section-subtitle mw-800 mx-auto" style="margin-bottom: 1rem;">Ready to get involved? Apply to join Station 46 today. Our Membership Committee will guide you through the process.</p>
                 </div>
 
-                <div class="membership-grid fade-in delay-1">
+                <div class="membership-grid fade-in delay-1 visible">
                     
                     <!-- 1. Firefighter -->
                     <div class="glass-panel membership-card card-firefighter">
@@ -196,8 +196,8 @@
                         <div>
                             <span class="membership-badge-tag tag-associate">Ages 18+ • Support, Non-Interior</span>
                             <h3 class="membership-card-title">Associate Member</h3>
-                            <p class="membership-card-desc">
-                                Support Station 46 behind the scenes through technology, administration, community events, station projects, or incident support. No firefighting experience required, and flexible opportunities are available around your schedule.
+                            <p class="membership-card-desc" spellcheck="false">
+                                Support Station 46 behind the scenes through technology, administration, community events, and station projects. No firefighting experience required, and flexible opportunities are available around your schedule.
                             </p>
                         </div>
                         <div class="membership-card-actions">
@@ -222,8 +222,8 @@
                 </div>
 
                 <!-- Application Form -->
-                <div id="membership-form-section" class="cta-wrapper fade-in delay-2" style="width: 100%; max-width: 100%; margin: 4rem auto 0;">
-                    <form class="recruit-form-card glass-card contact-form" id="membership-application-form" style="margin-top: 0;">
+                <div id="membership-form-section" class="cta-wrapper fade-in delay-2 visible" style="width: 100%; max-width: 100%; margin: 4rem auto 0;">
+                    <form class="recruit-form-card glass-card contact-form" id="membership-application-form" style="margin-top: 0;" data-turnstile-widget-id="cf-chl-widget-svoip">
                         <h3 style="color: var(--navy-blue); font-family: var(--font-heading); font-weight: 800; text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem;">Volunteer Application</h3>
                         <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2.5rem; font-size: 0.95rem;">Fill out the form below to contact the Membership Committee.</p>
                         
@@ -251,9 +251,9 @@
                             </div>
                         </div>
 
-                        <div class="turnstile-captcha-wrap" data-turnstile-container data-turnstile-sitekey="0x4AAAAAAGLOv_ROsLMsMTqY"></div>
+                        <div class="turnstile-captcha-wrap" data-turnstile-container="" data-turnstile-sitekey="0x4AAAAAAGLOv_ROsLMsMTqY"><div><div></div><input type="hidden" name="cf-turnstile-response" id="cf-chl-widget-svoip_response"></div></div><p class="turnstile-status-hint">Please complete the security check above before submitting.</p>
 
-                        <button type="submit" class="btn-primary w-100" style="font-size: 1.1rem; padding: 16px; margin-top: 0.5rem;">Submit</button>
+                        <button type="submit" class="btn-primary w-100" style="font-size: 1.1rem; padding: 16px; margin-top: 0.5rem;" disabled="" data-captcha-locked="true">Submit</button>
                     </form>
                 </div>
 
