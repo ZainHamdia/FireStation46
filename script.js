@@ -905,7 +905,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    initVisitorTurnstileGate();
+    // Cloudflare Turnstile visitor gate temporarily commented out
+    // initVisitorTurnstileGate();
 
     function ensureTurnstileContainer(form) {
         let wrap = form.querySelector('[data-turnstile-container], .turnstile-captcha-wrap');

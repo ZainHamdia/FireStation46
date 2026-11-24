@@ -404,7 +404,8 @@ export async function onRequest(context) {
         return Response.redirect(url.toString(), 301);
     }
 
-    // 2. Enforce Cloudflare Turnstile visitor verification before serving website HTML pages
+    // 2. Cloudflare Turnstile visitor verification gate (temporarily commented out)
+    /*
     if (isHtmlPageRequest(request, url)) {
         const cookies = parseCookieHeader(request.headers.get('Cookie') || '');
         const remoteIp = request.headers.get('CF-Connecting-IP') || '';
@@ -430,6 +431,7 @@ export async function onRequest(context) {
             });
         }
     }
+    */
 
     return context.next();
 }
