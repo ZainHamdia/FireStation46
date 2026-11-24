@@ -12243,7 +12243,7 @@ a.strip-value:hover {
     line-height: 1.65;
 }
 
-/* Role cards — cohesive, restrained, authentic firehouse look */
+/* Role cards — distinct role color accents & solid badge pills */
 .role-card,
 .role-card.role-firefighter,
 .role-card.role-junior,
@@ -12252,58 +12252,83 @@ a.strip-value:hover {
     border-radius: 4px;
     padding: 1.75rem 1.4rem;
     border: 1px solid var(--border-light);
-    border-top: 3px solid var(--border-subtle);
-    box-shadow: none;
-}
-
-.role-card.role-firefighter {
-    border-top: 3px solid var(--fire-red);
-}
-
-.role-card:hover,
-.role-card.role-firefighter:hover {
     box-shadow: var(--card-shadow);
+}
+
+.role-card:hover {
+    box-shadow: var(--card-shadow-hover);
     border-color: var(--border-subtle);
 }
 
-.role-card.role-firefighter:hover {
-    border-top-color: var(--fire-red);
+.role-card.role-firefighter,
+:root[data-theme="dark"] .role-card.role-firefighter {
+    border-top: 5px solid var(--fire-red) !important;
 }
 
-.role-card .role-badge-tag,
-.role-card.role-firefighter .role-badge-tag,
-.role-card.role-junior .role-badge-tag,
-.role-card.role-police .role-badge-tag,
-.role-card.role-associate .role-badge-tag,
-:root[data-theme="dark"] .role-card .role-badge-tag,
-:root[data-theme="dark"] .role-card.role-firefighter .role-badge-tag,
-:root[data-theme="dark"] .role-card.role-junior .role-badge-tag,
-:root[data-theme="dark"] .role-card.role-police .role-badge-tag,
-:root[data-theme="dark"] .role-card.role-associate .role-badge-tag {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    margin-bottom: 0.45rem;
-    color: var(--text-muted) !important;
+.role-card.role-firefighter:hover,
+:root[data-theme="dark"] .role-card.role-firefighter:hover {
+    border-top-color: var(--fire-red-dark) !important;
+}
+
+.role-card.role-junior,
+.role-card.role-junior:hover,
+:root[data-theme="dark"] .role-card.role-junior,
+:root[data-theme="dark"] .role-card.role-junior:hover {
+    border-top: 4px solid #1e40af !important;
+}
+
+.role-card.role-police,
+.role-card.role-police:hover,
+:root[data-theme="dark"] .role-card.role-police,
+:root[data-theme="dark"] .role-card.role-police:hover {
+    border-top: 4px solid #0284c7 !important;
+}
+
+.role-card.role-associate,
+.role-card.role-associate:hover,
+:root[data-theme="dark"] .role-card.role-associate,
+:root[data-theme="dark"] .role-card.role-associate:hover {
+    border-top: 4px solid var(--gold) !important;
+}
+
+.role-card .role-badge-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
     font-family: var(--font-body);
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
 }
 
-.role-card.role-firefighter .role-badge-tag {
-    color: var(--fire-red) !important;
-}
-
+.role-card.role-firefighter .role-badge-tag,
 :root[data-theme="dark"] .role-card.role-firefighter .role-badge-tag {
-    color: #f87171 !important;
+    background: #9b1b24 !important;
+    color: #ffffff !important;
+    border: 1px solid #9b1b24 !important;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .role-card.role-firefighter .role-badge-tag {
-        color: #f87171;
-    }
+.role-card.role-junior .role-badge-tag,
+:root[data-theme="dark"] .role-card.role-junior .role-badge-tag {
+    background: #1d4ed8 !important;
+    color: #ffffff !important;
+    border: 1px solid #1d4ed8 !important;
+}
+
+.role-card.role-police .role-badge-tag,
+:root[data-theme="dark"] .role-card.role-police .role-badge-tag {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border: 1px solid #0284c7 !important;
+}
+
+.role-card.role-associate .role-badge-tag,
+:root[data-theme="dark"] .role-card.role-associate .role-badge-tag {
+    background: #b45309 !important;
+    color: #ffffff !important;
+    border: 1px solid #b45309 !important;
 }
 
 .role-card h3 {
@@ -12334,6 +12359,18 @@ a.strip-value:hover {
     top: 8px;
     color: var(--fire-red);
     font-weight: 700;
+}
+
+.role-card.role-junior .role-features li::before {
+    color: #1d4ed8;
+}
+
+.role-card.role-police .role-features li::before {
+    color: #0284c7;
+}
+
+.role-card.role-associate .role-features li::before {
+    color: var(--gold);
 }
 
 .role-card .btn {
