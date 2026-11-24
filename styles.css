@@ -10,31 +10,31 @@
     --gold: #d97706;
     --gold-light: #fef3c7;
     
-    /* Backgrounds (Clean Wix light strip architecture - Default Light) */
-    --bg-page: #f4f6f9;
+    /* Backgrounds - Clean, warm community firehouse palette (Default Light) */
+    --bg-page: #f6f5f2;
     --bg-surface: #ffffff;
-    --bg-surface-alt: #e9ecef;
-    --bg-dark: #f4f6f9;
-    --bg-darker: #e9ecef;
+    --bg-surface-alt: #efede8;
+    --bg-dark: #f6f5f2;
+    --bg-darker: #e5e2dc;
     --bg-card: #ffffff;
-    --bg-card-alt: #f8fafc;
+    --bg-card-alt: #f8f7f4;
     --bg-card-hover: #ffffff;
     --bg-navbar: #ffffff;
     --bg-input: #ffffff;
     --bg-modal: #ffffff;
     
     /* Text Colors - High Contrast for Accessibility & Readability */
-    --text-primary: #0a0f1d;
-    --text-secondary: #1e293b;
-    --text-muted: #475569;
-    --text-heading: #16253d;
-    --border-light: #cbd5e1;
-    --border-subtle: #94a3b8;
-    --border-divider: #e2e8f0;
+    --text-primary: #18181b;
+    --text-secondary: #3f3f46;
+    --text-muted: #52525b;
+    --text-heading: #141c2b;
+    --border-light: #dcd9d2;
+    --border-subtle: #b8b3aa;
+    --border-divider: #e8e5df;
     
     /* Typography */
-    --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-heading: 'Barlow Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, #9b1b24 0%, #7a151d 100%);
@@ -51,8 +51,8 @@
     --gold-glow: transparent;
     
     /* Layout */
-    --top-bar-height: 30px;
-    --nav-height: 64px;
+    --top-bar-height: 0px;
+    --nav-height: 70px;
     --container-width: 1200px;
     --nav-container-width: 1400px;
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -76,33 +76,33 @@
         --gold: #f59e0b;
         --gold-light: #fef3c7;
         
-        /* Backgrounds - Sleek Deep Midnight Slate & Obsidian */
-        --bg-page: #080c14;
-        --bg-surface: #0e1626;
-        --bg-surface-alt: #141f36;
-        --bg-dark: #080c14;
-        --bg-darker: #05080f;
-        --bg-card: #101a2e;
-        --bg-card-alt: #16243d;
-        --bg-card-hover: #1c2d4c;
-        --bg-navbar: rgba(8, 12, 20, 0.96);
-        --bg-input: #121d33;
-        --bg-modal: #101a2e;
+        /* Backgrounds - Grounded Charcoal & Deep Slate */
+        --bg-page: #0e1116;
+        --bg-surface: #141921;
+        --bg-surface-alt: #19202a;
+        --bg-dark: #0e1116;
+        --bg-darker: #0a0c10;
+        --bg-card: #161c25;
+        --bg-card-alt: #1d2530;
+        --bg-card-hover: #212a36;
+        --bg-navbar: rgba(14, 17, 22, 0.97);
+        --bg-input: #141a22;
+        --bg-modal: #161c25;
         
         /* Text Colors - High Contrast */
-        --text-primary: #f8fafc;
-        --text-secondary: #cbd5e1;
-        --text-muted: #94a3b8;
+        --text-primary: #f1f3f5;
+        --text-secondary: #c5ccd6;
+        --text-muted: #8f99a8;
         --text-heading: #ffffff;
-        --border-light: rgba(255, 255, 255, 0.12);
-        --border-subtle: rgba(255, 255, 255, 0.2);
+        --border-light: rgba(255, 255, 255, 0.11);
+        --border-subtle: rgba(255, 255, 255, 0.19);
         --border-divider: rgba(255, 255, 255, 0.08);
         
-        /* Shadows - Rich Depth with Subtle Flame Aura */
-        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
-        --card-shadow-hover: 0 10px 32px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(220, 58, 69, 0.35);
-        --nav-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-        --nav-scrolled-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
+        /* Shadows - Subtle, Flat Depth */
+        --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+        --card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.45);
+        --nav-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+        --nav-scrolled-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
     }
 }
 
@@ -121,33 +121,33 @@
     --gold: #f59e0b;
     --gold-light: #fef3c7;
     
-    /* Backgrounds - Sleek Deep Midnight Slate & Obsidian */
-    --bg-page: #080c14;
-    --bg-surface: #0e1626;
-    --bg-surface-alt: #141f36;
-    --bg-dark: #080c14;
-    --bg-darker: #05080f;
-    --bg-card: #101a2e;
-    --bg-card-alt: #16243d;
-    --bg-card-hover: #1c2d4c;
-    --bg-navbar: rgba(8, 12, 20, 0.96);
-    --bg-input: #121d33;
-    --bg-modal: #101a2e;
+    /* Backgrounds - Grounded Charcoal & Deep Slate */
+    --bg-page: #0e1116;
+    --bg-surface: #141921;
+    --bg-surface-alt: #19202a;
+    --bg-dark: #0e1116;
+    --bg-darker: #0a0c10;
+    --bg-card: #161c25;
+    --bg-card-alt: #1d2530;
+    --bg-card-hover: #212a36;
+    --bg-navbar: rgba(14, 17, 22, 0.97);
+    --bg-input: #141a22;
+    --bg-modal: #161c25;
     
     /* Text Colors - High Contrast */
-    --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
-    --text-muted: #94a3b8;
+    --text-primary: #f1f3f5;
+    --text-secondary: #c5ccd6;
+    --text-muted: #8f99a8;
     --text-heading: #ffffff;
-    --border-light: rgba(255, 255, 255, 0.12);
-    --border-subtle: rgba(255, 255, 255, 0.2);
+    --border-light: rgba(255, 255, 255, 0.11);
+    --border-subtle: rgba(255, 255, 255, 0.19);
     --border-divider: rgba(255, 255, 255, 0.08);
     
-    /* Shadows - Rich Depth with Subtle Flame Aura */
-    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
-    --card-shadow-hover: 0 10px 32px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(220, 58, 69, 0.35);
-    --nav-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-    --nav-scrolled-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
+    /* Shadows - Subtle, Flat Depth */
+    --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    --card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.45);
+    --nav-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+    --nav-scrolled-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
 }
 
 * {
@@ -11875,3 +11875,578 @@ body.admin-edit-mode .card-img-placeholder:hover {
     }
 }
 
+
+
+/* ==========================================================================
+   Humanized Firehouse Redesign — Header, Hero, Station Strip, Typography
+   ========================================================================== */
+
+/* Calm, single-tier firehouse header with thin red top stripe */
+.navbar {
+    border-top: 3px solid var(--fire-red);
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.navbar.scrolled {
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.nav-badge-img {
+    height: 44px;
+    filter: none;
+}
+
+.logo-text .mtvfc {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.32rem;
+    letter-spacing: 0.25px;
+    line-height: 1.1;
+    color: var(--text-heading);
+}
+
+.logo-text .subtitle {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.15px;
+    margin-top: 2px;
+}
+
+.nav-links {
+    gap: 1.35rem;
+}
+
+.nav-links a:not(.btn-primary):not(.nav-btn-donate) {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.94rem;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text-secondary);
+    padding: 4px 0;
+}
+
+.nav-links a:not(.btn-primary):not(.nav-btn-donate):hover,
+.nav-links a:not(.btn-primary):not(.nav-btn-donate).active {
+    color: var(--fire-red);
+}
+
+.nav-links a:not(.btn-primary):not(.nav-btn-donate)::after {
+    bottom: -2px;
+    height: 2px;
+}
+
+.nav-links a.nav-btn-donate {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: none;
+    letter-spacing: 0.1px;
+    padding: 7px 16px;
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+.nav-links a.nav-btn-donate:hover {
+    transform: none;
+    box-shadow: none;
+    background: var(--fire-red-dark);
+}
+
+/* Slim, grounded announcement strip (less visual noise at top of page) */
+.santa-announcement-bar,
+.santa-announcement-bar.announcement-theme-green {
+    background: #1b3a2b;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 0.45rem 1.25rem;
+}
+
+.santa-announcement-bar.announcement-theme-red {
+    background: #7a151d;
+    border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+
+.santa-announcement-bar.announcement-theme-navy {
+    background: #16253d;
+    border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+
+.santa-announcement-inner {
+    gap: 0.5rem 1.1rem;
+}
+
+.santa-announcement-text {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.92);
+    gap: 0.45rem;
+}
+
+.santa-announcement-text strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.santa-announcement-cta {
+    background: transparent;
+    color: #fde68a;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-transform: none;
+    letter-spacing: 0;
+    padding: 2px 4px;
+    border-radius: 0;
+    border-bottom: 1.5px solid rgba(253, 230, 138, 0.65);
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.santa-announcement-cta:hover {
+    background: transparent;
+    color: #ffffff;
+    border-bottom-color: #ffffff;
+    transform: none;
+}
+
+/* Editorial left-aligned home hero — lets the fire trucks breathe on the right */
+.hero.hero-home {
+    height: auto;
+    min-height: 540px;
+    padding: 5.5rem 0 5rem;
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.hero.hero-home .hero-bg {
+    background-image:
+        linear-gradient(96deg, rgba(11, 15, 22, 0.88) 0%, rgba(11, 15, 22, 0.68) 46%, rgba(11, 15, 22, 0.18) 100%),
+        url('hero-bg.jpg?v=2');
+    background-position: center 55%;
+}
+
+:root[data-theme="dark"] .hero.hero-home .hero-bg {
+    background-image:
+        linear-gradient(96deg, rgba(10, 13, 19, 0.9) 0%, rgba(10, 13, 19, 0.72) 48%, rgba(10, 13, 19, 0.28) 100%),
+        url('hero-bg.jpg?v=2');
+}
+
+.hero.hero-home .hero-content {
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-shadow: none;
+}
+
+.hero.hero-home .hero-title {
+    font-family: var(--font-heading);
+    font-size: clamp(3.6rem, 7.5vw, 5.75rem);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+.hero.hero-home .hero-title span {
+    color: #dc3545;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.hero.hero-home .hero-desc {
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    line-height: 1.55;
+    color: rgba(244, 246, 249, 0.94);
+    max-width: 540px;
+    margin: 0 0 2rem 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+.hero.hero-home .hero-actions {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 0;
+}
+
+.hero-text-link {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.45);
+    padding-bottom: 2px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.hero-text-link:hover {
+    color: #ffffff;
+    border-bottom-color: #ffffff;
+}
+
+/* Station Quick Info Strip (replaces the old top utility bar) */
+.station-strip {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.station-strip-inner {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.strip-item {
+    padding: 1.15rem 1.25rem;
+    border-right: 1px solid var(--border-divider);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.strip-item:first-child {
+    padding-left: 0;
+}
+
+.strip-item:last-child {
+    border-right: none;
+    padding-right: 0;
+}
+
+.strip-label {
+    font-family: var(--font-body);
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.65px;
+    color: var(--text-muted);
+}
+
+.strip-value {
+    font-family: var(--font-heading);
+    font-size: 1.32rem;
+    font-weight: 700;
+    color: var(--text-heading);
+    line-height: 1.2;
+    letter-spacing: 0.2px;
+}
+
+a.strip-value:hover {
+    color: var(--fire-red);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.strip-item.strip-emergency .strip-label {
+    color: var(--fire-red);
+}
+
+.strip-item.strip-emergency .strip-value {
+    color: var(--fire-red);
+}
+
+:root[data-theme="dark"] .strip-item.strip-emergency .strip-label,
+:root[data-theme="dark"] .strip-item.strip-emergency .strip-value {
+    color: #f87171;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .strip-item.strip-emergency .strip-label,
+    :root:not([data-theme="light"]) .strip-item.strip-emergency .strip-value {
+        color: #f87171;
+    }
+}
+
+.strip-note {
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    line-height: 1.2;
+}
+
+/* Cleaner, more grounded buttons */
+.btn, .btn-primary, .btn-secondary, .btn-outline {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.96rem;
+    text-transform: none;
+    letter-spacing: 0.1px;
+    padding: 12px 24px;
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+    box-shadow: none;
+}
+
+/* Section headings — clean Barlow Condensed without generic centered red bar */
+.section {
+    padding: 72px 0;
+}
+
+.section-title {
+    font-family: var(--font-heading);
+    font-size: clamp(2.1rem, 3.8vw, 2.75rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 0.65rem;
+}
+
+.section-title::after {
+    display: none;
+}
+
+.section-subtitle {
+    font-family: var(--font-body);
+    font-size: 1.08rem;
+    line-height: 1.65;
+}
+
+/* Role cards — cohesive, restrained, authentic firehouse look */
+.role-card,
+.role-card.role-firefighter,
+.role-card.role-junior,
+.role-card.role-police,
+.role-card.role-associate {
+    border-radius: 4px;
+    padding: 1.75rem 1.4rem;
+    border: 1px solid var(--border-light);
+    border-top: 3px solid var(--border-subtle);
+    box-shadow: none;
+}
+
+.role-card.role-firefighter {
+    border-top: 3px solid var(--fire-red);
+}
+
+.role-card:hover,
+.role-card.role-firefighter:hover {
+    box-shadow: var(--card-shadow);
+    border-color: var(--border-subtle);
+}
+
+.role-card.role-firefighter:hover {
+    border-top-color: var(--fire-red);
+}
+
+.role-card .role-badge-tag,
+.role-card.role-firefighter .role-badge-tag,
+.role-card.role-junior .role-badge-tag,
+.role-card.role-police .role-badge-tag,
+.role-card.role-associate .role-badge-tag {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 0.45rem;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.role-card.role-firefighter .role-badge-tag {
+    color: var(--fire-red);
+}
+
+:root[data-theme="dark"] .role-card.role-firefighter .role-badge-tag {
+    color: #f87171;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .role-card.role-firefighter .role-badge-tag {
+        color: #f87171;
+    }
+}
+
+.role-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    margin-bottom: 0.6rem;
+}
+
+.role-desc {
+    font-size: 0.96rem;
+    line-height: 1.55;
+}
+
+.role-features li {
+    position: relative;
+    padding: 8px 0 8px 16px;
+    font-size: 0.93rem;
+    line-height: 1.45;
+    display: block;
+}
+
+.role-features li::before {
+    content: "\2014";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    color: var(--fire-red);
+    font-weight: 700;
+}
+
+.role-card .btn {
+    padding: 10px 14px;
+    font-size: 0.92rem;
+}
+
+/* Operation Santa promo card — sharper, less template-y */
+.santa-promo-card {
+    border-radius: 6px;
+    border-top: 3px solid var(--fire-red);
+    box-shadow: var(--card-shadow);
+}
+
+.santa-promo-photo-badge {
+    border-radius: 3px;
+    background: rgba(14, 17, 22, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    padding: 5px 10px;
+}
+
+.santa-promo-eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+}
+
+.santa-promo-title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 3.2vw, 2.6rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.santa-promo-date-item {
+    border-radius: 4px;
+    border-left-width: 3px;
+}
+
+/* Support way cards — flat, no bouncy hover */
+.support-way-card {
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+.support-way-card:hover {
+    transform: none;
+    border-color: var(--border-subtle);
+    box-shadow: var(--card-shadow);
+}
+
+.support-way-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.support-way-title {
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    font-weight: 700;
+}
+
+/* Open drill banner & form card */
+.recruit-form-card {
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+.open-drill-banner h4 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1120px) {
+    .station-strip-inner {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .strip-item:nth-child(2) {
+        border-right: none;
+    }
+    .strip-item:nth-child(1),
+    .strip-item:nth-child(2) {
+        border-bottom: 1px solid var(--border-divider);
+    }
+    .strip-item:nth-child(3) {
+        padding-left: 0;
+    }
+}
+
+@media (max-width: 1280px) {
+    .logo-text .mtvfc {
+        font-size: 1.12rem;
+    }
+    .logo-text .subtitle {
+        font-size: 0.72rem;
+    }
+    .nav-links a {
+        font-family: var(--font-body);
+        text-transform: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero.hero-home {
+        min-height: 460px;
+        padding: 4rem 0 3.5rem;
+    }
+    .hero.hero-home .hero-bg {
+        background-image:
+            linear-gradient(180deg, rgba(11, 15, 22, 0.72) 0%, rgba(11, 15, 22, 0.85) 100%),
+            url('hero-bg.jpg?v=2');
+    }
+    .hero.hero-home .hero-desc {
+        font-size: 1.08rem;
+    }
+    .hero.hero-home .hero-actions {
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .hero.hero-home .hero-actions .btn-primary {
+        width: auto;
+        max-width: none;
+    }
+    .station-strip-inner {
+        grid-template-columns: 1fr;
+        padding: 0 1.25rem;
+    }
+    .strip-item,
+    .strip-item:first-child,
+    .strip-item:nth-child(3),
+    .strip-item:last-child {
+        padding: 0.9rem 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border-divider);
+    }
+    .strip-item:last-child {
+        border-bottom: none;
+    }
+}

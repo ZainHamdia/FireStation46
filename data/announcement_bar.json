@@ -10,12 +10,12 @@
   "pages": [
     "index.html"
   ],
-  "icon": "🎅",
-  "headline": "Operation Santa 2026 is Here!",
-  "message": "Gift Drop-Off: Dec 14–16 (5–9 PM) • Delivery Day: Sun, Dec 20",
+  "icon": "",
+  "headline": "Operation Santa 2026:",
+  "message": "Gift drop-off Dec 14–16 (5–9 PM) · Delivery Sunday, Dec 20",
   "links": [
     {
-      "label": "Learn More & Register →",
+      "label": "Details & Register →",
       "url": "santa.html",
       "style": "primary",
       "newTab": false

@@ -548,6 +548,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function isVisitorTurnstileVerified() {
+        const host = window.location.hostname;
+        if (host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:') {
+            return true;
+        }
         const now = Date.now();
         try {
             const rawSession = sessionStorage.getItem(VISITOR_VERIFY_STORAGE_KEY);
@@ -6900,7 +6904,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     
     <script>
         (function() {
@@ -6915,43 +6919,14 @@ document.addEventListener('DOMContentLoaded', () => {
     <link rel="stylesheet" href="styles.css?v=106">
 </head>
 <body>
-    <!-- Civic Top Utility Bar -->
-    <div class="top-bar">
-        <div class="top-bar-container">
-            <div class="top-bar-left">
-                <span class="top-bar-badge">EMERGENCY: DIAL 911</span>
-                <span class="top-bar-item">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                    Station: (609) 466-3926
-                </span>
-                <span class="top-bar-item">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    529 Route 518, Skillman, NJ 08558
-                </span>
-            </div>
-            <div class="top-bar-right">
-                <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" class="top-bar-item top-bar-link" title="Montgomery Township Fire District #2 Board of Fire Commissioners">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    <span>Fire District (BOFC)</span>
-                </a>
-                <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Facebook">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                </a>
-                <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Instagram">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
-                </a>
-            </div>
-        </div>
-    </div>
-
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
                 <img src="logo.png" alt="MTVFC #2 Logo" class="nav-badge-img">
                 <div class="logo-text">
-                    <span class="mtvfc">Montgomery Township Volunteer Fire Company #2</span>
-                    <span class="subtitle">Montgomery Township, Somerset County, NJ</span>
+                    <span class="mtvfc">Montgomery Township Volunteer Fire Co. #2</span>
+                    <span class="subtitle">Station 46 &middot; Skillman, NJ &middot; Est. 1946</span>
                 </div>
             </a>
             
@@ -6963,6 +6938,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="nav-dropdown-menu">
                         <a href="about.html" class="nav-dropdown-item">About Us</a>
                         <a href="history.html" class="nav-dropdown-item">History</a>
+                        <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" class="nav-dropdown-item">Fire District (BOFC) &#8599;</a>
                     </div>
                 </div>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>

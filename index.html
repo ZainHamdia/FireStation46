@@ -12,7 +12,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
     
     <script>
         (function() {
@@ -57,7 +57,8 @@
     <script>
         (function() {
             var now = Date.now();
-            var verified = false;
+            var h = window.location.hostname;
+            var verified = (h === 'localhost' || h === '127.0.0.1' || window.location.protocol === 'file:');
             try {
                 var s = Number(sessionStorage.getItem('station46_visitor_verified'));
                 if (s && s > now) verified = true;
@@ -77,46 +78,17 @@
             }
         })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=129">
+    <link rel="stylesheet" href="styles.css?v=140">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer data-turnstile-api="true"></script>
 </head>
 <body>
-    <!-- Civic Top Utility Bar -->
-    <div class="top-bar">
-        <div class="top-bar-container">
-            <div class="top-bar-left">
-                <span class="top-bar-badge">EMERGENCY: DIAL 911</span>
-                <span class="top-bar-item">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                    Station: (609) 466-3926
-                </span>
-                <span class="top-bar-item">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    529 Route 518, Skillman, NJ 08558
-                </span>
-            </div>
-            <div class="top-bar-right">
-                <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" class="top-bar-item top-bar-link" title="Montgomery Township Fire District #2 Board of Fire Commissioners">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    <span>Fire District (BOFC)</span>
-                </a>
-                <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Facebook">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                </a>
-                <a href="https://www.instagram.com/MTVFC2" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Instagram">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
-                </a>
-            </div>
-        </div>
-    </div>
-
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
                 <img src="logo.png" alt="MTVFC #2 Logo" class="nav-badge-img">
                 <div class="logo-text">
-                    <span class="mtvfc">Montgomery Township Volunteer Fire Company #2</span>
-                    <span class="subtitle">Montgomery Township, Somerset County, NJ</span>
+                    <span class="mtvfc">Montgomery Township Volunteer Fire Co. #2</span>
+                    <span class="subtitle">Station 46 &middot; Skillman, NJ &middot; Est. 1946</span>
                 </div>
             </a>
             <div class="nav-links">
@@ -127,6 +99,7 @@
                     <div class="nav-dropdown-menu">
                         <a href="about.html" class="nav-dropdown-item">About Us</a>
                         <a href="history.html" class="nav-dropdown-item">History</a>
+                        <a href="https://bofc46.com" target="_blank" rel="noopener noreferrer" class="nav-dropdown-item">Fire District (BOFC) &#8599;</a>
                     </div>
                 </div>
                 <a href="apparatus.html" class="nav-link">Apparatus</a>
@@ -146,43 +119,48 @@
     <div id="station46-announcement-bar" class="santa-announcement-bar announcement-theme-green announcement-pos-below-nav" role="region" aria-label="Site Announcement">
         <div class="santa-announcement-inner">
             <span class="santa-announcement-text">
-                <span class="announcement-icon" aria-hidden="true">🎅</span>
-                <strong>Operation Santa 2026 is Here!</strong>
-                <span class="announcement-message">Gift Drop-Off: Dec 14–16 (5–9 PM) • Delivery Day: Sun, Dec 20</span>
+                <strong>Operation Santa 2026:</strong>
+                <span class="announcement-message">Gift drop-off Dec 14&ndash;16 (5&ndash;9 PM) &middot; Delivery Sunday, Dec 20</span>
             </span>
             <div class="santa-announcement-links">
-                <a href="santa.html" class="santa-announcement-cta">Learn More &amp; Register →</a>
+                <a href="santa.html" class="santa-announcement-cta">Details &amp; Register &rarr;</a>
             </div>
         </div>
     </div>
 
     <main>
         <!-- Hero Section -->
-        <section id="home" class="hero">
+        <section id="home" class="hero hero-home">
             <div class="hero-bg"></div>
             <div class="hero-content">
-                <h2 class="hero-subtitle" id="hero-subtitle-text">Montgomery Township Volunteer Fire Company #2</h2>
-                <h1 class="hero-title" id="hero-title-text">STATION <span>46</span></h1>
-                <p class="hero-desc">Protect your neighbors, learn lifesaving skills, and become part of a dedicated team.</p>
+                <h1 class="hero-title" id="hero-title-text">Station <span>46</span></h1>
+                <p class="hero-desc">An all-volunteer fire company answering calls in Skillman and southern Montgomery since 1946. No experience needed. We supply the gear and the training. You bring the time.</p>
                 <div class="hero-actions">
-                    <a href="#join" class="btn-primary">Join the Crew</a>
-                    <a href="#roles" class="btn-secondary">Explore Roles</a>
+                    <a href="#roles" class="btn-primary">Volunteer With Us</a>
+                    <a href="#join" class="hero-text-link">Have a question? Get in touch &rarr;</a>
                 </div>
+            </div>
+        </section>
 
-                <!-- Quick Trust Highlights Bar -->
-                <div class="hero-trust-bar fade-in delay-2 visible">
-                    <div class="trust-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>Gear &amp; Training Provided</span>
-                    </div>
-                    <div class="trust-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>No Prior Experience Needed</span>
-                    </div>
-                    <div class="trust-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>Flexible Response Around Work</span>
-                    </div>
+        <!-- Station quick info (moved down from the old top utility bar) -->
+        <section class="station-strip" aria-label="Station information">
+            <div class="station-strip-inner">
+                <div class="strip-item strip-emergency">
+                    <span class="strip-label">Emergency</span>
+                    <a href="tel:911" class="strip-value">Call 911</a>
+                </div>
+                <div class="strip-item">
+                    <span class="strip-label">Firehouse (non-emergency)</span>
+                    <a href="tel:+16094663926" class="strip-value">(609) 466-3926</a>
+                </div>
+                <div class="strip-item">
+                    <span class="strip-label">Find us</span>
+                    <a href="https://www.google.com/maps/search/?api=1&amp;query=529+Route+518+Skillman+NJ+08558" target="_blank" rel="noopener noreferrer" class="strip-value">529 Route 518, Skillman</a>
+                </div>
+                <div class="strip-item">
+                    <span class="strip-label">Drill night</span>
+                    <span class="strip-value">Wednesdays, 7 PM</span>
+                    <span class="strip-note">Walk-ins welcome</span>
                 </div>
             </div>
         </section>
@@ -192,29 +170,26 @@
             <div class="container">
                 <div class="section-header text-center fade-in visible">
                     <h2 class="section-title">Station 46 Needs You</h2>
-                    <p class="section-subtitle mw-800 mx-auto">We’re a 100% volunteer department, and there’s a place for everyone. Respond to emergencies, assist on scene, help with training, or support the department behind the scenes.</p>
+                    <p class="section-subtitle mw-800 mx-auto">Nobody here gets paid. The people who show up for calls, drills, and fundraisers do it because they live here and want to help. And not everyone fights fire. We need people to run traffic, keep the books, and help with Operation Santa too.</p>
                 </div>
 
                 <div class="roles-grid fade-in delay-1 visible">
                     <!-- Role 1: Firefighter (Interior) -->
                     <div class="role-card glass-card role-firefighter">
                         <div class="role-header">
-                            <span class="role-badge-tag">Ages 18+ • Active Firefighter</span>
+                            <span class="role-badge-tag">18 and older</span>
                             <h3>Firefighter</h3>
-                            <p class="role-desc">Respond to structural fires, motor vehicle accidents, alarms, and emergency rescues across Montgomery Township.</p>
+                            <p class="role-desc">Go out on house fires, car accidents, alarms, and rescues across Montgomery Township.</p>
                         </div>
                         <ul class="role-features">
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>NJ State Firefighter 1 certification fully paid by Station 46</span>
+                                                                <span>We pay for your NJ Firefighter I class</span>
                             </li>
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Train on engines, ladder trucks, rescue pumpers, and marine craft</span>
+                                                                <span>Learn the engine, truck, rescue, and boat</span>
                             </li>
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Weekly company training drills every Wednesday at 7:00 PM</span>
+                                                                <span>Drill with the company Wednesdays at 7 PM</span>
                             </li>
                         </ul>
                         <a href="membership.html" class="btn btn-primary w-100" style="text-align: center;">Apply as Firefighter</a>
@@ -223,46 +198,40 @@
                     <!-- Role 2: Junior Firefighter (Trainee) -->
                     <div class="role-card glass-card role-junior">
                         <div class="role-header">
-                            <span class="role-badge-tag">Ages 16–18 • Trainee</span>
+                            <span class="role-badge-tag">Ages 16 to 18</span>
                             <h3>Junior Firefighter</h3>
-                            <p class="role-desc">For trainees ages 16–18. Learn firefighting fundamentals, earn community service hours, and prepare to become full members.</p>
+                            <p class="role-desc">For high schoolers 16 to 18. Learn the basics, earn community service hours, and be ready to step up when you turn 18.</p>
                         </div>
                         <ul class="role-features">
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Hands-on training with fire tools, hoses, ground ladders, and gear</span>
+                                                                <span>Hands-on work with hose, ladders, tools, and gear</span>
                             </li>
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Strict academic-first priority (no late night curfew conflicts)</span>
+                                                                <span>School comes first, and we work around your curfew</span>
                             </li>
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Fast-track pathway to full adult firefighter status at age 18</span>
+                                                                <span>Move up to firefighter when you turn 18</span>
                             </li>
                         </ul>
-                        <a href="juniors.html" class="btn btn-secondary w-100" style="text-align: center;">Apply as Trainee</a>
+                        <a href="juniors.html" class="btn btn-secondary w-100" style="text-align: center;">Junior Program</a>
                     </div>
 
                     <!-- Role 3: Fire Police -->
                     <div class="role-card glass-card role-police">
                         <div class="role-header">
-                            <span class="role-badge-tag">Ages 18+ • Non-Firefighting</span>
+                            <span class="role-badge-tag">18 and older &middot; no firefighting</span>
                             <h3>Fire Police</h3>
-                            <p class="role-desc">Protect operating firefighters, EMS, and the public by managing roadway closures, detours, and incident scene safety.</p>
+                            <p class="role-desc">Keep firefighters, EMS, and drivers safe by closing roads, setting up detours, and controlling the scene.</p>
                         </div>
                         <ul class="role-features">
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Roadway safety closures, scene perimeters, and traffic direction</span>
+                                                                <span>Road closures, scene perimeters, and traffic control</span>
                             </li>
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>NJ Fire Police Academy certification, gear, and radios provided</span>
+                                                                <span>We cover your NJ Fire Police class, gear, and radio</span>
                             </li>
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Crucial scene protection role without interior structure firefighting</span>
+                                                                <span>A real job on every call, without going inside</span>
                             </li>
                         </ul>
                         <a href="membership.html#membership-form-section" class="btn btn-secondary w-100" style="text-align: center;">Apply for Fire Police</a>
@@ -271,22 +240,19 @@
                     <!-- Role 4: Support / Associate -->
                     <div class="role-card glass-card role-associate">
                         <div class="role-header">
-                            <span class="role-badge-tag">Ages 18+ • Support, Non-Interior</span>
+                            <span class="role-badge-tag">18 and older &middot; behind the scenes</span>
                             <h3>Associate Member</h3>
-                            <p class="role-desc">Support Station 46 behind the scenes through logistics, administration, facility maintenance, and community event coordination.</p>
+                            <p class="role-desc">Help keep the firehouse running: paperwork, upkeep, fundraisers, and community events.</p>
                         </div>
                         <ul class="role-features">
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Station maintenance, logistics, and incident hydration/rehab</span>
+                                                                <span>Station upkeep, supplies, and rehab on long calls</span>
                             </li>
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Coordinate Operation Santa deliveries, open houses, and fund drives</span>
+                                                                <span>Help run Operation Santa, open houses, and fund drives</span>
                             </li>
                             <li>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Executive board, bookkeeping, technology, and communications</span>
+                                                                <span>Board seats, bookkeeping, tech, and communications</span>
                             </li>
                         </ul>
                         <a href="membership.html#membership-form-section" class="btn btn-secondary w-100" style="text-align: center;">Join as Associate</a>
@@ -301,24 +267,24 @@
                         <span class="santa-promo-photo-badge">Sun, Dec 20, 2026</span>
                     </div>
                     <div class="santa-promo-body">
-                        <span class="santa-promo-eyebrow">Annual Holiday Event • Skillman / District #2</span>
+                        <span class="santa-promo-eyebrow">Every December in Skillman</span>
                         <h2 class="santa-promo-title">Operation Santa 2026</h2>
                         <p class="santa-promo-desc">
-                            Santa Claus is coming to town in a fire engine! Montgomery Township Volunteer Fire Company #2 is bringing holiday magic straight to your home for residents in the <strong>Skillman / Fire District #2</strong> coverage area.
+                            Once a year Santa swaps the sleigh for one of our engines and makes house calls. Drop a wrapped gift off at the firehouse and he&rsquo;ll bring it to your door. Open to families in <strong>Fire District #2</strong> (Skillman and southern Montgomery).
                         </p>
                         <div class="santa-promo-dates">
                             <div class="santa-promo-date-item">
-                                <span class="santa-promo-date-label">🎁 Gift Drop-Off</span>
-                                <span class="santa-promo-date-value">Mon–Wed, Dec 14–16 • 5:00 – 9:00 PM</span>
+                                <span class="santa-promo-date-label">Gift drop-off</span>
+                                <span class="santa-promo-date-value">Mon&ndash;Wed, Dec 14&ndash;16, 5&ndash;9 PM</span>
                             </div>
                             <div class="santa-promo-date-item">
-                                <span class="santa-promo-date-label">🚒 Santa Delivery Day</span>
-                                <span class="santa-promo-date-value">Sunday, Dec 20 • 10:00 AM – 6:00 PM</span>
+                                <span class="santa-promo-date-label">Delivery day</span>
+                                <span class="santa-promo-date-value">Sunday, Dec 20, 10 AM&ndash;6 PM</span>
                             </div>
                         </div>
                         <div class="santa-promo-actions">
-                            <a href="santa.html#form" class="btn btn-primary">Registration Form</a>
-                            <a href="santa.html" class="btn btn-secondary">Dates &amp; Eligibility</a>
+                            <a href="santa.html#form" class="btn btn-primary">Register</a>
+                            <a href="santa.html" class="btn btn-secondary">Details &amp; Map</a>
                         </div>
                     </div>
                 </div>
@@ -333,36 +299,36 @@
         <section id="join" class="section dark-alt">
             <div class="container">
                 <div class="section-header text-center fade-in visible">
-                    <h2 class="section-title">General Information &amp; Inquiries</h2>
-                    <p class="section-subtitle mw-800 mx-auto">Have questions about Station 46, volunteering, community programs, or how you can support? Send us a message below and our team will get back to you.</p>
+                    <h2 class="section-title">Questions? Ask Us.</h2>
+                    <p class="section-subtitle mw-800 mx-auto">Thinking about joining, want to bring a group by the firehouse, or have a car to donate? Send a note and one of our members will get back to you.</p>
                 </div>
 
                 <div class="recruit-form-card glass-card fade-in delay-1 visible">
                     <div class="open-drill-banner">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         <div>
-                            <h4>Walk-Ins Welcome Every Wednesday at 7:00 PM</h4>
-                            <p>Station 46 Firehouse • 529 Route 518, Skillman, NJ 08558 • Come meet the crew in person!</p>
+                            <h4>Or just stop by on a Wednesday</h4>
+                            <p>We drill at 7 PM at the firehouse, 529 Route 518 in Skillman. Come in, have a look around, and meet the crew.</p>
                         </div>
                     </div>
 
-                    <form class="contact-form" id="home-recruit-form" data-turnstile-widget-id="cf-chl-widget-xusmp" data-turnstile-token="1.Q0aEK9tV-Im0wHMH8Z5uxN0ZAeSt8pAeKXPhrzG9roJESlQGLOMkZnqMzwQhHeqtR2PfF_XZW9yHaM7I9K3oHM5vEABANy5wUwJb6FhXxanoacsRM2njzlmNdvojtQ896THVp0qtNAI7fGkPQdfTKD1Cv0Zb97RE0aLhZJwPkknn1VNIcKK5PNa_RcIZIqMuo9IStlCZVWOqFvoFEaJprpwU93SBbcZyuJPAjpXkSLGTPSUPb8LVlDJD6zh-TsqDLN-EEeOO9d0epfHEK5g7-mScBIaRoz_yKGbBFRblKer_joGu6f-ycJkxLu_83WVHymdyZyU6_u7oXCkBg6u1Jft0_jaOcXk64xqITH_C6-a3tYk6GKnMljg_4Rm3P9mgsrl2O41brKsWkje-vqnh2_rjhN3JO9dYeeVwXYyKTbYU1NBIHZ5h3k2F3Epl4CC3k4mmvpysg1AEVGB7JbY1j_tOyi0tbCTbB_rESF0LAN7Bn5qTuu7XXhLtHgQI7Edxi22jyzf7WSYP45JnWy5Rp6FQIIta99krXdBDIXGNR-9_LlfAh43hBQ2FHW9FWHj4n1ymOqNgfm5vVo7EWSrtX6QCzyJeRq5MO_kA8KLn2w9UAQ5wZmLN0vbNc2qhgBOwjLkgG94rVQhuPePLHaNiRA.oClJGtjsSbtgqfoL2s2LUA.66dad721353eb2f5a3a7b08fd27486807abbf4fed274d896f7b9ba36dc8c6111">
+                    <form class="contact-form" id="home-recruit-form">
                         <div class="recruit-form-grid">
                             <div class="form-group">
-                                <input type="text" name="name" class="form-name" placeholder="Full Name" required="">
+                                <input type="text" name="name" class="form-name" placeholder="Your name" required="">
                             </div>
                             <div class="form-group">
-                                <input type="email" name="email" class="form-email" placeholder="Email Address" required="">
+                                <input type="email" name="email" class="form-email" placeholder="Email" required="">
                             </div>
                         </div>
 
                         <div class="recruit-form-grid">
                             <div class="form-group">
-                                <input type="tel" name="phone" class="form-phone" placeholder="Phone Number">
+                                <input type="tel" name="phone" class="form-phone" placeholder="Phone (optional)">
                             </div>
                             <div class="form-group">
                                 <select name="topic" class="form-type" required="">
-                                    <option value="" disabled="" selected="">Topic / Inquiry Type</option>
+                                    <option value="" disabled="" selected="">What&rsquo;s this about?</option>
                                     <option value="Volunteering - Firefighter">Volunteering - Firefighter</option>
                                     <option value="Volunteering - Trainee / Junior">Volunteering - Trainee (Ages 16–18)</option>
                                     <option value="Volunteering - Fire Police">Volunteering - Fire Police</option>
@@ -376,12 +342,12 @@
                         </div>
 
                         <div class="form-group" style="margin-bottom: 1.5rem;">
-                            <textarea name="message" class="form-textarea" placeholder="Your Message or Inquiry..." rows="4"></textarea>
+                            <textarea name="message" class="form-textarea" placeholder="Your message" rows="4"></textarea>
                         </div>
 
-                        <div class="turnstile-captcha-wrap" data-turnstile-container="" data-turnstile-sitekey="0x4AAAAAAGLOv_ROsLMsMTqY"><div><div></div><input type="hidden" name="cf-turnstile-response" id="cf-chl-widget-xusmp_response" value="1.Q0aEK9tV-Im0wHMH8Z5uxN0ZAeSt8pAeKXPhrzG9roJESlQGLOMkZnqMzwQhHeqtR2PfF_XZW9yHaM7I9K3oHM5vEABANy5wUwJb6FhXxanoacsRM2njzlmNdvojtQ896THVp0qtNAI7fGkPQdfTKD1Cv0Zb97RE0aLhZJwPkknn1VNIcKK5PNa_RcIZIqMuo9IStlCZVWOqFvoFEaJprpwU93SBbcZyuJPAjpXkSLGTPSUPb8LVlDJD6zh-TsqDLN-EEeOO9d0epfHEK5g7-mScBIaRoz_yKGbBFRblKer_joGu6f-ycJkxLu_83WVHymdyZyU6_u7oXCkBg6u1Jft0_jaOcXk64xqITH_C6-a3tYk6GKnMljg_4Rm3P9mgsrl2O41brKsWkje-vqnh2_rjhN3JO9dYeeVwXYyKTbYU1NBIHZ5h3k2F3Epl4CC3k4mmvpysg1AEVGB7JbY1j_tOyi0tbCTbB_rESF0LAN7Bn5qTuu7XXhLtHgQI7Edxi22jyzf7WSYP45JnWy5Rp6FQIIta99krXdBDIXGNR-9_LlfAh43hBQ2FHW9FWHj4n1ymOqNgfm5vVo7EWSrtX6QCzyJeRq5MO_kA8KLn2w9UAQ5wZmLN0vbNc2qhgBOwjLkgG94rVQhuPePLHaNiRA.oClJGtjsSbtgqfoL2s2LUA.66dad721353eb2f5a3a7b08fd27486807abbf4fed274d896f7b9ba36dc8c6111"></div></div>
+                        <div class="turnstile-captcha-wrap" data-turnstile-container="" data-turnstile-sitekey="0x4AAAAAAGLOv_ROsLMsMTqY"></div>
 
-                        <button type="submit" class="btn-primary w-100" style="font-size: 1.1rem; padding: 16px;">Submit</button>
+                        <button type="submit" class="btn-primary w-100" style="font-size: 1.1rem; padding: 16px;">Send Message</button>
                     </form>
                 </div>
             </div>
@@ -392,7 +358,7 @@
             <div class="container">
                 <div class="section-header text-center fade-in">
                     <h2 class="section-title">Support Station 46</h2>
-                    <p class="section-subtitle mw-800 mx-auto">Montgomery Township Volunteer Fire Company #2 is an all-volunteer, 501(c)(3) non-profit organization. Your donations and contributions work to support the mission of the Fire Company, and the Fire Department.</p>
+                    <p class="section-subtitle mw-800 mx-auto">We&rsquo;re a 501(c)(3) non-profit run entirely by volunteers. Donations help pay for training, equipment, and keeping the firehouse in good shape.</p>
                 </div>
                 
                 <div class="donation-grid fade-in delay-1">
@@ -404,7 +370,7 @@
                             </div>
                         </div>
                         <h3>Make a Donation</h3>
-                        <p class="donation-desc">Donate safely and securely online using PayPal, Debit, or Credit Card.</p>
+                        <p class="donation-desc">Give online through PayPal with a card or your PayPal account.</p>
                         
                         <a href="https://www.paypal.com/donate/?hosted_button_id=UE3Z2VCQBT8YJ" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-donate">
                             Donate via PayPal
@@ -416,7 +382,7 @@
                 <div class="support-ways-wrapper fade-in delay-2">
                     <div class="support-ways-header">
                         <h3 class="support-ways-title">Other Ways to Support</h3>
-                        <p class="support-ways-subtitle">There are meaningful ways to help Station 46 beyond financial contributions. We welcome vehicle donations, structural drill properties, and clothing/book donations.</p>
+                        <p class="support-ways-subtitle">Money isn&rsquo;t the only way to help. A few other things that make a real difference to us:</p>
                     </div>
 
                     <div class="support-ways-grid">
@@ -425,9 +391,9 @@
                             <div class="support-way-icon">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
                             </div>
-                            <h4 class="support-way-title">Totaled / Junk Cars for Drills</h4>
-                            <p class="support-way-desc">Have an old, junk, or totaled vehicle? Donate it to Station 46 so our firefighters can practice life-saving vehicle extrication drills and hydraulic rescue tool techniques.</p>
-                            <a href="#join" class="support-way-action">Inquire About Donating a Car →</a>
+                            <h4 class="support-way-title">Old or Totaled Cars</h4>
+                            <p class="support-way-desc">Got a junk or totaled car? We&rsquo;ll put it to work. Crews practice cutting cars apart with the hydraulic rescue tools, and nothing beats training on the real thing.</p>
+                            <a href="#join" class="support-way-action">Ask about donating a car &rarr;</a>
                         </div>
 
                         <!-- Pre-Demolition Houses -->
@@ -435,9 +401,9 @@
                             <div class="support-way-icon">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                             </div>
-                            <h4 class="support-way-title">Houses Slated for Demolition</h4>
-                            <p class="support-way-desc">If you have a residential or commercial building scheduled to be demolished, allow our crew to conduct search-and-rescue, ventilation, and hose advancement drills before tear-down.</p>
-                            <a href="#join" class="support-way-action">Offer a Structure for Training →</a>
+                            <h4 class="support-way-title">Buildings Coming Down</h4>
+                            <p class="support-way-desc">If a house or building is being torn down anyway, let us train in it first. We use them for search, ventilation, and hose drills.</p>
+                            <a href="#join" class="support-way-action">Offer a building for training &rarr;</a>
                         </div>
 
                         <!-- Book and Clothing Bins -->
@@ -445,9 +411,9 @@
                             <div class="support-way-icon">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10"></path><path d="M6 10h10"></path></svg>
                             </div>
-                            <h4 class="support-way-title">Book &amp; Clothing Donation Bins</h4>
-                            <p class="support-way-desc">We host community book and clothing collection bins right on-site at the firehouse (529 Route 518). Drop off your gently used books, clothes, and shoes anytime 24/7 to help those less fortunate.</p>
-                            <span class="support-way-action" style="cursor: default;">Located at 529 Route 518</span>
+                            <h4 class="support-way-title">Book &amp; Clothing Bins</h4>
+                            <p class="support-way-desc">There are book and clothing bins in the firehouse lot at 529 Route 518. Drop off used books, clothes, and shoes any time, day or night.</p>
+                            <span class="support-way-action" style="cursor: default;">In the firehouse lot</span>
                         </div>
                     </div>
                 </div>
@@ -457,8 +423,8 @@
         <!-- Social Media Feed Section -->
         <section class="section dark-alt" id="home-facebook-feed-section">
             <div class="container text-center fade-in">
-                <h2 class="section-title">Follow Us on Social Media</h2>
-                <p class="section-subtitle mw-800 mx-auto" style="margin-bottom: 2rem;">Stay up to date with incident updates, community drills, fire safety notices, and station events.</p>
+                <h2 class="section-title">From the Firehouse</h2>
+                <p class="section-subtitle mw-800 mx-auto" style="margin-bottom: 2rem;">Calls, drills, and what we&rsquo;re up to around town. Instagram is where we post the most.</p>
                 <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/mtvfc2/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px auto; max-width:1100px; min-width:326px; padding:0; width:100%;"><div style="padding:16px;"> <a href="https://www.instagram.com/mtvfc2/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">View this profile on Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/mtvfc2/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px;" target="_blank">Montgomery Twp. Vol. Fire Co. #2</a> (@<a href="https://www.instagram.com/mtvfc2/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px;" target="_blank">mtvfc2</a>) • Instagram photos and videos</p></div></blockquote>
                 <script async="" src="//www.instagram.com/embed.js"></script>
                 <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
@@ -468,7 +434,7 @@
                     </a>
                     <a href="https://www.facebook.com/mtvfc2" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                        View Station 46 on Facebook
+                        Find Us on Facebook
                     </a>
                 </div>
             </div>
@@ -549,7 +515,7 @@
         <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
     </div>
 
-    <script src="script.js?v=134"></script>
+    <script src="script.js?v=136"></script>
 
 
 </body></html>
