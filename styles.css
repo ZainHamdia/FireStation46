@@ -12493,7 +12493,7 @@ a.strip-value:hover {
 .s46-xmas-strand {
     display: block;
     width: 100%;
-    height: 24px;
+    height: 36px;
     pointer-events: none;
     user-select: none;
     overflow: hidden;
@@ -12513,8 +12513,8 @@ a.strip-value:hover {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: -20px;
-    height: 24px;
+    bottom: -33px;
+    height: 36px;
     z-index: 997;
 }
 
@@ -12523,8 +12523,8 @@ body.menu-open .s46-xmas-strand-navbar {
 }
 
 body.s46-lights-navbar .santa-announcement-bar.announcement-pos-below-nav {
-    padding-top: 1.25rem;
-    padding-bottom: 0.5rem;
+    padding-top: 1.95rem;
+    padding-bottom: 0.55rem;
 }
 
 /* Section, strip, card & footer strands */
@@ -12539,8 +12539,8 @@ footer.has-s46-xmas-lights {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: -21px;
-    height: 24px;
+    bottom: -34px;
+    height: 36px;
     z-index: 6;
 }
 
@@ -12549,12 +12549,12 @@ footer.has-s46-xmas-lights {
     top: 0;
     left: 0;
     right: 0;
-    height: 24px;
+    height: 36px;
     z-index: 6;
 }
 
 .santa-promo-card.has-s46-xmas-lights .santa-promo-photo-badge {
-    top: 26px;
+    top: 34px;
 }
 
 .s46-xmas-strand-section {
@@ -12562,7 +12562,7 @@ footer.has-s46-xmas-lights {
     top: 0;
     left: 0;
     right: 0;
-    height: 24px;
+    height: 36px;
     z-index: 5;
 }
 
@@ -12571,22 +12571,27 @@ footer.has-s46-xmas-lights {
     top: 0;
     left: 0;
     right: 0;
-    height: 24px;
+    height: 36px;
     z-index: 5;
 }
 
 @keyframes s46BulbTwinkleA {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.58; }
+    50% { opacity: 0.55; }
 }
 
 @keyframes s46BulbTwinkleB {
-    0%, 100% { opacity: 0.65; }
+    0%, 100% { opacity: 0.62; }
     50% { opacity: 1; }
 }
 
+@keyframes s46BulbSway {
+    0%, 100% { transform: rotate(-3.5deg); }
+    50% { transform: rotate(3.5deg); }
+}
+
 body.s46-lights-twinkle .s46-bulb-a {
-    animation: s46BulbTwinkleA 2.6s ease-in-out infinite;
+    animation: s46BulbTwinkleA 2.5s ease-in-out infinite;
 }
 
 body.s46-lights-twinkle .s46-bulb-b {
@@ -12594,18 +12599,33 @@ body.s46-lights-twinkle .s46-bulb-b {
 }
 
 body.s46-lights-twinkle .s46-bulb-c {
-    animation: s46BulbTwinkleA 2.9s ease-in-out 0.9s infinite;
+    animation: s46BulbTwinkleA 2.8s ease-in-out 0.9s infinite;
 }
 
 body.s46-lights-twinkle .s46-bulb-d {
-    animation: s46BulbTwinkleB 3.4s ease-in-out 0.5s infinite;
+    animation: s46BulbTwinkleB 3.5s ease-in-out 0.5s infinite;
+}
+
+body.s46-lights-twinkle .s46-sway-1 {
+    animation: s46BulbSway 4.6s ease-in-out infinite;
+}
+
+body.s46-lights-twinkle .s46-sway-2 {
+    animation: s46BulbSway 5.3s ease-in-out -1.7s infinite;
+}
+
+body.s46-lights-twinkle .s46-sway-3 {
+    animation: s46BulbSway 4.9s ease-in-out -3.1s infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
     body.s46-lights-twinkle .s46-bulb-a,
     body.s46-lights-twinkle .s46-bulb-b,
     body.s46-lights-twinkle .s46-bulb-c,
-    body.s46-lights-twinkle .s46-bulb-d {
+    body.s46-lights-twinkle .s46-bulb-d,
+    body.s46-lights-twinkle .s46-sway-1,
+    body.s46-lights-twinkle .s46-sway-2,
+    body.s46-lights-twinkle .s46-sway-3 {
         animation: none !important;
     }
 }
@@ -12637,11 +12657,11 @@ body.s46-lights-twinkle .s46-bulb-d {
 
 .admin-lights-preview-stage {
     position: relative;
-    min-height: 44px;
+    min-height: 54px;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    padding-top: 26px;
+    padding-top: 38px;
     color: #94a3b8;
     font-size: 0.82rem;
 }

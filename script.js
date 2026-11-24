@@ -12215,41 +12215,101 @@ document.addEventListener('keydown', (e) => {
 
     function buildStrandSvg(width, paletteName) {
         const w = Math.max(Math.round(width || 1200), 280);
-        const step = 38;
-        const count = Math.ceil(w / step);
         const colors = PALETTES[paletteName] || PALETTES.classic;
         const classes = ['s46-bulb-a', 's46-bulb-b', 's46-bulb-c', 's46-bulb-d'];
-        const fid = 's46glow' + (++filterSeq);
+        const swayClasses = ['s46-sway-1', 's46-sway-2', 's46-sway-3'];
+        const seed = ++filterSeq;
+        const fid = 's46glow' + seed;
+
+        // Irregular swag widths & sag depths so strands look hand-draped, never mechanical
+        const spanWidths = [152, 194, 136, 208, 166, 144, 184];
+        const midDrops = [14.5, 20.5, 12.5, 21.5, 16.5, 13.5, 19.0];
+        const twistJitter = [-30, 24, -18, 34, 13, -35, 28, -22, 31, -15, 26, -29];
+        const spacingJitter = [-0.025, 0.02, -0.015, 0.028, -0.02, 0.015];
 
         let wires = '';
+        let clips = '';
         let bulbs = '';
-        for (let i = 0; i < count; i++) {
-            const x1 = i * step;
-            const x2 = x1 + step;
-            const xm = x1 + step / 2;
-            const sag = (i % 2 === 0) ? 9.5 : 8;
-            wires += `<path d="M${x1} 1.5 Q${xm} ${sag} ${x2} 1.5" stroke="#164e33" stroke-width="1.8" fill="none"/>`;
+        let cursor = 0;
+        let swagIdx = 0;
+        let bulbIdx = 0;
 
-            const col = colors[i % colors.length];
-            const cls = classes[i % classes.length];
-            const sockY = (sag * 0.52).toFixed(1);
-            const bulbCy = (Number(sockY) + 7.2).toFixed(1);
-            const tilt = ((i % 3) - 1) * 5;
+        while (cursor < w) {
+            const pick = (swagIdx + seed) % spanWidths.length;
+            let spanW = spanWidths[pick];
+            if (w - cursor < 95) {
+                spanW = w - cursor;
+            } else if (cursor + spanW > w) {
+                spanW = w - cursor;
+            }
 
-            bulbs += `<g transform="rotate(${tilt} ${xm} ${sockY})">`;
-            bulbs += `<rect x="${(xm - 2.2).toFixed(1)}" y="${sockY}" width="4.4" height="3.6" rx="0.9" fill="#1f2937" stroke="#374151" stroke-width="0.5"/>`;
-            bulbs += `<g class="${cls}">`;
-            bulbs += `<circle cx="${xm}" cy="${bulbCy}" r="6.5" fill="${col}" fill-opacity="0.26"/>`;
-            bulbs += `<ellipse cx="${xm}" cy="${bulbCy}" rx="3.4" ry="5.4" fill="${col}" filter="url(#${fid})"/>`;
-            bulbs += `<ellipse cx="${(xm - 1).toFixed(1)}" cy="${(Number(bulbCy) - 1.5).toFixed(1)}" rx="1" ry="2" fill="#ffffff" fill-opacity="0.55"/>`;
-            bulbs += `</g></g>`;
+            const x0 = cursor;
+            const x1 = cursor + spanW;
+            const xm = (x0 + x1) / 2;
+            const y0 = 1.8 + ((swagIdx + seed) % 2) * 1.1;
+            const y1 = 1.8 + ((swagIdx + seed + 1) % 2) * 1.1;
+            const midY = Math.min(22, midDrops[pick] * Math.min(1.08, Math.max(0.68, spanW / 170)));
+            const cy = 2 * midY - 0.5 * (y0 + y1);
+
+            // Primary + subtly intertwined secondary green wire
+            wires += `<path d="M${x0.toFixed(1)} ${y0.toFixed(1)} Q${xm.toFixed(1)} ${cy.toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}" stroke="#14532d" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+            wires += `<path d="M${x0.toFixed(1)} ${(y0 + 1).toFixed(1)} Q${xm.toFixed(1)} ${(cy - 1.6).toFixed(1)} ${x1.toFixed(1)} ${(y1 + 0.8).toFixed(1)}" stroke="#1f6f43" stroke-width="1" stroke-opacity="0.7" fill="none"/>`;
+
+            // Small eave clip at tack point
+            if (x0 > 2) {
+                clips += `<rect x="${(x0 - 1.6).toFixed(1)}" y="0" width="3.2" height="${(y0 + 1.8).toFixed(1)}" rx="1" fill="#334155"/>`;
+            }
+
+            // Place bulbs unevenly along this swag curve
+            const numBulbs = Math.max(2, Math.round(spanW / 37));
+            for (let j = 0; j < numBulbs; j++) {
+                const baseT = (j + 0.55) / numBulbs;
+                const jit = spacingJitter[(bulbIdx + seed) % spacingJitter.length];
+                const t = Math.min(0.91, Math.max(0.09, baseT + jit));
+                const mt = 1 - t;
+
+                // Exact point & tangent on quadratic Bezier
+                const bx = mt * mt * x0 + 2 * mt * t * xm + t * t * x1;
+                const by = mt * mt * y0 + 2 * mt * t * cy + t * t * y1;
+                const dx = 2 * mt * (xm - x0) + 2 * t * (x1 - xm);
+                const dy = 2 * mt * (cy - y0) + 2 * t * (y1 - cy);
+
+                // Curve normal angle + pronounced per-bulb socket twist (-44deg to +44deg)
+                const tangentDeg = Math.atan2(dy, dx) * (180 / Math.PI);
+                const rawAngle = (tangentDeg * 0.75) + twistJitter[(bulbIdx + seed * 3) % twistJitter.length];
+                const angle = Math.max(-44, Math.min(44, rawAngle));
+
+                const col = colors[(bulbIdx + seed) % colors.length];
+                const cls = classes[bulbIdx % classes.length];
+                const swayCls = swayClasses[bulbIdx % swayClasses.length];
+                const bxStr = bx.toFixed(1);
+                const byStr = by.toFixed(1);
+                const bulbCenterY = (by + 7.4).toFixed(1);
+                const tipY = (by + 13.4).toFixed(1);
+
+                bulbs += `<g class="s46-bulb-sway ${swayCls}" style="transform-origin:${bxStr}px ${byStr}px">`;
+                bulbs += `<g transform="rotate(${angle.toFixed(1)} ${bxStr} ${byStr})">`;
+                // Socket base
+                bulbs += `<rect x="${(bx - 2.2).toFixed(1)}" y="${(by - 0.6).toFixed(1)}" width="4.4" height="3.8" rx="0.9" fill="#1e293b" stroke="#475569" stroke-width="0.5"/>`;
+                // C9 faceted teardrop bulb + warm halo + specular reflection
+                bulbs += `<g class="${cls}">`;
+                bulbs += `<circle cx="${bxStr}" cy="${bulbCenterY}" r="7.2" fill="${col}" fill-opacity="0.24"/>`;
+                bulbs += `<path d="M${(bx - 2.1).toFixed(1)} ${(by + 2.9).toFixed(1)} C${(bx - 4.4).toFixed(1)} ${(by + 6.2).toFixed(1)} ${(bx - 3.2).toFixed(1)} ${(by + 10.8).toFixed(1)} ${bxStr} ${tipY} C${(bx + 3.2).toFixed(1)} ${(by + 10.8).toFixed(1)} ${(bx + 4.4).toFixed(1)} ${(by + 6.2).toFixed(1)} ${(bx + 2.1).toFixed(1)} ${(by + 2.9).toFixed(1)} Z" fill="${col}" filter="url(#${fid})"/>`;
+                bulbs += `<ellipse cx="${(bx - 1.1).toFixed(1)}" cy="${(by + 6.3).toFixed(1)}" rx="0.95" ry="2.1" transform="rotate(-10 ${(bx - 1.1).toFixed(1)} ${(by + 6.3).toFixed(1)})" fill="#ffffff" fill-opacity="0.6"/>`;
+                bulbs += `</g></g></g>`;
+
+                bulbIdx++;
+            }
+
+            cursor = x1;
+            swagIdx++;
         }
 
         return (
-            `<svg width="100%" height="24" viewBox="0 0 ${w} 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">` +
-            `<defs><filter id="${fid}" x="-50%" y="-50%" width="200%" height="200%">` +
-            `<feGaussianBlur stdDeviation="1.1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>` +
-            `</filter></defs>${wires}${bulbs}</svg>`
+            `<svg width="100%" height="36" viewBox="0 0 ${w} 36" preserveAspectRatio="none" aria-hidden="true" focusable="false">` +
+            `<defs><filter id="${fid}" x="-60%" y="-60%" width="220%" height="220%">` +
+            `<feGaussianBlur stdDeviation="1.15" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>` +
+            `</filter></defs>${wires}${clips}${bulbs}</svg>`
         );
     }
 
