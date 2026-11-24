@@ -988,6 +988,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initTurnstileWidgets(siteKey) {
+        // Cloudflare Turnstile form widgets temporarily commented out
+        return;
+        /*
         const key = String(siteKey || getInitialTurnstileSiteKey() || '').trim();
         if (!key) return;
         stationEmailConfig.turnstileSiteKey = key;
@@ -1018,6 +1021,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => {
                 console.warn('[Station 46] Turnstile API unavailable:', err);
             });
+        */
     }
 
     function getFormTurnstileToken(form) {
@@ -1425,7 +1429,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Writes go through the Cloudflare Pages Function at /api/github, which holds the
     // GitHub token as a server-side secret. No credentials are stored in this file.
     const GITHUB_REPO = 'ZainHamdia/FireStation46';
+    const IS_LOCAL_PREVIEW = (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.protocol === 'file:'
+    );
     const GITHUB_PROXY = '/api/github';
+    const AUTH_PROXY = IS_LOCAL_PREVIEW ? 'https://mtvfc2.com/api/github' : GITHUB_PROXY;
 
     // Helper: Admin credentials for the current browser session (set at login)
     function getAdminCredentials() {
@@ -1530,8 +1540,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500);
     }
 
-    // Helper: Fetch raw text of a file (checks Cloudflare proxy first, then raw GitHub, then local file)
+    // Helper: Fetch raw text of a file (on local dev reads local branch files first; in production checks Cloudflare proxy → GitHub)
     async function fetchRawFile(filePath) {
+        if (IS_LOCAL_PREVIEW) {
+            try {
+                const localRes = await fetch(`${filePath}?t=${Date.now()}`, { cache: 'no-store' });
+                if (localRes.ok) {
+                    return await localRes.text();
+                }
+            } catch (e) {}
+        }
+
         // 1. Cloudflare proxy → GitHub API (always real-time, no cache delay)
         try {
             const apiRes = await fetch(`${GITHUB_PROXY}?path=${encodeURIComponent(filePath)}&t=${Date.now()}`, {
@@ -8537,7 +8556,7 @@ ${mainContentHtml}
 
             try {
                 // Credentials are verified server-side by the Cloudflare function (/api/github)
-                const res = await fetch(GITHUB_PROXY, {
+                const res = await fetch(AUTH_PROXY, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'login', username: u, password: p })
