@@ -4193,8 +4193,9 @@ document.addEventListener('DOMContentLoaded', () => {
             '.apparatus-card-remove-btn, .apparatus-card-admin-header, .apparatus-drag-placeholder, ' +
             '.apparatus-add-modal-overlay, .roster-admin-header, .roster-drag-placeholder, ' +
             '.slider-card-admin-controls, .stat-row-remove-btn, .station-image-change-btn, ' +
-            '.section-drag-handle, .section-drop-indicator, .section-drag-ghost-badge'
+            '.section-drag-handle, .section-drop-indicator, .section-drag-ghost-badge, .s46-xmas-strand'
         ).forEach(el => el.remove());
+        clone.querySelectorAll('.has-s46-xmas-lights').forEach(el => el.classList.remove('has-s46-xmas-lights'));
 
         // Restore official Instagram profile embed blockquote if Instagram rendered into an iframe
         clone.querySelectorAll('iframe.instagram-media').forEach(iframe => {
@@ -11609,6 +11610,10 @@ document.addEventListener('keydown', (e) => {
     }
 
     function buildBarInnerHtml(cfg, isPreview) {
+        const isFestiveGreen = (cfg.theme || 'green') === 'green';
+        const flakeHtml = isFestiveGreen
+            ? '<span class="santa-bar-flake" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line><line x1="19.07" y1="4.93" x2="4.93" y2="19.07"></line></svg></span>'
+            : '';
         const validLinks = (cfg.links || []).filter(l => l.label && sanitizeUrl(l.url));
         const linksHtml = validLinks.length > 0
             ? `<div class="santa-announcement-links">${validLinks.map(l => {
@@ -11617,11 +11622,14 @@ document.addEventListener('keydown', (e) => {
                 const targetAttr = (!isPreview && l.newTab) ? ' target="_blank" rel="noopener noreferrer"' : '';
                 const previewClick = isPreview ? ' onclick="return false;"' : '';
                 return `<a href="${safeHref}" class="${cls}"${targetAttr}${previewClick}>${esc(l.label)}</a>`;
-            }).join('')}</div>`
+            }).join('')}${flakeHtml}</div>`
             : '';
 
         const pulseHtml = cfg.showPulseDot ? '<span class="announcement-pulse-dot" aria-hidden="true"></span>' : '';
-        const iconHtml = cfg.icon ? `<span class="announcement-icon" aria-hidden="true">${esc(cfg.icon)}</span>` : '';
+        const hollyHtml = (!cfg.icon && isFestiveGreen)
+            ? '<span class="santa-bar-holly" aria-hidden="true"><svg width="20" height="16" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 11C9 7 4.5 6.5 2 8.5C3.5 11.5 6.5 13.5 11.5 12.5" fill="#4ade80" stroke="#14532d" stroke-width="1"/><path d="M12 11C15 7 19.5 6.5 22 8.5C20.5 11.5 17.5 13.5 12.5 12.5" fill="#22c55e" stroke="#14532d" stroke-width="1"/><circle cx="12" cy="11.5" r="2.2" fill="#ef4444"/><circle cx="9.8" cy="13.2" r="1.8" fill="#dc2626"/><circle cx="14.2" cy="13.2" r="1.8" fill="#dc2626"/></svg></span>'
+            : '';
+        const iconHtml = cfg.icon ? `<span class="announcement-icon" aria-hidden="true">${esc(cfg.icon)}</span>` : hollyHtml;
         const headlineHtml = cfg.headline ? `<strong>${esc(cfg.headline)}</strong>` : '';
         const messageHtml = cfg.message ? `<span class="announcement-message">${esc(cfg.message)}</span>` : '';
         const dismissHtml = cfg.dismissible
@@ -12100,3 +12108,355 @@ document.addEventListener('keydown', (e) => {
 
 
 
+/* ==========================================================================
+   Site-Wide Holiday Christmas Lights (Admin Toggleable via data/holiday_lights.json)
+   ========================================================================== */
+(function () {
+    const STORAGE_KEY = 'station46_holiday_lights_v1';
+    const REMOTE_PATH = 'data/holiday_lights.json';
+
+    const DEFAULT_CONFIG = {
+        enabled: true,
+        palette: 'classic',
+        twinkle: true,
+        locations: {
+            navbar: true,
+            sections: true,
+            footer: true
+        },
+        updatedAt: ''
+    };
+
+    const PALETTES = {
+        classic: ['#ef4444', '#fbbf24', '#22c55e', '#38bdf8', '#fef08a'],
+        firehouse: ['#ef4444', '#fde047', '#dc2626', '#fef3c7'],
+        warm: ['#fef3c7', '#fde68a', '#fffbeb', '#fcd34d']
+    };
+
+    let activeConfig = null;
+    let resizeTimer = null;
+    let filterSeq = 0;
+
+    function normalizeConfig(raw) {
+        const src = raw && typeof raw === 'object' ? raw : {};
+        const loc = src.locations && typeof src.locations === 'object' ? src.locations : {};
+        return {
+            enabled: src.enabled !== undefined ? Boolean(src.enabled) : DEFAULT_CONFIG.enabled,
+            palette: ['classic', 'firehouse', 'warm'].includes(src.palette) ? src.palette : 'classic',
+            twinkle: src.twinkle !== undefined ? Boolean(src.twinkle) : true,
+            locations: {
+                navbar: loc.navbar !== undefined ? Boolean(loc.navbar) : true,
+                sections: loc.sections !== undefined ? Boolean(loc.sections) : true,
+                footer: loc.footer !== undefined ? Boolean(loc.footer) : true
+            },
+            updatedAt: String(src.updatedAt || '')
+        };
+    }
+
+    function readLocalConfig() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) return normalizeConfig(JSON.parse(raw));
+        } catch (e) {}
+        return null;
+    }
+
+    async function fetchRemoteConfig() {
+        const local = readLocalConfig();
+        try {
+            let rawRemote = null;
+            if (window.fetchRemoteData) {
+                rawRemote = await window.fetchRemoteData(REMOTE_PATH);
+            }
+            if (!rawRemote) {
+                const res = await fetch(`${REMOTE_PATH}?t=${Date.now()}`, { cache: 'no-store' });
+                if (res.ok) rawRemote = await res.json();
+            }
+            if (rawRemote && typeof rawRemote === 'object') {
+                const remote = normalizeConfig(rawRemote);
+                const remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
+                const localTime = (local && local.updatedAt) ? new Date(local.updatedAt).getTime() : 0;
+                if (!local || remoteTime > localTime + 2000) {
+                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote)); } catch (e) {}
+                    return remote;
+                }
+                return local;
+            }
+        } catch (e) {}
+        return local || normalizeConfig(DEFAULT_CONFIG);
+    }
+
+    async function saveHolidayLightsConfig(rawCfg, commitMessage) {
+        const cfg = normalizeConfig(rawCfg);
+        cfg.updatedAt = new Date().toISOString();
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+        } catch (e) {}
+
+        let syncedGitHub = false;
+        if (window.syncToGitHub) {
+            try {
+                syncedGitHub = await window.syncToGitHub(
+                    REMOTE_PATH,
+                    cfg,
+                    commitMessage || (cfg.enabled ? 'Admin: Turn on Christmas lights' : 'Admin: Turn off Christmas lights')
+                );
+            } catch (e) {
+                console.warn('[Station 46] Holiday lights GitHub sync error:', e);
+            }
+        }
+        return { savedLocal: true, syncedGitHub: Boolean(syncedGitHub), config: cfg };
+    }
+
+    function isAdminPage() {
+        const seg = ((window.location.pathname || '').split('/').pop() || '').split('?')[0].split('#')[0].toLowerCase();
+        return seg === 'admin.html';
+    }
+
+    function buildStrandSvg(width, paletteName) {
+        const w = Math.max(Math.round(width || 1200), 280);
+        const step = 38;
+        const count = Math.ceil(w / step);
+        const colors = PALETTES[paletteName] || PALETTES.classic;
+        const classes = ['s46-bulb-a', 's46-bulb-b', 's46-bulb-c', 's46-bulb-d'];
+        const fid = 's46glow' + (++filterSeq);
+
+        let wires = '';
+        let bulbs = '';
+        for (let i = 0; i < count; i++) {
+            const x1 = i * step;
+            const x2 = x1 + step;
+            const xm = x1 + step / 2;
+            const sag = (i % 2 === 0) ? 9.5 : 8;
+            wires += `<path d="M${x1} 1.5 Q${xm} ${sag} ${x2} 1.5" stroke="#164e33" stroke-width="1.8" fill="none"/>`;
+
+            const col = colors[i % colors.length];
+            const cls = classes[i % classes.length];
+            const sockY = (sag * 0.52).toFixed(1);
+            const bulbCy = (Number(sockY) + 7.2).toFixed(1);
+            const tilt = ((i % 3) - 1) * 5;
+
+            bulbs += `<g transform="rotate(${tilt} ${xm} ${sockY})">`;
+            bulbs += `<rect x="${(xm - 2.2).toFixed(1)}" y="${sockY}" width="4.4" height="3.6" rx="0.9" fill="#1f2937" stroke="#374151" stroke-width="0.5"/>`;
+            bulbs += `<g class="${cls}">`;
+            bulbs += `<circle cx="${xm}" cy="${bulbCy}" r="6.5" fill="${col}" fill-opacity="0.26"/>`;
+            bulbs += `<ellipse cx="${xm}" cy="${bulbCy}" rx="3.4" ry="5.4" fill="${col}" filter="url(#${fid})"/>`;
+            bulbs += `<ellipse cx="${(xm - 1).toFixed(1)}" cy="${(Number(bulbCy) - 1.5).toFixed(1)}" rx="1" ry="2" fill="#ffffff" fill-opacity="0.55"/>`;
+            bulbs += `</g></g>`;
+        }
+
+        return (
+            `<svg width="100%" height="24" viewBox="0 0 ${w} 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">` +
+            `<defs><filter id="${fid}" x="-50%" y="-50%" width="200%" height="200%">` +
+            `<feGaussianBlur stdDeviation="1.1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>` +
+            `</filter></defs>${wires}${bulbs}</svg>`
+        );
+    }
+
+    function clearAllSiteStrands() {
+        document.querySelectorAll('.s46-xmas-strand:not([data-admin-preview="1"])').forEach(el => el.remove());
+        document.querySelectorAll('.has-s46-xmas-lights').forEach(el => el.classList.remove('has-s46-xmas-lights'));
+        document.body.classList.remove('s46-lights-active', 's46-lights-navbar', 's46-lights-twinkle');
+    }
+
+    function attachStrand(host, modifierClass, palette) {
+        if (!host) return;
+        host.classList.add('has-s46-xmas-lights');
+        const div = document.createElement('div');
+        div.className = `s46-xmas-strand ${modifierClass}`;
+        div.setAttribute('aria-hidden', 'true');
+        const width = host.clientWidth || window.innerWidth || 1200;
+        div.innerHTML = buildStrandSvg(width, palette);
+        host.appendChild(div);
+    }
+
+    function renderHolidayLights(rawCfg) {
+        const cfg = normalizeConfig(rawCfg || activeConfig || DEFAULT_CONFIG);
+        activeConfig = cfg;
+
+        clearAllSiteStrands();
+
+        if (isAdminPage()) return;
+        if (!cfg.enabled) return;
+
+        document.body.classList.add('s46-lights-active');
+        if (cfg.twinkle) {
+            document.body.classList.add('s46-lights-twinkle');
+        }
+
+        if (cfg.locations.navbar) {
+            const nav = document.querySelector('nav.navbar');
+            if (nav) {
+                attachStrand(nav, 's46-xmas-strand-navbar', cfg.palette);
+                document.body.classList.add('s46-lights-navbar');
+            }
+        }
+
+        if (cfg.locations.sections) {
+            const strip = document.querySelector('.station-strip');
+            if (strip) {
+                attachStrand(strip, 's46-xmas-strand-strip', cfg.palette);
+            }
+            document.querySelectorAll('.santa-promo-card').forEach(card => {
+                attachStrand(card, 's46-xmas-strand-card', cfg.palette);
+            });
+            document.querySelectorAll('main .section.dark-alt').forEach(sec => {
+                attachStrand(sec, 's46-xmas-strand-section', cfg.palette);
+            });
+        }
+
+        if (cfg.locations.footer) {
+            const footer = document.querySelector('footer');
+            if (footer) {
+                attachStrand(footer, 's46-xmas-strand-footer', cfg.palette);
+            }
+        }
+    }
+
+    function setupAdminHolidayLightsCard() {
+        const card = document.getElementById('admin-holiday-lights-card');
+        if (!card || card.dataset.bound === 'true') return;
+        card.dataset.bound = 'true';
+
+        let draft = normalizeConfig(readLocalConfig() || DEFAULT_CONFIG);
+
+        const statusPill = document.getElementById('admin-lights-status-pill');
+        const previewStage = document.getElementById('admin-lights-preview-stage');
+        const previewLabel = document.getElementById('admin-lights-preview-meta');
+        const onBtn = document.getElementById('admin-lights-on-btn');
+        const offBtn = document.getElementById('admin-lights-off-btn');
+        const paletteSelect = document.getElementById('admin-lights-palette-select');
+        const twinkleCheck = document.getElementById('admin-lights-twinkle-check');
+        const locNavCheck = document.getElementById('admin-lights-loc-navbar');
+        const locSecCheck = document.getElementById('admin-lights-loc-sections');
+        const locFootCheck = document.getElementById('admin-lights-loc-footer');
+        const saveBtn = document.getElementById('admin-lights-save-btn');
+        const quickOffBtn = document.getElementById('admin-lights-quick-off-btn');
+        const syncIndicator = document.getElementById('admin-lights-sync-indicator');
+
+        function renderAdminPreview() {
+            if (statusPill) {
+                if (draft.enabled) {
+                    statusPill.textContent = '🟢 LIGHTS ON';
+                    statusPill.style.background = 'rgba(21, 128, 61, 0.14)';
+                    statusPill.style.color = '#15803d';
+                } else {
+                    statusPill.textContent = '⚪ LIGHTS OFF';
+                    statusPill.style.background = 'rgba(100, 116, 139, 0.16)';
+                    statusPill.style.color = '#64748b';
+                }
+            }
+
+            if (onBtn) onBtn.classList.toggle('active', Boolean(draft.enabled));
+            if (offBtn) offBtn.classList.toggle('active', !draft.enabled);
+            if (paletteSelect) paletteSelect.value = draft.palette;
+            if (twinkleCheck) twinkleCheck.checked = Boolean(draft.twinkle);
+            if (locNavCheck) locNavCheck.checked = Boolean(draft.locations.navbar);
+            if (locSecCheck) locSecCheck.checked = Boolean(draft.locations.sections);
+            if (locFootCheck) locFootCheck.checked = Boolean(draft.locations.footer);
+
+            const paletteLabel = draft.palette === 'firehouse'
+                ? 'Firehouse Red & Gold'
+                : (draft.palette === 'warm' ? 'Warm White' : 'Classic Multicolor');
+            if (previewLabel) {
+                previewLabel.textContent = `${draft.enabled ? 'Active' : 'Turned Off'} • ${paletteLabel} • ${draft.twinkle ? 'Gentle Twinkle' : 'Steady Glow'}`;
+            }
+
+            if (previewStage) {
+                document.body.classList.toggle('s46-lights-twinkle', Boolean(draft.enabled && draft.twinkle));
+                if (draft.enabled) {
+                    const w = previewStage.clientWidth || 680;
+                    previewStage.innerHTML =
+                        `<div class="s46-xmas-strand" data-admin-preview="1" style="position:absolute;top:0;left:0;right:0;">${buildStrandSvg(w, draft.palette)}</div>` +
+                        `<span>Christmas lights are active on selected areas across the website.</span>`;
+                } else {
+                    previewStage.innerHTML = `<span>Christmas lights are currently turned off.</span>`;
+                }
+            }
+        }
+
+        async function publishLights(commitMsg) {
+            if (saveBtn) saveBtn.disabled = true;
+            if (syncIndicator) syncIndicator.textContent = 'Saving and syncing to GitHub...';
+            const res = await saveHolidayLightsConfig(draft, commitMsg);
+            draft = res.config;
+            if (saveBtn) saveBtn.disabled = false;
+            if (syncIndicator) {
+                syncIndicator.textContent = res.syncedGitHub
+                    ? '✅ Saved locally and published live to GitHub (data/holiday_lights.json).'
+                    : '💾 Saved in this browser. Log into Admin with GitHub configured to publish globally.';
+            }
+            if (window.showAdminToast) {
+                window.showAdminToast(
+                    res.syncedGitHub
+                        ? (draft.enabled ? '🎄 Christmas lights turned ON across the site!' : '⚪ Christmas lights turned OFF.')
+                        : `💾 Christmas lights ${draft.enabled ? 'enabled' : 'disabled'} locally.`
+                );
+            }
+            renderAdminPreview();
+        }
+
+        if (onBtn) onBtn.addEventListener('click', () => { draft.enabled = true; renderAdminPreview(); });
+        if (offBtn) offBtn.addEventListener('click', () => { draft.enabled = false; renderAdminPreview(); });
+        if (paletteSelect) paletteSelect.addEventListener('change', (e) => { draft.palette = e.target.value; renderAdminPreview(); });
+        if (twinkleCheck) twinkleCheck.addEventListener('change', (e) => { draft.twinkle = e.target.checked; renderAdminPreview(); });
+        if (locNavCheck) locNavCheck.addEventListener('change', (e) => { draft.locations.navbar = e.target.checked; renderAdminPreview(); });
+        if (locSecCheck) locSecCheck.addEventListener('change', (e) => { draft.locations.sections = e.target.checked; renderAdminPreview(); });
+        if (locFootCheck) locFootCheck.addEventListener('change', (e) => { draft.locations.footer = e.target.checked; renderAdminPreview(); });
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                publishLights(draft.enabled ? 'Admin: Enable & update Christmas lights' : 'Admin: Turn off Christmas lights');
+            });
+        }
+        if (quickOffBtn) {
+            quickOffBtn.addEventListener('click', () => {
+                draft.enabled = false;
+                renderAdminPreview();
+                publishLights('Admin: Turn off Christmas lights');
+            });
+        }
+
+        renderAdminPreview();
+        fetchRemoteConfig().then(remote => {
+            draft = remote;
+            renderAdminPreview();
+        }).catch(() => {});
+    }
+
+    function initHolidayLights() {
+        const cached = readLocalConfig();
+        renderHolidayLights(cached || DEFAULT_CONFIG);
+        fetchRemoteConfig().then(renderHolidayLights).catch(() => {});
+        setupAdminHolidayLightsCard();
+
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (activeConfig && activeConfig.enabled) {
+                    renderHolidayLights(activeConfig);
+                }
+            }, 180);
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE_KEY && e.newValue) {
+                try {
+                    renderHolidayLights(JSON.parse(e.newValue));
+                } catch (err) {}
+            }
+        });
+    }
+
+    window.Station46HolidayLights = {
+        getConfig: fetchRemoteConfig,
+        saveConfig: saveHolidayLightsConfig,
+        render: renderHolidayLights
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initHolidayLights);
+    } else {
+        initHolidayLights();
+    }
+})();

@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "palette": "classic",
+  "twinkle": true,
+  "locations": {
+    "navbar": true,
+    "sections": true,
+    "footer": true
+  },
+  "updatedAt": "2026-11-24T19:05:00.000Z"
+}

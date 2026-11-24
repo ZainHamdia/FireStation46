@@ -90,7 +90,7 @@
         })();
     </script>
     -->
-    <link rel="stylesheet" href="styles.css?v=140">
+    <link rel="stylesheet" href="styles.css?v=143">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer data-turnstile-api="true"></script>
 </head>
 <body>
@@ -475,6 +475,93 @@
                         </div>
                     </div>
 
+                    <!-- Holiday Christmas Lights Command Center -->
+                    <div class="glass-card" id="admin-holiday-lights-card" style="margin-bottom: 2rem; border-left: 5px solid #dc2626; padding: 1.75rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.15rem;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(220, 38, 38, 0.12); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">🎄</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.2rem; color: var(--navy-blue); font-weight: 800;">Holiday Christmas Lights</h3>
+                                    <p style="margin: 0; font-size: 0.84rem; color: var(--text-secondary);">Turn festive C9 string lights on or off across the navbar, page sections, Operation Santa card, and footer</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <span id="admin-lights-status-pill" style="font-size: 0.78rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: rgba(21, 128, 61, 0.14); color: #15803d;">🟢 LIGHTS ON</span>
+                                <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-admin-action" style="padding: 7px 14px; font-size: 0.82rem; height: auto;">👁️ Preview on Site</a>
+                            </div>
+                        </div>
+
+                        <!-- Live Strand Preview -->
+                        <div class="admin-lights-preview-box">
+                            <div class="admin-lights-preview-header">
+                                <span>Live Light Strand Preview</span>
+                                <span id="admin-lights-preview-meta" style="font-weight: 600; text-transform: none; letter-spacing: 0;">Active • Classic Multicolor • Gentle Twinkle</span>
+                            </div>
+                            <div class="admin-lights-preview-stage" id="admin-lights-preview-stage"></div>
+                        </div>
+
+                        <!-- Controls Grid -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: var(--navy-blue);">Christmas Lights Master Switch:</label>
+                                <div class="storm-toggle-group" style="max-width: 420px;">
+                                    <button type="button" class="storm-toggle-btn active" id="admin-lights-on-btn">
+                                        <span>🟢 Lights On</span>
+                                    </button>
+                                    <button type="button" class="storm-toggle-btn" id="admin-lights-off-btn">
+                                        <span>⚪ Lights Off</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="admin-lights-palette-select" style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: var(--navy-blue);">Bulb Color Style:</label>
+                                <select id="admin-lights-palette-select" style="width: 100%; padding: 9px 11px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-primary); font-size: 0.9rem;">
+                                    <option value="classic">Classic Multicolor (Red, Gold, Green, Blue, Warm White)</option>
+                                    <option value="firehouse">Firehouse Red &amp; Warm Gold</option>
+                                    <option value="warm">Warm White Glow</option>
+                                </select>
+                                <label style="display: inline-flex; align-items: center; gap: 7px; margin-top: 10px; font-size: 0.86rem; color: var(--text-secondary); cursor: pointer;">
+                                    <input type="checkbox" id="admin-lights-twinkle-check" checked style="accent-color: #15803d; width: 16px; height: 16px;">
+                                    <span>Gentle bulb twinkle animation</span>
+                                </label>
+                            </div>
+
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: var(--navy-blue);">Where Lights Appear:</label>
+                                <div style="display: flex; flex-direction: column; gap: 7px; font-size: 0.88rem; color: var(--text-secondary);">
+                                    <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" id="admin-lights-loc-navbar" checked style="accent-color: #15803d; width: 16px; height: 16px;">
+                                        <span>Top Navbar Eaves (All Pages)</span>
+                                    </label>
+                                    <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" id="admin-lights-loc-sections" checked style="accent-color: #15803d; width: 16px; height: 16px;">
+                                        <span>Page Sections &amp; Operation Santa Card</span>
+                                    </label>
+                                    <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" id="admin-lights-loc-footer" checked style="accent-color: #15803d; width: 16px; height: 16px;">
+                                        <span>Footer Eaves (All Pages)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save & Publish Action Bar -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid var(--border-light);">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <button type="button" id="admin-lights-save-btn" class="btn" style="background: linear-gradient(135deg, #15803d 0%, #166534 100%); color: #ffffff; font-weight: 800; font-size: 0.9rem; padding: 11px 22px; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                                    <span>💾 Save &amp; Publish Lights Setting</span>
+                                </button>
+                                <button type="button" id="admin-lights-quick-off-btn" class="btn btn-admin-action btn-admin-standby" style="padding: 10px 18px; font-size: 0.88rem; height: auto;">
+                                    <span>⏹️ Turn Off Lights</span>
+                                </button>
+                            </div>
+                            <div id="admin-lights-sync-indicator" style="font-size: 0.8rem; color: var(--text-secondary);">
+                                Syncs directly to <code>data/holiday_lights.json</code> via GitHub so all visitors see updates right away.
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Website Pages & Navigation Command Center -->
                     <div class="glass-card" id="admin-pages-management-card" style="margin-bottom: 2rem; border-left: 5px solid #2563eb; padding: 1.75rem;">
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
@@ -738,6 +825,6 @@
         <div class="theme-switch-tooltip" id="theme-switch-tooltip">Switch to Dark Mode</div>
     </div>
 
-    <script src="script.js?v=137"></script>
+    <script src="script.js?v=139"></script>
 </body>
 </html>

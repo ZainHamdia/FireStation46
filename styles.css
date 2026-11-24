@@ -12264,12 +12264,17 @@ a.strip-value:hover {
 .role-card.role-firefighter .role-badge-tag,
 .role-card.role-junior .role-badge-tag,
 .role-card.role-police .role-badge-tag,
-.role-card.role-associate .role-badge-tag {
-    background: transparent;
-    border: none;
-    padding: 0;
+.role-card.role-associate .role-badge-tag,
+:root[data-theme="dark"] .role-card .role-badge-tag,
+:root[data-theme="dark"] .role-card.role-firefighter .role-badge-tag,
+:root[data-theme="dark"] .role-card.role-junior .role-badge-tag,
+:root[data-theme="dark"] .role-card.role-police .role-badge-tag,
+:root[data-theme="dark"] .role-card.role-associate .role-badge-tag {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
     margin-bottom: 0.45rem;
-    color: var(--text-muted);
+    color: var(--text-muted) !important;
     font-family: var(--font-body);
     font-size: 0.78rem;
     font-weight: 700;
@@ -12278,11 +12283,11 @@ a.strip-value:hover {
 }
 
 .role-card.role-firefighter .role-badge-tag {
-    color: var(--fire-red);
+    color: var(--fire-red) !important;
 }
 
 :root[data-theme="dark"] .role-card.role-firefighter .role-badge-tag {
-    color: #f87171;
+    color: #f87171 !important;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -12468,4 +12473,165 @@ a.strip-value:hover {
     .strip-item:last-child {
         border-bottom: none;
     }
+}
+
+
+/* ==========================================================================
+   Site-Wide Holiday C9 Christmas Lights (Admin Toggleable)
+   ========================================================================== */
+
+.s46-xmas-strand {
+    display: block;
+    width: 100%;
+    height: 24px;
+    pointer-events: none;
+    user-select: none;
+    overflow: hidden;
+    line-height: 0;
+}
+
+/* Navbar eaves strand hangs right beneath the sticky navbar */
+.navbar {
+    overflow: visible;
+}
+
+.nav-dropdown-menu {
+    z-index: 1006;
+}
+
+.s46-xmas-strand-navbar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -20px;
+    height: 24px;
+    z-index: 997;
+}
+
+body.menu-open .s46-xmas-strand-navbar {
+    display: none;
+}
+
+body.s46-lights-navbar .santa-announcement-bar.announcement-pos-below-nav {
+    padding-top: 1.25rem;
+    padding-bottom: 0.5rem;
+}
+
+/* Section, strip, card & footer strands */
+.station-strip.has-s46-xmas-lights,
+.santa-promo-card.has-s46-xmas-lights,
+.section.dark-alt.has-s46-xmas-lights,
+footer.has-s46-xmas-lights {
+    position: relative;
+}
+
+.s46-xmas-strand-strip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -21px;
+    height: 24px;
+    z-index: 6;
+}
+
+.s46-xmas-strand-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 24px;
+    z-index: 6;
+}
+
+.santa-promo-card.has-s46-xmas-lights .santa-promo-photo-badge {
+    top: 26px;
+}
+
+.s46-xmas-strand-section {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 24px;
+    z-index: 5;
+}
+
+.s46-xmas-strand-footer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 24px;
+    z-index: 5;
+}
+
+@keyframes s46BulbTwinkleA {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.58; }
+}
+
+@keyframes s46BulbTwinkleB {
+    0%, 100% { opacity: 0.65; }
+    50% { opacity: 1; }
+}
+
+body.s46-lights-twinkle .s46-bulb-a {
+    animation: s46BulbTwinkleA 2.6s ease-in-out infinite;
+}
+
+body.s46-lights-twinkle .s46-bulb-b {
+    animation: s46BulbTwinkleB 3.1s ease-in-out infinite;
+}
+
+body.s46-lights-twinkle .s46-bulb-c {
+    animation: s46BulbTwinkleA 2.9s ease-in-out 0.9s infinite;
+}
+
+body.s46-lights-twinkle .s46-bulb-d {
+    animation: s46BulbTwinkleB 3.4s ease-in-out 0.5s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.s46-lights-twinkle .s46-bulb-a,
+    body.s46-lights-twinkle .s46-bulb-b,
+    body.s46-lights-twinkle .s46-bulb-c,
+    body.s46-lights-twinkle .s46-bulb-d {
+        animation: none !important;
+    }
+}
+
+/* Admin preview box for Holiday Lights */
+.admin-lights-preview-box {
+    position: relative;
+    background: linear-gradient(180deg, #121822 0%, #1c2533 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0 0 1rem 0;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+}
+
+.admin-lights-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #cbd5e1;
+    background: rgba(0, 0, 0, 0.28);
+    border-bottom: 2px solid var(--fire-red);
+}
+
+.admin-lights-preview-stage {
+    position: relative;
+    min-height: 44px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-top: 26px;
+    color: #94a3b8;
+    font-size: 0.82rem;
 }
