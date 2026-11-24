@@ -11910,11 +11910,21 @@ body.admin-edit-mode .card-img-placeholder:hover {
 .logo-text .subtitle {
     font-family: var(--font-body);
     font-size: 0.78rem;
-    color: var(--text-muted);
-    font-weight: 600;
+    color: var(--fire-red);
+    font-weight: 700;
     text-transform: none;
     letter-spacing: 0.15px;
     margin-top: 2px;
+}
+
+:root[data-theme="dark"] .logo-text .subtitle {
+    color: #e8656e;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .logo-text .subtitle {
+        color: #e8656e;
+    }
 }
 
 .nav-links {
